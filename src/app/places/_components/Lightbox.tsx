@@ -87,16 +87,27 @@ export function Lightbox({ images, index: initialIndex, isOpen, onClose }: Light
                     className="relative w-full h-full flex items-center justify-center p-4 md:p-12 overflow-hidden"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                             key={currentIndex}
                             initial={{ opacity: 0, scale: 0.9, x: 20 }}
                             animate={{ opacity: 1, scale: zoom, x: 0 }}
                             exit={{ opacity: 0, scale: 0.9, x: -20 }}
                             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="relative w-full h-full flex items-center justify-center pointer-events-none"
+                            drag={zoom === 1 ? "x" : false}
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={0.4}
+                            onDragEnd={(_, info) => {
+                                const swipeThreshold = 50;
+                                if (info.offset.x > swipeThreshold) {
+                                    prev();
+                                } else if (info.offset.x < -swipeThreshold) {
+                                    next();
+                                }
+                            }}
+                            className={`relative w-full h-full flex items-center justify-center ${zoom === 1 ? 'cursor-grab active:cursor-grabbing touch-pan-y' : 'cursor-zoom-out'}`}
                         >
-                            <div className="relative max-w-full max-h-full aspect-square md:aspect-video w-full h-full">
+                            <div className="relative max-w-full max-h-full aspect-square md:aspect-video w-full h-full pointer-events-none">
                                 <Image
                                     src={images[currentIndex]}
                                     alt={`Image ${currentIndex + 1}`}
@@ -128,12 +139,14 @@ export function Lightbox({ images, index: initialIndex, isOpen, onClose }: Light
                 )}
 
                 {/* ── Thumbnails ──────────────────────────────────────────────── */}
-                <div className="absolute bottom-6 inset-x-0 flex justify-center gap-2 px-6 overflow-x-auto hide-scrollbar z-10">
+                <div className="absolute bottom-6 inset-x-0 flex justify-center gap-3 px-6 py-4 overflow-x-auto hide-scrollbar z-10">
                     {images.map((img, i) => (
                         <button
                             key={i}
                             onClick={(e) => { e.stopPropagation(); setCurrentIndex(i); setZoom(1); }}
-                            className={`relative w-16 h-12 rounded-lg overflow-hidden border-2 transition-all shrink-0 ${i === currentIndex ? 'border-primary-500 scale-110 shadow-lg shadow-primary-500/20' : 'border-white/10 opacity-50 hover:opacity-100'
+                            className={`relative w-14 h-14 md:w-16 md:h-12 rounded-2xl overflow-hidden border-2 transition-all shrink-0 ${i === currentIndex
+                                ? 'border-primary scale-110 shadow-lg shadow-primary/40 z-10'
+                                : 'border-white/10 opacity-50 hover:opacity-100 z-0'
                                 }`}
                         >
                             <Image src={img} alt="" fill className="object-cover" />

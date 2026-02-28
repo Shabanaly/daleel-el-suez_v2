@@ -3,28 +3,36 @@
 import { motion } from 'framer-motion';
 import { Ship, Anchor, Waves, Info, Sparkles, ShieldCheck, Zap, Heart } from 'lucide-react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 const SUEZ_HIGHLIGHTS = [
-    { title: "قناة السويس", description: "شريان الحياة العالمي وأهم ممر ملاحي في العالم.", icon: <Ship className="w-5 h-5 text-blue-500" /> },
+    { title: "قناة السويس", description: "شريان الحياة العالمي وأهم ممر ملاحي في العالم.", icon: <Ship className="w-5 h-5 text-primary" /> },
     { title: "بورتوفيق", description: "جمال الميناء التاريخي والمنظر الخلاب للقناة.", icon: <Anchor className="w-5 h-5 text-accent" /> },
-    { title: "العين السخنة", description: "أجمل الشواطئ والمنتجعات السياحية العالمية.", icon: <Waves className="w-5 h-5 text-cyan-500" /> },
+    { title: "العين السخنة", description: "أجمل الشواطئ والمنتجعات السياحية العالمية.", icon: <Waves className="w-5 h-5 text-primary" /> },
 ];
 
 const OUR_SERVICES = [
     { title: "دليل الأماكن", icon: <Info className="w-4 h-4" /> },
-    { title: "سوق السويس", icon: <Sparkles className="w-4 h-4" /> },
-    { title: "مجتمع تفاعلي", icon: <Heart className="w-4 h-4" /> },
+    // { title: "سوق السويس", icon: <Sparkles className="w-4 h-4" /> },
+    // { title: "مجتمع تفاعلي", icon: <Heart className="w-4 h-4" /> },
     { title: "توثيق معتمد", icon: <ShieldCheck className="w-4 h-4" /> },
 ];
 
 export default function LeftSidebar() {
+    const pathname = usePathname();
+    const isAuthPage = pathname === '/login' || pathname === '/signup';
+
+    if (isAuthPage) return null;
+
     return (
-        <aside className="hidden xl:flex fixed top-[72px] left-0 z-40 w-72 h-[calc(100vh-72px)] flex-col bg-surface/50 dark:bg-base/50 backdrop-blur-2xl border-r border-border-subtle shadow-[-20px_0_50px_rgba(0,0,0,0.1)]">
-            <div className="flex flex-col gap-6 p-6 h-full overflow-y-auto custom-scrollbar">
+
+        <aside className="hidden xl:flex fixed top-[72px] left-0 z-40 w-72 h-[calc(100vh-72px)] flex-col bg-surface/50 dark:bg-background/50 backdrop-blur-2xl border-r border-border-subtle shadow-[-20px_0_50px_rgba(0,0,0,0.1)]">
+
+            <div className="flex flex-col gap-4 p-4 h-full overflow-y-auto custom-scrollbar">
 
                 {/* Suez Highlights Animated Section */}
                 <section>
-                    <div className="flex items-center gap-2 mb-4 px-2">
+                    <div className="flex items-center gap-1 mb-3 px-2">
                         <Zap className="w-4 h-4 text-accent animate-pulse" />
                         <h2 className="text-[10px] font-black uppercase tracking-widest text-text-muted/60">اكتشف السويس</h2>
                     </div>
@@ -39,7 +47,7 @@ export default function LeftSidebar() {
                                 className="group p-4 rounded-2xl bg-elevated/40 border border-accent/20 hover:border-accent/40 shadow-[0_0_12px_rgba(234,179,8,0.05)] transition-all hover:bg-elevated cursor-default"
                             >
                                 <div className="flex items-start gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-base border border-border-subtle flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <div className="w-8 h-8 rounded-lg bg-background border border-border-subtle flex items-center justify-center group-hover:scale-110 transition-transform">
                                         {item.icon}
                                     </div>
                                     <div>
@@ -54,8 +62,8 @@ export default function LeftSidebar() {
 
                 {/* Services Section */}
                 <section>
-                    <div className="flex items-center gap-2 mb-4 px-2">
-                        <Sparkles className="w-4 h-4 text-primary-500" />
+                    <div className="flex items-center gap-2 mb-3 px-2">
+                        <Sparkles className="w-4 h-4 text-primary" />
                         <h2 className="text-[10px] font-black uppercase tracking-widest text-text-muted/60">خدمات الدليل</h2>
                     </div>
 
@@ -64,9 +72,9 @@ export default function LeftSidebar() {
                             <motion.div
                                 key={index}
                                 whileHover={{ scale: 1.05 }}
-                                className="p-3 rounded-xl bg-base border border-border-subtle flex flex-col items-center gap-2 text-center group transition-colors hover:border-primary-500/30"
+                                className="p-3 rounded-xl bg-background border border-border-subtle flex flex-col items-center gap-2 text-center group transition-colors hover:border-primary/30"
                             >
-                                <div className="w-8 h-8 rounded-full bg-primary-500/10 text-primary-500 flex items-center justify-center group-hover:bg-primary-500 group-hover:text-white transition-all">
+                                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
                                     {service.icon}
                                 </div>
                                 <span className="text-[10px] font-bold text-text-secondary group-hover:text-text-primary">{service.title}</span>
@@ -80,7 +88,7 @@ export default function LeftSidebar() {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="relative rounded-2xl p-4 bg-linear-to-br from-primary-600 to-accent text-white overflow-hidden group shadow-lg shadow-primary-500/20"
+                        className="relative rounded-2xl p-4 bg-linear-to-br from-primary to-accent text-white overflow-hidden group shadow-lg shadow-primary/20"
                     >
                         {/* Decorative Background Pattern */}
                         <div className="absolute inset-0 opacity-10 pointer-events-none">

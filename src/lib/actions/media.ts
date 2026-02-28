@@ -3,7 +3,7 @@
 import cloudinary from '@/lib/cloudinary';
 import { createClient } from '@/lib/supabase/server';
 
-export async function getCloudinarySignature() {
+export async function getCloudinarySignature(folder?: string) {
     // 🔐 Ensure the user is authenticated
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -13,11 +13,17 @@ export async function getCloudinarySignature() {
     }
 
     const timestamp = Math.round(new Date().getTime() / 1000);
+    const params: any = {
+        timestamp,
+        upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
+    };
+
+    if (folder) {
+        params.folder = folder;
+    }
+
     const signature = cloudinary.utils.api_sign_request(
-        {
-            timestamp,
-            upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
-        },
+        params,
         process.env.API_SECRET!
     );
 
@@ -27,6 +33,7 @@ export async function getCloudinarySignature() {
         cloudName: process.env.CLOUDINARY_CLOUD_NAME,
         apiKey: process.env.CLOUDINARY_API_KEY,
         uploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET,
+        folder,
     };
 }
 

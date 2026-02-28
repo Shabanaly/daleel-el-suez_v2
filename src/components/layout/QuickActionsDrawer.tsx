@@ -3,6 +3,10 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, MapPin, Store, Users, Settings, LogOut, Info, Heart, Share2 } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useAuthModal } from '@/hooks/useAuthModal';
 import { logout } from '@/lib/actions/auth';
 
 interface QuickActionsDrawerProps {
@@ -11,6 +15,43 @@ interface QuickActionsDrawerProps {
 }
 
 export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDrawerProps) {
+    const pathname = usePathname();
+    const [user, setUser] = useState<any>(null);
+    const supabase = createClient();
+    const { openModal } = useAuthModal();
+
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user ?? null);
+        };
+        getUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, [supabase]);
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+    }, [isOpen]);
+
+    const handleProtectedAction = (e: React.MouseEvent, href: string) => {
+        if (!user) {
+            e.preventDefault();
+            onClose();
+            openModal();
+        } else {
+            onClose();
+        }
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -21,7 +62,7 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm xl:hidden"
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-100"
                     />
 
                     {/* Drawer Content */}
@@ -30,12 +71,12 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="fixed bottom-0 left-0 right-0 z-101 px-4 pb-10 xl:hidden"
+                        className="fixed inset-x-0 bottom-0 bg-surface rounded-t-[32px] pb-safe z-101 border-t border-border-subtle shadow-2xl overflow-hidden"
                     >
-                        <div className="bg-surface/90 dark:bg-base/95 backdrop-blur-2xl rounded-[32px] border border-border-subtle shadow-[0_-20px_50px_rgba(0,0,0,0.3)] overflow-hidden">
+                        <div className="bg-surface/90 dark:bg-background/95 backdrop-blur-2xl rounded-[32px] border border-border-subtle shadow-[0_-20px_50px_rgba(0,0,0,0.3)] overflow-hidden">
                             {/* Handle Bar */}
                             <div className="flex justify-center py-4">
-                                <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+                                <div className="w-12 h-1.5 bg-text-muted/20 rounded-full" />
                             </div>
 
                             {/* Header */}
@@ -43,7 +84,7 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                 <h3 className="text-xl font-black text-text-primary tracking-tight">الوصول السريع</h3>
                                 <button
                                     onClick={onClose}
-                                    className="w-10 h-10 flex items-center justify-center rounded-full bg-elevated/50 border border-border-subtle text-text-muted hover:text-text-primary transition-colors"
+                                    className="w-10 h-10 flex items-center justify-center rounded-full bg-elevated/50 border border-border-subtle text-text-muted hover:text-text-primary transition-colors cursor-pointer"
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
@@ -55,59 +96,67 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                     href="/places/add"
                                     icon={<Plus className="w-6 h-6" />}
                                     label="أضف مكان"
-                                    color="bg-primary-500"
-                                    onClick={onClose}
+                                    color="bg-primary"
+                                    onClick={(e) => handleProtectedAction(e, '/places/add')}
                                 />
                                 <ActionItem
                                     href="/places"
                                     icon={<MapPin className="w-6 h-6" />}
                                     label="استكشف"
-                                    color="bg-blue-500"
+                                    color="bg-primary"
                                     onClick={onClose}
                                 />
-                                <ActionItem
+                                {/* <ActionItem
                                     href="/market"
                                     icon={<Store className="w-6 h-6" />}
                                     label="السوق"
                                     color="bg-accent"
-                                    onClick={onClose}
-                                />
+                                    onClick={(e) => handleProtectedAction(e, '/market')}
+                                /> */}
                                 <ActionItem
                                     href="#"
                                     icon={<Heart className="w-6 h-6" />}
                                     label="المفضلة"
-                                    color="bg-pink-500"
-                                    onClick={onClose}
+                                    color="bg-accent"
+                                    onClick={(e) => handleProtectedAction(e, '/favorites')}
                                 />
-                                <ActionItem
+                                {/* <ActionItem
                                     href="/community"
                                     icon={<Users className="w-6 h-6" />}
                                     label="المجتمع"
-                                    color="bg-purple-500"
-                                    onClick={onClose}
-                                />
+                                    color="bg-primary"
+                                    onClick={(e) => handleProtectedAction(e, '/community')}
+                                /> */}
                                 <ActionItem
                                     href="#"
                                     icon={<Share2 className="w-6 h-6" />}
                                     label="مشاركة"
-                                    color="bg-green-500"
+                                    color="bg-accent"
                                     onClick={onClose}
                                 />
                             </div>
 
                             {/* Bottom Links List */}
                             <div className="px-6 pb-6 pt-2 space-y-2">
-                                <ListLink icon={<Settings className="w-5 h-5" />} label="إعدادات الحساب" href="#" onClick={onClose} />
+                                <ListLink icon={<Settings className="w-5 h-5" />} label="إعدادات الحساب" href="#" onClick={(e) => handleProtectedAction(e, '#')} />
                                 <ListLink icon={<Info className="w-5 h-5" />} label="عن دليل السويس" href="#" onClick={onClose} />
-                                <button
-                                    onClick={() => { logout(); onClose(); }}
-                                    className="w-full flex items-center justify-between p-4 rounded-2xl bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 text-red-500 transition-all font-bold group"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                                        <span>تسجيل الخروج</span>
-                                    </div>
-                                </button>
+                                {user && (
+                                    <button
+                                        onClick={async () => {
+                                            setUser(null);
+                                            await supabase.auth.signOut();
+                                            await logout();
+                                            onClose();
+                                        }}
+                                        className="w-full flex items-center justify-between p-4 rounded-2xl bg-accent/5 hover:bg-accent/10 border border-accent/10 text-accent transition-all font-bold group cursor-pointer"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                                            <span>تسجيل الخروج</span>
+                                        </div>
+                                    </button>
+                                )}
+
                             </div>
                         </div>
                     </motion.div>
@@ -117,7 +166,19 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
     );
 }
 
-function ActionItem({ href, icon, label, color, onClick }: { href: string; icon: React.ReactNode; label: string; color: string; onClick: () => void }) {
+function ActionItem({
+    href,
+    icon,
+    label,
+    color,
+    onClick
+}: {
+    href: string;
+    icon: React.ReactNode;
+    label: string;
+    color: string;
+    onClick: (e: React.MouseEvent) => void
+}) {
     return (
         <Link
             href={href}
@@ -132,18 +193,28 @@ function ActionItem({ href, icon, label, color, onClick }: { href: string; icon:
     );
 }
 
-function ListLink({ icon, label, href, onClick }: { icon: React.ReactNode; label: string; href: string; onClick: () => void }) {
+function ListLink({
+    icon,
+    label,
+    href,
+    onClick
+}: {
+    icon: React.ReactNode;
+    label: string;
+    href: string;
+    onClick: (e: React.MouseEvent) => void;
+}) {
     return (
         <Link
             href={href}
             onClick={onClick}
-            className="w-full flex items-center justify-between p-4 rounded-2xl bg-elevated/50 hover:bg-elevated border border-border-subtle text-text-primary hover:shadow-lg transition-all font-bold group"
+            className="w-full flex items-center justify-between p-4 rounded-2xl bg-elevated hover:bg-elevated/80 border border-border-subtle text-text-primary hover:shadow-lg transition-all font-bold group"
         >
             <div className="flex items-center gap-3">
-                <span className="text-primary-500">{icon}</span>
+                <span className="text-primary">{icon}</span>
                 <span>{label}</span>
             </div>
-            <div className="w-8 h-8 flex items-center justify-center rounded-full bg-base border border-border-subtle group-hover:bg-primary-500 group-hover:text-white transition-all">
+            <div className="w-8 h-8 flex items-center justify-center rounded-full bg-background border border-border-subtle group-hover:bg-primary group-hover:text-white transition-all">
                 <Plus className="w-4 h-4 rotate-45" />
             </div>
         </Link>

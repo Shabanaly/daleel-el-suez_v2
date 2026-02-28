@@ -4,60 +4,81 @@ import { motion } from 'framer-motion';
 import { Map } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-const DISTRICTS = [
-    { id: 'arbaeen', name: 'حي الأربعين', count: '١٢٠+ مكان', color: 'from-primary-600/20 to-primary-700/5' },
-    { id: 'faisal', name: 'حي فيصل', count: '٨٥+ مكان', color: 'from-accent/20 to-accent/5' },
-    { id: 'attaka', name: 'حي عتاقة', count: '٤٥+ مكان', color: 'from-primary-500/15 to-primary-800/5' },
-    { id: 'suez', name: 'حي السويس', count: '٩٣+ مكان', color: 'from-[#0e7490]/20 to-[#0e7490]/5' },
-    { id: 'ganayen', name: 'حي الجناين', count: '٣٤+ مكان', color: 'from-[#b45309]/20 to-[#b45309]/5' },
-];
-
-export default function DistrictsExplorer() {
+export default function DistrictsExplorer({ districts }: { districts: any[] }) {
     const router = useRouter();
 
     const handleDistrictClick = (name: string) => {
-        router.push(`/places?area=${encodeURIComponent(name)}`);
+        router.push(`/places?district=${encodeURIComponent(name)}`);
     };
 
+    if (!districts || districts.length === 0) return null;
+
     return (
-        <section className="w-full max-w-5xl mx-auto px-4 py-16 mb-10 relative">
-            <div className="text-center mb-12 relative z-10">
+        <section className="w-full py-6 md:py-16 mb-6 md:mb-10 overflow-hidden relative border-t border-border-subtle/30">
+            {/* Header */}
+            <div className="max-w-6xl mx-auto px-4 mb-8 md:mb-14 flex flex-col items-center">
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary-600/10 border border-primary-600/20 shadow-[0_0_15px_rgba(8,145,178,0.15)] mb-4"
+                    className="flex items-center gap-2 mb-3"
                 >
-                    <Map className="w-7 h-7 text-primary-500" />
+                    <div className="w-8 h-px bg-primary/30" />
+                    <Map className="w-4 h-4 text-primary/70" />
+                    <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.25em]">أحياء السويس</span>
+                    <div className="w-8 h-px bg-primary/30" />
                 </motion.div>
-                <h2 className="text-3xl md:text-4xl font-black text-text-primary mb-3 tracking-tight">استكشف حيك</h2>
-                <p className="text-text-muted text-lg">دليلك لكل الأماكن في مناطق وأحياء السويس</p>
+                <h2 className="text-3xl md:text-5xl font-black text-text-primary tracking-tight text-center">استكشف حيك الآن</h2>
             </div>
 
-            <div className="flex overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-5 gap-4 md:gap-5 relative z-10 pb-6">
-                {DISTRICTS.map((district, idx) => (
-                    <motion.div
-                        key={district.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: idx * 0.1 }}
-                        onClick={() => handleDistrictClick(district.name)}
-                        className={`min-w-[150px] md:min-w-0 flex-1 group cursor-pointer`}
-                    >
-                        <div className="p-px rounded-[30px] bg-linear-to-b from-border-subtle to-transparent transition-all duration-300 group-hover:from-primary-500/40 group-hover:shadow-[0_0_20px_rgba(8,145,178,0.2)]">
-                            <div className={`h-40 md:h-48 flex flex-col items-center justify-center p-6 text-center rounded-[30px] bg-linear-to-b ${district.color} bg-surface group-hover:-translate-y-2 transition-all duration-300 relative overflow-hidden`}>
+            {/* Scroll Container */}
+            <div className="relative w-full group">
+                {/* Scroll Gradients/Shadows */}
+                <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-linear-to-r from-base to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-linear-to-l from-base to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                                {/* Inner top glow effect */}
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-primary-400 opacity-15 rounded-b-full" />
+                <div
+                    className="flex overflow-x-auto md:overflow-x-visible hide-scrollbar gap-4 md:gap-6 px-6 md:px-4 pb-8 md:pb-0 scroll-smooth snap-x snap-mandatory md:justify-center"
+                >
+                    {districts.map((district: any, idx: number) => (
+                        <motion.div
+                            key={district.id}
+                            initial={{ opacity: 0, scale: 0.9, x: 20 }}
+                            whileInView={{ opacity: 1, scale: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: idx * 0.1 }}
+                            onClick={() => handleDistrictClick(district.name)}
+                            whileHover={{ y: -8, scale: 1.02 }}
+                            whileTap={{ scale: 0.96 }}
+                            className="shrink-0 snap-center first:ms-4 last:me-4 md:first:ms-0 md:last:me-0"
+                        >
+                            <div className="w-32 h-40 md:w-44 md:h-56 rounded-[32px] md:rounded-[40px] border border-border-subtle bg-surface/40 backdrop-blur-md p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 hover:border-primary/40 hover:bg-surface hover:shadow-[0_20px_50px_rgba(var(--primary-rgb),0.12)] cursor-pointer select-none relative overflow-hidden group/card">
+                                {/* Subtle internal glow */}
+                                <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
 
-                                <h3 className="text-lg md:text-xl font-bold text-text-primary mb-2 drop-shadow-md tracking-wide">{district.name}</h3>
-                                <span className="text-sm font-medium text-accent bg-accent/10 px-3 py-1 rounded-full">{district.count}</span>
+                                <div className="text-3xl md:text-4xl mb-3 md:mb-4 transform group-hover/card:scale-110 transition-transform duration-500">
+                                    {district.icon}
+                                </div>
+                                <h3 className="text-sm md:text-lg font-black text-text-primary mb-1 md:mb-2 text-center leading-tight">
+                                    {district.name.replace('حي ', '')}
+                                </h3>
+                                <div className="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] md:text-xs font-bold ring-1 ring-primary/20">
+                                    {district.count}
+                                </div>
                             </div>
-                        </div>
-                    </motion.div>
-                ))}
+                        </motion.div>
+                    ))}
+                </div>
             </div>
+
+            {/* Hint */}
+            <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 0.5 }}
+                className="text-center text-[10px] font-medium text-text-muted mt-2 md:hidden italic"
+            >
+                اسحب لليسار للاستكشاف المزيد ←
+            </motion.p>
         </section>
     );
 }

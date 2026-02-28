@@ -23,7 +23,7 @@
 
 ### ألوان الخلفية - Dark Mode
 ```css
---color-bg-base:    #0a0f1e;   /* خلفية الصفحة الرئيسية */
+--color-bg-background:    #0a0f1e;   /* خلفية الصفحة الرئيسية */
 --color-bg-surface: #111827;   /* خلفية الكاردات */
 --color-bg-elevated:#1e2a3a;   /* كاردات أعلى */
 ```

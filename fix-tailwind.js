@@ -14,7 +14,7 @@ const replaceRules = [
     { from: /bg-\[\#087cf7\]/g, to: 'bg-primary-500' },
     { from: /from-\[\#0d1b2e\]/g, to: 'from-surface' },
     { from: /bg-\[\#0d1b2e\]/g, to: 'bg-surface' },
-    { from: /bg-\[\#050c1a\]/g, to: 'bg-base' },
+    { from: /bg-\[\#050c1a\]/g, to: 'bg-background' },
     { from: /border-\[\#050c1a\]/g, to: 'border-base' },
     { from: /bg-\[\#1e2a3a\]/g, to: 'bg-elevated' },
     { from: /to-\[\#9ccafc\]/g, to: 'to-primary-200' },
