@@ -5,7 +5,7 @@ import { X, Plus, MapPin, Store, Users, Settings, LogOut, Info, Heart, Share2 } 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { useAuthModal } from '@/hooks/useAuthModal';
 import { logout } from '@/lib/actions/auth';
 
@@ -16,23 +16,8 @@ interface QuickActionsDrawerProps {
 
 export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDrawerProps) {
     const pathname = usePathname();
-    const [user, setUser] = useState<any>(null);
-    const supabase = createClient();
+    const { user, logout: authLogout } = useAuth();
     const { openModal } = useAuthModal();
-
-    useEffect(() => {
-        const getUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setUser(session?.user ?? null);
-        };
-        getUser();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
-            setUser(session?.user ?? null);
-        });
-
-        return () => subscription.unsubscribe();
-    }, [supabase]);
 
     useEffect(() => {
         if (isOpen) {
@@ -143,8 +128,7 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                 {user && (
                                     <button
                                         onClick={async () => {
-                                            setUser(null);
-                                            await supabase.auth.signOut();
+                                            await authLogout();
                                             await logout();
                                             onClose();
                                         }}

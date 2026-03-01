@@ -4,30 +4,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Home, MapPin, Store, Users, Plus } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { useAuthModal } from '@/hooks/useAuthModal';
 import QuickActionsDrawer from './QuickActionsDrawer';
 
 export default function BottomNav() {
     const pathname = usePathname();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [user, setUser] = useState<any>(null);
-    const supabase = createClient();
+    const { user } = useAuth();
     const { openModal } = useAuthModal();
-
-    useEffect(() => {
-        const getUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setUser(session?.user ?? null);
-        };
-        getUser();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
-            setUser(session?.user ?? null);
-        });
-
-        return () => subscription.unsubscribe();
-    }, [supabase]);
 
     const isAuthPage = pathname === '/login' || pathname === '/signup';
     const isPlaceDetailsPage = pathname?.startsWith('/places/') && pathname.split('/').length === 3;

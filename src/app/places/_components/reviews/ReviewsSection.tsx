@@ -6,7 +6,7 @@ import { ReviewItem } from './ReviewItem';
 import { ReviewForm } from './ReviewForm';
 import { MessageSquare, Plus, X, Edit3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { useDialog } from '@/components/providers/DialogProvider';
 import { useAuthModal } from '@/hooks/useAuthModal';
 
@@ -21,7 +21,8 @@ export function ReviewsSection({ placeId, initialReviewsCount, initialReviews }:
     const [totalCount, setTotalCount] = useState(initialReviewsCount);
     const [isLoading, setIsLoading] = useState(!initialReviews);
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [currentUserId, setCurrentUserId] = useState<string | undefined>();
+    const { user } = useAuth();
+    const currentUserId = user?.id;
     const [userReview, setUserReview] = useState<any | null>(null);
     const [editingReview, setEditingReview] = useState<any | null>(null);
     const [showAll, setShowAll] = useState(false);
@@ -42,12 +43,6 @@ export function ReviewsSection({ placeId, initialReviewsCount, initialReviews }:
     };
 
     useEffect(() => {
-        const supabase = createClient();
-        supabase.auth.getSession().then((res: any) => {
-            const session = res.data?.session;
-            setCurrentUserId(session?.user?.id);
-        });
-
         setShowAll(false);
         fetchReviews(!!initialReviews);
     }, [placeId]);
