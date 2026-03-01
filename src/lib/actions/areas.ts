@@ -191,5 +191,9 @@ export async function getOrCreateArea(areaName: string, districtId: number): Pro
         throw new Error('فشل إضافة المنطقة الجديدة');
     }
 
+    // Revalidate areas cache
+    const { revalidateTag } = await import('next/cache');
+    revalidateTag('areas', 'max');
+
     return newArea.id;
 }

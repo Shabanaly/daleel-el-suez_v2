@@ -3,6 +3,8 @@ import { getPlaceBySlug, getRelatedPlaces } from '@/lib/actions/places';
 import { getReviews } from '@/lib/actions/reviews';
 import { PlaceDetailsClient } from '../_components/PlaceDetailsClient';
 import { ViewTracker } from '@/components/places/ViewTracker';
+import { isItemFavorite } from '@/lib/actions/favorites';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function PlaceDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
     const resolvedParams = await params;
@@ -13,9 +15,13 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
         notFound();
     }
 
-    const [relatedPlaces, initialReviewsData] = await Promise.all([
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const [relatedPlaces, initialReviewsData, favoriteStatus] = await Promise.all([
         getRelatedPlaces(place.category, place.id),
-        getReviews(place.id, 1, 5)
+        getReviews(place.id, 1, 5),
+        user ? isItemFavorite(place.id, 'place') : false
     ]);
 
     return (
@@ -25,6 +31,7 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
                 place={place}
                 relatedPlaces={relatedPlaces}
                 initialReviews={initialReviewsData.reviews}
+                isFavorite={favoriteStatus}
             />
         </>
     );

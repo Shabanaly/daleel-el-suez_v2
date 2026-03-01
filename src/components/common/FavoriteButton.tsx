@@ -1,0 +1,114 @@
+'use client';
+
+import { useState } from 'react';
+import { Heart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toggleFavorite } from '@/lib/actions/favorites';
+import { useAuth } from '@/hooks/useAuth';
+import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
+import { useDialog } from '@/components/providers/DialogProvider';
+import { useRouter } from 'next/navigation';
+
+interface FavoriteButtonProps {
+    itemId: string;
+    itemType: 'place' | 'listing';
+    initialIsFavorite?: boolean;
+    size?: 'sm' | 'md' | 'lg';
+    className?: string;
+}
+
+export function FavoriteButton({
+    itemId,
+    itemType,
+    initialIsFavorite = false,
+    size = 'md',
+    className = ''
+}: FavoriteButtonProps) {
+    const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const { user } = useAuth();
+    const { showAlert } = useDialog();
+    const router = useRouter();
+
+    const handleToggle = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!user) {
+            setIsAuthModalOpen(true);
+            return;
+        }
+
+        if (isLoading) return;
+
+        // Optimistic UI update
+        setIsFavorite(!isFavorite);
+        setIsLoading(true);
+
+        try {
+            const result = await toggleFavorite(itemId, itemType);
+            if (result.error) {
+                // Rollback if error
+                setIsFavorite(isFavorite);
+                showAlert({
+                    title: 'خطأ',
+                    message: result.error,
+                    type: 'error'
+                });
+            } else if (result.success) {
+                setIsFavorite(result.isFavorite!);
+            }
+        } catch (error) {
+            setIsFavorite(isFavorite);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const getSizeClasses = () => {
+        switch (size) {
+            case 'sm': return 'w-8 h-8 rounded-lg';
+            case 'lg': return 'w-12 h-12 md:w-16 md:h-16 rounded-2xl';
+            default: return 'w-10 h-10 rounded-xl';
+        }
+    };
+
+    const getIconSize = () => {
+        switch (size) {
+            case 'sm': return 'w-4 h-4';
+            case 'lg': return 'w-5 h-5 md:w-7 md:h-7';
+            default: return 'w-5 h-5';
+        }
+    };
+
+    return (
+        <>
+            <button
+                onClick={handleToggle}
+                disabled={isLoading}
+                className={`flex items-center justify-center border transition-all duration-300 shrink-0 ${isFavorite
+                        ? 'bg-accent text-white border-accent shadow-lg shadow-accent/25'
+                        : 'bg-surface text-text-muted border-border-subtle hover:border-accent/50 hover:text-accent'
+                    } ${getSizeClasses()} ${className} ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
+                aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+            >
+                <motion.div
+                    animate={isFavorite ? { scale: [1, 1.3, 1] } : {}}
+                    transition={{ duration: 0.3 }}
+                >
+                    <Heart
+                        className={`${getIconSize()} ${isFavorite ? 'fill-current' : ''}`}
+                    />
+                </motion.div>
+            </button>
+
+            <AuthRequiredModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                title="تنبيه"
+                description="يجب تسجيل الدخول لإضافة الأماكن إلى قائمتك المفضلة"
+            />
+        </>
+    );
+}

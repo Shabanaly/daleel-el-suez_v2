@@ -16,58 +16,65 @@ import { StickyActionsBar } from './StickyActionsBar';
 import { ReviewsSection } from './reviews/ReviewsSection';
 
 
+import { FavoriteButton } from '@/components/common/FavoriteButton';
+
+
 interface PlaceDetailsClientProps {
     place: Place;
     relatedPlaces: Place[];
     initialReviews?: any[];
+    isFavorite?: boolean;
 }
 
-export function PlaceDetailsClient({ place, relatedPlaces, initialReviews }: PlaceDetailsClientProps) {
+export function PlaceDetailsClient({
+    place,
+    relatedPlaces,
+    initialReviews,
+    isFavorite = false
+}: PlaceDetailsClientProps) {
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
-    const [isFavorite, setIsFavorite] = useState(false);
 
     // Use multiple images if available, otherwise fallback to imageUrl
     const galleryImages = place.images && place.images.length > 0
         ? place.images
         : [place.imageUrl].filter(Boolean) as string[];
 
-    useEffect(() => {
-        const favorites = JSON.parse(localStorage.getItem('favorite_places') || '[]');
-        setIsFavorite(favorites.includes(place.id));
-    }, [place.id]);
-
     const { showAlert } = useDialog();
 
-    const toggleFavorite = () => {
-        const favorites = JSON.parse(localStorage.getItem('favorite_places') || '[]');
-        let newFavorites;
-        if (favorites.includes(place.id)) {
-            newFavorites = favorites.filter((id: string) => id !== place.id);
-            setIsFavorite(false);
-        } else {
-            newFavorites = [...favorites, place.id];
-            setIsFavorite(true);
-        }
-        localStorage.setItem('favorite_places', JSON.stringify(newFavorites));
-    };
-
     const handleShare = async () => {
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: place.name,
-                    text: `شوف المكان ده في السويس: ${place.name}`,
-                    url: window.location.href,
+        const shareData = {
+            title: place.name,
+            text: `شوف المكان ده في السويس: ${place.name}`,
+            url: window.location.href,
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else if (navigator.clipboard) {
+                await navigator.clipboard.writeText(shareData.url);
+                showAlert({
+                    title: 'تم النسخ',
+                    message: 'تم نسخ رابط المكان بنجاح! ✨',
+                    type: 'success'
                 });
-            } catch (err) {
+            } else {
+                throw new Error('Share method not supported');
             }
-        } else {
-            // Fallback: Copy to clipboard
-            navigator.clipboard.writeText(window.location.href);
+        } catch (err) {
+            if (err instanceof Error && err.name === 'AbortError') return;
+            console.error('Share failed:', err);
+            // Manual fallback
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = window.location.href;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
             showAlert({
                 title: 'تم النسخ',
-                message: 'تم نسخ الرابط بنجاح!',
+                message: 'تم نسخ رابط المكان للمشاركة! ✨',
                 type: 'success'
             });
         }
@@ -146,15 +153,12 @@ export function PlaceDetailsClient({ place, relatedPlaces, initialReviews }: Pla
 
                     <div className="flex items-center justify-between gap-4 mb-4">
                         {/* Favorite Button (Left side in RTL) */}
-                        <button
-                            onClick={toggleFavorite}
-                            className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center border transition-all duration-500 shrink-0 ${isFavorite
-                                ? 'bg-accent text-white border-accent shadow-lg shadow-accent/25'
-                                : 'bg-surface text-text-muted border-border-subtle hover:border-accent/50 hover:text-accent'
-                                }`}
-                        >
-                            <Heart className={`w-5 h-5 md:w-7 md:h-7 ${isFavorite ? 'fill-current' : ''}`} />
-                        </button>
+                        <FavoriteButton
+                            itemId={place.id}
+                            itemType="place"
+                            initialIsFavorite={isFavorite}
+                            size="lg"
+                        />
 
                         <h1 className="text-3xl md:text-5xl font-black text-text-primary tracking-tight text-right flex-1">
                             {place.name}

@@ -33,6 +33,8 @@ export async function submitReview(formData: {
 
     revalidateTag(`place-${formData.placeId}`, 'max');
     revalidateTag('places', 'max');
+    revalidateTag(`user-${user.id}-stats`, 'max');
+    revalidateTag(`user-${user.id}-activities`, 'max');
     revalidatePath(`/places/${formData.placeId}`);
     revalidatePath('/places');
     return { success: true };
@@ -99,6 +101,8 @@ export async function deleteReview(placeId: string) {
 
     revalidateTag(`place-${placeId}`, 'max');
     revalidateTag('places', 'max');
+    revalidateTag(`user-${user.id}-stats`, 'max');
+    revalidateTag(`user-${user.id}-activities`, 'max');
     revalidatePath(`/places/${placeId}`);
     revalidatePath('/places');
     return { success: true };

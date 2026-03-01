@@ -99,19 +99,19 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                     onClick={(e) => handleProtectedAction(e, '/market')}
                                 /> */}
                                 <ActionItem
-                                    href="#"
+                                    href="/favorites"
                                     icon={<Heart className="w-6 h-6" />}
                                     label="المفضلة"
                                     color="bg-accent"
                                     onClick={(e) => handleProtectedAction(e, '/favorites')}
                                 />
-                                {/* <ActionItem
+                                <ActionItem
                                     href="/community"
                                     icon={<Users className="w-6 h-6" />}
                                     label="المجتمع"
                                     color="bg-primary"
-                                    onClick={(e) => handleProtectedAction(e, '/community')}
-                                /> */}
+                                    onClick={onClose}
+                                />
                                 <ActionItem
                                     href="#"
                                     icon={<Share2 className="w-6 h-6" />}
@@ -123,7 +123,7 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
 
                             {/* Bottom Links List */}
                             <div className="px-6 pb-6 pt-2 space-y-2">
-                                <ListLink icon={<Settings className="w-5 h-5" />} label="إعدادات الحساب" href="#" onClick={(e) => handleProtectedAction(e, '#')} />
+                                <ListLink icon={<Settings className="w-5 h-5" />} label="البروفايل" href="/profile" onClick={(e) => handleProtectedAction(e, '/profile')} />
                                 <ListLink icon={<Info className="w-5 h-5" />} label="عن دليل السويس" href="#" onClick={onClose} />
                                 {user && (
                                     <button

@@ -20,7 +20,7 @@ export default function DesktopSidebar() {
         { icon: <MapPin className="w-5 h-5" />, label: 'استكشف الأماكن', href: '/places', color: 'bg-primary' },
         { icon: <Heart className="w-5 h-5" />, label: 'الأماكن المفضلة', href: '#', color: 'bg-accent' },
         { icon: <Share2 className="w-5 h-5" />, label: 'مشاركة الموقع', href: '#', color: 'bg-accent' },
-        { icon: <Settings className="w-5 h-5" />, label: 'إعدادات الحساب', href: '#', color: 'bg-accent' },
+        { icon: <User className="w-5 h-5" />, label: 'البروفايل', href: '/profile', color: 'bg-accent' },
         { icon: <Info className="w-5 h-5" />, label: 'عن دليل السويس', href: '#', color: 'bg-accent' },
     ];
 

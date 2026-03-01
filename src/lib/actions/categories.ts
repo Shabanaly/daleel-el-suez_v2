@@ -125,3 +125,16 @@ export const getCategoriesWithIds = unstable_cache(
     ['categories-ids-list'],
     { tags: ['categories'] }
 );
+
+export const getCommunityCategories = unstable_cache(
+    async (): Promise<{ id: number; name: string; icon: string }[]> => {
+        const supabase = createServiceClient();
+        const { data } = await supabase
+            .from('categories')
+            .select('id, name, icon')
+            .eq('type', 'community');
+        return (data || []) as { id: number; name: string; icon: string }[];
+    },
+    ['community-categories-list'],
+    { tags: ['categories'], revalidate: 86400 }
+);

@@ -42,6 +42,8 @@ export async function addPlace(formData: any) {
 
     // 🔥 Revalidate: bust unstable_cache AND UI path
     revalidateTag('places', 'max');
+    revalidateTag(`user-${user.id}-stats`, 'max');
+    revalidateTag(`user-${user.id}-activities`, 'max');
     revalidatePath('/places');
 
     return data;
@@ -82,6 +84,7 @@ export async function updatePlace(id: string, formData: any) {
     // 🔥 Revalidate: bust unstable_cache AND UI paths
     revalidateTag('places', 'max');
     revalidateTag(`place-${data.slug}`, 'max');
+    revalidateTag(`user-${user.id}-activities`, 'max');
     revalidatePath('/places');
     revalidatePath(`/places/${data.slug}`);
 
@@ -133,6 +136,8 @@ export async function deletePlace(id: string) {
     }
 
     revalidateTag('places', 'max');
+    revalidateTag(`user-${user.id}-stats`, 'max');
+    revalidateTag(`user-${user.id}-activities`, 'max');
     revalidatePath('/places');
     return { success: true };
 }

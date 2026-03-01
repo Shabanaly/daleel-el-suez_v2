@@ -1,10 +1,11 @@
 'use client';
 
-import { Star, MapPin, CheckCircle2, Clock, Phone } from 'lucide-react';
+import { Star, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Place } from '@/lib/types/places';
+import { FavoriteButton } from '@/components/common/FavoriteButton';
 
 interface PlaceCardProps {
   place: Place;
@@ -15,66 +16,78 @@ export function PlaceCard({ place, index }: PlaceCardProps) {
   const isOpen = place.openHours !== 'مغلق';
 
   return (
-    <Link href={`/places/${place.slug}`}>
-      <motion.div
-        layout
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: index * 0.03 }}
-        whileHover={{ y: -4 }}
-        className="bg-surface rounded-2xl overflow-hidden flex flex-col border border-border-subtle shadow-sm hover:shadow-md transition-all duration-300"
-      >
-        {/* Image */}
-        <div className="relative aspect-4/3 overflow-hidden bg-muted">
-          {place.imageUrl ? (
-            <Image
-              src={place.imageUrl}
-              alt={place.name}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-3xl opacity-30">
-              📸
+    <div className="relative group h-full">
+      <Link href={`/places/${place.slug}`}>
+        <motion.div
+          layout
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: index * 0.03 }}
+          whileHover={{ y: -4 }}
+          className="bg-surface rounded-2xl overflow-hidden flex flex-col border border-border-subtle shadow-sm hover:shadow-md transition-all duration-300 h-full underline-none"
+        >
+          {/* Image Container */}
+          <div className="relative aspect-4/3 overflow-hidden bg-muted">
+            {place.imageUrl ? (
+              <Image
+                src={place.imageUrl}
+                alt={place.name}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-3xl opacity-30">
+                📸
+              </div>
+            )}
+
+            {/* Status badge */}
+            <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/60 text-white text-[11px] font-medium backdrop-blur-sm">
+              {isOpen ? 'مفتوح الآن' : 'مغلق'}
             </div>
-          )}
-
-          {/* Status badge only */}
-          <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/60 text-white text-[11px] font-medium">
-            {isOpen ? 'مفتوح الآن' : 'مغلق'}
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-4 flex flex-col flex-1">
-          <div className="flex items-center justify-between mb-2 text-xs text-text-secondary">
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              {place.area}
-            </span>
-            <span className="flex items-center gap-1 text-primary font-semibold">
-              <Star className="w-3.5 h-3.5 fill-primary" />
-              {place.rating}
-            </span>
           </div>
 
-          <h3 className="text-base font-semibold text-text-primary line-clamp-1">
-            {place.name}
-          </h3>
+          {/* Content */}
+          <div className="p-4 flex flex-col flex-1 text-right" dir="rtl">
+            <div className="flex items-center justify-between mb-2 text-xs text-text-secondary">
+              <span className="flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5" />
+                {place.area}
+              </span>
+              <span className="flex items-center gap-1 text-primary font-semibold">
+                <Star className="w-3.5 h-3.5 fill-primary" />
+                {place.rating}
+              </span>
+            </div>
 
-          <p className="text-sm text-text-muted line-clamp-2 mt-1 min-h-[40px]">
-            {place.description || 'أفضل الخدمات المتاحة في منطقتك.'}
-          </p>
+            <h3 className="text-base font-semibold text-text-primary line-clamp-1">
+              {place.name}
+            </h3>
 
-          <div className="mt-auto pt-3 flex items-center justify-between text-xs text-text-muted">
-            <span>{place.openHours}</span>
+            <p className="text-sm text-text-muted line-clamp-2 mt-1 min-h-[40px]">
+              {place.description || 'أفضل الخدمات المتاحة في منطقتك.'}
+            </p>
 
-            <button className="px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-medium hover:bg-primary-hover transition-colors">
-              اتصال
-            </button>
+            <div className="mt-auto pt-3 flex items-center justify-between text-xs text-text-muted">
+              <span>{place.openHours}</span>
+
+              <div className="px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-medium hover:bg-primary/90 transition-colors">
+                تفاصيل
+              </div>
+            </div>
           </div>
-        </div>
-      </motion.div>
-    </Link>
+        </motion.div>
+      </Link>
+
+      {/* Favorite Button - Floating in the card */}
+      <div className="absolute top-3 left-3 z-10">
+        <FavoriteButton
+          itemId={place.id}
+          itemType="place"
+          size="sm"
+          className="shadow-xl"
+        />
+      </div>
+    </div>
   );
 }
