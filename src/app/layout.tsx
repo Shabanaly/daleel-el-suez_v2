@@ -56,10 +56,8 @@ export const metadata: Metadata = {
     description: "دليلك الشامل للأماكن والخدمات في السويس",
   },
   icons: {
-    icon: "/favicon-circular.ico",
-    apple: [
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-    ],
+    icon: "/favicon-circular.ico?v=5",
+    apple: "/apple-touch-icon.png",
   },
   verification: {
     google: "XLm7_2RXf6w84cJIoQ7xNNS-X-A6zVEgOOELIJCqchQ",
