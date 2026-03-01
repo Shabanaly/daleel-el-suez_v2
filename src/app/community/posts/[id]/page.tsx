@@ -16,6 +16,7 @@ interface PostPageProps {
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
     const { id } = await params;
     const post = await getPostById(id);
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-el-suez.vercel.app';
 
     if (!post) {
         return {
@@ -23,19 +24,31 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         };
     }
 
-    const title = `${post.author?.full_name || 'مشاركة'}: ${post.content.substring(0, 50)}...`;
-    const description = post.content.substring(0, 160);
+    const cleanContent = post.content.replace(/[#*`]/g, '').substring(0, 160);
+    const title = `${post.author?.full_name || 'مشاركة'}: ${post.content.substring(0, 50)}... | مجتمع السويس`;
+    const description = `${cleanContent}... اقرأ المزيد وشارك في النقاش على دليل السويس.`;
 
     return {
-        title: `${title} - مجتمع السويس`,
+        title,
         description,
+        alternates: {
+            canonical: `${baseUrl}/community/posts/${id}`,
+        },
         openGraph: {
             title,
             description,
+            url: `${baseUrl}/community/posts/${id}`,
+            siteName: 'دليل السويس',
             type: 'article',
             publishedTime: post.created_at,
-            authors: [post.author?.full_name || 'مستشار سويسي'],
-            images: post.images?.length ? [post.images[0]] : [],
+            authors: [post.author?.full_name || 'عضو في مجتمع السويس'],
+            images: post.images?.length ? [post.images[0]] : ['/images/og-community.jpg'],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: post.images?.length ? [post.images[0]] : ['/images/og-community.jpg'],
         },
     };
 }
@@ -53,8 +66,25 @@ export default async function PostPage({ params }: PostPageProps) {
         notFound();
     }
 
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'SocialMediaPosting',
+        headline: post.content.substring(0, 100),
+        description: post.content.substring(0, 160),
+        author: {
+            '@type': 'Person',
+            name: post.author?.full_name || 'عضو مجتمع السويس',
+        },
+        datePublished: post.created_at,
+        image: post.images?.length ? post.images[0] : undefined,
+    };
+
     return (
         <div className="min-h-screen bg-background pb-20 pt-20 md:pt-28 px-4 md:px-8">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <div className="max-w-3xl mx-auto">
                 {/* Back Button & Header */}
                 <div className="flex items-center gap-4 mb-8">

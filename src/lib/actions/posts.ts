@@ -264,3 +264,27 @@ export async function getPostById(id: string) {
         { tags: [`post-${id}`, 'community-posts'], revalidate: 300 }
     )(id);
 }
+/**
+ * Fetches all active post IDs and update times for sitemap generation.
+ */
+export async function getAllPosts() {
+    return unstable_cache(
+        async () => {
+            const supabase = createServiceClient();
+            const { data, error } = await supabase
+                .from('posts')
+                .select('id, created_at')
+                .eq('status', 'active')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching posts for sitemap:', error);
+                return [];
+            }
+
+            return data;
+        },
+        ['sitemap-posts'],
+        { tags: ['community-posts'], revalidate: 3600 } // Cache for 1 hour
+    )();
+}

@@ -1,15 +1,24 @@
 import { MetadataRoute } from 'next';
 import { getPlaces } from '@/lib/actions/places';
 import { getAllCategories } from '@/lib/actions/categories';
+import { getAllPosts } from '@/lib/actions/posts';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-el-suez.vercel.app';
 
     // Fetch all paths in parallel
-    const [places, categories] = await Promise.all([
+    const [places, categories, posts] = await Promise.all([
         getPlaces(),
         getAllCategories(),
+        getAllPosts(),
     ]);
+
+    const postUrls = posts.map((post) => ({
+        url: `${baseUrl}/community/posts/${post.id}`,
+        lastModified: new Date(post.created_at),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+    }));
 
     const placeUrls = places.map((place) => ({
         url: `${baseUrl}/places/${place.slug}`,
@@ -52,5 +61,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
     ];
 
-    return [...staticUrls, ...placeUrls, ...categoryUrls];
+    return [...staticUrls, ...placeUrls, ...categoryUrls, ...postUrls];
 }
