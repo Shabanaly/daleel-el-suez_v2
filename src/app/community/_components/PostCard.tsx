@@ -57,6 +57,15 @@ export default function PostCard({ post, isLikedInitial = false, onCommentClick 
     }
   };
 
+  const handleCommentClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    onCommentClick?.();
+  };
+
   const handleDelete = async () => {
     showConfirm({
       title: 'حذف المنشور؟',
@@ -207,7 +216,7 @@ export default function PostCard({ post, isLikedInitial = false, onCommentClick 
         onLike={handleLike}
         onComment={() => {
           setIsLightboxOpen(false);
-          onCommentClick?.();
+          handleCommentClick({ preventDefault: () => { } } as any);
         }}
       />
 
@@ -263,10 +272,7 @@ export default function PostCard({ post, isLikedInitial = false, onCommentClick 
           </button>
 
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              onCommentClick?.();
-            }}
+            onClick={handleCommentClick}
             className="flex items-center gap-2 text-text-muted opacity-80 hover:text-primary transition-all active:scale-90"
           >
             <MessageCircle className="w-6 h-6" />

@@ -5,6 +5,7 @@ import { User, Image as ImageIcon, Plus } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import CreatePostModal from './CreatePostModal';
+import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
 
 interface Category {
     id: number;
@@ -19,18 +20,25 @@ interface CreatePostProps {
 export default function CreatePost({ categories }: CreatePostProps) {
     const { user } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-    if (!user) return null;
+    const handleCreateClick = () => {
+        if (!user) {
+            setIsAuthModalOpen(true);
+            return;
+        }
+        setIsModalOpen(true);
+    };
 
     return (
         <>
             <div
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleCreateClick}
                 className="bg-surface border border-border-subtle rounded-2xl p-3.5 mb-6 shadow-sm hover:border-primary/30 transition-all cursor-pointer group"
             >
                 <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-primary/10 overflow-hidden relative shrink-0 ring-2 ring-background border border-primary/20">
-                        {user.user_metadata?.avatar_url ? (
+                        {user?.user_metadata?.avatar_url ? (
                             <Image
                                 src={user.user_metadata.avatar_url}
                                 alt="User"
@@ -55,6 +63,13 @@ export default function CreatePost({ categories }: CreatePostProps) {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 categories={categories}
+            />
+
+            <AuthRequiredModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                title="سجل دخولك للنشر"
+                description="يجب تسجيل الدخول لتتمكن من مشاركة منشوراتك مع المجتمع."
             />
         </>
     );

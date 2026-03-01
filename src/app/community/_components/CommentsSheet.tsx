@@ -9,6 +9,7 @@ import { ar } from 'date-fns/locale';
 import { useAuth } from '@/hooks/useAuth';
 import { addComment, getPostComments, deleteComment } from '@/lib/actions/comments';
 import { useDialog } from '@/components/providers/DialogProvider';
+import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
 
 interface Props {
   postId: string | null;
@@ -27,6 +28,7 @@ export default function CommentsSheet({ postId, onClose }: Props) {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [replyTo, setReplyTo] = useState<any | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // 🔒 Lock background scroll
   useEffect(() => {
@@ -222,7 +224,13 @@ export default function CommentsSheet({ postId, onClose }: Props) {
                   <div key={comment.id} className="space-y-4">
                     <CommentItem
                       comment={comment}
-                      onReply={() => setReplyTo(comment)}
+                      onReply={() => {
+                        if (!user) {
+                          setIsAuthModalOpen(true);
+                          return;
+                        }
+                        setReplyTo(comment);
+                      }}
                       onDelete={() => handleDeleteComment(comment.id)}
                       currentUserId={user?.id}
                     />
@@ -280,11 +288,21 @@ export default function CommentsSheet({ postId, onClose }: Props) {
                   </button>
                 </form>
               ) : (
-                <div className="text-center p-3 rounded-xl bg-background border border-dashed border-border-subtle">
-                  <p className="text-[10px] font-black text-text-muted italic opacity-60">يجب تسجيل الدخول للمشاركة في النقاش</p>
-                </div>
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="w-full text-center p-4 rounded-xl bg-background border border-dashed border-border-subtle hover:bg-elevated/50 transition-all group"
+                >
+                  <p className="text-xs font-black text-text-muted group-hover:text-primary transition-colors">يجب تسجيل الدخول للمشاركة في النقاش .. سجل الآن ✨</p>
+                </button>
               )}
             </div>
+
+            <AuthRequiredModal
+              isOpen={isAuthModalOpen}
+              onClose={() => setIsAuthModalOpen(false)}
+              title="سجل دخولك للتفاعل"
+              description="يجب تسجيل الدخول لتتمكن من إضافة تعليقات أو الرد على الآخرين."
+            />
           </motion.div>
         </>
       )}
