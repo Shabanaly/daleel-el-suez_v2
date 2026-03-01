@@ -10,6 +10,7 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { AuthModalProvider } from "@/hooks/useAuthModal";
 import { GoogleOneTap } from "@/components/auth/GoogleOneTap";
 import { DialogProvider } from "@/components/providers/DialogProvider";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -111,6 +112,7 @@ export default function RootLayout({
                 </MainContentWrapper>
 
                 <BottomNav />
+                <Analytics />
               </DialogProvider>
             </AuthModalProvider>
           </AuthProvider>
