@@ -10,14 +10,22 @@ import SuezGallery from '@/components/home/SuezGallery';
 import CommunityTeaser from '@/components/home/CommunityTeaser';
 import AppPromoSection from '@/components/home/AppPromoSection';
 import NewPlaces from '@/components/home/NewPlaces';
+import { getCommunityPosts } from '@/lib/actions/posts';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "دليل السويس | Suez Guide - كل مكان في السويس في مكان واحد",
+  description: "اكتشف أفضل الأماكن، الخدمات، والمطاعم في محافظة السويس. دليل السويس هو رفيقك الموثوق لاستكشاف المدينة والوصول لكل ما تحتاجه.",
+};
 
 export default async function Home() {
 
   // 🧠 Fetch data using the centralized home page action (logic moved to server)
-  const [categories, districts, homeData] = await Promise.all([
+  const [categories, districts, homeData, communityPosts] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
-    getHomePageData()
+    getHomePageData(),
+    getCommunityPosts(undefined, undefined, 1, 2)
   ]);
 
   const { trending, newPlaces } = homeData;
@@ -30,7 +38,7 @@ export default async function Home() {
       <NewPlaces places={newPlaces} />
       <SuezGallery />
       <DistrictsExplorer districts={districts} />
-      <CommunityTeaser />
+      <CommunityTeaser posts={communityPosts} />
 
 
       {/* Call to action banner at the end */}

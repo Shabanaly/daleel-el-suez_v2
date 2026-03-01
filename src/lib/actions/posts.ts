@@ -169,12 +169,12 @@ export async function toggleLikePost(postId: string) {
 }
 
 /**
- * Fetches community posts with a custom ranking algorithm.
+ * Fetches community posts with a custom ranking algorithm and search support.
  * Equation: (likes_count * 2 + comments_count * 1 + 1) / (hours_since_post + 2) ^ 1.5
  */
-export async function getCommunityPosts(categoryId?: number, page = 1, limit = 10) {
+export async function getCommunityPosts(categoryId?: number, search?: string, page = 1, limit = 10) {
     return unstable_cache(
-        async (catId?: number, p = 1, l = 10) => {
+        async (catId?: number, queryStr?: string, p = 1, l = 10) => {
             const supabase = createServiceClient();
 
             let query = supabase
@@ -189,6 +189,10 @@ export async function getCommunityPosts(categoryId?: number, page = 1, limit = 1
 
             if (catId) {
                 query = query.eq('category_id', catId);
+            }
+
+            if (queryStr) {
+                query = query.ilike('content', `%${queryStr}%`);
             }
 
             const { data: posts, error } = await query;
@@ -221,7 +225,42 @@ export async function getCommunityPosts(categoryId?: number, page = 1, limit = 1
 
             return paginated;
         },
-        [`community-posts-${categoryId || 'all'}-p${page}`],
+        [`community-posts-${categoryId || 'all'}-${search || 'no-search'}-p${page}`],
         { tags: ['community-posts'], revalidate: 300 } // Cache for 5 mins
-    )(categoryId, page, limit);
+    )(categoryId, search, page, limit);
+}
+
+/**
+ * Fetches a single post by ID with all relations.
+ */
+export async function getPostById(id: string) {
+    return unstable_cache(
+        async (postId: string) => {
+            const supabase = createServiceClient();
+
+            const { data, error } = await supabase
+                .from('posts')
+                .select(`
+                    *,
+                    author:profiles!author_id(id, username, full_name, avatar_url),
+                    category:categories(id, name, icon),
+                    comments_count:comments(count)
+                `)
+                .eq('id', postId)
+                .eq('status', 'active')
+                .single();
+
+            if (error || !data) {
+                console.error('Error fetching post by ID:', error);
+                return null;
+            }
+
+            return {
+                ...data,
+                commentCount: data.comments_count?.[0]?.count || 0
+            };
+        },
+        [`post-${id}`],
+        { tags: [`post-${id}`, 'community-posts'], revalidate: 300 }
+    )(id);
 }

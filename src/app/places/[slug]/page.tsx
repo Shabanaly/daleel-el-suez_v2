@@ -5,6 +5,34 @@ import { PlaceDetailsClient } from '../_components/PlaceDetailsClient';
 import { ViewTracker } from '@/components/places/ViewTracker';
 import { isItemFavorite } from '@/lib/actions/favorites';
 import { createClient } from '@/lib/supabase/server';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const resolvedParams = await params;
+    const place = await getPlaceBySlug(resolvedParams.slug);
+
+    if (!place) return { title: 'مكان غير موجود' };
+
+    const title = `${place.name} | ${place.category} في ${place.area}`;
+    const description = `تعرف على ${place.name} في ${place.area}، السويس. ${place.description?.slice(0, 150)}...`;
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            images: place.imageUrl ? [place.imageUrl] : [],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: place.imageUrl ? [place.imageUrl] : [],
+        },
+    };
+}
+
 
 export default async function PlaceDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
     const resolvedParams = await params;

@@ -3,6 +3,31 @@ import { ChevronLeft, MapPin, Phone, Star, BadgeCheck, Clock, LayoutGrid, ArrowR
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+    const category = await getCategoryDetails(params.id);
+
+    if (!category) return { title: 'قسم غير موجود' };
+
+    const title = `أفضل ${category.name} في السويس - دليل السويس`;
+    const description = `تصفح قائمة مختارة من أفضل ${category.name} في محافظة السويس. نوفر لك معلومات التواصل والتقييمات لأكثر من ${category.places.length} مكان.`;
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+        },
+        twitter: {
+            card: 'summary',
+            title,
+            description,
+        },
+    };
+}
+
 
 export default async function CategoryDetailPage({ params }: { params: { id: string } }) {
     const category = await getCategoryDetails(params.id);

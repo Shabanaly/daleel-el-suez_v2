@@ -16,13 +16,10 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
 
 
 
-    console.log('[GSI] Component mounted with clientId:', clientId ? 'EXISTS' : 'MISSING');
-
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
 
         const initializeOneTap = () => {
-            console.log('[GSI] initializeOneTap called. google exists:', !!window.google, 'already initialized:', initialized.current);
             if (!window.google || initialized.current) return;
 
             // Diagnostic log for local IP issues
@@ -55,20 +52,13 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
 
                 // Small delay to let the page settle
                 timeoutId = setTimeout(() => {
-                    console.log('[GSI] Attempting to display One Tap prompt...');
                     if (window.google) {
                         try {
                             window.google.accounts.id.prompt((notification: any) => {
-                                console.log('[GSI] Prompt notification:', {
-                                    moment: notification.getMomentType(),
-                                    isDisplayed: notification.isDisplayed(),
-                                    isNotDisplayed: notification.isNotDisplayed(),
-                                    notDisplayedReason: notification.isNotDisplayed() ? notification.getNotDisplayedReason() : null,
-                                    isSkipped: notification.isSkippedMoment(),
-                                    skippedReason: notification.isSkippedMoment() ? notification.getSkippedReason() : null,
-                                    isDismissed: notification.isDismissedMoment(),
-                                    dismissedReason: notification.isDismissedMoment() ? notification.getDismissedReason() : null,
-                                });
+                                // Silent in production, only log errors or important skips
+                                if (notification.isSkippedMoment() || notification.isDismissedMoment()) {
+                                    // Optional: log why it was skipped if needed for debugging
+                                }
                             });
                         } catch (promptErr) {
                             console.error('[GSI] One Tap Prompt Error:', promptErr);
@@ -77,7 +67,6 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
                 }, 1500);
 
                 initialized.current = true;
-                console.log('[GSI] Google One Tap initialized successfully');
             } catch (error) {
                 console.error('[GSI] Error initializing Google One Tap:', error);
             }
@@ -85,13 +74,10 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
 
         // Check if google is loaded, otherwise poll
         if (window.google) {
-            console.log('[GSI] Google script already loaded');
             initializeOneTap();
         } else {
-            console.log('[GSI] Google script not loaded yet, starting interval...');
             const interval = setInterval(() => {
                 if (window.google) {
-                    console.log('[GSI] Google script loaded via interval');
                     clearInterval(interval);
                     initializeOneTap();
                 }
@@ -105,7 +91,6 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
 
         return () => {
             if (timeoutId) clearTimeout(timeoutId);
-            // We don't call cancel() here normally to avoid breaking GSI on navigation
         };
     }, [clientId, router, isLoading, user]);
 

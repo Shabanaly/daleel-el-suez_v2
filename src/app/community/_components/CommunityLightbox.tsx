@@ -32,6 +32,11 @@ export default function CommunityLightbox({
 }: CommunityLightboxProps) {
     const { showAlert } = useDialog();
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
+    const [origin, setOrigin] = useState('');
+
+    useEffect(() => {
+        setOrigin(window.location.origin);
+    }, []);
 
     useEffect(() => {
         if (isOpen) {
@@ -180,7 +185,7 @@ export default function CommunityLightbox({
                         <ShareButton
                             title="دليل السويس - منشور في المجتمع"
                             text={post.content || 'اكتشف هذا المنشور في مجتمع السويس'}
-                            url={`${window.location.origin}/community#post-${post.id}`}
+                            url={`${origin}/community#post-${post.id}`}
                             className="flex items-center gap-2 px-6 h-14 rounded-2xl bg-white/10 text-white border border-white/10 hover:bg-white/20 transition-all active:scale-90 shadow-lg"
                             onSuccess={() => showAlert({
                                 title: 'تم النسخ!',

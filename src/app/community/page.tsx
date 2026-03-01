@@ -4,20 +4,61 @@ import PostCard from './_components/PostCard';
 import CreatePost from './_components/CreatePost';
 import CommunityFeed from './_components/CommunityFeed';
 import CategoryIcon from './_components/CategoryIcon';
+import SearchBar from './_components/SearchBar';
 import { Suspense } from 'react';
 import { Loader2, Users, LayoutGrid } from 'lucide-react';
 
-export const metadata = {
-  title: 'المجتمع - دليل السويس',
-  description: 'شارك، اسأل، وتواصل مع أهل السويس في أذكى مجتمع محلي.',
-};
+import type { Metadata } from 'next';
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string | string[]; q?: string | string[] }>;
+}): Promise<Metadata> {
+  const resolvedParams = await searchParams;
+  const q = Array.isArray(resolvedParams.q) ? resolvedParams.q[0] : resolvedParams.q;
+  const categoryParam = Array.isArray(resolvedParams.category)
+    ? resolvedParams.category[0]
+    : resolvedParams.category;
+
+  const categoryId = categoryParam ? parseInt(categoryParam) : undefined;
+
+  let title = 'مجتمع السويس - دليل السويس';
+  let description = 'شارك، اسأل، وتواصل مع أهل السويس في أذكى مجتمع محلي. شارك أخبارك، استفساراتك، وتجاربك مع الجميع.';
+
+  const categories = await getCommunityCategories();
+
+  if (categoryId) {
+    const category = categories.find(c => c.id === categoryId);
+    if (category) {
+      title = `قسم ${category.name} - مجتمع السويس`;
+      description = `تصفح أحدث المنشورات والمناقشات في قسم ${category.name} بمجتمع السويس.`;
+    }
+  }
+
+  if (q) {
+    title = `نتائج البحث عن "${q}" - مجتمع السويس`;
+    description = `نتائج البحث عن "${q}" في مجتمع السويس. استكشف المناقشات والمنشورات المتعلقة.`;
+  }
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+    },
+  };
+}
+
 
 export default async function CommunityPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string | string[] }>;
+  searchParams: Promise<{ category?: string | string[]; q?: string | string[] }>;
 }) {
   const resolvedParams = await searchParams;
+  const q = Array.isArray(resolvedParams.q) ? resolvedParams.q[0] : resolvedParams.q;
   const categoryParam = Array.isArray(resolvedParams.category)
     ? resolvedParams.category[0]
     : resolvedParams.category;
@@ -26,7 +67,7 @@ export default async function CommunityPage({
 
   // Fetch data in parallel
   const [posts, categories] = await Promise.all([
-    getCommunityPosts(categoryId),
+    getCommunityPosts(categoryId, q),
     getCommunityCategories(),
   ]);
 
@@ -73,13 +114,24 @@ export default async function CommunityPage({
           </div>
         </div>
 
+        {/* Search Bar */}
+        <Suspense fallback={<div className="h-14 bg-surface animate-pulse rounded-2xl mb-8" />}>
+          <SearchBar />
+        </Suspense>
+
         {/* Create Post Area */}
         <Suspense fallback={<div className="h-32 bg-surface animate-pulse rounded-[32px] mb-8" />}>
           <CreatePost categories={categories} />
         </Suspense>
 
         {/* Posts Feed */}
-        <CommunityFeed initialPosts={posts} />
+        <Suspense fallback={<div className="space-y-6 animate-pulse">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-64 bg-surface rounded-[32px]" />
+          ))}
+        </div>}>
+          <CommunityFeed initialPosts={posts} categories={categories} />
+        </Suspense>
 
         {posts.length >= 10 && (
           <div className="mt-10 text-center">

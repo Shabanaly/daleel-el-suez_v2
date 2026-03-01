@@ -27,11 +27,11 @@ export default function AuthRequiredModal({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 cursor-pointer"
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-600 cursor-pointer"
                     />
 
                     {/* Modal Container */}
-                    <div className="fixed inset-0 flex items-end md:items-center justify-center pointer-events-none z-50">
+                    <div className="fixed inset-0 flex items-end md:items-center justify-center pointer-events-none z-600">
                         {/* Mobile Bottom Sheet & Desktop Dialog */}
                         <motion.div
                             initial={{ y: '100%', opacity: 0 }}

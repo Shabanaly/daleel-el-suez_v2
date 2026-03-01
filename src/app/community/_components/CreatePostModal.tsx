@@ -6,7 +6,7 @@ import { X, Send, Loader2, User, ChevronDown, ImageIcon, Plus, Check } from 'luc
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { useImageUpload } from '@/lib/hooks/useImageUpload';
-import { createPost } from '@/lib/actions/posts';
+import { createPost, updatePost } from '@/lib/actions/posts';
 import CategoryIcon from './CategoryIcon';
 
 interface Category {
@@ -19,12 +19,19 @@ interface CreatePostModalProps {
     isOpen: boolean;
     onClose: () => void;
     categories: Category[];
+    initialData?: {
+        id: string;
+        content: string;
+        categoryId: number;
+        images: string[];
+        publicIds?: string[];
+    };
 }
 
-export default function CreatePostModal({ isOpen, onClose, categories }: CreatePostModalProps) {
+export default function CreatePostModal({ isOpen, onClose, categories, initialData }: CreatePostModalProps) {
     const { user } = useAuth();
-    const [content, setContent] = useState('');
-    const [selectedCatId, setSelectedCatId] = useState<number | null>(categories[0]?.id || null);
+    const [content, setContent] = useState(initialData?.content || '');
+    const [selectedCatId, setSelectedCatId] = useState<number | null>(initialData?.categoryId || categories[0]?.id || null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -38,6 +45,8 @@ export default function CreatePostModal({ isOpen, onClose, categories }: CreateP
     } = useImageUpload({
         folder: 'community_posts',
         maxImages: 10,
+        initialImages: initialData?.images || [],
+        initialPublicIds: initialData?.publicIds || [],
         compression: {
             maxWidthOrHeight: 1280,
             quality: 0.8
@@ -54,21 +63,38 @@ export default function CreatePostModal({ isOpen, onClose, categories }: CreateP
 
         try {
             const uploadResult = await startUpload();
-            const result = await createPost({
-                content,
-                categoryId: selectedCatId,
-                images: uploadResult.urls,
-                publicIds: uploadResult.publicIds
-            });
 
-            if (result.success) {
-                setContent('');
-                clearImages();
-                onClose();
+            if (initialData) {
+                // Update existing post
+                const result = await updatePost(initialData.id, {
+                    content,
+                    categoryId: selectedCatId,
+                    images: uploadResult.urls,
+                    publicIds: uploadResult.publicIds
+                });
+
+                if (result.success) {
+                    onClose();
+                }
+            } else {
+                // Create new post
+                const result = await createPost({
+                    content,
+                    categoryId: selectedCatId,
+                    images: uploadResult.urls,
+                    publicIds: uploadResult.publicIds
+                });
+
+                if (result.success) {
+                    setContent('');
+                    clearImages();
+                    onClose();
+                }
             }
         } catch (error) {
-            console.error('Post creation failed:', error);
+            console.error('Post operation failed:', error);
         } finally {
+            setIsSubmitting(true); // Keep loader until closing
             setIsSubmitting(false);
         }
     };
@@ -102,7 +128,9 @@ export default function CreatePostModal({ isOpen, onClose, categories }: CreateP
                                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                                     <Plus className="w-5 h-5 text-primary" />
                                 </div>
-                                <h2 className="text-xl font-black text-text-primary tracking-tight">إضافة منشور جديد</h2>
+                                <h2 className="text-xl font-black text-text-primary tracking-tight">
+                                    {initialData ? 'تعديل المنشور' : 'إضافة منشور جديد'}
+                                </h2>
                             </div>
                             <button
                                 onClick={onClose}
@@ -230,7 +258,7 @@ export default function CreatePostModal({ isOpen, onClose, categories }: CreateP
                                 ) : (
                                     <Send className="w-5 h-5" />
                                 )}
-                                <span>نشر المنشور</span>
+                                <span>{initialData ? 'حفظ التعديلات' : 'نشر المنشور'}</span>
                             </button>
                         </div>
                     </motion.div>

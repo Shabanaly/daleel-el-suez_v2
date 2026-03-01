@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cairo, Inter } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import BottomNav from "@/components/layout/BottomNav";
@@ -26,9 +26,47 @@ const inter = Inter({
 import MainContentWrapper from "@/components/layout/MainContentWrapper";
 
 export const metadata: Metadata = {
+  title: {
+    default: "دليل السويس | Suez Guide - دليلك الشامل",
+    template: "%s | دليل السويس"
+  },
+  description: "اكتشف أفضل الأماكن، الخدمات، والمطاعم في محافظة السويس. دليل السويس هو رفيقك الموثوق لاستكشاف المدينة.",
+  keywords: ["السويس", "دليل السويس", "أماكن في السويس", "خدمات السويس", "عقارات السويس", "وظائف السويس", "مطاعم السويس"],
+  authors: [{ name: "Suez Guide Team" }],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "دليل السويس",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: "دليل السويس",
+    title: "دليل السويس | Suez Guide",
+    description: "كل مكان في السويس في مكان واحد - دليل شامل للخدمات والأماكن",
+    locale: "ar_EG",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "دليل السويس | Suez Guide",
+    description: "دليلك الشامل للأماكن والخدمات في السويس",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: [
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
+};
 
-  title: "دليل السويس | Suez Guide",
-  description: "دليلك الشامل للأماكن والخدمات في السويس - كل مكان في السويس في مكان واحد",
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#0066FF",
 };
 
 export default function RootLayout({

@@ -1,17 +1,14 @@
-'use client';
-
-import { useState } from 'react';
-import PostCard from './PostCard';
-import CommentsSheet from './CommentsSheet';
+import { Suspense } from 'react';
 import { Users } from 'lucide-react';
+import PostCard from './PostCard';
+import CommentsWrapper from './CommentsWrapper';
 
 interface CommunityFeedProps {
     initialPosts: any[];
+    categories: any[];
 }
 
-export default function CommunityFeed({ initialPosts }: CommunityFeedProps) {
-    const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-
+export default function CommunityFeed({ initialPosts, categories }: CommunityFeedProps) {
     return (
         <>
             <div className="space-y-6">
@@ -20,7 +17,7 @@ export default function CommunityFeed({ initialPosts }: CommunityFeedProps) {
                         <PostCard
                             key={post.id}
                             post={post}
-                            onCommentClick={() => setSelectedPostId(post.id)}
+                            categories={categories}
                         />
                     ))
                 ) : (
@@ -34,11 +31,10 @@ export default function CommunityFeed({ initialPosts }: CommunityFeedProps) {
                 )}
             </div>
 
-            {/* Centralized Comments Sheet */}
-            <CommentsSheet
-                postId={selectedPostId}
-                onClose={() => setSelectedPostId(null)}
-            />
+            {/* Centralized Comments Sheet (Client Wrapper for URL state) */}
+            <Suspense fallback={null}>
+                <CommentsWrapper />
+            </Suspense>
         </>
     );
 }
