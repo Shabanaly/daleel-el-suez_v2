@@ -37,14 +37,14 @@ export default function ConfirmModal({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[500]"
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-500"
                         onClick={onClose}
                     />
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="fixed inset-0 m-auto w-[90%] max-w-sm h-fit bg-surface rounded-3xl p-6 z-[501] shadow-2xl border border-border-subtle flex flex-col items-center text-center"
+                        className="fixed inset-0 m-auto w-[90%] max-w-sm h-fit bg-surface rounded-3xl p-6 z-501 shadow-2xl border border-border-subtle flex flex-col items-center text-center"
                         dir="rtl"
                     >
                         <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${type === 'danger' ? 'bg-red-50 text-red-500' :

@@ -5,6 +5,7 @@ import { X, ChevronLeft, ChevronRight, Heart, MessageCircle, Share2 } from 'luci
 import { useDialog } from '@/components/providers/DialogProvider';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import ShareButton from '@/components/ui/ShareButton';
 
 interface CommunityLightboxProps {
     images: string[];
@@ -67,46 +68,6 @@ export default function CommunityLightbox({
     const prev = (e?: React.MouseEvent) => {
         e?.stopPropagation();
         setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-    };
-
-    const handleShare = async (e: React.MouseEvent) => {
-        e.stopPropagation();
-        const postLink = `${window.location.origin}/community#post-${post.id}`;
-        const shareData = {
-            title: 'دليل السويس - منشور في المجتمع',
-            text: post.content || 'اكتشف هذا المنشور في مجتمع السويس',
-            url: postLink,
-        };
-
-        try {
-            if (navigator.share) {
-                await navigator.share(shareData);
-            } else if (navigator.clipboard) {
-                await navigator.clipboard.writeText(`${shareData.text}\n\n${postLink}`);
-                showAlert({
-                    title: 'تم النسخ!',
-                    message: 'تم نسخ رابط المنشور للحافظة بنجاح. ✨',
-                    type: 'success'
-                });
-            } else {
-                throw new Error('Share method not supported');
-            }
-        } catch (err) {
-            if (err instanceof Error && err.name === 'AbortError') return;
-            console.error('Share failed:', err);
-            // Manual fallback
-            const dummy = document.createElement('input');
-            document.body.appendChild(dummy);
-            dummy.value = postLink;
-            dummy.select();
-            document.execCommand('copy');
-            document.body.removeChild(dummy);
-            showAlert({
-                title: 'تم النسخ',
-                message: 'تم نسخ رابط المنشور للمشاركة! ✨',
-                type: 'success'
-            });
-        }
     };
 
     if (!isOpen) return null;
@@ -216,12 +177,19 @@ export default function CommunityLightbox({
                             <span className="text-base font-black">{post.comments_count?.[0]?.count || 0}</span>
                         </button>
 
-                        <button
-                            onClick={handleShare}
+                        <ShareButton
+                            title="دليل السويس - منشور في المجتمع"
+                            text={post.content || 'اكتشف هذا المنشور في مجتمع السويس'}
+                            url={`${window.location.origin}/community#post-${post.id}`}
                             className="flex items-center gap-2 px-6 h-14 rounded-2xl bg-white/10 text-white border border-white/10 hover:bg-white/20 transition-all active:scale-90 shadow-lg"
+                            onSuccess={() => showAlert({
+                                title: 'تم النسخ!',
+                                message: 'تم نسخ رابط المنشور للحافظة بنجاح. ✨',
+                                type: 'success'
+                            })}
                         >
                             <Share2 className="w-6 h-6" />
-                        </button>
+                        </ShareButton>
                     </div>
                 </div>
             </motion.div>

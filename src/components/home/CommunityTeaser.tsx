@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { MessageSquare, Heart, Share2, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import ShareButton from '@/components/ui/ShareButton';
 
 const latestPosts = [
     {
@@ -82,9 +83,14 @@ export default function CommunityTeaser() {
                                     <span className="text-sm font-bold">{post.comments}</span>
                                 </div>
                             </div>
-                            <button className="text-text-muted hover:text-primary transition-colors">
+                            <ShareButton
+                                title="دليل السويس - منشور في المجتمع"
+                                text={post.content}
+                                url={`${typeof window !== 'undefined' ? window.location.origin : ''}/community#post-${post.id}`}
+                                className="text-text-muted hover:text-primary transition-colors"
+                            >
                                 <Share2 className="w-4 h-4" />
-                            </button>
+                            </ShareButton>
                         </div>
                     </motion.div>
                 ))}

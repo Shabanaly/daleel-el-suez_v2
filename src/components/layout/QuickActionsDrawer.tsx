@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, MapPin, Store, Users, Settings, LogOut, Info, Heart, Share2 } from 'lucide-react';
+import ShareButton from '@/components/ui/ShareButton';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -112,13 +113,17 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                     color="bg-primary"
                                     onClick={onClose}
                                 />
-                                <ActionItem
-                                    href="#"
-                                    icon={<Share2 className="w-6 h-6" />}
-                                    label="مشاركة"
-                                    color="bg-accent"
-                                    onClick={onClose}
-                                />
+                                <ShareButton
+                                    title="دليل السويس"
+                                    text="دليل السويس - كل ما تحتاجه في مكان واحد"
+                                    url={typeof window !== 'undefined' ? window.location.origin : ''}
+                                    className="flex flex-col items-center gap-2 group"
+                                >
+                                    <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center text-white border border-white/20 shadow-lg shadow-black/5 group-hover:scale-110 active:scale-95 transition-all duration-300">
+                                        <Share2 className="w-6 h-6" />
+                                    </div>
+                                    <span className="text-[11px] font-black text-text-primary tracking-tight">مشاركة</span>
+                                </ShareButton>
                             </div>
 
                             {/* Bottom Links List */}

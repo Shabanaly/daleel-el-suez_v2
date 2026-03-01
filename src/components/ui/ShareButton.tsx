@@ -1,0 +1,127 @@
+'use client';
+
+import React from 'react';
+
+/**
+ * ShareButton Component
+ * 
+ * A reusable client component that provides native sharing functionality
+ * with a fallback to clipboard copying. Follows best practices for 
+ * performance and reliability.
+ */
+
+interface ShareButtonProps {
+    /** The title of the share dialog */
+    title: string;
+    /** The text content to share */
+    text: string;
+    /** The URL to share */
+    url: string;
+    /** Optional CSS classes for the button */
+    className?: string;
+    /** Optional custom children for the button */
+    children?: React.ReactNode;
+    /** Optional callback for when sharing/copying is successful */
+    onSuccess?: () => void;
+}
+
+export default function ShareButton({
+    title,
+    text,
+    url,
+    className = "",
+    children,
+    onSuccess
+}: ShareButtonProps) {
+
+    const handleShare = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        // Only triggers on user interaction (click) - e.preventDefault() if used in <a> or <form>
+        e.preventDefault();
+        e.stopPropagation();
+
+        // The Web Share API must be called in response to a user gesture
+        if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+                await navigator.share({
+                    title,
+                    text,
+                    url,
+                });
+                if (onSuccess) onSuccess();
+            } catch (error) {
+                // If the user cancels or the API fails, we don't necessarily want to fallback to clipboard
+                // unless it's a real failure. AbortError is user cancellation.
+                if (error instanceof Error && error.name !== 'AbortError') {
+                    console.error('Error with Web Share API:', error);
+                    await fallbackCopy();
+                }
+            }
+        } else {
+            // Fallback to clipboard if Web Share API is not supported (likely desktop)
+            await fallbackCopy();
+        }
+    };
+
+    const fallbackCopy = async () => {
+        try {
+            if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                // Construct share text and URL for clipboard
+                const fullShareContent = `${text ? text + '\n\n' : ''}${url}`;
+                await navigator.clipboard.writeText(fullShareContent);
+
+                if (onSuccess) {
+                    onSuccess();
+                } else {
+                    // Default browser feedback if no success callback provided
+                    alert('تم نسخ الرابط للحافظة بنجاح! ✨');
+                }
+            } else {
+                // Final fallback using a hidden input for legacy/non-secure environments
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy);
+                dummy.value = url;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+
+                if (onSuccess) {
+                    onSuccess();
+                } else {
+                    alert('تم نسخ الرابط بنجاح! ✨');
+                }
+            }
+        } catch (err) {
+            console.error('Failed to copy to clipboard:', err);
+        }
+    };
+
+    return (
+        <button
+            onClick={handleShare}
+            className={className}
+            aria-label="مشاركةContent"
+        >
+            {children || (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {/* Pure SVG icon to avoid external library dependencies */}
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                        <polyline points="16 6 12 2 8 6" />
+                        <line x1="12" y1="2" x2="12" y2="15" />
+                    </svg>
+                    <span>مشاركة</span>
+                </span>
+            )}
+        </button>
+    );
+}

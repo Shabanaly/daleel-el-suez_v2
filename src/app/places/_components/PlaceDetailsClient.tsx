@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ShareButton from '@/components/ui/ShareButton';
 import { useDialog } from "@/components/providers/DialogProvider";
-import {
-    Star, MapPin, Share2, Phone, ArrowRight, Heart,
-    ChevronLeft, CheckCircle2, Eye, MessageCircle
-} from 'lucide-react';
+import { Heart, Share2, MapPin, Phone, MessageCircle, Clock, Star, Info, ChevronRight, ChevronLeft, X, ExternalLink, ArrowRight, CheckCircle2, Eye } from 'lucide-react';
 import { Place } from '@/lib/types/places';
 import { PlaceCard } from './PlaceCard';
 import { Lightbox } from './Lightbox';
@@ -42,43 +40,6 @@ export function PlaceDetailsClient({
 
     const { showAlert } = useDialog();
 
-    const handleShare = async () => {
-        const shareData = {
-            title: place.name,
-            text: `شوف المكان ده في السويس: ${place.name}`,
-            url: window.location.href,
-        };
-
-        try {
-            if (navigator.share) {
-                await navigator.share(shareData);
-            } else if (navigator.clipboard) {
-                await navigator.clipboard.writeText(shareData.url);
-                showAlert({
-                    title: 'تم النسخ',
-                    message: 'تم نسخ رابط المكان بنجاح! ✨',
-                    type: 'success'
-                });
-            } else {
-                throw new Error('Share method not supported');
-            }
-        } catch (err) {
-            if (err instanceof Error && err.name === 'AbortError') return;
-            console.error('Share failed:', err);
-            // Manual fallback
-            const dummy = document.createElement('input');
-            document.body.appendChild(dummy);
-            dummy.value = window.location.href;
-            dummy.select();
-            document.execCommand('copy');
-            document.body.removeChild(dummy);
-            showAlert({
-                title: 'تم النسخ',
-                message: 'تم نسخ رابط المكان للمشاركة! ✨',
-                type: 'success'
-            });
-        }
-    };
 
     const handleImageClick = (index: number) => {
         setActiveImageIndex(index);
@@ -99,12 +60,19 @@ export function PlaceDetailsClient({
                 </Link>
                 <h2 className="text-lg font-bold text-text-primary">{place.name}</h2>
                 <div className="flex gap-2">
-                    <button
-                        onClick={handleShare}
+                    <ShareButton
+                        title={place.name}
+                        text={`شوف المكان ده في السويس: ${place.name}`}
+                        url={typeof window !== 'undefined' ? window.location.href : ''}
                         className="w-10 h-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-text-primary hover:bg-elevated transition-colors"
+                        onSuccess={() => showAlert({
+                            title: 'تم النسخ!',
+                            message: 'تم نسخ رابط المكان بنجاح! ✨',
+                            type: 'success'
+                        })}
                     >
                         <Share2 className="w-5 h-5" />
-                    </button>
+                    </ShareButton>
                 </div>
             </header>
 
@@ -182,13 +150,20 @@ export function PlaceDetailsClient({
                 {/* ── 3. Primary Actions (Share only, others moved to sticky bar) ── */}
                 <div className="hidden md:flex justify-end mb-10">
 
-                    <button
-                        onClick={handleShare}
+                    <ShareButton
+                        title={place.name}
+                        text={`شوف المكان ده في السويس: ${place.name}`}
+                        url={typeof window !== 'undefined' ? window.location.href : ''}
                         className="w-full md:w-auto px-8 h-16 rounded-[28px] bg-surface border border-border-subtle text-text-muted flex items-center justify-center gap-3 hover:bg-elevated transition-all shadow-lg group"
+                        onSuccess={() => showAlert({
+                            title: 'تم النسخ!',
+                            message: 'تم نسخ رابط المكان بنجاح! ✨',
+                            type: 'success'
+                        })}
                     >
                         <Share2 className="w-6 h-6 transition-transform group-hover:scale-110 " />
                         <span className="font-black text-lg">مشاركة المكان</span>
-                    </button>
+                    </ShareButton>
                 </div>
 
                 {/* ── 4. Tabs & Information (Modularized) ────────────────────── */}

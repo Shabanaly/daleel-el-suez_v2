@@ -12,6 +12,7 @@ import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
 import CategoryIcon from './CategoryIcon';
 import CommunityLightbox from './CommunityLightbox';
 import { useDialog } from '@/components/providers/DialogProvider';
+import ShareButton from '@/components/ui/ShareButton';
 
 interface PostCardProps {
   post: any;
@@ -80,46 +81,6 @@ export default function PostCard({ post, isLikedInitial = false, onCommentClick 
         }
       }
     });
-  };
-
-  const handleShare = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    const postLink = `${window.location.origin}/community#post-${post.id}`;
-    const shareData = {
-      title: 'دليل السويس - منشور في المجتمع',
-      text: post.content || 'اكتشف هذا المنشور في مجتمع السويس',
-      url: postLink,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(`${shareData.text}\n\n${postLink}`);
-        showAlert({
-          title: 'تم النسخ!',
-          message: 'تم نسخ رابط المنشور للحافظة بنجاح. ✨',
-          type: 'success'
-        });
-      } else {
-        throw new Error('Share method not supported');
-      }
-    } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') return;
-      console.error('Share failed:', err);
-      // Final fallback for any error/unsupported platform
-      const dummy = document.createElement('input');
-      document.body.appendChild(dummy);
-      dummy.value = postLink;
-      dummy.select();
-      document.execCommand('copy');
-      document.body.removeChild(dummy);
-      showAlert({
-        title: 'تم النسخ',
-        message: 'تم نسخ رابط المنشور للمشاركة! ✨',
-        type: 'success'
-      });
-    }
   };
 
   const isAuthor = user?.id === post.author_id;
@@ -198,16 +159,23 @@ export default function PostCard({ post, isLikedInitial = false, onCommentClick 
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
                   className="absolute left-0 top-full mt-2 w-48 bg-surface border border-border-subtle rounded-2xl shadow-xl z-20 overflow-hidden"
                 >
-                  <button 
-                    onClick={(e) => {
-                      setIsMenuOpen(false);
-                      handleShare(e);
-                    }}
+                  <ShareButton
+                    title="دليل السويس - منشور في المجتمع"
+                    text={post.content || 'اكتشف هذا المنشور في مجتمع السويس'}
+                    url={`${window.location.origin}/community#post-${post.id}`}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-primary hover:bg-background transition-colors"
+                    onSuccess={() => {
+                      setIsMenuOpen(false);
+                      showAlert({
+                        title: 'تم النسخ!',
+                        message: 'تم نسخ رابط المنشور للحافظة بنجاح. ✨',
+                        type: 'success'
+                      });
+                    }}
                   >
                     <Share2 className="w-4 h-4" />
                     <span>مشاركة المنشور</span>
-                  </button>
+                  </ShareButton>
                   {isAuthor && (
                     <button
                       onClick={() => {
@@ -306,12 +274,20 @@ export default function PostCard({ post, isLikedInitial = false, onCommentClick 
           </button>
         </div>
 
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-2 text-text-muted opacity-80 hover:text-primary transition-all active:scale-90"
+        <ShareButton
+          title="دليل السويس - منشور في المجتمع"
+          text={post.content || 'اكتشف هذا المنشور في مجتمع السويس'}
+          url={`${window.location.origin}/community#post-${post.id}`}
+          className="flex items-center gap-2 p-2 px-4 rounded-xl hover:bg-primary/5 text-text-muted transition-all active:scale-90"
+          onSuccess={() => showAlert({
+            title: 'تم بنجاح!',
+            message: 'تم نسخ رابط المنشور للمشاركة. ✨',
+            type: 'success'
+          })}
         >
-          <Share2 className="w-6 h-6" />
-        </button>
+          <Share2 className="w-5 h-5 group-hover:text-primary transition-colors" />
+          <span className="text-sm font-bold group-hover:text-primary transition-colors">مشاركة</span>
+        </ShareButton>
       </div>
 
       <AuthRequiredModal
