@@ -54,12 +54,7 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
                 timeoutId = setTimeout(() => {
                     if (window.google) {
                         try {
-                            window.google.accounts.id.prompt((notification: any) => {
-                                // Silent in production, only log errors or important skips
-                                if (notification.isSkippedMoment() || notification.isDismissedMoment()) {
-                                    // Optional: log why it was skipped if needed for debugging
-                                }
-                            });
+                            window.google.accounts.id.prompt();
                         } catch (promptErr) {
                             console.error('[GSI] One Tap Prompt Error:', promptErr);
                         }
