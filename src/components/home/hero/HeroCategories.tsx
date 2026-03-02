@@ -2,64 +2,94 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import * as LucideIcons from 'lucide-react';
 import { ChevronLeft } from 'lucide-react';
 
-interface HeroCategory {
-    name: string;
-    icon: string;
-    href: string;
-}
+import type { Category } from '@/lib/types/category';
+import SectionHeader from '@/components/ui/SectionHeader';
 
 interface HeroCategoriesProps {
-    categories: HeroCategory[];
+    categories: Category[];
 }
+
+// Dynamic Icon Renderer
+const IconRenderer = ({ iconName, className }: { iconName: string, className?: string }) => {
+    const Icon = (LucideIcons as any)[iconName];
+    if (!Icon) {
+        if (iconName && iconName.length <= 4) return <span className="text-xl">{iconName}</span>;
+        return <LucideIcons.HelpCircle className={className} />;
+    }
+    return <Icon className={className} />;
+};
 
 export default function HeroCategories({ categories }: HeroCategoriesProps) {
     if (!categories.length) return null;
 
+    // Limit to top 6 for the Hero section
+    const displayCategories = categories.slice(0, 6);
+
     return (
-        <div className="w-full space-y-4">
-            {/* Header with View All */}
-            <div className="flex items-center justify-between px-1">
-                <h3 className="text-[11px] font-black text-text-muted/40 uppercase tracking-widest">الأقسام الأكثر استخداماً</h3>
-                <Link
-                    href="/categories"
-                    className="flex items-center gap-1 py-1 px-3 rounded-full bg-primary/5 border border-primary/10 text-[11px] font-bold text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
-                >
-                    عرض الكل
-                    <ChevronLeft className="w-3.5 h-3.5" />
-                </Link>
+        <div className="w-full space-y-4 md:space-y-8">
+            {/* Header Area */}
+            <SectionHeader
+                title="الأقسام"
+                subtitle="التصنيفات الاكثر شيوعاً"
+                icon={LucideIcons.Grid}
+                href="/categories"
+                viewAllText="عرض الكل"
+            />
+
+            {/* Mobile: Horizontal Chips Layout */}
+            <div className="md:hidden w-full overflow-x-auto hide-scrollbar -mx-4 px-4">
+                <div className="flex items-center gap-1.5 pb-2">
+                    {displayCategories.map((cat, idx) => (
+                        <Link
+                            key={idx}
+                            href={`/places?category=${encodeURIComponent(cat.name)}`}
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-surface/60 backdrop-blur-xl border border-border-subtle hover:border-primary/40 active:scale-95 transition-all duration-300 whitespace-nowrap group shadow-sm"
+                        >
+                            <IconRenderer iconName={cat.icon} className="w-4 h-4 text-primary/80 group-hover:text-primary transition-colors" />
+                            <span className="text-xs font-bold text-text-muted group-hover:text-primary transition-colors">{cat.name}</span>
+                        </Link>
+                    ))}
+                    <Link
+                        href="/categories"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary/10 border border-primary/20 text-primary active:scale-95 transition-all duration-300 whitespace-nowrap font-bold text-xs"
+                    >
+                        المزيد
+                    </Link>
+                </div>
             </div>
 
+            {/* Desktop: Grid Layout */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="w-full overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0"
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="hidden md:grid grid-cols-3 lg:grid-cols-6 gap-4"
             >
-                <div className="flex items-center justify-start md:justify-center gap-3 md:gap-4 pb-2">
-                    {categories.map((cat, idx) => (
-                        <Link
-                            key={idx}
-                            href={cat.href}
-                            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 px-4 py-3 md:px-8 md:py-5 rounded-xl md:rounded-2xl bg-surface/40 backdrop-blur-md border border-border-subtle hover:border-primary/50 hover:bg-surface/80 hover:scale-105 active:scale-95 transition-all duration-300 min-w-[90px] md:min-w-[120px] group shadow-sm hover:shadow-xl hover:shadow-primary/5"
-                        >
-                            <span className="text-xl md:text-3xl grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500 transform-gpu">{cat.icon}</span>
-                            <span className="text-[10px] md:text-sm font-bold text-text-muted group-hover:text-primary transition-colors">{cat.name}</span>
-                        </Link>
-                    ))}
-
-                    {/* View All Card keeps for mobile convenience at the end of scroll */}
+                {displayCategories.map((cat, idx) => (
                     <Link
-                        href="/categories"
-                        className="flex flex-col items-center justify-center gap-1.5 md:gap-3 px-4 py-3 md:px-8 md:py-5 rounded-xl md:rounded-2xl bg-primary/10 backdrop-blur-md border border-primary/20 hover:border-primary/50 hover:bg-primary/20 hover:scale-105 active:scale-95 transition-all duration-300 min-w-[90px] md:min-w-[120px] group shadow-sm hover:shadow-xl hover:shadow-primary/5"
+                        key={idx}
+                        href={`/places?category=${encodeURIComponent(cat.name)}`}
+                        className="flex flex-col items-center justify-between p-5 md:p-6 rounded-2xl bg-surface/30 backdrop-blur-md border border-border-subtle hover:border-primary/30 hover:bg-surface/60 hover:translate-y-[-4px] transition-all duration-500 group relative overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5 min-h-[140px] md:min-h-[160px]"
                     >
-                        <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+                        {/* Background Decoration */}
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+                        <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner relative z-10">
+                            <IconRenderer iconName={cat.icon} className="w-6 h-6 opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
                         </div>
-                        <span className="text-[10px] md:text-sm font-black text-primary">المزيد</span>
+
+                        <div className="text-center space-y-1 mt-auto relative z-10">
+                            <h4 className="text-xs md:text-sm font-black text-text-primary group-hover:text-primary transition-colors line-clamp-1">{cat.name}</h4>
+                            <p className="text-[9px] md:text-[10px] font-bold text-text-muted/60 group-hover:text-primary/70 transition-colors uppercase tracking-wider">{cat.count}</p>
+                        </div>
+
+                        {/* Shine effect */}
+                        <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
                     </Link>
-                </div>
+                ))}
             </motion.div>
         </div>
     );

@@ -2,10 +2,9 @@
 
 import { Lightbox } from '@/app/places/_components/Lightbox';
 import { motion } from 'framer-motion';
+import SectionHeader from '@/components/ui/SectionHeader';
 import { Camera, ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
 
 const galleryItems = [
     {
@@ -39,23 +38,15 @@ const galleryItems = [
 ];
 
 export default function SuezGallery() {
-
     return (
-        <section className="w-full max-w-5xl mx-auto px-4 py-24 relative">
-            <div className="flex items-center justify-between mb-12">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20 relative group overflow-hidden">
-                        <Camera className="w-6 h-6 text-accent relative z-10" />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl md:text-4xl font-black text-text-primary tracking-tight">عدسة السويس</h2>
-                        <p className="text-text-muted font-bold text-xs md:text-sm mt-1 opacity-70">جمال المدينة بعيون أهلها وزوارها</p>
-                    </div>
-                </div>
-                <Link href="/gallery" className="text-sm font-bold text-primary hover:underline flex items-center gap-1">
-                    شاهد المزيد <ArrowUpRight className="w-4 h-4" />
-                </Link>
-            </div>
+        <section className="w-full max-w-5xl mx-auto px-4 py-6 md:py-16 mb-6 md:mb-10 overflow-hidden relative border-t border-border-subtle/30">
+            <SectionHeader
+                title="عدسة السويس"
+                subtitle="جمال المدينة بعيون أهلها وزوارها"
+                icon={Camera}
+                href="/"
+                viewAllText=""
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px]">
                 {galleryItems.map((item, idx) => (
@@ -67,11 +58,11 @@ export default function SuezGallery() {
                         transition={{ duration: 0.5, delay: idx * 0.1 }}
                         className={`relative rounded-3xl overflow-hidden group cursor-pointer ${item.span}`}
                     >
-
                         <Image
                             src={item.image}
                             alt={item.title}
                             fill
+                            unoptimized
                             className="object-cover transition-transform duration-700 group-hover:scale-110"
                         />
                         {/* Overlay */}

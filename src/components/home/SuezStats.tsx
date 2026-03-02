@@ -44,7 +44,7 @@ export default function SuezStats() {
                         transition={{ duration: 0.5, delay: idx * 0.1 }}
                         className="flex flex-col items-center text-center group"
                     >
-                        <div className={`w-14 h-14 rounded-2xl bg-surface border border-border-subtle flex items-center justify-center mb-6 shadow-sm group-hover:shadow-lg group-hover:border-primary/30 transition-all duration-300 ${stat.color}`}>
+                        <div className={`w-14 h-14 rounded-2xl bg-surface/50 backdrop-blur-md border border-border-subtle/50 flex items-center justify-center mb-6 shadow-sm group-hover:shadow-lg group-hover:shadow-primary/5 group-hover:border-primary/20 transition-all duration-300 ${stat.color}`}>
                             {stat.icon}
                         </div>
                         <h3 className="text-4xl md:text-5xl font-black text-text-primary mb-2 tracking-tighter">

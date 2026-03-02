@@ -7,6 +7,7 @@ import { usePlacesFilter } from '@/hooks/usePlacesFilter';
 import { PlaceCard } from './PlaceCard';
 
 import { AreaWithDistrict } from '@/lib/actions/areas';
+import SectionHeader from '@/components/ui/SectionHeader';
 
 interface PlacesClientProps {
     initialPlaces: Place[];
@@ -37,19 +38,12 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="flex flex-col md:flex-row md:items-center gap-4 md:gap-5"
                 >
-                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center border border-primary/30 shadow-primary/20 dark:shadow-primary/30 shrink-0">
-                        <MapPin className="w-8 h-8 md:w-10 md:h-10 text-primary opacity-80" />
-                    </div>
-                    <div>
-                        <h1 className="text-3xl md:text-5xl font-black text-text-primary mb-1 md:mb-2 tracking-tight">
-                            استعرض الأماكن
-                        </h1>
-                        <p className="text-text-muted md:text-lg font-medium opacity-80">
-                            اكتشف أفضل الأماكن والأنشطة في مدينة السويس
-                        </p>
-                    </div>
+                 <SectionHeader
+                 title="الأماكن"
+                 subtitle="اكتشف أفضل الأماكن والأنشطة في مدينة السويس"
+                 icon={MapPin}
+                 />
                 </motion.div>
             </div>
 
@@ -106,12 +100,12 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
                         <div className="absolute left-0 top-0 bottom-0 w-8 bg-linear-to-r from-base to-transparent z-10 pointer-events-none md:hidden" />
                         <div className="absolute right-0 top-0 bottom-0 w-8 bg-linear-to-l from-base to-transparent z-10 pointer-events-none md:hidden" />
 
-                        <div className="flex overflow-x-auto hide-scrollbar gap-2 pb-1 -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
+                        <div className="flex overflow-x-auto hide-scrollbar gap-1 pb-1 -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
                             {categories.map(cat => (
                                 <button
                                     key={cat}
                                     onClick={() => setActiveCategory(cat)}
-                                    className={`shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 border ${activeCategory === cat
+                                    className={`shrink-0 px-5 py-2 rounded-md text-sm font-semibold transition-all duration-300 border ${activeCategory === cat
                                         ? 'bg-primary text-white border-primary-hover shadow-primary/30'
                                         : 'bg-surface/50 text-text-muted border-border-subtle hover:bg-surface hover:text-text-secondary'
                                         }`}

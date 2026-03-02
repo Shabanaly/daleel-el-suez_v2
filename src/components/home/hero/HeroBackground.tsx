@@ -22,23 +22,25 @@ export default function HeroBackground() {
 
     return (
         <div className="absolute inset-0 z-0 opacity-20 dark:opacity-30">
-            <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/20 rounded-full filter blur-[120px] animate-pulse" />
-            <div className="absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] bg-accent/15 rounded-full filter blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+            <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/10 rounded-full filter blur-[120px] animate-pulse" />
+            <div className="absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] bg-accent/8 rounded-full filter blur-[100px] animate-pulse" style={{ animationDelay: '3s' }} />
 
             {/* Floating Particles */}
             {mounted && particles.map((p) => (
                 <motion.div
                     key={p.id}
-                    className="absolute w-1 h-1 bg-primary rounded-full"
+                    className="absolute w-1.5 h-1.5 bg-primary/40 rounded-full blur-[1px]"
                     animate={{
-                        y: [0, -100, 0],
-                        opacity: [0, 1, 0],
-                        scale: [1, 2, 1]
+                        y: [0, -40, 0],
+                        x: [0, 20, 0],
+                        opacity: [0, 0.6, 0],
+                        scale: [0.8, 1.2, 0.8]
                     }}
                     transition={{
-                        duration: p.duration,
+                        duration: p.duration * 1.5,
                         repeat: Infinity,
-                        delay: p.delay
+                        delay: p.delay,
+                        ease: "easeInOut"
                     }}
                     style={{
                         left: p.left,

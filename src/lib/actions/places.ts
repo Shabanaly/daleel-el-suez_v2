@@ -17,7 +17,8 @@ async function basePlacesQuery(orderBy: string, ascending = false, limit = 20) {
         .select(`
             *,
             categories(name, icon),
-            areas(name, districts(name))
+            areas(name, districts(name)),
+            reviews_count:reviews(count)
         `)
         .order(orderBy, { ascending })
         .limit(limit);
@@ -47,7 +48,7 @@ export const getPlaces = unstable_cache(
 export const getNewPlaces = unstable_cache(
     async () => basePlacesQuery('created_at', false, 20),
     ['new-places'],
-    { tags: ['places'], revalidate: 1800 }
+    { tags: ['places'], revalidate: 3600 }
 );
 
 /* =========================================================
@@ -60,7 +61,7 @@ export const getTrendingPlaces = unstable_cache(
         const supabase = createServiceClient();
         const { data, error } = await supabase
             .from('places')
-            .select(`*, categories(name, icon), areas(name, districts(name))`)
+            .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`)
             .order('views_count', { ascending: false })
             .order('avg_rating', { ascending: false })
             .limit(6);
@@ -72,7 +73,7 @@ export const getTrendingPlaces = unstable_cache(
         return (data || []).map(mapPlace);
     },
     ['trending-places'],
-    { tags: ['places'], revalidate: 900 }
+    { tags: ['places'], revalidate: 3600 }
 );
 
 /* =========================================================
@@ -86,7 +87,7 @@ export async function getPlaceBySlug(slug: string) {
             const supabase = createServiceClient();
             const { data, error } = await supabase
                 .from('places')
-                .select(`*, categories(name, icon), areas(name, districts(name))`)
+                .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`)
                 .eq('slug', s)
                 .single();
 
@@ -150,7 +151,7 @@ export const getHomePageData = unstable_cache(
         };
     },
     ['home-page-data'],
-    { tags: ['places', 'areas', 'categories'], revalidate: 1800 }
+    { tags: ['places', 'areas', 'categories'], revalidate: 3600 }
 );
 
 export async function incrementPlaceViews(placeId: string) {

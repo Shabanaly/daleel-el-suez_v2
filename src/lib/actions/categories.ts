@@ -55,14 +55,14 @@ async function getAllCategoriesInternal() {
 // ── Public API (Server Actions & Cached) ─────────────────────────
 export const getCategories = unstable_cache(
     getCategoriesInternal,
-    ['categories-list'],
-    { tags: ['categories'], revalidate: 86400 }
+    ['categories-list-v2'],
+    { tags: ['categories', 'categories-v2'], revalidate: 3600 }
 );
 
 export const getHomeCategories = unstable_cache(
     getHomeCategoriesInternal,
-    ['home-categories'],
-    { tags: ['categories', 'places'], revalidate: 3600 }
+    ['home-categories-v2'],
+    { tags: ['categories', 'places', 'categories-v2'], revalidate: 3600 }
 );
 
 export const getAllCategories = unstable_cache(

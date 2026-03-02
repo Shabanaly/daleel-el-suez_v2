@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { MessageSquare, Heart, Share2, ArrowRight } from 'lucide-react';
+import { MessageSquare, Heart, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
@@ -11,6 +11,7 @@ import { toggleLikePost } from '@/lib/actions/posts';
 import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
 import ShareButton from '@/components/ui/ShareButton';
 import { useEffect, useState } from 'react';
+import SectionHeader from '@/components/ui/SectionHeader';
 
 interface CommunityTeaserProps {
     posts: any[];
@@ -54,25 +55,19 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
             setIsAuthModalOpen(true);
         }
     };
+
     return (
-        <section className="w-full max-w-5xl mx-auto px-4 py-24 relative overflow-hidden">
+        <section className="w-full max-w-5xl mx-auto px-4 py-4 md:py-16 mb-4 md:mb-5 overflow-hidden relative border-t border-border-subtle/30">
             {/* Decorative elements */}
             <div className="absolute top-1/4 right-0 w-64 h-64 bg-primary/5 blur-[100px] pointer-events-none" />
 
-            <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                        <MessageSquare className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl md:text-4xl font-black text-text-primary tracking-tight">نبض مجتمع السويس</h2>
-                        <p className="text-text-muted font-bold text-xs md:text-sm mt-1 opacity-70">شارك تجربتك واكتشف ما يقوله أهل المدينة</p>
-                    </div>
-                </div>
-                <Link href="/community" className="px-6 py-3 rounded-full bg-surface border border-border-subtle hover:border-primary/30 text-sm font-bold text-text-primary transition-all flex items-center gap-2 group">
-                    انضم للمناقشة <ArrowRight className="w-4 h-4 group-hover:translate-x-[-4px] transition-transform" />
-                </Link>
-            </div>
+            <SectionHeader
+                title="مجتمع السويس"
+                subtitle="شارك معانا "
+                icon={MessageSquare}
+                href="/community"
+                viewAllText="اكتشف المزيد"
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {posts.map((post, idx) => (
@@ -95,6 +90,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                                             src={post.author.avatar_url}
                                             alt={post.author.full_name || 'User'}
                                             fill
+                                            unoptimized
                                             className="object-cover"
                                         />
                                     ) : (
@@ -122,7 +118,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                                 <div className="grid grid-cols-2 gap-2 mb-6 pointer-events-none">
                                     {post.images.slice(0, 2).map((img: string, i: number) => (
                                         <div key={i} className={`relative rounded-2xl overflow-hidden border border-border-subtle/50 aspect-4/3 ${post.images?.length === 1 ? 'col-span-2' : ''}`}>
-                                            <Image src={img} alt="Preview" fill className="object-cover" />
+                                            <Image src={img} alt="Preview" fill unoptimized className="object-cover" />
                                         </div>
                                     ))}
                                 </div>
@@ -132,9 +128,9 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                                 <div className="flex items-center gap-5">
                                     <button
                                         onClick={(e) => handleLike(e, post.id)}
-                                        className={`flex items-center gap-2 transition-all active:scale-90 ${likedPosts[post.id] === true || post.isLiked ? 'text-accent' : 'text-text-muted hover:text-accent'}`}
+                                        className="flex items-center gap-2 transition-all active:scale-90 text-text-muted hover:text-accent"
                                     >
-                                        <Heart className={`w-4.5 h-4.5 ${(likedPosts[post.id] === true || post.isLiked) ? 'fill-current' : ''}`} />
+                                        <Heart className="w-4.5 h-4.5" />
                                         <span className="text-xs font-black">{(post.likes_count || 0) + (likedPosts[post.id] ? 1 : 0)}</span>
                                     </button>
                                     <div

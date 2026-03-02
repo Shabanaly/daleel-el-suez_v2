@@ -18,13 +18,17 @@ export default function HeroSearch({ searchTerm, setSearchTerm, onSearch, onTagC
             {/* ── Search Bar ───────────────────────────────────────────── */}
             <motion.form
                 onSubmit={onSearch}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="w-full max-w-2xl mb-6 md:mb-8"
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="w-full max-w-2xl mb-5 md:mb-10 px-2 md:px-0"
             >
-                <div className="group relative flex items-center w-full h-14 md:h-20 bg-surface border border-border-subtle rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.2)] focus-within:ring-4 focus-within:ring-primary/10 focus-within:border-primary transition-all duration-500">
-                    <div className="ps-4 md:ps-8 text-text-muted group-focus-within:text-primary transition-colors">
+                <motion.div
+                    whileFocus={{ scale: 1.01 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="group relative flex items-center w-full h-14 md:h-18 bg-surface/90 dark:bg-elevated/90 backdrop-blur-2xl border border-border-subtle md:border-2 md:border-border-subtle/60 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl shadow-black/5 dark:shadow-primary/10 focus-within:border-primary/40 focus-within:ring-8 focus-within:ring-primary/5 transition-all duration-500"
+                >
+                    <div className="ps-4 md:ps-7 text-text-muted/50 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
                         <Search className="w-5 h-5 md:w-6 md:h-6" />
                     </div>
 
@@ -32,34 +36,40 @@ export default function HeroSearch({ searchTerm, setSearchTerm, onSearch, onTagC
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="ابحث عن مطعم، صيدلية..."
-                        className="flex-1 min-w-0 h-full bg-transparent border-none outline-none text-text-primary placeholder:text-text-muted/40 px-3 text-sm md:text-lg font-bold"
+                        placeholder="ابحث عن مطعم، صيدلية، كافيه..."
+                        className="flex-1 min-w-0 h-full bg-transparent border-none outline-none text-text-primary placeholder:text-text-muted/50 px-3 text-sm md:text-lg font-bold"
                     />
 
-                    <button
-                        type="submit"
-                        className="h-full px-6 md:px-16 bg-primary hover:bg-primary-hover text-white text-sm md:text-xl font-black transition-all active:scale-95 flex items-center justify-center shrink-0"
-                    >
-                        بحث
-                    </button>
-                </div>
+                    <div className="pe-2 md:pe-3 h-full flex items-center">
+                        <button
+                            type="submit"
+                            className="h-10 md:h-12 px-5 md:px-10 bg-primary hover:bg-primary-hover text-white text-sm md:text-lg font-black rounded-xl md:rounded-2xl shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center shrink-0 relative overflow-hidden group/btn"
+                        >
+                            <span className="relative z-10 hidden md:block">بحث</span>
+                            <Search className="relative z-10 block md:hidden w-5 h-5" />
+                            {/* Simple glow effect */}
+                            <div className="absolute inset-0 bg-white/20 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                        </button>
+                    </div>
+                </motion.div>
             </motion.form>
 
             {/* ── Trending Searches ──────────────────────────────────────── */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-4 md:mb-8"
+                transition={{ delay: 0.7 }}
+                className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-4 md:mb-10"
             >
-                <span className="text-xs font-bold text-text-muted/60 uppercase tracking-tighter">شائع الآن:</span>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-elevated/30 border border-border-subtle/20">
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                    <span className="text-[10px] md:text-xs font-black text-text-muted/60 uppercase tracking-tight">شائع:</span>
+                </div>
                 {TRENDING_TAGS.map((tag) => (
                     <button
                         key={tag}
-                        onClick={() => {
-                            onTagClick(tag);
-                        }}
-                        className="px-3 py-1 rounded-lg bg-surface border border-border-subtle/40 text-xs font-bold text-text-muted hover:text-primary hover:border-primary/30 transition-all"
+                        onClick={() => onTagClick(tag)}
+                        className="px-4 py-1.5 rounded-full bg-surface/40 backdrop-blur-md border border-border-subtle/50 text-[10px] md:text-xs font-bold text-text-muted hover:text-primary hover:border-primary/40 hover:bg-surface/80 hover:translate-y-[-2px] transition-all duration-300"
                     >
                         {tag}
                     </button>

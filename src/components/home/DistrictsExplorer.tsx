@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Map } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import SectionHeader from '../ui/SectionHeader';
 
 export default function DistrictsExplorer({ districts }: { districts: any[] }) {
     const router = useRouter();
@@ -14,22 +15,15 @@ export default function DistrictsExplorer({ districts }: { districts: any[] }) {
     if (!districts || districts.length === 0) return null;
 
     return (
-        <section className="w-full py-6 md:py-16 mb-6 md:mb-10 overflow-hidden relative border-t border-border-subtle/30">
+        <section className="w-full py-4 px-4 md:px-6 md:py-16 mb-4 md:mb-5 overflow-hidden relative border-t border-border-subtle/30">
             {/* Header */}
-            <div className="max-w-6xl mx-auto px-4 mb-8 md:mb-14 flex flex-col items-center">
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="flex items-center gap-2 mb-3"
-                >
-                    <div className="w-8 h-px bg-primary/30" />
-                    <Map className="w-4 h-4 text-primary/70" />
-                    <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.25em]">أحياء السويس</span>
-                    <div className="w-8 h-px bg-primary/30" />
-                </motion.div>
-                <h2 className="text-3xl md:text-5xl font-black text-text-primary tracking-tight text-center">استكشف حيك الآن</h2>
-            </div>
+            <SectionHeader
+                title="الأحياء"
+                subtitle="استكشف حيك الآن"
+                icon={Map}
+                href="/"
+                viewAllText=""
+            />
 
             {/* Scroll Container */}
             <div className="relative w-full group">

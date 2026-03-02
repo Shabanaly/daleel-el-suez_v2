@@ -1,7 +1,8 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { createServiceClient } from '@/lib/supabase/client-service';
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 
 export async function submitReview(formData: {
     placeId: string;
@@ -31,53 +32,63 @@ export async function submitReview(formData: {
         return { error: 'حدث خطأ أثناء حفظ التقييم' };
     }
 
+    // 🔥 Granular Revalidation
     revalidateTag(`place-${formData.placeId}`, 'max');
+    revalidateTag(`reviews-place-${formData.placeId}`, 'max');
     revalidateTag('places', 'max');
     revalidateTag(`user-${user.id}-stats`, 'max');
     revalidateTag(`user-${user.id}-activities`, 'max');
+
     revalidatePath(`/places/${formData.placeId}`);
     revalidatePath('/places');
+
     return { success: true };
 }
 
 export async function getReviews(placeId: string, page = 1, limit = 10) {
-    const supabase = await createClient();
+    return unstable_cache(
+        async (pId: string, p: number, l: number) => {
+            const supabase = createServiceClient();
 
-    const { data, error, count } = await supabase
-        .from('reviews')
-        // We use 'profiles' directly. If an alias is needed, it's safer to map it in JS 
-        // to avoid PGRST200 if the FK discovery fails for Aliases.
-        .select(`
-            *,
-            profiles (
-                username,
-                full_name,
-                avatar_url
-            )
-        `, { count: 'exact' })
-        .eq('place_id', placeId)
-        .order('created_at', { ascending: false })
-        .range((page - 1) * limit, page * limit - 1);
+            const { data, error, count } = await supabase
+                .from('reviews')
+                // We use 'profiles' directly. If an alias is needed, it's safer to map it in JS 
+                // to avoid PGRST200 if the FK discovery fails for Aliases.
+                .select(`
+                    *,
+                    profiles (
+                        username,
+                        full_name,
+                        avatar_url
+                    )
+                `, { count: 'exact' })
+                .eq('place_id', pId)
+                .order('created_at', { ascending: false })
+                .range((p - 1) * l, p * l - 1);
 
-    if (error) {
-        console.error('Error fetching reviews:', error);
-        return { reviews: [], count: 0 };
-    }
+            if (error) {
+                console.error('Error fetching reviews:', error);
+                return { reviews: [], count: 0 };
+            }
 
-    // Map profiles to user to maintain compatibility with the UI
-    const reviewsWithUser = data?.map(review => {
-        const { profiles, ...rest } = review;
-        return {
-            ...rest,
-            user: profiles
-        };
-    }) || [];
+            // Map profiles to user to maintain compatibility with the UI
+            const reviewsWithUser = data?.map(review => {
+                const { profiles, ...rest } = review;
+                return {
+                    ...rest,
+                    user: profiles
+                };
+            }) || [];
 
-    return {
-        reviews: reviewsWithUser,
-        count: count || 0,
-        timestamp: new Date().getTime()
-    };
+            return {
+                reviews: reviewsWithUser,
+                count: count || 0,
+                timestamp: new Date().getTime()
+            };
+        },
+        [`reviews-place-${placeId}-p${page}`],
+        { tags: [`reviews-place-${placeId}`, 'places'], revalidate: 3600 }
+    )(placeId, page, limit);
 }
 
 export async function deleteReview(placeId: string) {
@@ -99,12 +110,16 @@ export async function deleteReview(placeId: string) {
         return { error: 'حدث خطأ أثناء حذف التقييم' };
     }
 
+    // 🔥 Granular Revalidation
     revalidateTag(`place-${placeId}`, 'max');
+    revalidateTag(`reviews-place-${placeId}`, 'max');
     revalidateTag('places', 'max');
     revalidateTag(`user-${user.id}-stats`, 'max');
     revalidateTag(`user-${user.id}-activities`, 'max');
+
     revalidatePath(`/places/${placeId}`);
     revalidatePath('/places');
+
     return { success: true };
 }
 

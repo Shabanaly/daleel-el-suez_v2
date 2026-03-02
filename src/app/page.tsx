@@ -2,7 +2,6 @@ import { getPlaces, getNewPlaces, getTrendingPlaces, getHomePageData } from '@/l
 import { getHomeCategories } from '@/lib/actions/categories';
 import { getHomeDistricts } from '@/lib/actions/areas';
 import Hero from '@/components/home/Hero';
-import BentoCategories from '@/components/home/BentoCategories';
 import TrendingPlaces from '@/components/home/TrendingPlaces';
 import DistrictsExplorer from '@/components/home/DistrictsExplorer';
 import SuezStats from '@/components/home/SuezStats';
@@ -43,11 +42,11 @@ export default async function Home() {
 
       {/* Call to action banner at the end */}
       <section className="w-full max-w-5xl mx-auto px-4 pb-24 md:pb-32">
-        <div className="w-full rounded-3xl bg-linear-to-r from-elevated to-surface border border-primary/25 p-8 md:p-12 text-center flex flex-col items-center shadow-primary/10 relative overflow-hidden">
+        <div className="w-full rounded-[32px] md:rounded-[48px] bg-linear-to-br from-surface via-surface to-primary/5 border border-primary/15 p-8 md:p-16 text-center flex flex-col items-center shadow-2xl shadow-primary/5 relative overflow-hidden group">
           {/* Canal teal orb top-right */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary rounded-full mix-blend-screen filter blur-[100px] opacity-25 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full mix-blend-screen filter blur-[100px] opacity-40 pointer-events-none group-hover:opacity-60 transition-opacity duration-1000" />
           {/* Desert amber orb bottom-left */}
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent rounded-full mix-blend-screen filter blur-[80px] opacity-20 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full mix-blend-screen filter blur-[80px] opacity-30 pointer-events-none group-hover:opacity-50 transition-opacity duration-1000" />
 
           <h2 className="text-3xl md:text-5xl font-black text-text-primary mb-4 relative z-10">
             أضف نشاطك في دليل السويس
