@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
 import { toggleLikePost } from '@/lib/actions/posts';
 import { useAuth } from '@/hooks/useAuth';
 import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
 import ShareButton from '@/components/ui/ShareButton';
 import { useDialog } from '@/components/providers/DialogProvider';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useComments } from '@/components/providers/CommentsProvider';
 
 interface PostActionsProps {
     postId: string;
@@ -16,6 +16,7 @@ interface PostActionsProps {
     commentsCount: number;
     postContent?: string;
     origin: string;
+    isFullPage?: boolean;
 }
 
 export default function PostActions({
@@ -24,15 +25,21 @@ export default function PostActions({
     initialIsLiked = false,
     commentsCount,
     postContent,
-    origin
+    origin,
+    isFullPage = false
 }: PostActionsProps) {
     const { user } = useAuth();
     const { showAlert } = useDialog();
-    const router = useRouter();
-    const searchParams = useSearchParams();
+    const { openComments } = useComments();
     const [isLiked, setIsLiked] = useState(initialIsLiked);
     const [likesCount, setLikesCount] = useState(initialLikesCount);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+    // Sync state with props if they change (e.g. after server revalidation)
+    useEffect(() => {
+        setIsLiked(initialIsLiked);
+        setLikesCount(initialLikesCount);
+    }, [initialIsLiked, initialLikesCount]);
 
     const handleLike = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -62,10 +69,13 @@ export default function PostActions({
 
     const handleCommentClick = (e: React.MouseEvent) => {
         e.preventDefault();
-        // Use URL params for comments sheet to make it SSR compatible & shareable
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('postId', postId);
-        router.push(`/community?${params.toString()}`, { scroll: false });
+
+        if (isFullPage) {
+            window.dispatchEvent(new CustomEvent('community:focus-comment-input'));
+            return;
+        }
+
+        openComments(postId);
     };
 
     return (
@@ -92,7 +102,7 @@ export default function PostActions({
             <ShareButton
                 title="دليل السويس - منشور في المجتمع"
                 text={postContent || 'اكتشف هذا المنشور في مجتمع السويس'}
-                url={`${origin}/community#post-${postId}`}
+                url={`${origin}/community/posts/${postId}`}
                 className="flex items-center gap-2 p-2 px-4 rounded-xl hover:bg-primary/5 text-text-muted transition-all active:scale-90"
                 onSuccess={() => showAlert({
                     title: 'تم بنجاح!',

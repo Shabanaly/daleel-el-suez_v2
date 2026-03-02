@@ -10,6 +10,7 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { AuthModalProvider } from "@/hooks/useAuthModal";
 import { GoogleOneTap } from "@/components/auth/GoogleOneTap";
 import { DialogProvider } from "@/components/providers/DialogProvider";
+import { CommentsProvider } from "@/components/providers/CommentsProvider";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -69,6 +70,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   themeColor: "#0066FF",
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({
@@ -98,19 +100,21 @@ export default function RootLayout({
             {googleClientId && <GoogleOneTap clientId={googleClientId} />}
             <AuthModalProvider>
               <DialogProvider>
-                <Navbar />
-                <DesktopSidebar />
-                <LeftSidebar />
-                <MainContentWrapper>
-                  {children}
-                  {/* Show Footer only on desktop, balanced between sidebars */}
-                  <div className="hidden xl:block">
-                    <Footer />
-                  </div>
-                </MainContentWrapper>
+                <CommentsProvider>
+                  <Navbar />
+                  <DesktopSidebar />
+                  <LeftSidebar />
+                  <MainContentWrapper>
+                    {children}
+                    {/* Show Footer only on desktop, balanced between sidebars */}
+                    <div className="hidden xl:block">
+                      <Footer />
+                    </div>
+                  </MainContentWrapper>
 
-                <BottomNav />
-                <Analytics />
+                  <BottomNav />
+                  <Analytics />
+                </CommentsProvider>
               </DialogProvider>
             </AuthModalProvider>
           </AuthProvider>

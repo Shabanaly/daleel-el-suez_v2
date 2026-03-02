@@ -1,12 +1,12 @@
 import { getPostById } from '@/lib/actions/posts';
 import { getCommunityCategories } from '@/lib/actions/categories';
+import { createClient } from '@/lib/supabase/server';
 import PostCard from '../../_components/PostCard';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { ArrowLeft, Users } from 'lucide-react';
 import Link from 'next/link';
-import CommentsWrapper from '../../_components/CommentsWrapper';
-
+import CommunityComments from '../../_components/CommunityComments';
 import { Suspense } from 'react';
 
 interface PostPageProps {
@@ -15,7 +15,9 @@ interface PostPageProps {
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
     const { id } = await params;
-    const post = await getPostById(id);
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const post = await getPostById(id, user?.id);
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-el-suez.vercel.app';
 
     if (!post) {
@@ -56,9 +58,12 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 export default async function PostPage({ params }: PostPageProps) {
     const { id } = await params;
 
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
     // Fetch post and categories in parallel
     const [post, categories] = await Promise.all([
-        getPostById(id),
+        getPostById(id, user?.id),
         getCommunityCategories()
     ]);
 
@@ -105,13 +110,14 @@ export default async function PostPage({ params }: PostPageProps) {
 
                 {/* The Post Card */}
                 <Suspense fallback={<div className="h-96 bg-surface animate-pulse rounded-[32px]" />}>
-                    <PostCard post={post} categories={categories} />
+                    <PostCard post={post} categories={categories} isFullPage={true} />
                 </Suspense>
 
-                {/* Comments Section (Since it's an individual page, we can handle comments differently or just use the existing sheet logic) */}
+
+                {/* Comments Section (Inline for individual page) */}
                 <div className="mt-8">
-                    <Suspense fallback={null}>
-                        <CommentsWrapper forcedOpenPostId={post.id} />
+                    <Suspense fallback={<div className="h-40 bg-surface animate-pulse rounded-2xl" />}>
+                        <CommunityComments postId={post.id} isInline={true} />
                     </Suspense>
                 </div>
             </div>

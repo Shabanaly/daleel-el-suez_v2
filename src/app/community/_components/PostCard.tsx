@@ -14,9 +14,10 @@ interface PostCardProps {
   post: any;
   categories: any[];
   isLikedInitial?: boolean;
+  isFullPage?: boolean;
 }
 
-export default async function PostCard({ post, categories, isLikedInitial = false }: PostCardProps) {
+export default async function PostCard({ post, categories, isLikedInitial = false, isFullPage = false }: PostCardProps) {
   const headersList = await headers();
   const host = headersList.get('host') || '';
   const protocol = host.includes('localhost') ? 'http' : 'https';
@@ -75,9 +76,17 @@ export default async function PostCard({ post, categories, isLikedInitial = fals
 
       {/* Post Content */}
       <div className="px-6 pb-4">
-        <p className="text-text-primary text-base leading-relaxed font-bold whitespace-pre-wrap">
-          {post.content}
-        </p>
+        {!isFullPage ? (
+          <Link href={`/community/posts/${post.id}`} className="block group/content">
+            <p className="text-text-primary text-base leading-relaxed font-bold whitespace-pre-wrap group-hover/content:text-primary transition-colors">
+              {post.content}
+            </p>
+          </Link>
+        ) : (
+          <p className="text-text-primary text-base leading-relaxed font-bold whitespace-pre-wrap">
+            {post.content}
+          </p>
+        )}
       </div>
 
       {/* Post Images Grid (Client for Lightbox) */}
@@ -91,10 +100,11 @@ export default async function PostCard({ post, categories, isLikedInitial = fals
       <PostActions
         postId={post.id}
         initialLikesCount={likesCount}
-        initialIsLiked={isLikedInitial}
+        initialIsLiked={post.isLiked || isLikedInitial}
         commentsCount={commentsCount}
         postContent={post.content}
         origin={origin}
+        isFullPage={isFullPage}
       />
     </PostCardAnimation>
   );

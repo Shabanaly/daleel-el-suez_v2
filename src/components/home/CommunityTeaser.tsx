@@ -78,7 +78,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                 {posts.map((post, idx) => (
                     <Link
                         key={post.id}
-                        href={`/community#post-${post.id}`}
+                        href={`/community/posts/${post.id}`}
                         className="group/card"
                     >
                         <motion.div
@@ -149,7 +149,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                                     <ShareButton
                                         title="دليل السويس - منشور في المجتمع"
                                         text={post.content}
-                                        url={`${origin}/community#post-${post.id}`}
+                                        url={`${origin}/community/posts/${post.id}`}
                                         className="p-2 rounded-xl hover:bg-primary/5 text-text-muted hover:text-primary transition-all active:scale-90"
                                     >
                                         <Share2 className="w-4.5 h-4.5" />

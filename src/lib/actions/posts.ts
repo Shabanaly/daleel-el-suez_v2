@@ -76,6 +76,7 @@ export async function updatePost(postId: string, formData: {
     }
 
     revalidateTag('community-posts', 'max');
+    revalidateTag(`post-${postId}`, 'max');
     revalidatePath('/community');
 
     return { success: true };
@@ -116,6 +117,7 @@ export async function deletePost(postId: string) {
     }
 
     revalidateTag('community-posts', 'max');
+    revalidateTag(`post-${postId}`, 'max');
     revalidatePath('/community');
 
     return { success: true };
@@ -165,6 +167,7 @@ export async function toggleLikePost(postId: string) {
     }
 
     revalidateTag('community-posts', 'max');
+    revalidateTag(`post-${postId}`, 'max');
     return { success: true, isLiked: !existing };
 }
 
@@ -172,21 +175,24 @@ export async function toggleLikePost(postId: string) {
  * Fetches community posts with a custom ranking algorithm and search support.
  * Equation: (likes_count * 2 + comments_count * 1 + 1) / (hours_since_post + 2) ^ 1.5
  */
-export async function getCommunityPosts(categoryId?: number, search?: string, page = 1, limit = 10) {
+export async function getCommunityPosts(categoryId?: number, search?: string, page = 1, limit = 10, currentUserId?: string | null) {
     return unstable_cache(
-        async (catId?: number, queryStr?: string, p = 1, l = 10) => {
+        async (catId?: number, queryStr?: string, p = 1, l = 10, userId?: string | null) => {
             const supabase = createServiceClient();
 
+            // Build base query
             let query = supabase
                 .from('posts')
                 .select(`
                     *,
                     author:profiles!author_id(id, username, full_name, avatar_url),
                     category:categories(id, name, icon),
-                    comments_count:comments(count)
+                    comments_count:comments(count),
+                    likes:likes(id, user_id)
                 `)
                 .eq('status', 'active');
 
+            // Apply filters
             if (catId) {
                 query = query.eq('category_id', catId);
             }
@@ -202,18 +208,24 @@ export async function getCommunityPosts(categoryId?: number, search?: string, pa
                 return [];
             }
 
-            // Apply Ranking Algorithm in JS (since it involves complex math/joins)
+            // Apply Ranking Algorithm in JS
             const now = new Date();
             const rankedPosts = posts.map((post: any) => {
                 const commentCount = post.comments_count?.[0]?.count || 0;
                 const likesCount = post.likes_count || 0;
+
+                // Check if user liked this post from the joined likes
+                const isLiked = userId
+                    ? post.likes?.some((l: any) => l.user_id === userId)
+                    : false;
+
                 const createdDate = new Date(post.created_at);
                 const hoursSince = Math.max(0, (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60));
 
                 // Score formula
                 const score = (likesCount * 2 + commentCount + 1) / Math.pow(hoursSince + 2, 1.5);
 
-                return { ...post, score, commentCount };
+                return { ...post, score, commentCount, isLiked };
             });
 
             // Sort by score DESC
@@ -225,17 +237,17 @@ export async function getCommunityPosts(categoryId?: number, search?: string, pa
 
             return paginated;
         },
-        [`community-posts-${categoryId || 'all'}-${search || 'no-search'}-p${page}`],
-        { tags: ['community-posts'], revalidate: 300 } // Cache for 5 mins
-    )(categoryId, search, page, limit);
+        [`community-posts-${categoryId || 'all'}-${search || 'no-search'}-p${page}-u${currentUserId || 'guest'}`],
+        { tags: ['community-posts'], revalidate: 3600 } // Cache for 1 hour or until revalidated
+    )(categoryId, search, page, limit, currentUserId);
 }
 
 /**
  * Fetches a single post by ID with all relations.
  */
-export async function getPostById(id: string) {
+export async function getPostById(id: string, currentUserId?: string | null) {
     return unstable_cache(
-        async (postId: string) => {
+        async (postId: string, userId?: string | null) => {
             const supabase = createServiceClient();
 
             const { data, error } = await supabase
@@ -244,7 +256,8 @@ export async function getPostById(id: string) {
                     *,
                     author:profiles!author_id(id, username, full_name, avatar_url),
                     category:categories(id, name, icon),
-                    comments_count:comments(count)
+                    comments_count:comments(count),
+                    likes:likes(id, user_id)
                 `)
                 .eq('id', postId)
                 .eq('status', 'active')
@@ -255,14 +268,19 @@ export async function getPostById(id: string) {
                 return null;
             }
 
+            const isLiked = userId
+                ? data.likes?.some((l: any) => l.user_id === userId)
+                : false;
+
             return {
                 ...data,
-                commentCount: data.comments_count?.[0]?.count || 0
+                commentCount: data.comments_count?.[0]?.count || 0,
+                isLiked
             };
         },
-        [`post-${id}`],
-        { tags: [`post-${id}`, 'community-posts'], revalidate: 300 }
-    )(id);
+        [`post-${id}-u${currentUserId || 'guest'}`],
+        { tags: [`post-${id}`, 'community-posts'], revalidate: 3600 } // Cache for 1 hour or until revalidated
+    )(id, currentUserId);
 }
 /**
  * Fetches all active post IDs and update times for sitemap generation.

@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import CommunityLightbox from './CommunityLightbox';
 import { toggleLikePost } from '@/lib/actions/posts';
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useComments } from '@/components/providers/CommentsProvider';
 
 interface PostImagesGridProps {
     post: any;
@@ -19,14 +19,19 @@ export default function PostImagesGrid({
     initialLikesCount
 }: PostImagesGridProps) {
     const { user } = useAuth();
-    const router = useRouter();
-    const searchParams = useSearchParams();
+    const { openComments } = useComments();
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-    // Local state for lightbox interactions (duplicated from PostActions for sync)
+    // Local state for lightbox interactions
     const [isLiked, setIsLiked] = useState(initialIsLiked);
     const [likesCount, setLikesCount] = useState(initialLikesCount);
+
+    // Sync state with props if they change
+    useEffect(() => {
+        setIsLiked(initialIsLiked);
+        setLikesCount(initialLikesCount);
+    }, [initialIsLiked, initialLikesCount]);
 
     const openLightbox = (index: number) => {
         setSelectedImageIndex(index);
@@ -49,9 +54,7 @@ export default function PostImagesGrid({
 
     const handleComment = () => {
         setIsLightboxOpen(false);
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('postId', post.id);
-        router.push(`/community?${params.toString()}`, { scroll: false });
+        openComments(post.id);
     };
 
     if (!post.images || post.images.length === 0) return null;

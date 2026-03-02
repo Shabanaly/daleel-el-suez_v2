@@ -16,7 +16,9 @@ export default function BottomNav() {
 
     const isAuthPage = pathname === '/login' || pathname === '/signup';
     const isPlaceDetailsPage = pathname?.startsWith('/places/') && pathname.split('/').length === 3;
-    if (isAuthPage || isPlaceDetailsPage) return null;
+    const isPostDetailsPage = pathname?.startsWith('/community/posts/');
+
+    if (isAuthPage || isPlaceDetailsPage || isPostDetailsPage) return null;
 
     const handleProtectedAction = (e: React.MouseEvent, href: string) => {
         if (!user) {

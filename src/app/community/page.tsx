@@ -1,5 +1,6 @@
 import { getCommunityPosts } from '@/lib/actions/posts';
 import { getCommunityCategories } from '@/lib/actions/categories';
+import { createClient } from '@/lib/supabase/server';
 import PostCard from './_components/PostCard';
 import CreatePost from './_components/CreatePost';
 import CommunityFeed from './_components/CommunityFeed';
@@ -65,9 +66,12 @@ export default async function CommunityPage({
 
   const categoryId = categoryParam ? parseInt(categoryParam) : undefined;
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   // Fetch data in parallel
   const [posts, categories] = await Promise.all([
-    getCommunityPosts(categoryId, q),
+    getCommunityPosts(categoryId, q, 1, 10, user?.id),
     getCommunityCategories(),
   ]);
 
