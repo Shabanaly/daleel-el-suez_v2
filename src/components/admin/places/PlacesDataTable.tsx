@@ -27,9 +27,12 @@ interface PlacesDataTableProps {
     isLoading: boolean;
     onUpdateStatus: (placeId: string, status: PlaceStatus) => Promise<{ success: boolean; error?: string }>;
     onDelete: (placeId: string) => Promise<{ success: boolean; error?: string }>;
+    page?: number;
+    totalPages?: number;
+    onPageChange?: (page: number) => void;
 }
 
-export function PlacesDataTable({ places, isLoading, onUpdateStatus, onDelete }: PlacesDataTableProps) {
+export function PlacesDataTable({ places, isLoading, onUpdateStatus, onDelete, page, totalPages, onPageChange }: PlacesDataTableProps) {
     const [actionLoading, setActionLoading] = useState<string | null>(null);
 
     const handleStatusChange = async (placeId: string, status: PlaceStatus) => {
@@ -179,6 +182,31 @@ export function PlacesDataTable({ places, isLoading, onUpdateStatus, onDelete }:
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages !== undefined && totalPages > 1 && onPageChange && page !== undefined && (
+                <div className="flex items-center justify-between p-4 border-t border-border-subtle bg-surface/50 mt-auto">
+                    <div className="text-sm text-text-muted font-medium">
+                        صفحة {page} من {totalPages}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => onPageChange(page - 1)}
+                            disabled={page === 1 || isLoading}
+                            className="px-4 py-2 rounded-lg border border-border-subtle bg-background disabled:opacity-50 disabled:cursor-not-allowed hover:bg-elevated transition-colors text-sm font-medium"
+                        >
+                            السابق
+                        </button>
+                        <button
+                            onClick={() => onPageChange(page + 1)}
+                            disabled={page === totalPages || isLoading}
+                            className="px-4 py-2 rounded-lg border border-border-subtle bg-background disabled:opacity-50 disabled:cursor-not-allowed hover:bg-elevated transition-colors text-sm font-medium"
+                        >
+                            التالي
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

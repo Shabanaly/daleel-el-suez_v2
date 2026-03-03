@@ -30,8 +30,8 @@ async function checkAdminOrModerator() {
     return { user, role: data?.role };
 }
 
-// Fetch Places with dynamic filtering
-export async function getAdminPlaces(params?: { search?: string, status?: PlaceStatus }) {
+// Fetch Places with dynamic filtering and pagination
+export async function getAdminPlaces(params?: { search?: string, status?: PlaceStatus, page?: number, limit?: number }) {
     await checkAdminOrModerator(); // Secure the fetch action
     const supabase = createAdminClient();
 
@@ -46,7 +46,7 @@ export async function getAdminPlaces(params?: { search?: string, status?: PlaceS
             area:areas(name, district:districts(name)),
             created_at,
             status
-        `)
+        `, { count: 'exact' })
         .order('created_at', { ascending: false });
 
     if (params?.search) {
@@ -57,7 +57,14 @@ export async function getAdminPlaces(params?: { search?: string, status?: PlaceS
         query = query.eq('status', params.status);
     }
 
-    const { data, error } = await query;
+    const page = params?.page || 1;
+    const limit = params?.limit || 100;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    query = query.range(from, to);
+
+    const { data, count, error } = await query;
 
     if (error) {
         console.error('Error fetching admin places:', error);
@@ -65,7 +72,7 @@ export async function getAdminPlaces(params?: { search?: string, status?: PlaceS
     }
 
     // Map the relationships to match expected data types in the frontend
-    return data.map((place: any) => ({
+    const mappedPlaces = data.map((place: any) => ({
         ...place,
         category: place.category ? place.category : undefined,
         area: place.area?.name || 'غير محدد',
@@ -73,6 +80,8 @@ export async function getAdminPlaces(params?: { search?: string, status?: PlaceS
         rating: 0,
         reviews_count: 0
     }));
+
+    return { places: mappedPlaces, totalCount: count || 0 };
 }
 
 // Update Place Status
