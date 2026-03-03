@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from 'react';
 import { User, Clock } from 'lucide-react';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
@@ -8,7 +11,6 @@ import PostActions from './PostActions';
 import PostHeaderActions from './PostHeaderActions';
 import PostImagesGrid from './PostImagesGrid';
 import PostCardAnimation from './PostCardAnimation';
-import { headers } from 'next/headers';
 
 interface PostCardProps {
   post: any;
@@ -17,11 +19,11 @@ interface PostCardProps {
   isFullPage?: boolean;
 }
 
-export default async function PostCard({ post, categories, isLikedInitial = false, isFullPage = false }: PostCardProps) {
-  const headersList = await headers();
-  const host = headersList.get('host') || '';
-  const protocol = host.includes('localhost') ? 'http' : 'https';
-  const origin = `${protocol}://${host}`;
+export default function PostCard({ post, categories, isLikedInitial = false, isFullPage = false }: PostCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const CONTENT_THRESHOLD = 200; // rough char count for 4 lines
+  // Use window.location.origin in client
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
 
   const likesCount = post.likes_count || 0;
   const commentsCount = post.comments_count?.[0]?.count || 0;
@@ -77,11 +79,21 @@ export default async function PostCard({ post, categories, isLikedInitial = fals
       {/* Post Content */}
       <div className="px-6 pb-4">
         {!isFullPage ? (
-          <Link href={`/community/posts/${post.id}`} className="block group/content">
-            <p className="text-text-primary text-base leading-relaxed font-bold whitespace-pre-wrap group-hover/content:text-primary transition-colors">
-              {post.content}
-            </p>
-          </Link>
+          <div>
+            <Link href={`/community/posts/${post.id}`} className="block group/content">
+              <p className={`text-text-primary text-base leading-relaxed font-bold whitespace-pre-wrap group-hover/content:text-primary transition-colors ${!isExpanded ? 'line-clamp-4' : ''}`}>
+                {post.content}
+              </p>
+            </Link>
+            {post.content && post.content.length > CONTENT_THRESHOLD && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-primary font-bold text-sm mt-2 hover:underline inline-block"
+              >
+                {isExpanded ? 'عرض أقل' : 'قراءة المزيد...'}
+              </button>
+            )}
+          </div>
         ) : (
           <p className="text-text-primary text-base leading-relaxed font-bold whitespace-pre-wrap">
             {post.content}

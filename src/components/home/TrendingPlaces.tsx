@@ -19,7 +19,7 @@ export default function TrendingPlaces({ places }: TrendingPlacesProps) {
 
             <SectionHeader
                 title="الاكثر رواجاَ"
-                subtitle="الاعلي تقييماَ والاكثر رواجاَ"
+                subtitle="اكتشف الأماكن الأكثر زيارة وتفاعلاً"
                 icon={Flame}
                 href="/places?sort=trending"
             />

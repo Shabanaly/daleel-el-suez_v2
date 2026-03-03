@@ -83,7 +83,7 @@ export default function PostActions({
             <div className="flex items-center gap-6">
                 <button
                     onClick={handleLike}
-                    className={`group flex items-center gap-2 transition-all active:scale-90 ${isLiked ? 'text-accent' : 'text-text-muted opacity-80 hover:text-accent'
+                    className={`group flex items-center gap-2 transition-all active:scale-90 ${isLiked ? 'text-red-500' : 'text-text-muted opacity-80 hover:text-red-500'
                         }`}
                 >
                     <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />

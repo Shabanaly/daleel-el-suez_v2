@@ -4,7 +4,7 @@ import { getAllCategories } from '@/lib/actions/categories';
 import { getAllPosts } from '@/lib/actions/posts';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-el-suez.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
 
     // Fetch all paths in parallel
     const [places, categories, posts] = await Promise.all([

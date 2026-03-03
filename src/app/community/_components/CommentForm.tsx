@@ -30,7 +30,7 @@ const CommentForm = forwardRef<HTMLInputElement, CommentFormProps>(({
         return (
             <button
                 onClick={onAuthRequired}
-                className="w-full text-center p-4 rounded-xl bg-background border border-dashed border-border-subtle hover:bg-elevated/50 transition-all group"
+                className="w-full text-center p-2 rounded-xl bg-background border border-dashed border-border-subtle hover:bg-elevated/50 transition-all group"
             >
                 <p className="text-xs font-black text-text-muted group-hover:text-primary transition-colors">يجب تسجيل الدخول للمشاركة في النقاش .. سجل الآن ✨</p>
             </button>
@@ -38,7 +38,7 @@ const CommentForm = forwardRef<HTMLInputElement, CommentFormProps>(({
     }
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-2">
             {replyTo && (
                 <div className="flex items-center justify-between px-2">
                     <p className="text-[10px] font-bold text-primary">الرد على {replyTo.author?.full_name || 'مستشار سويسي'}</p>
@@ -47,31 +47,31 @@ const CommentForm = forwardRef<HTMLInputElement, CommentFormProps>(({
                     </button>
                 </div>
             )}
-            <form onSubmit={onSubmit} className="flex gap-3">
-                <div className="flex-1 relative">
-                    <input
-                        ref={ref}
-                        value={value}
-                        onChange={(e) => onChange(e.target.value)}
-                        placeholder={replyTo ? "اكتب ردك..." : "اكتب تعليقاً..."}
-                        className="w-full h-14 pr-12 pl-4 rounded-xl bg-background border border-border-subtle text-text-primary focus:border-primary outline-none font-bold text-sm shadow-sm transition-all"
-                    />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full overflow-hidden ring-1 ring-background border border-border-subtle/50">
-                        {user.user_metadata?.avatar_url || user.avatar_url ? (
-                            <Image src={user.user_metadata?.avatar_url || user.avatar_url} alt="User" fill className="object-cover" />
-                        ) : (
-                            <div className="w-full h-full bg-primary/10 flex items-center justify-center">
-                                <User className="w-4 h-4 text-primary" />
-                            </div>
-                        )}
-                    </div>
+            <form onSubmit={onSubmit} className="relative flex items-center gap-2 p-1 bg-background border border-border-subtle focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 rounded-2xl shadow-sm transition-all group">
+                <div className="shrink-0 w-7 h-7 sm:w-9 sm:h-9 relative rounded-full overflow-hidden ring-2 ring-background border border-border-subtle/50 mr-1">
+                    {user.user_metadata?.avatar_url || user.avatar_url ? (
+                        <Image src={user.user_metadata?.avatar_url || user.avatar_url} alt="User" fill className="object-cover" />
+                    ) : (
+                        <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+                            <User className="w-4 h-4 text-primary" />
+                        </div>
+                    )}
                 </div>
+
+                <input
+                    ref={ref}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={replyTo ? "اكتب ردك..." : "اكتب تعليقاً..."}
+                    className="flex-1 h-10 w-full bg-transparent text-text-primary outline-none font-semibold text-sm placeholder:text-text-muted/70 px-2"
+                />
+
                 <button
                     type="submit"
                     disabled={!value.trim() || isSubmitting}
-                    className="w-14 h-14 rounded-2xl bg-primary text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
+                    className="shrink-0 w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:bg-surface-elevated disabled:text-text-muted disabled:shadow-none disabled:hover:scale-100 ml-0.5"
                 >
-                    {isSubmitting ? <Loader2 className="w-6 h-6 animate-spin" /> : <Send className="w-6 h-6" />}
+                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 -ml-0.5 rtl:ml-0 rtl:-mr-0.5 transform -rotate-90 " />}
                 </button>
             </form>
         </div>

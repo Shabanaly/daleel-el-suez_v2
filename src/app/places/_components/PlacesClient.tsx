@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, SlidersHorizontal, X, MapPin } from 'lucide-react';
+import { Search, SlidersHorizontal, X, MapPin, ChevronRight, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Place } from '@/lib/types/places';
 import { usePlacesFilter } from '@/hooks/usePlacesFilter';
@@ -24,38 +24,40 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
         activeDistrict, setActiveDistrict,
         activeArea, setActiveArea,
         sortBy, setSortBy,
+        page, setPage,
         showFilters, setShowFilters,
         filtered, hasActiveFilters, clearFilters,
-        availableAreas
+        availableAreas,
+        isPending
     } = usePlacesFilter(initialPlaces, categories, areas, districts);
 
     return (
         <div className="w-full min-h-screen pt-20 md:pt-28 pb-10">
 
             {/* ── Page Header ──────────────────────────────────────────────── */}
-            <div className="max-w-5xl mx-auto px-4 mb-6 md:mb-10">
+            <div className="max-w-5xl mx-auto px-4 mb-8 md:mb-12">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                 <SectionHeader
-                 title="الأماكن"
-                 subtitle="اكتشف أفضل الأماكن والأنشطة في مدينة السويس"
-                 icon={MapPin}
-                 />
+                    <SectionHeader
+                        title="الأماكن"
+                        subtitle="اكتشف أفضل الأماكن والأنشطة في مدينة السويس"
+                        icon={MapPin}
+                    />
                 </motion.div>
             </div>
 
             {/* ── Search & Filter Bar ──────────────────────────────────────── */}
-            <div className="max-w-5xl mx-auto px-4 mb-6 md:mb-10">
+            <div className="max-w-5xl mx-auto px-4 mb-8 md:mb-12">
                 <motion.div
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="flex flex-col gap-4"
+                    className="flex flex-col gap-6"
                 >
-                    <div className="flex gap-2.5 md:gap-4 items-center">
+                    <div className="flex gap-3 md:gap-4 items-center">
                         {/* Search Unit */}
                         <div className="relative flex-1 group">
                             <div className="absolute inset-0 bg-primary/5 dark:bg-primary/10 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
@@ -66,7 +68,7 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
                                     value={query}
                                     onChange={e => setQuery(e.target.value)}
                                     placeholder="ابحث عن مكان، تصنيف، أو منطقة..."
-                                    className="w-full h-full bg-transparent border-none outline-none text-text-primary placeholder-text-muted/60 pr-14 pl-5 text-[16px] md:text-lg font-medium"
+                                    className="w-full h-full bg-transparent border-none outline-none text-text-primary placeholder-text-muted/60 pr-16 pl-6 text-[16px] md:text-lg font-medium"
                                 />
                                 {query && (
                                     <button
@@ -105,9 +107,9 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
                                 <button
                                     key={cat}
                                     onClick={() => setActiveCategory(cat)}
-                                    className={`shrink-0 px-5 py-2 rounded-md text-sm font-semibold transition-all duration-300 border ${activeCategory === cat
-                                        ? 'bg-primary text-white border-primary-hover shadow-primary/30'
-                                        : 'bg-surface/50 text-text-muted border-border-subtle hover:bg-surface hover:text-text-secondary'
+                                    className={`shrink-0 px-6 py-2.5 md:px-7 rounded-xl text-sm font-bold transition-all duration-300 border ${activeCategory === cat
+                                        ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                                        : 'bg-surface/50 text-text-muted border-border-subtle hover:bg-surface hover:text-text-primary'
                                         }`}
                                 >
                                     {cat}
@@ -127,16 +129,16 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
                             transition={{ duration: 0.3 }}
                             className="overflow-hidden"
                         >
-                            <div className="mt-4 p-5 rounded-[32px] glass-panel space-y-7 border-primary/10 dark:border-primary/20">
+                            <div className="mt-6 p-6 rounded-[32px] bg-surface/80 dark:bg-surface/50 shadow-inner space-y-8 border border-border-subtle backdrop-blur-3xl">
                                 {/* District filter (Primary) */}
                                 <div>
-                                    <label className="text-[10px] font-black text-text-muted mb-3 block uppercase tracking-widest opacity-60">تصفية حسب الحي</label>
-                                    <div className="flex flex-wrap gap-2">
+                                    <label className="text-xs font-black text-text-secondary mb-3 block uppercase tracking-wide">تصفية حسب الحي</label>
+                                    <div className="flex flex-wrap gap-2.5">
                                         <button
                                             onClick={() => setActiveDistrict('كل الأحياء')}
-                                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${activeDistrict === 'كل الأحياء'
-                                                ? 'bg-primary/10 text-primary border-primary/30'
-                                                : 'bg-background/40 text-text-muted border-border-subtle hover:border-primary/20'
+                                            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 border ${activeDistrict === 'كل الأحياء'
+                                                ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                                                : 'bg-surface text-text-muted border-border-subtle hover:border-border hover:text-text-primary'
                                                 }`}
                                         >
                                             كل الأحياء
@@ -145,9 +147,9 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
                                             <button
                                                 key={d.id}
                                                 onClick={() => setActiveDistrict(d.name)}
-                                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${activeDistrict === d.name
-                                                    ? 'bg-primary/10 text-primary border-primary/30'
-                                                    : 'bg-background/40 text-text-muted border-border-subtle hover:border-primary/20'
+                                                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 border ${activeDistrict === d.name
+                                                    ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                                                    : 'bg-surface text-text-muted border-border-subtle hover:border-border hover:text-text-primary'
                                                     }`}
                                             >
                                                 {d.name}
@@ -158,13 +160,13 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
 
                                 {/* Area filter (Secondary - filtered by district) */}
                                 <div>
-                                    <label className="text-[10px] font-black text-text-muted mb-3 block uppercase tracking-widest opacity-60">المناطق المتاحة</label>
-                                    <div className="flex flex-wrap gap-2">
+                                    <label className="text-xs font-black text-text-secondary mb-3 block uppercase tracking-wide">المناطق المتاحة</label>
+                                    <div className="flex flex-wrap gap-2.5">
                                         <button
                                             onClick={() => setActiveArea('كل المناطق')}
-                                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${activeArea === 'كل المناطق'
-                                                ? 'bg-primary/10 text-primary border-primary/30'
-                                                : 'bg-background/40 text-text-muted border-border-subtle hover:border-primary/20'
+                                            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 border ${activeArea === 'كل المناطق'
+                                                ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                                                : 'bg-surface text-text-muted border-border-subtle hover:border-border hover:text-text-primary'
                                                 }`}
                                         >
                                             كل المناطق
@@ -173,9 +175,9 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
                                             <button
                                                 key={area.id}
                                                 onClick={() => setActiveArea(area.name)}
-                                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${activeArea === area.name
-                                                    ? 'bg-primary/10 text-primary border-primary/30'
-                                                    : 'bg-background/40 text-text-muted border-border-subtle hover:border-primary/20'
+                                                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 border ${activeArea === area.name
+                                                    ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                                                    : 'bg-surface text-text-muted border-border-subtle hover:border-border hover:text-text-primary'
                                                     }`}
                                             >
                                                 {area.name}
@@ -189,21 +191,19 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
 
                                 {/* Sort */}
                                 <div>
-                                    <label className="text-[10px] font-black text-text-muted mb-3 block uppercase tracking-widest opacity-60">ترتيب النتائج</label>
-                                    <div className="flex flex-wrap gap-2">
+                                    <label className="text-xs font-black text-text-secondary mb-3 block uppercase tracking-wide">ترتيب النتائج</label>
+                                    <div className="flex flex-wrap gap-2.5">
                                         {[
                                             { value: 'trending', label: 'الأكثر رواجاً' },
                                             { value: 'newest', label: 'الأحدث' },
-                                            { value: 'rating', label: 'الأعلى تقييماً' },
-                                            { value: 'reviews', label: 'الأكثر تعليقاً' },
                                             { value: 'name', label: 'الاسم (أ-ي)' }
                                         ].map(opt => (
                                             <button
                                                 key={opt.value}
                                                 onClick={() => setSortBy(opt.value as any)}
-                                                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all border ${sortBy === opt.value
-                                                    ? 'bg-accent/10 text-accent border-accent/30'
-                                                    : 'bg-background/40 text-text-muted border-border-subtle hover:border-accent/20'
+                                                className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 border ${sortBy === opt.value
+                                                    ? 'bg-accent text-white border-accent shadow-md shadow-accent/20'
+                                                    : 'bg-surface text-text-muted border-border-subtle hover:border-accent hover:text-accent'
                                                     }`}
                                             >
                                                 {opt.label}
@@ -229,26 +229,80 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
 
             {/* ── Results Count ─────────────────────────────────────────────── */}
             <div className="max-w-5xl mx-auto px-4 mb-6 flex items-center justify-between">
-                <p className="text-text-muted text-sm leading-relaxed">
-                    <span className="text-text-primary font-bold">{filtered.length}</span> مكان
-                    {activeCategory !== 'الكل' && <span> في {activeCategory}</span>}
-                    {activeDistrict !== 'كل الأحياء' && <span> · {activeDistrict}</span>}
-                    {activeArea !== 'كل المناطق' && <span> · {activeArea}</span>}
-                </p>
+                <div className="flex items-center gap-3 px-5 py-2.5 bg-surface/80 border border-border-subtle shadow-sm rounded-2xl">
+                    <div className="flex items-baseline gap-1.5">
+                        <span className="text-primary font-black text-lg md:text-xl leading-none">{filtered.length}</span>
+                        <span className="text-text-secondary font-bold text-sm">مكان</span>
+                    </div>
+
+                    {(activeCategory !== 'الكل' || activeDistrict !== 'كل الأحياء' || activeArea !== 'كل المناطق') && (
+                        <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-text-muted border-r-2 border-border-subtle pr-3 mr-1">
+                            {activeCategory !== 'الكل' && <span>{activeCategory}</span>}
+                            {activeDistrict !== 'كل الأحياء' && <span> · {activeDistrict}</span>}
+                            {activeArea !== 'كل المناطق' && <span> · {activeArea}</span>}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* ── Places Grid ───────────────────────────────────────────────── */}
-            <div className="max-w-5xl mx-auto px-4">
+            <div className="max-w-5xl mx-auto px-4 relative">
+                {/* Loading Overlay */}
+                <AnimatePresence>
+                    {isPending && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 z-20 bg-base/40 backdrop-blur-[2px] rounded-3xl flex items-center justify-center"
+                        >
+                            <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 <AnimatePresence mode="popLayout">
                     {filtered.length > 0 ? (
-                        <motion.div
-                            layout
-                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-                        >
-                            {filtered.map((place, idx) => (
-                                <PlaceCard key={place.id} place={place} index={idx} />
-                            ))}
-                        </motion.div>
+                        <>
+                            <motion.div
+                                layout
+                                className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 ${isPending ? 'opacity-50 grayscale-[0.2]' : ''} transition-all duration-500`}
+                            >
+                                {filtered.map((place, idx) => (
+                                    <PlaceCard key={place.id} place={place} index={idx} />
+                                ))}
+                            </motion.div>
+
+                            {/* ── Pagination Controls ────────────────────────────────── */}
+                            <div className="mt-12 md:mt-16 flex items-center justify-between md:justify-center md:gap-8 px-2 md:px-0">
+                                <button
+                                    disabled={page === 1 || isPending}
+                                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                                    className="group flex items-center justify-center gap-2 h-12 w-12 md:w-auto md:px-6 rounded-2xl md:rounded-full bg-surface/80 border border-border-subtle hover:border-primary/40 hover:bg-surface text-text-muted hover:text-primary disabled:opacity-40 disabled:hover:border-border-subtle disabled:hover:text-text-muted disabled:hover:bg-surface/80 disabled:cursor-not-allowed transition-all shadow-sm"
+                                    aria-label="الصفحة السابقة"
+                                >
+                                    <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    <span className="hidden md:inline font-bold text-sm">السابق</span>
+                                </button>
+
+                                <div className="flex items-center">
+                                    <span className="hidden md:block text-text-muted text-sm font-medium ml-3">صفحة</span>
+                                    <div className="w-14 h-14 md:w-12 md:h-12 flex items-center justify-center bg-primary/10 text-primary border border-primary/20 font-black rounded-[20px] md:rounded-full text-xl md:text-lg shadow-inner">
+                                        {page}
+                                    </div>
+                                </div>
+
+                                <button
+                                    disabled={filtered.length < 20 || isPending}
+                                    onClick={() => setPage(p => p + 1)}
+                                    className="group flex items-center justify-center gap-2 h-12 w-12 md:w-auto md:px-6 rounded-2xl md:rounded-full bg-surface/80 border border-border-subtle hover:border-primary/40 hover:bg-surface text-text-muted hover:text-primary disabled:opacity-40 disabled:hover:border-border-subtle disabled:hover:text-text-muted disabled:hover:bg-surface/80 disabled:cursor-not-allowed transition-all shadow-sm"
+                                    aria-label="الصفحة التالية"
+                                >
+                                    <span className="hidden md:inline font-bold text-sm">التالي</span>
+                                    <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                                </button>
+                            </div>
+                        </>
                     ) : (
                         <motion.div
                             key="empty"

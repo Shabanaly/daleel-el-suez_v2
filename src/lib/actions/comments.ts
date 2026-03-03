@@ -2,7 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/client-service';
-import { unstable_cache, revalidateTag } from 'next/cache';
+import { unstable_cache } from 'next/cache';
+import { cacheManager, tags } from '../cache';
 
 /**
  * Adds a comment to a post.
@@ -29,9 +30,7 @@ export async function addComment(postId: string, content: string, parentId?: str
         return { error: 'حدث خطأ أثناء إضافة التعليق' };
     }
 
-    // Revalidate specific post comments and general community posts
-    revalidateTag(`comments-${postId}`, 'max');
-    revalidateTag('community-posts', 'max');
+    cacheManager.invalidateComment(postId);
 
     return { success: true, comment: data };
 }
@@ -56,9 +55,7 @@ export async function deleteComment(commentId: string, postId: string) {
         return { error: 'حدث خطأ أثناء حذف التعليق' };
     }
 
-    // Revalidate specific post comments and general community posts
-    revalidateTag(`comments-${postId}`, 'max');
-    revalidateTag('community-posts', 'max');
+    cacheManager.invalidateComment(postId);
 
     return { success: true };
 }
@@ -88,6 +85,6 @@ export async function getPostComments(postId: string) {
             return data || [];
         },
         [`comments-${postId}`],
-        { tags: [`comments-${postId}`, 'community-posts'], revalidate: 3600 } // Cache for 1 hour or until revalidated
+        { tags: [tags.postComments(postId), tags.allPosts()], revalidate: false }
     )(postId);
 }

@@ -12,7 +12,7 @@ export default function BottomNav() {
     const pathname = usePathname();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const { user } = useAuth();
-    const { openModal } = useAuthModal();
+    // Removed handleProtectedAction to allow guest access to Community & Market
 
     const isAuthPage = pathname === '/login' || pathname === '/signup';
     const isPlaceDetailsPage = pathname?.startsWith('/places/') && pathname.split('/').length === 3;
@@ -20,45 +20,35 @@ export default function BottomNav() {
 
     if (isAuthPage || isPlaceDetailsPage || isPostDetailsPage) return null;
 
-    const handleProtectedAction = (e: React.MouseEvent, href: string) => {
-        if (!user) {
-            e.preventDefault();
-            openModal();
-        }
-    };
-
     return (
         <>
-            <div className="xl:hidden fixed bottom-0 w-full z-50 px-4 pb-3 pointer-events-auto flex justify-center">
+            <div className="xl:hidden fixed bottom-0 w-full z-50 pointer-events-auto flex justify-center">
                 <div className="relative w-full max-w-sm md:max-w-2xl lg:max-w-4xl h-[76px]">
 
                     {/* ── Custom Notch Background ── */}
-                    <div className="absolute inset-0 z-0">
-                        <svg width="100%" height="100%" viewBox="0 0 400 76" preserveAspectRatio="none" className="drop-shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                    <div className="absolute left-1/2 -translate-x-1/2 top-0 w-[2000px] h-[76px] z-0 pointer-events-none drop-shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                        <svg width="2000" height="76" viewBox="0 0 2000 76" className="w-[2000px] h-[76px]">
                             <path
-                                d="M 170,0 
-                                   C 180,0 182,2 182,10 
-                                   C 182,30 218,30 218,10 
-                                   C 218,2 220,0 230,0 
-                                   L 380,0 
-                                   C 391,0 400,9 400,20 
-                                   L 400,56 
-                                   C 400,67 391,76 380,76 
-                                   L 20,76 
-                                   C 9,76 0,67 0,56 
-                                   L 0,20 
-                                   C 0,9 9,0 20,0 
+                                d="M 0,0 
+                                   L 945,0 
+                                   C 952,0 957,2 960,8 
+                                   C 970,38 982,46 1000,46 
+                                   C 1018,46 1030,38 1040,8 
+                                   C 1043,2 1048,0 1055,0 
+                                   L 2000,0 
+                                   L 2000,76 
+                                   L 0,76 
                                    Z"
-                                className="fill-background/80 dark:fill-background/90 stroke-border-subtle backdrop-blur-xl"
+                                className="fill-background/95 dark:fill-background/98 stroke-border-subtle backdrop-blur-3xl"
                                 strokeWidth="1"
                             />
                         </svg>
                     </div>
 
-                    {/* ── Nav Items Grid ── */}
-                    <div className="relative z-10 flex items-center justify-between h-full px-2 md:px-8">
+                    {/* ── Nav Items Flex ── */}
+                    <div className="relative z-10 flex items-center justify-between h-full px-2 md:px-6">
                         {/* Right side items (Home, Places) */}
-                        <div className="flex-1 flex justify-around">
+                        <div className="flex items-center justify-evenly flex-1 h-full">
                             <NavItem
                                 href="/"
                                 icon={<Home />}
@@ -73,32 +63,32 @@ export default function BottomNav() {
                             />
                         </div>
 
-                        {/* Centered Elevated Button */}
-                        <div className="relative -top-6 w-20 flex flex-col items-center justify-center group cursor-pointer" onClick={() => setIsDrawerOpen(true)}>
-                            <div className="relative z-10 flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full bg-primary shadow-xl shadow-primary/30 group-hover:scale-110 group-hover:bg-primary-hover active:scale-95 transition-all duration-300">
-                                <Plus className="w-8 h-8 text-white" />
-                                {/* Small inner glow */}
-                                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-                            <span className="mt-2 text-[10px] sm:text-[11px] font-black text-primary tracking-widest uppercase">المزيد</span>
-                        </div>
+                        {/* Spacer for Center Button to maintain precise center spacing */}
+                        <div className="w-[72px] shrink-0 pointer-events-none" />
 
                         {/* Left side items (Community, Market) */}
-                        <div className="flex-1 flex justify-around">
+                        <div className="flex items-center justify-evenly flex-1 h-full">
                             <NavItem
                                 href="/community"
                                 icon={<Users />}
                                 label="المجتمع"
                                 active={pathname === '/community'}
-                                onClick={(e) => handleProtectedAction(e, '/community')}
                             />
                             <NavItem
                                 href="/market"
                                 icon={<Store />}
                                 label="السوق"
                                 active={pathname === '/market'}
-                                onClick={(e) => handleProtectedAction(e, '/market')}
                             />
+                        </div>
+                    </div>
+
+                    {/* ── Absolutely Centered FAB ── */}
+                    <div className="absolute left-1/2 -translate-x-1/2 -top-4 w-[60px] flex flex-col items-center justify-center group cursor-pointer z-20" onClick={() => setIsDrawerOpen(true)}>
+                        <div className="relative z-10 flex items-center justify-center w-[60px] h-[60px] rounded-full bg-primary shadow-xl shadow-primary/30 group-hover:scale-110 group-hover:bg-primary-hover active:scale-95 transition-all duration-300">
+                            <Plus className="w-8 h-8 text-white" />
+                            {/* Small inner glow */}
+                            <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                     </div>
                 </div>

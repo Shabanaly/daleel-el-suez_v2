@@ -2,6 +2,7 @@
 
 import { createServiceClient } from '../supabase/client-service';
 import { unstable_cache } from 'next/cache';
+import { cacheManager } from '../cache';
 
 /**
  * Cached Areas (Simple list of names)
@@ -16,7 +17,7 @@ export const getAreas = unstable_cache(
         return ['كل المناطق', ...(data?.map(a => a.name) || [])];
     },
     ['areas-list'],
-    { tags: ['areas'], revalidate: 86400 }
+    { tags: ['areas'], revalidate: false }
 );
 
 /**
@@ -31,7 +32,7 @@ export const getAreasWithIds = unstable_cache(
         return data || [];
     },
     ['areas-ids-list'],
-    { tags: ['areas'] }
+    { tags: ['areas'], revalidate: false }
 );
 
 /**
@@ -47,7 +48,7 @@ export const getDistricts = unstable_cache(
         return data || [];
     },
     ['districts-list'],
-    { tags: ['areas'], revalidate: 86400 }
+    { tags: ['areas'], revalidate: false }
 );
 
 export interface AreaWithDistrict {
@@ -69,7 +70,7 @@ export const getAreasAction = unstable_cache(
         return data || [];
     },
     ['areas-action-list'],
-    { tags: ['areas'], revalidate: 86400 }
+    { tags: ['areas'], revalidate: false }
 );
 
 /**
@@ -121,7 +122,7 @@ export const getHomeDistricts = unstable_cache(
         });
     },
     ['home-districts-official-v3'],
-    { tags: ['areas', 'places'], revalidate: 3600 }
+    { tags: ['areas', 'places'], revalidate: false }
 );
 
 /**
@@ -172,7 +173,6 @@ export async function getOrCreateArea(areaName: string, districtId: number): Pro
     }
 
     // 2. If it doesn't exist, create it
-    // Generate a unique slug
     const baseSlug = trimmedName.replace(/\s+/g, '-').toLowerCase();
     const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
 
@@ -192,8 +192,7 @@ export async function getOrCreateArea(areaName: string, districtId: number): Pro
     }
 
     // Revalidate areas cache
-    const { revalidateTag } = await import('next/cache');
-    revalidateTag('areas', 'max');
+    cacheManager.invalidateMetadata();
 
     return newArea.id;
 }

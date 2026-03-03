@@ -10,6 +10,7 @@ import CommunityTeaser from '@/components/home/CommunityTeaser';
 import AppPromoSection from '@/components/home/AppPromoSection';
 import NewPlaces from '@/components/home/NewPlaces';
 import { getCommunityPosts } from '@/lib/actions/posts';
+import { createClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -18,13 +19,15 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   // 🧠 Fetch data using the centralized home page action (logic moved to server)
   const [categories, districts, homeData, communityPosts] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
     getHomePageData(),
-    getCommunityPosts(undefined, undefined, 1, 2)
+    getCommunityPosts(undefined, undefined, 1, 2, user?.id)
   ]);
 
   const { trending, newPlaces } = homeData;

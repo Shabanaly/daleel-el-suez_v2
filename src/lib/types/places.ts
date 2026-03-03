@@ -30,7 +30,7 @@ export interface Place {
     }[];
 }
 
-export type SortOption = 'rating' | 'reviews' | 'name' | 'newest' | 'trending';
+export type SortOption = 'name' | 'newest' | 'trending';
 
 export type DayKey =
     | "saturday"

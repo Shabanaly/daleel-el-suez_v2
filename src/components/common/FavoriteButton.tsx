@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toggleFavorite } from '@/lib/actions/favorites';
+import { toggleFavorite, isItemFavorite } from '@/lib/actions/favorites';
 import { useAuth } from '@/hooks/useAuth';
 import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
 import { useDialog } from '@/components/providers/DialogProvider';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 interface FavoriteButtonProps {
     itemId: string;
@@ -30,6 +31,21 @@ export function FavoriteButton({
     const { user } = useAuth();
     const { showAlert } = useDialog();
     const router = useRouter();
+
+    // Fetch actual status on mount to ensure persistence
+    useEffect(() => {
+        if (user && itemId) {
+            const checkStatus = async () => {
+                try {
+                    const status = await isItemFavorite(itemId, itemType);
+                    setIsFavorite(status);
+                } catch (error) {
+                    console.error('Error checking favorite status:', error);
+                }
+            };
+            checkStatus();
+        }
+    }, [user, itemId, itemType]);
 
     const handleToggle = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -88,8 +104,8 @@ export function FavoriteButton({
                 onClick={handleToggle}
                 disabled={isLoading}
                 className={`flex items-center justify-center border transition-all duration-300 shrink-0 ${isFavorite
-                        ? 'bg-accent text-white border-accent shadow-lg shadow-accent/25'
-                        : 'bg-surface text-text-muted border-border-subtle hover:border-accent/50 hover:text-accent'
+                    ? 'bg-rose-50 text-rose-500 border-rose-200 shadow-sm shadow-rose-500/10 ring-4 ring-rose-500/5'
+                    : 'bg-surface text-text-muted border-border-subtle hover:border-rose-300 hover:text-rose-500 active:bg-rose-50'
                     } ${getSizeClasses()} ${className} ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
                 aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
             >

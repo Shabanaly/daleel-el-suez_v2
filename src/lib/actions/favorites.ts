@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/client-service';
 import { unstable_cache, revalidateTag } from 'next/cache';
 import { mapPlace } from '../utils/mappers';
+import { tags, keys, cacheManager } from '@/lib/cache';
 
 /**
  * Toggles a favorite item for the current user.
@@ -53,8 +54,8 @@ export async function toggleFavorite(itemId: string, itemType: 'place' | 'listin
         }
     }
 
-    // Revalidate relevant tags
-    revalidateTag(`user-${user.id}-favorites`, 'max');
+    // Revalidate granularly
+    cacheManager.invalidateFavorites(user.id, itemId);
 
     return { success: true, isFavorite: !existing };
 }
@@ -82,8 +83,8 @@ export async function isItemFavorite(itemId: string, itemType: 'place' | 'listin
 
             return !!data;
         },
-        [`user-${user.id}-fav-${itemId}`],
-        { tags: [`user-${user.id}-favorites`], revalidate: 3600 }
+        keys.isFavorite(user.id, itemId),
+        { tags: [tags.userFavorites(user.id)], revalidate: false }
     )(user.id, itemId, itemType);
 }
 
@@ -127,6 +128,6 @@ export async function getFavoritePlaces(userId: string) {
             return (places || []).map(mapPlace);
         },
         [`user-${userId}-favorite-places`],
-        { tags: [`user-${userId}-favorites`], revalidate: 3600 }
+        { tags: [`user-${userId}-favorites`], revalidate: false }
     )(userId);
 }

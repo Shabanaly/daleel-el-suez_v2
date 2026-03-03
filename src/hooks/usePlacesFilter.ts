@@ -1,113 +1,76 @@
-import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useMemo, useEffect, useTransition } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Place, SortOption } from '../lib/types/places';
 import { AreaWithDistrict } from '../lib/actions/areas';
+import { getPlaces } from '../lib/actions/places';
 
 export function usePlacesFilter(
     initialPlaces: Place[],
     categories: string[],
-    areas: AreaWithDistrict[],
+    allAreas: AreaWithDistrict[],
     districts: any[]
 ) {
+    const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
-    const [query, setQuery] = useState('');
-    const [activeCategory, setActiveCategory] = useState(categories[0] || 'الكل');
-    const [activeDistrict, setActiveDistrict] = useState('كل الأحياء');
-    const [activeArea, setActiveArea] = useState('كل المناطق');
-    const [sortBy, setSortBy] = useState<SortOption>('rating');
-    const [showFilters, setShowFilters] = useState(false);
+    const [isPending, startTransition] = useTransition();
 
-    // 🧠 Sync URL search params with state on mount
+    // Local state for UI responsiveness
+    const [query, setQuery] = useState(searchParams.get('q') || '');
+    const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || categories[0] || 'الكل');
+    const [activeDistrict, setActiveDistrict] = useState(searchParams.get('district') || 'كل الأحياء');
+    const [activeArea, setActiveArea] = useState(searchParams.get('area') || 'كل المناطق');
+    const [sortBy, setSortBy] = useState<SortOption>((searchParams.get('sort') as SortOption) || 'trending');
+    const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
+    const [showFilters, setShowFilters] = useState(!!searchParams.get('district') || !!searchParams.get('area'));
+
+    // Current displayed places (initial or server-fetched)
+    const [places, setPlaces] = useState<Place[]>(initialPlaces);
+
+    // Sync with Server-fetched data when URL changes and page.tsx re-renders
     useEffect(() => {
-        const q = searchParams.get('q');
-        const category = searchParams.get('category');
-        const district = searchParams.get('district');
-        const area = searchParams.get('area');
-        const sort = searchParams.get('sort') as SortOption;
+        setPlaces(initialPlaces);
+    }, [initialPlaces]);
 
-        if (q) {
-            setQuery(q);
-            setShowFilters(true);
-        }
-        if (category) setActiveCategory(category);
+    // Sync state with URL manually if needed or use URL as source of truth
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams);
 
-        if (district) {
-            setActiveDistrict(district);
-            setShowFilters(true);
-        }
-        if (area) {
-            setActiveArea(area);
-            setShowFilters(true);
-        }
+        // Construct new URL based on state
+        if (query) params.set('q', query); else params.delete('q');
+        if (activeCategory !== 'الكل') params.set('category', activeCategory); else params.delete('category');
+        if (activeDistrict !== 'كل الأحياء') params.set('district', activeDistrict); else params.delete('district');
+        if (activeArea !== 'كل المناطق') params.set('area', activeArea); else params.delete('area');
+        if (sortBy !== 'trending') params.set('sort', sortBy); else params.delete('sort');
+        if (page > 1) params.set('page', page.toString()); else params.delete('page');
 
-        if (sort) setSortBy(sort);
-    }, [searchParams]);
+        const newUrl = `${pathname}?${params.toString()}`;
+
+        // Only update if URL actually changed to avoid infinite loops
+        if (newUrl !== `${pathname}?${searchParams.toString()}`) {
+            router.push(newUrl, { scroll: false });
+        }
+    }, [query, activeCategory, activeDistrict, activeArea, sortBy, page, pathname, router, searchParams]);
 
     // Derived: Areas belonging to the active district
     const availableAreas = useMemo(() => {
-        if (activeDistrict === 'كل الأحياء') return areas;
+        if (activeDistrict === 'كل الأحياء') return allAreas;
         const districtObj = districts.find(d => d.name === activeDistrict);
         if (!districtObj) return [];
-        return areas.filter(a => a.district_id === districtObj.id);
-    }, [areas, districts, activeDistrict]);
+        return allAreas.filter(a => a.district_id === districtObj.id);
+    }, [allAreas, districts, activeDistrict]);
 
-    // Auto-reset area if it's not in the new available list
-    useEffect(() => {
-        if (activeArea !== 'كل المناطق' && activeDistrict !== 'كل الأحياء') {
-            const isStillAvailable = availableAreas.some(a => a.name === activeArea);
-            if (!isStillAvailable) {
-                setActiveArea('كل المناطق');
-            }
-        }
-    }, [availableAreas, activeArea, activeDistrict]);
-
+    // Handle Server-Side Filtering (Pseudo-code, usually handled by Page.tsx in Next.js)
+    // But since we want "Live" feeling, we use the hook to trigger data updates
     const filtered = useMemo(() => {
-        let list = initialPlaces;
-
-        // 1. Search Query
-        if (query.trim()) {
-            const q = query.trim().toLowerCase();
-            list = list.filter(p =>
-                p.name.includes(q) ||
-                p.category.includes(q) ||
-                p.area.includes(q) ||
-                p.district.includes(q) ||
-                p.tags.some(t => t.includes(q))
-            );
-        }
-
-        // 2. Category Filter
-        if (activeCategory !== 'الكل') {
-            list = list.filter(p => p.category === activeCategory);
-        }
-
-        // 3. District Filter (Higher level)
-        if (activeDistrict !== 'كل الأحياء') {
-            list = list.filter(p => p.district === activeDistrict);
-        }
-
-        // 4. Area Filter (Detailed level)
-        if (activeArea !== 'كل المناطق') {
-            list = list.filter(p => p.area === activeArea);
-        }
-
-        // 5. Sorting
-        list = [...list].sort((a, b) => {
-            if (sortBy === 'rating') return b.rating - a.rating;
-            if (sortBy === 'reviews') return b.reviews - a.reviews;
-            if (sortBy === 'newest') {
-                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-            }
-            if (sortBy === 'trending') {
-                const scoreA = (a.viewsCount * 0.7) + (a.rating * 10 * 0.3);
-                const scoreB = (b.viewsCount * 0.7) + (b.rating * 10 * 0.3);
-                return scoreB - scoreA;
-            }
-            return a.name.localeCompare(b.name, 'ar');
-        });
-
-        return list;
-    }, [initialPlaces, query, activeCategory, activeDistrict, activeArea, sortBy]);
+        // Here we still apply query filter on the current page for instant feedback
+        if (!query.trim()) return places;
+        const q = query.toLowerCase();
+        return places.filter(p =>
+            p.name.toLowerCase().includes(q) ||
+            p.category.toLowerCase().includes(q)
+        );
+    }, [places, query]);
 
     const hasActiveFilters = activeCategory !== 'الكل' || activeDistrict !== 'كل الأحياء' || activeArea !== 'كل المناطق' || query !== '';
 
@@ -116,29 +79,21 @@ export function usePlacesFilter(
         setActiveDistrict('كل الأحياء');
         setActiveArea('كل المناطق');
         setQuery('');
+        setPage(1);
     };
 
     return {
-        // State
-        query,
-        activeCategory,
-        activeDistrict,
-        activeArea,
-        sortBy,
-        showFilters,
+        query, setQuery,
+        activeCategory, setActiveCategory,
+        activeDistrict, setActiveDistrict,
+        activeArea, setActiveArea,
+        sortBy, setSortBy,
+        page, setPage,
+        showFilters, setShowFilters,
         availableAreas,
-
-        // Derived state
         filtered,
         hasActiveFilters,
-
-        // Actions
-        setQuery,
-        setActiveCategory,
-        setActiveDistrict,
-        setActiveArea,
-        setSortBy,
-        setShowFilters,
-        clearFilters
+        clearFilters,
+        isPending
     };
 }

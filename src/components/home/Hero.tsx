@@ -30,7 +30,7 @@ export default function Hero({ categories = [] }: { categories?: Category[] }) {
     };
 
     return (
-        <section className="relative w-full flex flex-col items-center justify-center overflow-hidden pt-20 pb-8 md:pt-32 md:pb-24 min-h-[60vh] md:min-h-screen bg-background">
+        <section className="relative w-full flex flex-col items-center justify-center overflow-hidden pt-20 pb-12 md:pt-28 md:pb-16 min-h-[60vh] bg-background">
 
             <HeroBackground />
 
@@ -48,7 +48,7 @@ export default function Hero({ categories = [] }: { categories?: Category[] }) {
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="inline-block px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] md:text-xs font-bold mb-3 md:mb-6"
+                        className="inline-block px-5 py-2.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] md:text-xs font-bold mb-3 md:mb-6"
                     >
                         🚀 الدليل الرسمي والأول لمدينة السويس
                     </motion.div>

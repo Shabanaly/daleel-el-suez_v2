@@ -1,15 +1,12 @@
 'use server';
 
 import { createServiceClient } from '../supabase/client-service';
-import { unstable_cache } from 'next/cache';
-
-/* =========================================================
-   Shared Mapper (Single Source of Truth)
-========================================================= */
-
+import { unstable_cache, revalidateTag } from 'next/cache';
 import { mapPlace } from '../utils/mappers';
+import { keys, tags, CACHE_KEYS } from '@/lib/cache';
+import { SortOption } from '../types/places';
 
-async function basePlacesQuery(orderBy: string, ascending = false, limit = 20) {
+async function basePlacesQuery(orderBy: string, ascending = false, limit = 20, offset = 0) {
     const supabase = createServiceClient();
 
     const { data, error } = await supabase
@@ -21,7 +18,7 @@ async function basePlacesQuery(orderBy: string, ascending = false, limit = 20) {
             reviews_count:reviews(count)
         `)
         .order(orderBy, { ascending })
-        .limit(limit);
+        .range(offset, offset + limit - 1);
 
     if (error) {
         console.error('Error fetching places:', error);
@@ -32,49 +29,74 @@ async function basePlacesQuery(orderBy: string, ascending = false, limit = 20) {
 }
 
 /* =========================================================
-   General Places (Default = Top Rated)
+   General Places (Paginated - 20 per page)
+   Support for Category, Area, and Pagination
 ========================================================= */
 
-export const getPlaces = unstable_cache(
-    async () => basePlacesQuery('avg_rating', false, 100),
-    ['places-list'],
-    { tags: ['places'], revalidate: 3600 }
-);
+export async function getPlaces(page = 1, categoryId?: number, areaId?: number, sortBy: SortOption = 'trending') {
+    const limit = 20;
+    const offset = (page - 1) * limit;
+
+    return unstable_cache(
+        async (p: number, cid: number | undefined, aid: number | undefined, sort: SortOption) => {
+            const supabase = createServiceClient();
+            let query = supabase
+                .from('places')
+                .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`);
+
+            // Apply Filters
+            if (cid) query = query.eq('category_id', cid);
+            if (aid) query = query.eq('area_id', aid);
+
+            // Apply Sorting
+            switch (sort) {
+                case 'name':
+                    query = query.order('name', { ascending: true });
+                    break;
+                case 'newest':
+                    query = query.order('created_at', { ascending: false });
+                    break;
+                case 'trending':
+                default:
+                    query = query.order('views_count', { ascending: false });
+            }
+
+            const { data, error } = await query.range(offset, offset + limit - 1);
+    if (error) return [];
+    return (data || []).map(mapPlace);
+},
+keys.placesPaginated(page, { categoryId, areaId, sortBy }),
+{
+    tags: [
+        tags.allPlaces(),
+        tags.placesPage(page),
+        ...(categoryId ? [tags.placesByCategory(categoryId.toString())] : []),
+        ...(areaId ? [tags.placesByArea(areaId)] : [])
+    ],
+    revalidate: false
+}
+    ) (page, categoryId, areaId, sortBy);
+}
 
 /* =========================================================
-   New Places (Latest)
+   Trending & Newest (Parameterized Limit)
 ========================================================= */
 
-export const getNewPlaces = unstable_cache(
-    async () => basePlacesQuery('created_at', false, 20),
-    ['new-places'],
-    { tags: ['places'], revalidate: 3600 }
-);
+export async function getTrendingPlaces(limit = 8) {
+    return unstable_cache(
+        async (l: number) => basePlacesQuery('views_count', false, l),
+        keys.trending(limit),
+        { tags: [tags.trendingPlaces(), tags.allPlaces()], revalidate: false }
+    )(limit);
+}
 
-/* =========================================================
-   Trending Places (By Views)
-   Requires views_count column - Falling back to rating if missing
-========================================================= */
-
-export const getTrendingPlaces = unstable_cache(
-    async () => {
-        const supabase = createServiceClient();
-        const { data, error } = await supabase
-            .from('places')
-            .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`)
-            .order('views_count', { ascending: false })
-            .order('avg_rating', { ascending: false })
-            .limit(6);
-
-        if (error) {
-            // Fallback if views_count doesn't exist
-            return basePlacesQuery('avg_rating', false, 6);
-        }
-        return (data || []).map(mapPlace);
-    },
-    ['trending-places'],
-    { tags: ['places'], revalidate: 3600 }
-);
+export async function getNewPlaces(limit = 8) {
+    return unstable_cache(
+        async (l: number) => basePlacesQuery('created_at', false, l),
+        keys.latest(limit),
+        { tags: [tags.newestPlaces(), tags.allPlaces()], revalidate: false }
+    )(limit);
+}
 
 /* =========================================================
    Single Place By Slug (Cached)
@@ -82,7 +104,7 @@ export const getTrendingPlaces = unstable_cache(
 
 export async function getPlaceBySlug(slug: string) {
     const decodedSlug = decodeURIComponent(slug);
-    const cached = unstable_cache(
+    return unstable_cache(
         async (s: string) => {
             const supabase = createServiceClient();
             const { data, error } = await supabase
@@ -94,64 +116,60 @@ export async function getPlaceBySlug(slug: string) {
             if (error || !data) return null;
             return mapPlace(data);
         },
-        [`place-${decodedSlug}`],
-        { tags: [`place-${decodedSlug}`, 'places'], revalidate: 3600 }
-    );
-    return cached(decodedSlug);
+        keys.placeDetail(decodedSlug),
+        { tags: [tags.place(decodedSlug), tags.allPlaces()], revalidate: false }
+    )(decodedSlug);
 }
 
 /* =========================================================
-   Related Places (Cached)
+   Related Places (Same Category, excluding current)
 ========================================================= */
 
-export const getRelatedPlaces = unstable_cache(
-    async (categoryName: string, excludeId: string) => {
-        const supabase = createServiceClient();
-        const { data, error } = await supabase
-            .from('places')
-            .select(`*, categories!inner(name, icon), areas(name, districts(name))`)
-            .eq('categories.name', categoryName)
-            .neq('id', excludeId)
-            .order('avg_rating', { ascending: false })
-            .limit(3);
+export async function getRelatedPlaces(category: string, excludeId: string, limit = 6) {
+    return unstable_cache(
+        async (cat: string, eid: string, l: number) => {
+            const supabase = createServiceClient();
+            const { data, error } = await supabase
+                .from('places')
+                .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`)
+                .eq('category_id', (await supabase.from('categories').select('id').eq('name', cat).single()).data?.id)
+                .neq('id', eid)
+                .order('avg_rating', { ascending: false })
+                .limit(l);
 
-        if (error || !data) return [];
-        return data.map(mapPlace);
-    },
-    ['related-places'],
-    { tags: ['places'], revalidate: 3600 }
-);
-
-/* =========================================================
-   Increment Place Views (RPC)
-========================================================= */
+            if (error) return [];
+            return (data || []).map(mapPlace);
+        },
+        [`related-places-to-${excludeId}`],
+        { tags: [tags.allPlaces()], revalidate: false }
+    )(category, excludeId, limit);
+}
 
 /* =========================================================
-   Home Page Data (Combined & De-duplicated)
+   Home Page Data (8 Trending, 8 New - De-duplicated)
 ========================================================= */
 
 export const getHomePageData = unstable_cache(
     async () => {
-        // Fetch both in parallel
-        // We fetch more (50) for allRecent to ensure we have enough even after de-duplication
-        const [trendingPlaces, allRecent] = await Promise.all([
-            getTrendingPlaces(),
-            basePlacesQuery('created_at', false, 50)
+        // Fetch 20 trending and 20 recent to have enough for de-duplication
+        const [trendingPotential, recentPotential] = await Promise.all([
+            basePlacesQuery('views_count', false, 20),
+            basePlacesQuery('created_at', false, 20)
         ]);
 
-        // De-duplicate: New places should not contain trending ones
-        const trendingIds = new Set(trendingPlaces.map(p => p.id));
-        const newPlaces = allRecent
-            .filter(p => !trendingIds.has(p.id))
-            .slice(0, 6);
+        // 1. Take top 8 trending
+        const trending = trendingPotential.slice(0, 8);
+        const trendingIds = new Set(trending.map(p => p.id));
 
-        return {
-            trending: trendingPlaces.slice(0, 2), // Desktop requirement: show top 2
-            newPlaces
-        };
+        // 2. Take top 8 newest that are NOT in trending
+        const newPlaces = recentPotential
+            .filter(p => !trendingIds.has(p.id))
+            .slice(0, 8);
+
+        return { trending, newPlaces };
     },
-    ['home-page-data'],
-    { tags: ['places', 'areas', 'categories'], revalidate: 3600 }
+    keys.homePage(),
+    { tags: [tags.trendingPlaces(), tags.newestPlaces(), tags.allPlaces()], revalidate: false }
 );
 
 export async function incrementPlaceViews(placeId: string) {
@@ -160,10 +178,9 @@ export async function incrementPlaceViews(placeId: string) {
         target_place_id: placeId
     });
 
-    if (error) {
-        console.error('Error incrementing views:', error);
-        return { success: false, error };
+    if (!error) {
+        // Target only the views cache part
+        revalidateTag(tags.placeViews(placeId), 'max');
     }
-
-    return { success: true };
+    return { success: !error };
 }

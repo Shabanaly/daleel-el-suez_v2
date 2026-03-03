@@ -87,7 +87,7 @@ export default function RootLayout({
         <script src="https://accounts.google.com/gsi/client" async defer></script>
       </head>
       <body
-        className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-[72px] xl:pb-0`}
+        className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 xl:pb-0`}
         suppressHydrationWarning
       >
         <ThemeProvider

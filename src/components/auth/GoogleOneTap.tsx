@@ -17,10 +17,22 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
 
 
     useEffect(() => {
+        // 🛑 CRITICAL: Exit immediately and cancel any prompt if user is already logged in
+        if (user || isLoading) {
+            if (window.google?.accounts?.id) {
+                try {
+                    window.google.accounts.id.cancel();
+                } catch (e) {
+                    // Ignore if google script isn't fully ready yet
+                }
+            }
+            return;
+        }
+
         let timeoutId: NodeJS.Timeout;
 
         const initializeOneTap = () => {
-            if (!window.google || initialized.current) return;
+            if (!window.google || initialized.current || user) return;
 
             // Diagnostic log for local IP issues
             if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.protocol.includes('https')) {
@@ -52,7 +64,7 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
 
                 // Small delay to let the page settle
                 timeoutId = setTimeout(() => {
-                    if (window.google) {
+                    if (window.google && !user) {
                         try {
                             window.google.accounts.id.prompt();
                         } catch (promptErr) {
@@ -81,13 +93,15 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
             return () => {
                 clearInterval(interval);
                 if (timeoutId) clearTimeout(timeoutId);
+                if (window.google?.accounts?.id) window.google.accounts.id.cancel();
             };
         }
 
         return () => {
             if (timeoutId) clearTimeout(timeoutId);
+            if (window.google?.accounts?.id) window.google.accounts.id.cancel();
         };
-    }, [clientId, router, isLoading, user]);
+    }, [clientId, router, isLoading, user, refreshSession]);
 
     // Don't run One Tap if user is already logged in or auth is still loading
     if (isLoading || user) return null;

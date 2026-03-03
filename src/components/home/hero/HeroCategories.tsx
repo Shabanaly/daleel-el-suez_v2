@@ -41,12 +41,12 @@ export default function HeroCategories({ categories }: HeroCategoriesProps) {
 
             {/* Mobile: Horizontal Chips Layout */}
             <div className="md:hidden w-full overflow-x-auto hide-scrollbar -mx-4 px-4">
-                <div className="flex items-center gap-1.5 pb-2">
+                <div className="flex items-center gap-2 pb-4 mb-2">
                     {displayCategories.map((cat, idx) => (
                         <Link
                             key={idx}
                             href={`/places?category=${encodeURIComponent(cat.name)}`}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-surface/60 backdrop-blur-xl border border-border-subtle hover:border-primary/40 active:scale-95 transition-all duration-300 whitespace-nowrap group shadow-sm"
+                            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-surface/70 backdrop-blur-xl border border-border-subtle hover:border-primary/40 active:scale-95 transition-all duration-300 whitespace-nowrap group shadow-sm"
                         >
                             <IconRenderer iconName={cat.icon} className="w-4 h-4 text-primary/80 group-hover:text-primary transition-colors" />
                             <span className="text-xs font-bold text-text-muted group-hover:text-primary transition-colors">{cat.name}</span>
@@ -54,7 +54,7 @@ export default function HeroCategories({ categories }: HeroCategoriesProps) {
                     ))}
                     <Link
                         href="/categories"
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary/10 border border-primary/20 text-primary active:scale-95 transition-all duration-300 whitespace-nowrap font-bold text-xs"
+                        className="flex items-center gap-2 px-5 py-3 rounded-full bg-primary/10 border border-primary/20 text-primary active:scale-95 transition-all duration-300 whitespace-nowrap font-bold text-xs"
                     >
                         المزيد
                     </Link>

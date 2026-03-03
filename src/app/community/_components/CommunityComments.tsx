@@ -165,8 +165,8 @@ export default function CommunityComments({ postId, isInline = false }: Communit
             {/* Sticky Form for Inline View - Native Keyboard Handling */}
             <div
                 className={`${isInline
-                    ? 'fixed bottom-0 left-0 right-0 p-4 pb-safe bg-surface/80 backdrop-blur-xl border-t border-border-subtle z-50 max-w-2xl mx-auto rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)]'
-                    : 'p-4 border-t border-border-subtle bg-surface sticky bottom-0'}`}
+                    ? 'fixed bottom-0 left-0 right-0 mx-2 pb-safe bg-surface/80 backdrop-blur-xl border-t border-border-subtle z-50 max-w-2xl rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)]'
+                    : 'mx-[-12px] mt-4 border-t border-border-subtle bg-surface sticky bottom-0'}`}
             >
                 <CommentForm
                     ref={inputRef}

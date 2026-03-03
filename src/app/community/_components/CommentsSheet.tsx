@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence, useDragControls } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageCircle } from "lucide-react";
 import CommunityComments from "./CommunityComments";
 
@@ -11,14 +11,16 @@ interface Props {
 }
 
 export default function CommentsSheet({ postId, onClose }: Props) {
-  const dragControls = useDragControls();
+  const [dragOffset, setDragOffset] = useState(0);
   const [isAtTop, setIsAtTop] = useState(true);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const touchStartY = useRef<number | null>(null);
 
-  // 🔒 Lock background scroll
   useEffect(() => {
     if (postId) {
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden";
+      setDragOffset(0);
     } else {
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
@@ -30,6 +32,36 @@ export default function CommentsSheet({ postId, onClose }: Props) {
     };
   }, [postId]);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // ONLY allow drag if we are strictly at the top of the comments
+    if (isAtTop) {
+      touchStartY.current = e.touches[0].clientY;
+    } else {
+      touchStartY.current = null;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+    const deltaY = e.touches[0].clientY - touchStartY.current;
+
+    // Only drag down
+    if (deltaY > 0) {
+      setDragOffset(deltaY);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartY.current !== null) {
+      if (dragOffset > 100) {
+        onClose();
+      } else {
+        setDragOffset(0);
+      }
+      touchStartY.current = null;
+    }
+  };
+
   return (
     <AnimatePresence>
       {postId && (
@@ -39,40 +71,31 @@ export default function CommentsSheet({ postId, onClose }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-200"
           />
 
-          {/* Sheet */}
           <motion.div
             initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{
-              type: "spring",
-              damping: 30,
-              stiffness: 300,
-              mass: 0.8,
-            }}
-            drag="y"
-            dragControls={dragControls}
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={0.7}
-            dragListener={false}
-            onDragEnd={(_, info: any) => {
-              if (info.offset.y > 80 || info.velocity.y > 400) {
-                onClose();
-              }
-            }}
-            whileDrag={{ cursor: "grabbing" }}
+            animate={{ y: dragOffset }}
+            exit={{ y: "100%", transition: { duration: 0.2 } }}
+            transition={
+              dragOffset > 0
+                ? { duration: 0 }
+                : { type: "spring", damping: 25, stiffness: 400, mass: 0.5 }
+            }
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
             dir="rtl"
-            className="fixed bottom-0 left-0 right-0 max-w-2xl mx-auto bg-surface rounded-t-2xl z-201 shadow-[0_-20px_50px_rgba(0,0,0,0.3)] max-h-[85vh] flex flex-col overflow-hidden border-t border-border-subtle"
-            style={{ touchAction: "none" }}
+            className="fixed bottom-0 left-0 right-0 max-w-2xl mx-auto bg-surface rounded-t-2xl z-201 shadow-[0_-20px_50px_rgba(0,0,0,0.3)] h-[85vh] flex flex-col overflow-hidden border-t border-border-subtle"
+            style={{ touchAction: dragOffset > 0 ? "none" : "pan-y" }}
           >
-            {/* Drag Handle */}
+            {/* Drag Handle Container (Safe Drag Area) */}
             <div
-              onPointerDown={(e) => dragControls.start(e)}
-              className="w-full flex justify-center py-4 cursor-grab active:cursor-grabbing shrink-0"
+              className="w-full flex justify-center py-4 shrink-0 touch-none"
             >
               <div className="w-12 h-1.5 bg-border-subtle/50 rounded-full" />
             </div>
@@ -101,13 +124,11 @@ export default function CommentsSheet({ postId, onClose }: Props) {
 
             {/* Comments List Content */}
             <div
-              className="flex-1 overflow-y-auto px-6 scrollbar-hide no-scrollbar"
-              onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop <= 0)}
-              style={{ touchAction: isAtTop ? "none" : "pan-y" }}
-              onPointerDown={(e) => {
-                if (isAtTop) {
-                  dragControls.start(e, { snapToCursor: false });
-                }
+              ref={contentRef}
+              className={`flex-1 overflow-y-auto px-6 scrollbar-hide no-scrollbar ${isAtTop ? 'overscroll-none' : 'overscroll-contain'}`}
+              onScroll={(e) => {
+                const scrollTop = e.currentTarget.scrollTop;
+                setIsAtTop(scrollTop <= 0);
               }}
             >
               <CommunityComments postId={postId} />

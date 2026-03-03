@@ -9,7 +9,7 @@ export async function getUserProfileStats(userId: string) {
         async (uid: string) => {
             const supabase = createServiceClient();
             try {
-                const [reviewsResponse, placesResponse] = await Promise.all([
+                const [reviewsResponse, placesResponse, postsResponse] = await Promise.all([
                     supabase
                         .from('reviews')
                         .select('*', { count: 'exact', head: true })
@@ -18,12 +18,16 @@ export async function getUserProfileStats(userId: string) {
                         .from('places')
                         .select('*', { count: 'exact', head: true })
                         .eq('added_by', uid),
+                    supabase
+                        .from('posts')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('author_id', uid),
                 ]);
 
                 return {
                     reviewsCount: reviewsResponse.count || 0,
                     placesCount: placesResponse.count || 0,
-                    postsCount: 0,
+                    postsCount: postsResponse.count || 0,
                 };
             } catch (error) {
                 console.error('Error fetching user stats:', error);
@@ -31,7 +35,7 @@ export async function getUserProfileStats(userId: string) {
             }
         },
         [`user-stats-${userId}`],
-        { tags: [`user-${userId}-stats`], revalidate: 3600 }
+        { tags: [`user-${userId}-stats`], revalidate: false }
     )(userId);
 }
 
@@ -131,6 +135,6 @@ export async function getUserActivities(userId: string, limit = 10) {
             }
         },
         [`user-activities-${userId}-${limit}`],
-        { tags: [`user-${userId}-activities`], revalidate: 3600 }
+        { tags: [`user-${userId}-activities`], revalidate: false }
     )(userId, limit);
 }

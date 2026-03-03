@@ -36,10 +36,10 @@ export default function CreatePostTrigger({ categories, userAvatar }: CreatePost
         <>
             <div
                 onClick={handleCreateClick}
-                className="bg-surface border border-border-subtle rounded-2xl p-3.5 mb-6 shadow-sm hover:border-primary/30 transition-all cursor-pointer group"
+                className="bg-surface/80 dark:bg-surface/50 border border-border-subtle rounded-3xl p-4 mb-6 shadow-sm hover:border-primary/30 transition-all cursor-pointer group backdrop-blur-3xl"
             >
                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 overflow-hidden relative shrink-0 ring-2 ring-background border border-primary/20">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 overflow-hidden relative shrink-0 shadow-inner">
                         {userAvatar ? (
                             <Image
                                 src={userAvatar}
@@ -49,14 +49,14 @@ export default function CreatePostTrigger({ categories, userAvatar }: CreatePost
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-primary">
-                                <User className="w-5 h-5" />
+                                <User className="w-6 h-6" />
                             </div>
                         )}
                     </div>
 
-                    <div className="flex-1 bg-background border border-border-subtle rounded-xl px-5 h-11 text-text-muted/40 font-bold text-sm transition-all group-hover:bg-elevated/50 flex items-center justify-between overflow-hidden">
+                    <div className="flex-1 bg-background/50 rounded-2xl px-5 h-12 text-text-muted/60 font-bold text-sm transition-all group-hover:bg-elevated/50 flex items-center justify-between overflow-hidden">
                         <span className="truncate ml-2">بماذا تفكر يا سويسي؟ شاركنا الآن...</span>
-                        <ImageIcon className="w-5 h-5 opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all shrink-0" />
+                        <ImageIcon className="w-5 h-5 text-text-muted/40 group-hover:text-primary group-hover:opacity-100 transition-all shrink-0" />
                     </div>
                 </div>
             </div>

@@ -20,15 +20,12 @@ export default function SectionHeader({
 }: SectionHeaderProps) {
     return (
         <div className="flex items-center justify-between mb-8 md:mb-12 relative z-10 w-full">
-            <div className="flex items-center gap-4">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 glow-primary relative group overflow-hidden">
-                    <div className="absolute inset-0 bg-linear-to-tr from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <Icon className="w-5 h-5 md:w-6 md:h-6 text-primary relative z-10" />
-                </div>
-                <div>
+            <div className="flex flex-col justify-center">
+                <div className="flex items-center gap-2 md:gap-3">
+                    <Icon className="w-6 h-6 md:w-8 md:h-8 text-primary" />
                     <h2 className="text-xl md:text-3xl lg:text-4xl font-black text-text-primary tracking-tight">{title}</h2>
-                    <p className="text-text-muted font-bold text-[10px] md:text-sm mt-0.5 md:mt-1 opacity-70">{subtitle}</p>
                 </div>
+                <p className="text-text-muted font-medium text-[10px] md:text-sm mt-1 md:mt-1.5 opacity-80 ps-8 md:ps-11">{subtitle}</p>
             </div>
 
             {href && (

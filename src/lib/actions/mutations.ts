@@ -1,7 +1,8 @@
 'use server';
 
 import { createClient } from '../supabase/server';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
+import { cacheManager } from '../cache';
 
 /**
  * Server Action to add a new place with revalidation
@@ -41,11 +42,9 @@ export async function addPlace(formData: any) {
     }
 
     // 🔥 Revalidate: bust unstable_cache AND UI path
-    revalidateTag('places', 'max');
-    revalidateTag('categories', 'max');
-    revalidateTag('areas', 'max');
-    revalidateTag(`user-${user.id}-stats`, 'max');
-    revalidateTag(`user-${user.id}-activities`, 'max');
+    cacheManager.invalidateAllPlaces();
+    cacheManager.invalidateMetadata();
+    cacheManager.invalidateUserStats(user.id);
     revalidatePath('/places');
 
     return data;
@@ -84,13 +83,7 @@ export async function updatePlace(id: string, formData: any) {
     }
 
     // 🔥 Revalidate: bust unstable_cache AND UI paths
-    revalidateTag('places', 'max');
-    revalidateTag(`place-${data.slug}`, 'max');
-    // Also revalidate categories/areas since counts/details might have changed
-    revalidateTag('categories', 'max');
-    revalidateTag('areas', 'max');
-
-    revalidateTag(`user-${user.id}-activities`, 'max');
+    cacheManager.invalidatePlace(data.slug, data.id, data.category_id, data.area_id);
     revalidatePath('/places');
     revalidatePath(`/places/${data.slug}`);
 
@@ -139,13 +132,9 @@ export async function deletePlace(id: string) {
         throw new Error('حدث خطأ أثناء حذف المكان');
     }
 
-    revalidateTag('places', 'max');
-    revalidateTag('categories', 'max');
-    revalidateTag('areas', 'max');
-    if (place?.slug) revalidateTag(`place-${place.slug}`, 'max');
-
-    revalidateTag(`user-${user.id}-stats`, 'max');
-    revalidateTag(`user-${user.id}-activities`, 'max');
+    cacheManager.invalidatePlace(place.slug, id);
+    cacheManager.invalidateMetadata();
+    cacheManager.invalidateUserStats(user.id);
     revalidatePath('/places');
     return { success: true };
 }

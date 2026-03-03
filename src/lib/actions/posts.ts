@@ -2,8 +2,9 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/client-service';
-import { unstable_cache, revalidateTag } from 'next/cache';
+import { unstable_cache } from 'next/cache';
 import { revalidatePath } from 'next/cache';
+import { cacheManager, tags } from '../cache';
 
 /**
  * Creates a new community post.
@@ -39,7 +40,7 @@ export async function createPost(formData: {
         return { error: 'حدث خطأ أثناء نشر المنشور' };
     }
 
-    revalidateTag('community-posts', 'max');
+    cacheManager.invalidatePost(data.id, user.id);
     revalidatePath('/community');
 
     return { success: true, post: data };
@@ -75,8 +76,7 @@ export async function updatePost(postId: string, formData: {
         return { error: 'حدث خطأ أثناء تحديث المنشور' };
     }
 
-    revalidateTag('community-posts', 'max');
-    revalidateTag(`post-${postId}`, 'max');
+    cacheManager.invalidatePost(postId, user.id);
     revalidatePath('/community');
 
     return { success: true };
@@ -116,8 +116,7 @@ export async function deletePost(postId: string) {
         post.public_ids.forEach((pid: string) => deleteCloudinaryImage(pid).catch(console.error));
     }
 
-    revalidateTag('community-posts', 'max');
-    revalidateTag(`post-${postId}`, 'max');
+    cacheManager.invalidatePost(postId, user.id);
     revalidatePath('/community');
 
     return { success: true };
@@ -166,21 +165,18 @@ export async function toggleLikePost(postId: string) {
         await supabase.rpc('increment_post_likes', { target_post_id: postId });
     }
 
-    revalidateTag('community-posts', 'max');
-    revalidateTag(`post-${postId}`, 'max');
+    cacheManager.invalidatePost(postId, user.id);
     return { success: true, isLiked: !existing };
 }
 
 /**
  * Fetches community posts with a custom ranking algorithm and search support.
- * Equation: (likes_count * 2 + comments_count * 1 + 1) / (hours_since_post + 2) ^ 1.5
  */
 export async function getCommunityPosts(categoryId?: number, search?: string, page = 1, limit = 10, currentUserId?: string | null) {
     return unstable_cache(
         async (catId?: number, queryStr?: string, p = 1, l = 10, userId?: string | null) => {
             const supabase = createServiceClient();
 
-            // Build base query
             let query = supabase
                 .from('posts')
                 .select(`
@@ -192,53 +188,30 @@ export async function getCommunityPosts(categoryId?: number, search?: string, pa
                 `)
                 .eq('status', 'active');
 
-            // Apply filters
-            if (catId) {
-                query = query.eq('category_id', catId);
-            }
-
-            if (queryStr) {
-                query = query.ilike('content', `%${queryStr}%`);
-            }
+            if (catId) query = query.eq('category_id', catId);
+            if (queryStr) query = query.ilike('content', `%${queryStr}%`);
 
             const { data: posts, error } = await query;
+            if (error || !posts) return [];
 
-            if (error || !posts) {
-                console.error('Error fetching community posts:', error);
-                return [];
-            }
-
-            // Apply Ranking Algorithm in JS
             const now = new Date();
             const rankedPosts = posts.map((post: any) => {
                 const commentCount = post.comments_count?.[0]?.count || 0;
                 const likesCount = post.likes_count || 0;
-
-                // Check if user liked this post from the joined likes
-                const isLiked = userId
-                    ? post.likes?.some((l: any) => l.user_id === userId)
-                    : false;
-
+                const isLiked = userId ? post.likes?.some((l: any) => l.user_id === userId) : false;
                 const createdDate = new Date(post.created_at);
                 const hoursSince = Math.max(0, (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60));
-
-                // Score formula
                 const score = (likesCount * 2 + commentCount + 1) / Math.pow(hoursSince + 2, 1.5);
 
                 return { ...post, score, commentCount, isLiked };
             });
 
-            // Sort by score DESC
             rankedPosts.sort((a, b) => b.score - a.score);
-
-            // Pagination
             const start = (p - 1) * l;
-            const paginated = rankedPosts.slice(start, start + l);
-
-            return paginated;
+            return rankedPosts.slice(start, start + l);
         },
         [`community-posts-${categoryId || 'all'}-${search || 'no-search'}-p${page}-u${currentUserId || 'guest'}`],
-        { tags: ['community-posts'], revalidate: 3600 } // Cache for 1 hour or until revalidated
+        { tags: [tags.allPosts()], revalidate: false }
     )(categoryId, search, page, limit, currentUserId);
 }
 
@@ -263,14 +236,9 @@ export async function getPostById(id: string, currentUserId?: string | null) {
                 .eq('status', 'active')
                 .single();
 
-            if (error || !data) {
-                console.error('Error fetching post by ID:', error);
-                return null;
-            }
+            if (error || !data) return null;
 
-            const isLiked = userId
-                ? data.likes?.some((l: any) => l.user_id === userId)
-                : false;
+            const isLiked = userId ? data.likes?.some((l: any) => l.user_id === userId) : false;
 
             return {
                 ...data,
@@ -279,11 +247,12 @@ export async function getPostById(id: string, currentUserId?: string | null) {
             };
         },
         [`post-${id}-u${currentUserId || 'guest'}`],
-        { tags: [`post-${id}`, 'community-posts'], revalidate: 3600 } // Cache for 1 hour or until revalidated
+        { tags: [tags.post(id), tags.allPosts()], revalidate: false }
     )(id, currentUserId);
 }
+
 /**
- * Fetches all active post IDs and update times for sitemap generation.
+ * Fetches all active post IDs for sitemap.
  */
 export async function getAllPosts() {
     return unstable_cache(
@@ -295,14 +264,10 @@ export async function getAllPosts() {
                 .eq('status', 'active')
                 .order('created_at', { ascending: false });
 
-            if (error) {
-                console.error('Error fetching posts for sitemap:', error);
-                return [];
-            }
-
+            if (error) return [];
             return data;
         },
         ['sitemap-posts'],
-        { tags: ['community-posts'], revalidate: 3600 } // Cache for 1 hour
+        { tags: [tags.allPosts()], revalidate: false }
     )();
 }

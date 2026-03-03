@@ -17,8 +17,8 @@ export default function Navbar() {
   return (
     <>
       {/* ───────── Mobile Navbar ───────── */}
-      <header className="md:hidden fixed top-0 w-full h-14 z-50 bg-background border-b border-border-subtle">
-        <div className="flex items-center justify-between h-full px-4">
+      <header className="xl:hidden fixed top-0 w-full h-14 z-50 bg-background border-b border-border-subtle flex justify-center">
+        <div className="flex items-center justify-between w-full max-w-sm md:max-w-2xl lg:max-w-4xl h-full px-4">
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
@@ -29,34 +29,36 @@ export default function Navbar() {
           </Link>
 
           {/* Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <ThemeToggle />
-            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-elevated transition text-text-muted">
-              <Bell className="w-5 h-5" />
-            </button>
-            <Link
-              href={user ? "/profile" : "/login"}
-              className="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden border border-border-subtle hover:border-primary/50 transition-all bg-elevated"
-            >
-              {user?.user_metadata?.avatar_url ? (
-                <Image
-                  src={user.user_metadata.avatar_url}
-                  alt="Profile"
-                  width={40}
-                  height={40}
-                  unoptimized
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User className="w-5 h-5 text-text-muted" />
-              )}
-            </Link>
+            <div className="flex items-center gap-2">
+              <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-elevated transition text-text-muted">
+                <Bell className="w-5 h-5" />
+              </button>
+              <Link
+                href={user ? "/profile" : "/login"}
+                className="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden border border-border-subtle hover:border-primary/50 transition-all bg-elevated"
+              >
+                {user?.user_metadata?.avatar_url ? (
+                  <Image
+                    src={user.user_metadata.avatar_url}
+                    alt="Profile"
+                    width={40}
+                    height={40}
+                    unoptimized
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-5 h-5 text-text-muted" />
+                )}
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
       {/* ───────── Desktop Navbar ───────── */}
-      <nav className="hidden md:flex fixed top-0 w-full h-16 z-50 bg-background border-b border-border-subtle">
+      <nav className="hidden xl:flex fixed top-0 w-full h-16 z-50 bg-background border-b border-border-subtle">
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-8">
 
           {/* Logo */}

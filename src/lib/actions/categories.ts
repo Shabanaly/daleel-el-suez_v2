@@ -56,19 +56,19 @@ async function getAllCategoriesInternal() {
 export const getCategories = unstable_cache(
     getCategoriesInternal,
     ['categories-list-v2'],
-    { tags: ['categories', 'categories-v2'], revalidate: 3600 }
+    { tags: ['categories', 'categories-v2'], revalidate: false }
 );
 
 export const getHomeCategories = unstable_cache(
     getHomeCategoriesInternal,
     ['home-categories-v2'],
-    { tags: ['categories', 'places', 'categories-v2'], revalidate: 3600 }
+    { tags: ['categories', 'places', 'categories-v2'], revalidate: false }
 );
 
 export const getAllCategories = unstable_cache(
     getAllCategoriesInternal,
     ['all-categories'],
-    { tags: ['categories', 'places'], revalidate: 3600 }
+    { tags: ['categories', 'places'], revalidate: false }
 );
 
 // This one is for Client side calls (useEffect) to avoid unstable_cache issues
@@ -108,7 +108,7 @@ export async function getCategoryDetails(id: string) {
             };
         },
         [`category-details-${id}`],
-        { tags: ['categories', 'places'], revalidate: 3600 }
+        { tags: ['categories', 'places'], revalidate: false }
     );
     return cached(id);
 }
@@ -123,7 +123,7 @@ export const getCategoriesWithIds = unstable_cache(
         return data || [];
     },
     ['categories-ids-list'],
-    { tags: ['categories'] }
+    { tags: ['categories'], revalidate: false }
 );
 
 export const getCommunityCategories = unstable_cache(
@@ -136,5 +136,5 @@ export const getCommunityCategories = unstable_cache(
         return (data || []) as { id: number; name: string; icon: string }[];
     },
     ['community-categories-list'],
-    { tags: ['categories'], revalidate: 86400 }
+    { tags: ['categories'], revalidate: false }
 );

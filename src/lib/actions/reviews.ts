@@ -2,7 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/client-service';
-import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
+import { revalidatePath, unstable_cache } from 'next/cache';
+import { cacheManager, tags } from '../cache';
 
 export async function submitReview(formData: {
     placeId: string;
@@ -33,12 +34,7 @@ export async function submitReview(formData: {
     }
 
     // 🔥 Granular Revalidation
-    revalidateTag(`place-${formData.placeId}`, 'max');
-    revalidateTag(`reviews-place-${formData.placeId}`, 'max');
-    revalidateTag('places', 'max');
-    revalidateTag(`user-${user.id}-stats`, 'max');
-    revalidateTag(`user-${user.id}-activities`, 'max');
-
+    cacheManager.invalidateReview(formData.placeId, user.id);
     revalidatePath(`/places/${formData.placeId}`);
     revalidatePath('/places');
 
@@ -87,7 +83,7 @@ export async function getReviews(placeId: string, page = 1, limit = 10) {
             };
         },
         [`reviews-place-${placeId}-p${page}`],
-        { tags: [`reviews-place-${placeId}`, 'places'], revalidate: 3600 }
+        { tags: [tags.placeReviews(placeId), 'places'], revalidate: false }
     )(placeId, page, limit);
 }
 
@@ -111,12 +107,7 @@ export async function deleteReview(placeId: string) {
     }
 
     // 🔥 Granular Revalidation
-    revalidateTag(`place-${placeId}`, 'max');
-    revalidateTag(`reviews-place-${placeId}`, 'max');
-    revalidateTag('places', 'max');
-    revalidateTag(`user-${user.id}-stats`, 'max');
-    revalidateTag(`user-${user.id}-activities`, 'max');
-
+    cacheManager.invalidateReview(placeId, user.id);
     revalidatePath(`/places/${placeId}`);
     revalidatePath('/places');
 

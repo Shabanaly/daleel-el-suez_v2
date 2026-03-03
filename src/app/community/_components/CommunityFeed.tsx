@@ -11,7 +11,7 @@ interface CommunityFeedProps {
 export default function CommunityFeed({ initialPosts, categories }: CommunityFeedProps) {
     return (
         <>
-            <div className="space-y-6">
+            <div className="space-y-8">
                 {initialPosts.length > 0 ? (
                     initialPosts.map((post: any) => (
                         <PostCard
