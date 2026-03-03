@@ -118,6 +118,7 @@ export async function getFavoritePlaces(userId: string) {
                     categories (name, icon),
                     areas (name, districts (name))
                 `)
+                .eq('status', 'approved')
                 .in('id', placeIds);
 
             if (placesError) {

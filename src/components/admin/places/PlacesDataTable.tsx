@@ -48,27 +48,27 @@ export function PlacesDataTable({ places, isLoading, onUpdateStatus, onDelete }:
 
     if (isLoading) {
         return (
-            <div className="bg-surface rounded-xl border shadow-sm p-8 flex justify-center items-center">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <div className="glass-card rounded-xl shadow-sm p-8 flex justify-center items-center">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin glow-primary"></div>
             </div>
         );
     }
 
     if (places.length === 0) {
         return (
-            <div className="bg-surface rounded-xl border shadow-sm p-12 text-center text-text-muted">
+            <div className="glass-card rounded-xl shadow-sm p-12 text-center text-text-muted">
                 <MapPin className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-medium">لا توجد أماكن لعرضها</p>
+                <p className="text-lg font-medium text-text-primary">لا توجد أماكن لعرضها</p>
                 <p className="text-sm mt-1">لم يتم العثور على أماكن تطابق معايير البحث.</p>
             </div>
         );
     }
 
     return (
-        <div className="bg-surface rounded-xl border shadow-sm overflow-hidden">
+        <div className="glass-card rounded-xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-sm text-right">
-                    <thead className="bg-background-alt text-text-muted border-b">
+                    <thead className="bg-elevated/50 text-text-secondary border-b border-border-subtle backdrop-blur-sm">
                         <tr>
                             <th className="px-4 py-3 font-semibold">المكان</th>
                             <th className="px-4 py-3 font-semibold hidden md:table-cell">القسم والمنطقة</th>
@@ -78,11 +78,11 @@ export function PlacesDataTable({ places, isLoading, onUpdateStatus, onDelete }:
                             <th className="px-4 py-3 font-semibold text-center mt-auto">الإجراءات</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-border">
+                    <tbody className="divide-y divide-border-subtle">
                         {places.map((p) => {
                             const place = p as PlaceData;
                             return (
-                                <tr key={place.id} className="hover:bg-surface-hover/50 transition-colors">
+                                <tr key={place.id} className="hover:bg-primary/5 transition-colors duration-300">
                                     {/* Name & Address */}
                                     <td className="px-4 py-4">
                                         <div className="font-bold text-base text-primary mb-1">{place.name}</div>

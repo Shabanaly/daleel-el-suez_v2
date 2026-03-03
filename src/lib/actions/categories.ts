@@ -99,6 +99,7 @@ export async function getCategoryDetails(id: string) {
                     areas(name)
                 `)
                 .eq('category_id', categoryId)
+                .eq('status', 'approved')
                 .order('avg_rating', { ascending: false })
                 .limit(12);
 

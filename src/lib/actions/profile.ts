@@ -17,7 +17,8 @@ export async function getUserProfileStats(userId: string) {
                     supabase
                         .from('places')
                         .select('*', { count: 'exact', head: true })
-                        .eq('added_by', uid),
+                        .eq('added_by', uid)
+                        .eq('status', 'approved'),
                     supabase
                         .from('posts')
                         .select('*', { count: 'exact', head: true })
@@ -83,6 +84,7 @@ export async function getUserActivities(userId: string, limit = 10) {
                         )
                     `)
                     .eq('added_by', uid)
+                    .eq('status', 'approved')
                     .order('created_at', { ascending: false })
                     .limit(cacheLimit);
 

@@ -17,6 +17,7 @@ async function basePlacesQuery(orderBy: string, ascending = false, limit = 20, o
             areas(name, districts(name)),
             reviews_count:reviews(count)
         `)
+        .eq('status', 'approved')
         .order(orderBy, { ascending })
         .range(offset, offset + limit - 1);
 
@@ -42,7 +43,8 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
             const supabase = createServiceClient();
             let query = supabase
                 .from('places')
-                .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`);
+                .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`)
+                .eq('status', 'approved');
 
             // Apply Filters
             if (cid) query = query.eq('category_id', cid);
@@ -62,20 +64,20 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
             }
 
             const { data, error } = await query.range(offset, offset + limit - 1);
-    if (error) return [];
-    return (data || []).map(mapPlace);
-},
-keys.placesPaginated(page, { categoryId, areaId, sortBy }),
-{
-    tags: [
-        tags.allPlaces(),
-        tags.placesPage(page),
-        ...(categoryId ? [tags.placesByCategory(categoryId.toString())] : []),
-        ...(areaId ? [tags.placesByArea(areaId)] : [])
-    ],
-    revalidate: false
-}
-    ) (page, categoryId, areaId, sortBy);
+            if (error) return [];
+            return (data || []).map(mapPlace);
+        },
+        keys.placesPaginated(page, { categoryId, areaId, sortBy }),
+        {
+            tags: [
+                tags.allPlaces(),
+                tags.placesPage(page),
+                ...(categoryId ? [tags.placesByCategory(categoryId.toString())] : []),
+                ...(areaId ? [tags.placesByArea(areaId)] : [])
+            ],
+            revalidate: false
+        }
+    )(page, categoryId, areaId, sortBy);
 }
 
 /* =========================================================
@@ -111,6 +113,7 @@ export async function getPlaceBySlug(slug: string) {
                 .from('places')
                 .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`)
                 .eq('slug', s)
+                .eq('status', 'approved')
                 .single();
 
             if (error || !data) return null;
@@ -134,6 +137,7 @@ export async function getRelatedPlaces(category: string, excludeId: string, limi
                 .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`)
                 .eq('category_id', (await supabase.from('categories').select('id').eq('name', cat).single()).data?.id)
                 .neq('id', eid)
+                .eq('status', 'approved')
                 .order('avg_rating', { ascending: false })
                 .limit(l);
 
