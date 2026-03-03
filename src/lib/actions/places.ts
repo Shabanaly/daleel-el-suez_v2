@@ -90,7 +90,7 @@ export async function getAllPlacesForSitemap() {
             const supabase = createServiceClient();
             const { data, error } = await supabase
                 .from('places')
-                .select('slug, created_at, updated_at')
+                .select('slug, created_at')
                 .eq('status', 'approved')
                 .order('created_at', { ascending: false });
 
