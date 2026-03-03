@@ -39,7 +39,7 @@ const galleryItems = [
 
 export default function SuezGallery() {
     return (
-        <section className="w-full max-w-5xl mx-auto px-4 py-6 md:py-16 mb-6 md:mb-10 overflow-hidden relative border-t border-border-subtle/30">
+        <section className="w-full max-w-7xl mx-auto px-4 py-6 md:py-16 mb-6 md:mb-10 overflow-hidden relative border-t border-border-subtle/30">
             <SectionHeader
                 title="عدسة السويس"
                 subtitle="جمال المدينة بعيون أهلها وزوارها"

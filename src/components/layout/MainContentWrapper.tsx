@@ -7,7 +7,7 @@ export default function MainContentWrapper({ children }: { children: React.React
     const isAuthPage = pathname === '/login' || pathname === '/signup';
 
     return (
-        <main className={`w-full mx-auto ${isAuthPage ? '' : 'xl:px-72'}`}>
+        <main className={`w-full mx-auto ${isAuthPage ? '' : 'lg:pl-72 lg:pr-20'}`}>
             {children}
         </main>
     );

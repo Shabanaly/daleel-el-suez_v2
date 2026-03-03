@@ -22,7 +22,7 @@ export default function BottomNav() {
 
     return (
         <>
-            <div className="xl:hidden fixed bottom-0 w-full z-50 pointer-events-auto flex justify-center">
+            <div className="lg:hidden fixed bottom-0 w-full z-50 pointer-events-auto flex justify-center">
                 <div className="relative w-full max-w-sm md:max-w-2xl lg:max-w-4xl h-[76px]">
 
                     {/* ── Custom Notch Background ── */}

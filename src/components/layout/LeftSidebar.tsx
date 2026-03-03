@@ -26,7 +26,7 @@ export default function LeftSidebar() {
 
     return (
 
-        <aside className="hidden xl:flex fixed top-[72px] left-0 z-40 w-72 h-[calc(100vh-72px)] flex-col bg-surface/50 dark:bg-background/50 backdrop-blur-2xl border-r border-border-subtle shadow-[-20px_0_50px_rgba(0,0,0,0.1)]">
+        <aside className="hidden lg:flex fixed top-[72px] left-0 z-40 w-72 h-[calc(100vh-72px)] flex-col bg-surface/50 dark:bg-background/50 backdrop-blur-2xl border-r border-border-subtle shadow-[-20px_0_50px_rgba(0,0,0,0.1)]">
 
             <div className="flex flex-col gap-4 p-4 h-full overflow-y-auto custom-scrollbar">
 

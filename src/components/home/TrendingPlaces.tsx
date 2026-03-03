@@ -12,7 +12,7 @@ interface TrendingPlacesProps {
 
 export default function TrendingPlaces({ places }: TrendingPlacesProps) {
     return (
-        <section className="w-full max-w-5xl mx-auto px-4 relative overflow-hidden">
+        <section className="w-full max-w-7xl mx-auto px-4 relative overflow-hidden">
             {/* Ambient Background Glow */}
             <div className="absolute top-0 right-1/4 w-64 h-64 bg-primary/2 rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-accent/2 rounded-full blur-[120px] pointer-events-none" />

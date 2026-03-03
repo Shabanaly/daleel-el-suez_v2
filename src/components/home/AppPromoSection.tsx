@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function AppPromoSection() {
     return (
-        <section className="w-full max-w-5xl mx-auto px-4 py-24">
+        <section className="w-full max-w-7xl mx-auto px-4 py-24">
             <div className="w-full relative rounded-[40px] bg-linear-to-br from-elevated via-surface to-elevated border border-primary/20 overflow-hidden px-8 py-16 md:px-20 md:py-24 shadow-2xl shadow-primary/5">
 
                 {/* Background Decorations */}

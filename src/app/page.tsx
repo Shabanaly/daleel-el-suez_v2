@@ -44,7 +44,7 @@ export default async function Home() {
 
 
       {/* Call to action banner at the end */}
-      <section className="w-full max-w-5xl mx-auto px-4 pb-24 md:pb-32">
+      <section className="w-full max-w-7xl mx-auto px-4 pb-24 md:pb-32">
         <div className="w-full rounded-[32px] md:rounded-[48px] bg-linear-to-br from-surface via-surface to-primary/5 border border-primary/15 p-8 md:p-16 text-center flex flex-col items-center shadow-2xl shadow-primary/5 relative overflow-hidden group">
           {/* Canal teal orb top-right */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full mix-blend-screen filter blur-[100px] opacity-40 pointer-events-none group-hover:opacity-60 transition-opacity duration-1000" />

@@ -35,7 +35,7 @@ export default function Hero({ categories = [] }: { categories?: Category[] }) {
             <HeroBackground />
 
             {/* ── Content ────────────────────────────────────────────────── */}
-            <div className="relative z-10 w-full max-w-4xl px-4 flex flex-col items-center">
+            <div className="relative z-10 w-full max-w-6xl px-4 flex flex-col items-center">
 
                 {/* ── Headline ────────────────────────────────────────────── */}
                 <motion.div

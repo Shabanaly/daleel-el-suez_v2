@@ -29,7 +29,7 @@ const stats = [
 
 export default function SuezStats() {
     return (
-        <section className="w-full max-w-5xl mx-auto px-4 py-20 relative overflow-hidden">
+        <section className="w-full max-w-7xl mx-auto px-4 py-20 relative overflow-hidden">
             {/* Background glow lines */}
             <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-border-subtle to-transparent" />
             <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-border-subtle to-transparent" />

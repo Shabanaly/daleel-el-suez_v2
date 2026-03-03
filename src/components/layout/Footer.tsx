@@ -44,13 +44,26 @@ export default function Footer() {
                             روابط سريعة
                         </h3>
                         <ul className="space-y-4">
-                            {['الرئيسية', 'الأماكن', 'المجتمع', 'عن السويس'].map((item) => (
-                                <li key={item}>
-                                    <Link href="#" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
-                                        {item}
-                                    </Link>
-                                </li>
-                            ))}
+                            <li>
+                                <Link href="/" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
+                                    الرئيسية
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/places" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
+                                    الأماكن
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/community" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
+                                    المجتمع
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/about" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
+                                    عن السويس
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
@@ -61,13 +74,21 @@ export default function Footer() {
                             قانوني
                         </h3>
                         <ul className="space-y-4">
-                            {['الشروط والأحكام', 'سياسة الخصوصية', 'حقوق النشر'].map((item) => (
-                                <li key={item}>
-                                    <Link href="#" className="text-text-muted text-sm font-bold hover:text-text-primary transition-colors">
-                                        {item}
-                                    </Link>
-                                </li>
-                            ))}
+                            <li>
+                                <Link href="/terms" className="text-text-muted text-sm font-bold hover:text-text-primary transition-colors">
+                                    الشروط والأحكام
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/privacy" className="text-text-muted text-sm font-bold hover:text-text-primary transition-colors">
+                                    سياسة الخصوصية
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/copyright" className="text-text-muted text-sm font-bold hover:text-text-primary transition-colors">
+                                    حقوق النشر
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 

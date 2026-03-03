@@ -87,7 +87,7 @@ export default function RootLayout({
         <script src="https://accounts.google.com/gsi/client" async defer></script>
       </head>
       <body
-        className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 xl:pb-0`}
+        className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 lg:pb-0`}
         suppressHydrationWarning
       >
         <ThemeProvider
@@ -107,7 +107,7 @@ export default function RootLayout({
                   <MainContentWrapper>
                     {children}
                     {/* Show Footer only on desktop, balanced between sidebars */}
-                    <div className="hidden xl:block">
+                    <div className="hidden lg:block">
                       <Footer />
                     </div>
                   </MainContentWrapper>

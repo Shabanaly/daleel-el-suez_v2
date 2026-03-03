@@ -57,7 +57,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
     };
 
     return (
-        <section className="w-full max-w-5xl mx-auto px-4 py-4 md:py-16 mb-4 md:mb-5 overflow-hidden relative border-t border-border-subtle/30">
+        <section className="w-full max-w-7xl mx-auto px-4 py-4 md:py-16 mb-4 md:mb-5 overflow-hidden relative border-t border-border-subtle/30">
             {/* Decorative elements */}
             <div className="absolute top-1/4 right-0 w-64 h-64 bg-primary/5 blur-[100px] pointer-events-none" />
 
