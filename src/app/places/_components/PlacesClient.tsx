@@ -31,6 +31,11 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
         isPending
     } = usePlacesFilter(initialPlaces, categories, areas, districts);
 
+    const handlePageChange = (newPage: number) => {
+        setPage(newPage);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <div className="w-full min-h-screen pt-20 md:pt-28 pb-10">
 
@@ -277,7 +282,7 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
                             <div className="mt-12 md:mt-16 flex items-center justify-between md:justify-center md:gap-8 px-2 md:px-0">
                                 <button
                                     disabled={page === 1 || isPending}
-                                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                                    onClick={() => handlePageChange(Math.max(1, page - 1))}
                                     className="group flex items-center justify-center gap-2 h-12 w-12 md:w-auto md:px-6 rounded-2xl md:rounded-full bg-surface/80 border border-border-subtle hover:border-primary/40 hover:bg-surface text-text-muted hover:text-primary disabled:opacity-40 disabled:hover:border-border-subtle disabled:hover:text-text-muted disabled:hover:bg-surface/80 disabled:cursor-not-allowed transition-all shadow-sm"
                                     aria-label="الصفحة السابقة"
                                 >
@@ -294,7 +299,7 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
 
                                 <button
                                     disabled={filtered.length < 20 || isPending}
-                                    onClick={() => setPage(p => p + 1)}
+                                    onClick={() => handlePageChange(page + 1)}
                                     className="group flex items-center justify-center gap-2 h-12 w-12 md:w-auto md:px-6 rounded-2xl md:rounded-full bg-surface/80 border border-border-subtle hover:border-primary/40 hover:bg-surface text-text-muted hover:text-primary disabled:opacity-40 disabled:hover:border-border-subtle disabled:hover:text-text-muted disabled:hover:bg-surface/80 disabled:cursor-not-allowed transition-all shadow-sm"
                                     aria-label="الصفحة التالية"
                                 >
