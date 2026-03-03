@@ -26,7 +26,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
                 // If the user role is stored in auth.users user_metadata, we check there first
 
                 // Method 1: Check user_metadata first (if role is synced there)
-                if (user?.user_metadata?.role === 'admin') {
+                if (['admin', 'moderator'].includes(user?.user_metadata?.role)) {
                     setIsAuthorized(true);
                     return;
                 }
@@ -44,7 +44,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
                     return;
                 }
 
-                if (data?.role === 'admin') {
+                if (['admin', 'moderator'].includes(data?.role)) {
                     setIsAuthorized(true);
                 } else {
                     router.replace('/');

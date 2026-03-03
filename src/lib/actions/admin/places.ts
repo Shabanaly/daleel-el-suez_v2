@@ -1,12 +1,38 @@
 'use server';
 
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export type PlaceStatus = 'pending' | 'approved' | 'rejected';
 
+// Helper: Check if current user is admin or moderator
+async function checkAdminOrModerator() {
+    const supabaseSession = await createClient();
+    const { data: { user }, error: userError } = await supabaseSession.auth.getUser();
+
+    if (userError || !user) {
+        throw new Error('غير مصرح لك بالدخول.');
+    }
+
+    // Check users table for role
+    const supabaseAdmin = createAdminClient();
+    const { data, error } = await supabaseAdmin
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    if (error || !['admin', 'moderator'].includes(data?.role)) {
+        throw new Error('ليس لديك الصلاحيات الكافية للقيام بهذا الإجراء.');
+    }
+
+    return { user, role: data?.role };
+}
+
 // Fetch Places with dynamic filtering
 export async function getAdminPlaces(params?: { search?: string, status?: PlaceStatus }) {
+    await checkAdminOrModerator(); // Secure the fetch action
     const supabase = createAdminClient();
 
     let query = supabase
@@ -51,6 +77,7 @@ export async function getAdminPlaces(params?: { search?: string, status?: PlaceS
 
 // Update Place Status
 export async function updatePlaceStatusAction(placeId: string, status: PlaceStatus) {
+    await checkAdminOrModerator(); // Secure the update action
     const supabase = createAdminClient();
 
     const { error } = await supabase
@@ -71,6 +98,13 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
 
 // Delete Place
 export async function deletePlaceAction(placeId: string) {
+    const { role } = await checkAdminOrModerator();
+
+    // Only admins can delete places, moderators can only update status
+    if (role !== 'admin') {
+        throw new Error('للأسف، المشرفين (Admins) فقط هم من يمكنهم الحذف النهائي.');
+    }
+
     const supabase = createAdminClient();
 
     const { error } = await supabase
