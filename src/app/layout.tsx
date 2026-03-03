@@ -12,6 +12,7 @@ import { GoogleOneTap } from "@/components/auth/GoogleOneTap";
 import { DialogProvider } from "@/components/providers/DialogProvider";
 import { CommentsProvider } from "@/components/providers/CommentsProvider";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -114,6 +115,7 @@ export default function RootLayout({
 
                   <BottomNav />
                   <Analytics />
+                  <SpeedInsights />
                 </CommentsProvider>
               </DialogProvider>
             </AuthModalProvider>
