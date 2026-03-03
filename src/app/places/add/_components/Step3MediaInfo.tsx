@@ -2,7 +2,7 @@
 
 import { Image as ImageIcon, Loader2, Info, Send, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { ImageUploader } from '@/app/_components/ui/ImageUploader';
+import { ImageUploader } from '@/components/ui/ImageUploader';
 
 interface Step3Props {
     formData: {
