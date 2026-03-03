@@ -81,6 +81,31 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
 }
 
 /* =========================================================
+   All Places for Sitemap (Unpaginated)
+========================================================= */
+
+export async function getAllPlacesForSitemap() {
+    return unstable_cache(
+        async () => {
+            const supabase = createServiceClient();
+            const { data, error } = await supabase
+                .from('places')
+                .select('slug, created_at, updated_at')
+                .eq('status', 'approved')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching all places for sitemap:', error);
+                return [];
+            }
+            return data;
+        },
+        ['all-places-sitemap'],
+        { tags: [tags.allPlaces()], revalidate: 60 * 60 * 24 } // Revalidate once a day
+    )();
+}
+
+/* =========================================================
    Trending & Newest (Parameterized Limit)
 ========================================================= */
 

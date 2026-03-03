@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getPlaces } from '@/lib/actions/places';
+import { getAllPlacesForSitemap } from '@/lib/actions/places';
 import { getAllCategories } from '@/lib/actions/categories';
 import { getAllPosts } from '@/lib/actions/posts';
 
@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Fetch all paths in parallel
     const [places, categories, posts] = await Promise.all([
-        getPlaces(),
+        getAllPlacesForSitemap(),
         getAllCategories(),
         getAllPosts(),
     ]);

@@ -89,7 +89,7 @@ export function PlaceCard({ place, index }: PlaceCardProps) {
             </h3>
 
             <p className="text-xs md:text-sm text-text-muted line-clamp-2 leading-relaxed opacity-80 min-h-[32px] md:min-h-[40px]">
-              {place.description || 'أفضل الخدمات المتاحة في منتقتك بالسويس.'}
+              {place.description || `أفضل الخدمات المتاحة في ${place.area}. اكتشف المزيد من التفاصيل والتقييمات.`}
             </p>
           </div>
         </motion.div>

@@ -67,8 +67,8 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
 
 // Generate static params if we want to pre-render (optional, good for performance)
 export async function generateStaticParams() {
-    const { getPlaces } = await import('@/lib/actions/places');
-    const places = await getPlaces();
+    const { getAllPlacesForSitemap } = await import('@/lib/actions/places');
+    const places = await getAllPlacesForSitemap();
     return places.map((place) => ({
         slug: place.slug,
     }));
