@@ -18,7 +18,7 @@ export async function getAdminDashboardStats() {
 
     // 3. Total Users
     const { count: totalUsersCount, error: totalUsersError } = await supabase
-        .from('users')
+        .from('profiles')
         .select('*', { count: 'exact', head: true });
 
 

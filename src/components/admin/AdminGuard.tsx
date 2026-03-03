@@ -33,7 +33,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
 
                 // Method 2: Check standard users table
                 const { data, error } = await supabase
-                    .from('users')
+                    .from('profiles')
                     .select('role')
                     .eq('id', user.id)
                     .single();

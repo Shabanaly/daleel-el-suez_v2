@@ -18,7 +18,7 @@ async function checkAdminOrModerator() {
     // Check users table for role
     const supabaseAdmin = createAdminClient();
     const { data, error } = await supabaseAdmin
-        .from('users')
+        .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single();
