@@ -15,10 +15,11 @@ export default function BottomNav() {
     // Removed handleProtectedAction to allow guest access to Community & Market
 
     const isAuthPage = pathname === '/login' || pathname === '/signup';
+    const isAdminPage = pathname?.startsWith('/admin');
     const isPlaceDetailsPage = pathname?.startsWith('/places/') && pathname.split('/').length === 3;
     const isPostDetailsPage = pathname?.startsWith('/community/posts/');
 
-    if (isAuthPage || isPlaceDetailsPage || isPostDetailsPage) return null;
+    if (isAuthPage || isAdminPage || isPlaceDetailsPage || isPostDetailsPage) return null;
 
     return (
         <>

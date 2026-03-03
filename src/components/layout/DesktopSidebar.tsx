@@ -27,7 +27,8 @@ export default function DesktopSidebar() {
     ];
 
     const isAuthPage = pathname === '/login' || pathname === '/signup';
-    if (isAuthPage) return null;
+    const isAdminPage = pathname?.startsWith('/admin');
+    if (isAuthPage || isAdminPage) return null;
 
     const handleLogout = async () => {
         await supabaseLogout();

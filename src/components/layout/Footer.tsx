@@ -14,7 +14,8 @@ export default function Footer() {
     }, []);
 
     const isAuthPage = pathname === '/login' || pathname === '/signup';
-    if (isAuthPage) return null;
+    const isAdminPage = pathname?.startsWith('/admin');
+    if (isAuthPage || isAdminPage) return null;
 
     return (
         <footer className="w-full bg-background border-t border-border-subtle pt-20 pb-28 md:pb-12 mt-auto relative overflow-hidden">

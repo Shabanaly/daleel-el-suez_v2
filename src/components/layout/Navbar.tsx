@@ -12,7 +12,8 @@ export default function Navbar() {
   const { user } = useAuth();
   const pathname = usePathname();
   const isAuthPage = pathname === '/login' || pathname === '/signup';
-  if (isAuthPage) return null;
+  const isAdminPage = pathname?.startsWith('/admin');
+  if (isAuthPage || isAdminPage) return null;
 
   return (
     <>

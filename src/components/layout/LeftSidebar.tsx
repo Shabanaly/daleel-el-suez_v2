@@ -21,8 +21,9 @@ const OUR_SERVICES = [
 export default function LeftSidebar() {
     const pathname = usePathname();
     const isAuthPage = pathname === '/login' || pathname === '/signup';
+    const isAdminPage = pathname?.startsWith('/admin');
 
-    if (isAuthPage) return null;
+    if (isAuthPage || isAdminPage) return null;
 
     return (
 
