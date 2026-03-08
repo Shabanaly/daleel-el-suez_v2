@@ -82,10 +82,42 @@ export default function RootLayout({
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://daleel-al-suez.com/#website",
+        "url": "https://daleel-al-suez.com",
+        "name": "دليل السويس",
+        "description": "اكتشف أفضل الأماكن، الخدمات، والمطاعم في محافظة السويس.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://daleel-al-suez.com/places?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://daleel-al-suez.com/#organization",
+        "url": "https://daleel-al-suez.com",
+        "name": "دليل السويس",
+        "logo": "https://daleel-al-suez.com/icon.png"
+      }
+    ]
+  };
+
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
         <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body
         className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 lg:pb-0`}

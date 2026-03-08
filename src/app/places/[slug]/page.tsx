@@ -52,8 +52,35 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
         user ? isItemFavorite(place.id, 'place') : false
     ]);
 
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'LocalBusiness',
+        name: place.name,
+        image: place.images?.length ? place.images : (place.imageUrl ? [place.imageUrl] : []),
+        '@id': `https://daleel-al-suez.com/places/${place.slug}`,
+        url: `https://daleel-al-suez.com/places/${place.slug}`,
+        address: {
+            '@type': 'PostalAddress',
+            streetAddress: place.address || place.area,
+            addressLocality: 'Suez',
+            addressRegion: 'Suez Governorate',
+            addressCountry: 'EG'
+        },
+        ...(place.rating && place.reviews ? {
+            aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: place.rating,
+                reviewCount: place.reviews
+            }
+        } : {})
+    };
+
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <ViewTracker placeId={place.id} />
             <PlaceDetailsClient
                 place={place}

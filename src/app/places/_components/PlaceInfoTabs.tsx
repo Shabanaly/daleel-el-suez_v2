@@ -143,7 +143,7 @@ export function PlaceInfoTabs({ place }: PlaceInfoTabsProps) {
                                                         <a
                                                             href={link.url}
                                                             target="_blank"
-                                                            rel="noopener noreferrer"
+                                                            rel="nofollow noopener noreferrer"
                                                             className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border transition-all duration-300 ${link.platform === 'facebook' ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary hover:text-white' :
                                                                 link.platform === 'instagram' ? 'bg-accent/10 text-accent border-accent/20 hover:bg-accent hover:text-white' :
                                                                     'bg-primary/10 text-primary border-primary/20 hover:bg-primary hover:text-white'
@@ -159,7 +159,7 @@ export function PlaceInfoTabs({ place }: PlaceInfoTabsProps) {
                                                                     link.platform === 'instagram' ? 'انستجرام' :
                                                                         'الموقع الإلكتروني'}
                                                             </h4>
-                                                            <a href={link.url} target="_blank" rel="noopener noreferrer" className={`text-[9px] font-black hover:underline ${link.platform === 'instagram' ? 'text-accent' : 'text-primary'
+                                                            <a href={link.url} target="_blank" rel="nofollow noopener noreferrer" className={`text-[9px] font-black hover:underline ${link.platform === 'instagram' ? 'text-accent' : 'text-primary'
                                                                 }`}>
                                                                 زيارة {link.platform === 'facebook' ? 'فيسبوك' : link.platform === 'instagram' ? 'انستجرام' : 'موقعنا'}
                                                             </a>
