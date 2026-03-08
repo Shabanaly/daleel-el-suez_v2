@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cairo, Inter } from "next/font/google";
+import Script from "next/script";
 import Navbar from "@/components/layout/Navbar";
 import BottomNav from "@/components/layout/BottomNav";
 import DesktopSidebar from "@/components/layout/DesktopSidebar";
@@ -115,6 +116,20 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-88H6M24TWJ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-88H6M24TWJ');
+          `}
+        </Script>
       </head>
       <body
         className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 lg:pb-0`}
