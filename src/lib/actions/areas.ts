@@ -17,7 +17,7 @@ export const getAreas = unstable_cache(
         return ['كل المناطق', ...(data?.map(a => a.name) || [])];
     },
     ['areas-list'],
-    { tags: ['areas'], revalidate: false }
+    { tags: ['areas'], revalidate: 172800 }
 );
 
 /**
@@ -32,7 +32,7 @@ export const getAreasWithIds = unstable_cache(
         return data || [];
     },
     ['areas-ids-list'],
-    { tags: ['areas'], revalidate: false }
+    { tags: ['areas'], revalidate: 172800 }
 );
 
 /**
@@ -48,7 +48,7 @@ export const getDistricts = unstable_cache(
         return data || [];
     },
     ['districts-list'],
-    { tags: ['areas'], revalidate: false }
+    { tags: ['areas'], revalidate: 172800 }
 );
 
 export interface AreaWithDistrict {
@@ -70,7 +70,7 @@ export const getAreasAction = unstable_cache(
         return data || [];
     },
     ['areas-action-list'],
-    { tags: ['areas'], revalidate: false }
+    { tags: ['areas'], revalidate: 172800 }
 );
 
 /**
@@ -122,7 +122,7 @@ export const getHomeDistricts = unstable_cache(
         });
     },
     ['home-districts-official-v3'],
-    { tags: ['areas', 'places'], revalidate: false }
+    { tags: ['areas', 'places'], revalidate: 172800 }
 );
 
 /**

@@ -9,6 +9,7 @@ import SuezGallery from '@/components/home/SuezGallery';
 import CommunityTeaser from '@/components/home/CommunityTeaser';
 import AppPromoSection from '@/components/home/AppPromoSection';
 import NewPlaces from '@/components/home/NewPlaces';
+import CategoryHighlight from '@/components/home/CategoryHighlight';
 import { getCommunityPosts } from '@/lib/actions/posts';
 import { createClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
@@ -23,11 +24,12 @@ export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser();
 
   // 🧠 Fetch data using the centralized home page action (logic moved to server)
-  const [categories, districts, homeData, communityPosts] = await Promise.all([
+  const [categories, districts, homeData, communityPosts, randomCategoryData] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
     getHomePageData(),
-    getCommunityPosts(undefined, undefined, 1, 2, user?.id)
+    getCommunityPosts(undefined, undefined, 1, 2, user?.id),
+    import('@/lib/actions/categories').then(m => m.getRandomCategoryHighlights())
   ]);
 
   const { trending, newPlaces } = homeData;
@@ -38,6 +40,7 @@ export default async function Home() {
 
       <TrendingPlaces places={trending} />
       <NewPlaces places={newPlaces} />
+      {randomCategoryData && <CategoryHighlight data={randomCategoryData} />}
       <SuezGallery />
       <DistrictsExplorer districts={districts} />
       <CommunityTeaser posts={communityPosts} />

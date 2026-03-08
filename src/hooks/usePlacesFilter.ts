@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useTransition } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Place, SortOption } from '../lib/types/places';
 import { AreaWithDistrict } from '../lib/actions/areas';
-import { getPlaces } from '../lib/actions/places';
+import { fuzzyMatchArabic } from '../lib/utils/text';
 
 export function usePlacesFilter(
     initialPlaces: Place[],
@@ -32,25 +32,19 @@ export function usePlacesFilter(
         setPlaces(initialPlaces);
     }, [initialPlaces]);
 
-    // Sync state with URL manually if needed or use URL as source of truth
+    // Debounced Query State for URL and Filtering
+    const [debouncedQuery, setDebouncedQuery] = useState(query);
+
     useEffect(() => {
-        const params = new URLSearchParams(searchParams);
-
-        // Construct new URL based on state
-        if (query) params.set('q', query); else params.delete('q');
-        if (activeCategory !== 'الكل') params.set('category', activeCategory); else params.delete('category');
-        if (activeDistrict !== 'كل الأحياء') params.set('district', activeDistrict); else params.delete('district');
-        if (activeArea !== 'كل المناطق') params.set('area', activeArea); else params.delete('area');
-        if (sortBy !== 'trending') params.set('sort', sortBy); else params.delete('sort');
-        if (page > 1) params.set('page', page.toString()); else params.delete('page');
-
-        const newUrl = `${pathname}?${params.toString()}`;
-
-        // Only update if URL actually changed to avoid infinite loops
-        if (newUrl !== `${pathname}?${searchParams.toString()}`) {
-            router.push(newUrl, { scroll: false });
-        }
-    }, [query, activeCategory, activeDistrict, activeArea, sortBy, page, pathname, router, searchParams]);
+        const handler = setTimeout(() => {
+            setDebouncedQuery(query);
+            // Reset page on new search
+            if (query !== searchParams.get('q')) {
+                setPage(1);
+            }
+        }, 400); // 400ms debounce
+        return () => clearTimeout(handler);
+    }, [query, searchParams]);
 
     // Derived: Areas belonging to the active district
     const availableAreas = useMemo(() => {
@@ -60,19 +54,46 @@ export function usePlacesFilter(
         return allAreas.filter(a => a.district_id === districtObj.id);
     }, [allAreas, districts, activeDistrict]);
 
-    // Handle Server-Side Filtering (Pseudo-code, usually handled by Page.tsx in Next.js)
-    // But since we want "Live" feeling, we use the hook to trigger data updates
+    // Enhance Search with Arabic Normalization and Debounce
     const filtered = useMemo(() => {
-        // Here we still apply query filter on the current page for instant feedback
-        if (!query.trim()) return places;
-        const q = query.toLowerCase();
-        return places.filter(p =>
-            p.name.toLowerCase().includes(q) ||
-            p.category.toLowerCase().includes(q)
-        );
-    }, [places, query]);
+        if (!debouncedQuery.trim()) return places;
 
-    const hasActiveFilters = activeCategory !== 'الكل' || activeDistrict !== 'كل الأحياء' || activeArea !== 'كل المناطق' || query !== '';
+        return places.filter(p => {
+            // Search across multiple fields 
+            const matchesName = fuzzyMatchArabic(p.name, debouncedQuery);
+            const matchesCategory = fuzzyMatchArabic(p.category, debouncedQuery);
+            const matchesAddress = p.address ? fuzzyMatchArabic(p.address, debouncedQuery) : false;
+            // Extract area/district names from IDs using the allAreas and districts arrays
+            const areaId = (p as any).area_id; // Cast to access area_id if it exists
+            const areaObj = areaId ? allAreas.find(a => a.id === areaId) : null;
+            const matchesArea = areaObj ? fuzzyMatchArabic(areaObj.name, debouncedQuery) : false;
+
+            const districtObj = areaObj ? districts.find(d => d.id === areaObj.district_id) : null;
+            const matchesDistrict = districtObj ? fuzzyMatchArabic(districtObj.name, debouncedQuery) : false;
+
+            return matchesName || matchesCategory || matchesAddress || matchesArea || matchesDistrict;
+        });
+    }, [places, debouncedQuery, allAreas, districts]);
+
+    // Handle initial routing with debounced query
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams);
+
+        if (debouncedQuery) params.set('q', debouncedQuery); else params.delete('q');
+        if (activeCategory !== 'الكل') params.set('category', activeCategory); else params.delete('category');
+        if (activeDistrict !== 'كل الأحياء') params.set('district', activeDistrict); else params.delete('district');
+        if (activeArea !== 'كل المناطق') params.set('area', activeArea); else params.delete('area');
+        if (sortBy !== 'trending') params.set('sort', sortBy); else params.delete('sort');
+        if (page > 1) params.set('page', page.toString()); else params.delete('page');
+
+        const newUrl = `${pathname}?${params.toString()}`;
+
+        if (newUrl !== `${pathname}?${searchParams.toString()}`) {
+            router.push(newUrl, { scroll: false });
+        }
+    }, [debouncedQuery, activeCategory, activeDistrict, activeArea, sortBy, page, pathname, router, searchParams]);
+
+    const hasActiveFilters = activeCategory !== 'الكل' || activeDistrict !== 'كل الأحياء' || activeArea !== 'كل المناطق' || debouncedQuery !== '';
 
     const clearFilters = () => {
         setActiveCategory('الكل');
@@ -94,6 +115,8 @@ export function usePlacesFilter(
         filtered,
         hasActiveFilters,
         clearFilters,
-        isPending
+        isPending,
+        // Expose debounced query for highlight functionality if needed
+        debouncedQuery
     };
 }

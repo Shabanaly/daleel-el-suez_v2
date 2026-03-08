@@ -75,7 +75,7 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
                 ...(categoryId ? [tags.placesByCategory(categoryId.toString())] : []),
                 ...(areaId ? [tags.placesByArea(areaId)] : [])
             ],
-            revalidate: false
+            revalidate: 172800 // 48 hours
         }
     )(page, categoryId, areaId, sortBy);
 }
@@ -113,7 +113,7 @@ export async function getTrendingPlaces(limit = 8) {
     return unstable_cache(
         async (l: number) => basePlacesQuery('views_count', false, l),
         keys.trending(limit),
-        { tags: [tags.trendingPlaces(), tags.allPlaces()], revalidate: false }
+        { tags: [tags.trendingPlaces(), tags.allPlaces()], revalidate: 172800 }
     )(limit);
 }
 
@@ -121,7 +121,7 @@ export async function getNewPlaces(limit = 8) {
     return unstable_cache(
         async (l: number) => basePlacesQuery('created_at', false, l),
         keys.latest(limit),
-        { tags: [tags.newestPlaces(), tags.allPlaces()], revalidate: false }
+        { tags: [tags.newestPlaces(), tags.allPlaces()], revalidate: 172800 }
     )(limit);
 }
 
@@ -198,7 +198,7 @@ export const getHomePageData = unstable_cache(
         return { trending, newPlaces };
     },
     keys.homePage(),
-    { tags: [tags.trendingPlaces(), tags.newestPlaces(), tags.allPlaces()], revalidate: false }
+    { tags: [tags.trendingPlaces(), tags.newestPlaces(), tags.allPlaces()], revalidate: 172800 }
 );
 
 export async function incrementPlaceViews(placeId: string) {
