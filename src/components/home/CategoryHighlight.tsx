@@ -23,9 +23,9 @@ export default function CategoryHighlight({ data }: CategoryHighlightProps) {
     const { category, places } = data;
 
     return (
-        <section className="w-full bg-white relative py-16">
+        <section className="w-full bg-surface relative py-16">
             {/* Background Decor */}
-            <div className="absolute inset-0 bg-linear-to-b from-gray-50/50 to-white pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-b from-background/50 to-surface pointer-events-none" />
 
             <div className="w-full max-w-7xl mx-auto px-4 relative">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
