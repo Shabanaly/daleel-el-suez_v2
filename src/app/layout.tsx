@@ -61,9 +61,6 @@ export const metadata: Metadata = {
     icon: "/favicon-circular.ico?v=5",
     apple: "/apple-touch-icon.png",
   },
-  verification: {
-    google: "XLm7_2RXf6w84cJIoQ7xNNS-X-A6zVEgOOELIJCqchQ",
-  },
 };
 
 export const viewport: Viewport = {
