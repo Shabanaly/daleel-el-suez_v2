@@ -17,7 +17,7 @@ export function PlaceCard({ place, index }: PlaceCardProps) {
 
   return (
     <div className="relative group h-full">
-      <Link href={`/places/${place.slug}`}>
+      <Link href={`/places/${encodeURIComponent(place.slug)}`}>
         <motion.div
           layout
           initial={{ opacity: 0, y: 12 }}

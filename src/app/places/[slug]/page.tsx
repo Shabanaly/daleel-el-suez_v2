@@ -57,8 +57,8 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
         '@type': 'LocalBusiness',
         name: place.name,
         image: place.images?.length ? place.images : (place.imageUrl ? [place.imageUrl] : []),
-        '@id': `https://daleel-al-suez.com/places/${place.slug}`,
-        url: `https://daleel-al-suez.com/places/${place.slug}`,
+        '@id': `https://daleel-al-suez.com/places/${encodeURIComponent(place.slug)}`,
+        url: `https://daleel-al-suez.com/places/${encodeURIComponent(place.slug)}`,
         address: {
             '@type': 'PostalAddress',
             streetAddress: place.address || place.area,

@@ -34,12 +34,12 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         title,
         description,
         alternates: {
-            canonical: `${baseUrl}/community/posts/${id}`,
+            canonical: `${baseUrl}/community/posts/${encodeURIComponent(id)}`,
         },
         openGraph: {
             title,
             description,
-            url: `${baseUrl}/community/posts/${id}`,
+            url: `${baseUrl}/community/posts/${encodeURIComponent(id)}`,
             siteName: 'دليل السويس',
             type: 'article',
             publishedTime: post.created_at,
