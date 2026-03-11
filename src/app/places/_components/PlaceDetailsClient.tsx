@@ -12,6 +12,7 @@ import { PlaceGallery } from './PlaceGallery';
 import { PlaceInfoTabs } from './PlaceInfoTabs';
 import { StickyActionsBar } from './StickyActionsBar';
 import { ReviewsSection } from './reviews/ReviewsSection';
+import { getPlaceViews } from '@/lib/actions/places';
 
 
 import { FavoriteButton } from '@/components/common/FavoriteButton';
@@ -32,6 +33,22 @@ export function PlaceDetailsClient({
 }: PlaceDetailsClientProps) {
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [views, setViews] = useState(place.viewsCount);
+
+    useEffect(() => {
+        const fetchCurrentViews = async () => {
+            try {
+                // Fetch fresh views after a small delay to allow ViewTracker to finish
+                setTimeout(async () => {
+                    const freshViews = await getPlaceViews(place.id);
+                    if (freshViews > 0) setViews(freshViews);
+                }, 1500);
+            } catch (error) {
+                console.error('Error fetching real-time views:', error);
+            }
+        };
+        fetchCurrentViews();
+    }, [place.id]);
 
     // Use multiple images if available, otherwise fallback to imageUrl
     const galleryImages = place.images && place.images.length > 0
@@ -109,7 +126,7 @@ export function PlaceDetailsClient({
                         )}
                         <div className="flex items-center gap-1.5 bg-surface px-3 py-1.5 rounded-full text-[10px] font-black border border-border-subtle/50 text-text-muted">
                             <Eye className="w-3 h-3" />
-                            <span>{place.viewsCount} مشاهدة</span>
+                            <span>{views} مشاهدة</span>
                         </div>
                         <span className="text-text-muted text-[10px] font-black opacity-30">•</span>
                         <div className="flex items-center gap-1.5 bg-surface px-3 py-1.5 rounded-full text-[10px] font-black border border-border-subtle/50 text-text-muted">

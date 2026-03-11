@@ -75,7 +75,7 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
                 ...(categoryId ? [tags.placesByCategory(categoryId.toString())] : []),
                 ...(areaId ? [tags.placesByArea(areaId)] : [])
             ],
-            revalidate: 172800 // 48 hours
+            revalidate: 86400 // 24 hours
         }
     )(page, categoryId, areaId, sortBy);
 }
@@ -101,8 +101,30 @@ export async function getAllPlacesForSitemap() {
             return data;
         },
         ['all-places-sitemap'],
-        { tags: [tags.allPlaces()], revalidate: 60 * 60 * 24 } // Revalidate once a day
+        { tags: [tags.allPlaces()], revalidate: 86400 } // Revalidate once a day
     )();
+}
+
+/* =========================================================
+   Place Views (Instant Fetch)
+========================================================= */
+
+export async function getPlaceViews(placeId: string) {
+    return unstable_cache(
+        async (id: string) => {
+            const supabase = createServiceClient();
+            const { data, error } = await supabase
+                .from('places')
+                .select('views_count')
+                .eq('id', id)
+                .single();
+
+            if (error || !data) return 0;
+            return data.views_count;
+        },
+        [`place-views-${placeId}`],
+        { tags: [tags.placeViews(placeId)], revalidate: 60 } // Revalidate every minute
+    )(placeId);
 }
 
 /* =========================================================
@@ -145,7 +167,7 @@ export async function getPlaceBySlug(slug: string) {
             return mapPlace(data);
         },
         keys.placeDetail(decodedSlug),
-        { tags: [tags.place(decodedSlug), tags.allPlaces()], revalidate: false }
+        { tags: [tags.place(decodedSlug), tags.allPlaces()], revalidate: 86400 }
     )(decodedSlug);
 }
 
@@ -170,7 +192,7 @@ export async function getRelatedPlaces(category: string, excludeId: string, limi
             return (data || []).map(mapPlace);
         },
         [`related-places-to-${excludeId}`],
-        { tags: [tags.allPlaces()], revalidate: false }
+        { tags: [tags.allPlaces()], revalidate: 86400 }
     )(category, excludeId, limit);
 }
 

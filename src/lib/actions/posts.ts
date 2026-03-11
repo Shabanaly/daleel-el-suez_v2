@@ -211,7 +211,7 @@ export async function getCommunityPosts(categoryId?: number, search?: string, pa
             return rankedPosts.slice(start, start + l);
         },
         [`community-posts-${categoryId || 'all'}-${search || 'no-search'}-p${page}-u${currentUserId || 'guest'}`],
-        { tags: [tags.allPosts()], revalidate: false }
+        { tags: [tags.allPosts()], revalidate: 86400 }
     )(categoryId, search, page, limit, currentUserId);
 }
 
@@ -247,7 +247,7 @@ export async function getPostById(id: string, currentUserId?: string | null) {
             };
         },
         [`post-${id}-u${currentUserId || 'guest'}`],
-        { tags: [tags.post(id), tags.allPosts()], revalidate: false }
+        { tags: [tags.post(id), tags.allPosts()], revalidate: 86400 }
     )(id, currentUserId);
 }
 
@@ -268,6 +268,6 @@ export async function getAllPosts() {
             return data;
         },
         ['sitemap-posts'],
-        { tags: [tags.allPosts()], revalidate: false }
+        { tags: [tags.allPosts()], revalidate: 86400 }
     )();
 }

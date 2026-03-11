@@ -85,6 +85,6 @@ export async function getPostComments(postId: string) {
             return data || [];
         },
         [`comments-${postId}`],
-        { tags: [tags.postComments(postId), tags.allPosts()], revalidate: false }
+        { tags: [tags.postComments(postId), tags.allPosts()], revalidate: 86400 }
     )(postId);
 }

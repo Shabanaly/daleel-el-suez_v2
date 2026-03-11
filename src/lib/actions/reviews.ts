@@ -83,7 +83,7 @@ export async function getReviews(placeId: string, page = 1, limit = 10) {
             };
         },
         [`reviews-place-${placeId}-p${page}`],
-        { tags: [tags.placeReviews(placeId), 'places'], revalidate: false }
+        { tags: [tags.placeReviews(placeId), 'places'], revalidate: 86400 }
     )(placeId, page, limit);
 }
 
