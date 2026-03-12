@@ -9,6 +9,8 @@ import { SortOption } from '../types/places';
 async function basePlacesQuery(orderBy: string, ascending = false, limit = 20, offset = 0) {
     const supabase = createServiceClient();
 
+    // Fetch slightly more to account for potential filtering if some are missing images
+    // although the query below should handle most cases
     const { data, error } = await supabase
         .from('places')
         .select(`
@@ -18,15 +20,22 @@ async function basePlacesQuery(orderBy: string, ascending = false, limit = 20, o
             reviews_count:reviews(count)
         `)
         .eq('status', 'approved')
+        .not('images', 'is', null)
         .order(orderBy, { ascending })
-        .range(offset, offset + limit - 1);
+        .range(offset, offset + 49); // Fetch 50 items to ensure we have enough after filtering
 
     if (error) {
         console.error('Error fetching places:', error);
         return [];
     }
 
-    return (data || []).map(mapPlace);
+    // Filter out places with no images or empty images array
+    const filtered = (data || [])
+        .map(mapPlace)
+        .filter(p => p.imageUrl && p.imageUrl.trim() !== '')
+        .slice(0, limit);
+
+    return filtered;
 }
 
 /* =========================================================
@@ -43,7 +52,7 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
             const supabase = createServiceClient();
             let query = supabase
                 .from('places')
-                .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`)
+                .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`, { count: 'exact' })
                 .eq('status', 'approved');
 
             // Apply Filters
@@ -63,9 +72,19 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
                     query = query.order('views_count', { ascending: false });
             }
 
-            const { data, error } = await query.range(offset, offset + limit - 1);
-            if (error) return [];
-            return (data || []).map(mapPlace);
+            // We fetch more to filter for images while maintaining the page size
+            const { data, count, error } = await query
+                .not('images', 'is', null)
+                .range(offset, offset + 59);
+            
+            if (error) return { places: [], total: 0 };
+            
+            const places = (data || [])
+                .map(mapPlace)
+                .filter(p => p.imageUrl && p.imageUrl.trim() !== '')
+                .slice(0, limit);
+
+            return { places, total: count || 0 };
         },
         keys.placesPaginated(page, { categoryId, areaId, sortBy }),
         {
@@ -175,25 +194,41 @@ export async function getPlaceBySlug(slug: string) {
    Related Places (Same Category, excluding current)
 ========================================================= */
 
-export async function getRelatedPlaces(category: string, excludeId: string, limit = 6) {
+export async function getRelatedPlaces(categoryId: number | undefined, excludeId: string, limit = 6, categoryName?: string) {
     return unstable_cache(
-        async (cat: string, eid: string, l: number) => {
+        async (cid: number | undefined, eid: string, l: number, cname?: string) => {
             const supabase = createServiceClient();
-            const { data, error } = await supabase
+            let query = supabase
                 .from('places')
                 .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`)
-                .eq('category_id', (await supabase.from('categories').select('id').eq('name', cat).single()).data?.id)
                 .neq('id', eid)
                 .eq('status', 'approved')
+                .not('images', 'is', null)
                 .order('avg_rating', { ascending: false })
-                .limit(l);
+                .range(0, 49); // Fetch 50 candidates to ensure we find enough with valid images
+
+            if (cid) {
+                query = query.eq('category_id', cid);
+            } else if (cname) {
+                const { data: catData } = await supabase.from('categories').select('id').eq('name', cname).single();
+                if (catData?.id) {
+                    query = query.eq('category_id', catData.id);
+                }
+            }
+
+            const { data, error } = await query;
 
             if (error) return [];
-            return (data || []).map(mapPlace);
+            
+            return (data || [])
+                .map(mapPlace)
+                .filter(p => p.imageUrl && p.imageUrl.trim() !== '')
+                .slice(0, 24); // Return up to 24 valid candidates to the client
         },
-        [`related-places-to-${excludeId}`],
-        { tags: [tags.allPlaces()], revalidate: 86400 }
-    )(category, excludeId, limit);
+        // Cache key includes limit to distinguish different calls
+        [`related-places-to-${excludeId}-limit-${limit}`],
+        { tags: [tags.allPlaces(), tags.newestPlaces()], revalidate: 86400 }
+    )(categoryId, excludeId, limit, categoryName);
 }
 
 /* =========================================================
@@ -202,20 +237,20 @@ export async function getRelatedPlaces(category: string, excludeId: string, limi
 
 export const getHomePageData = unstable_cache(
     async () => {
-        // Fetch 20 trending and 20 recent to have enough for de-duplication
+        // Fetch 40 trending and 40 recent to have enough for de-duplication and filtering
         const [trendingPotential, recentPotential] = await Promise.all([
-            basePlacesQuery('views_count', false, 20),
-            basePlacesQuery('created_at', false, 20)
+            basePlacesQuery('views_count', false, 40),
+            basePlacesQuery('created_at', false, 40)
         ]);
 
-        // 1. Take top 8 trending
-        const trending = trendingPotential.slice(0, 8);
+        // 1. Take top 20 trending
+        const trending = trendingPotential.slice(0, 20);
         const trendingIds = new Set(trending.map(p => p.id));
 
-        // 2. Take top 8 newest that are NOT in trending
+        // 2. Take top 20 newest that are NOT in trending
         const newPlaces = recentPotential
             .filter(p => !trendingIds.has(p.id))
-            .slice(0, 8);
+            .slice(0, 20);
 
         return { trending, newPlaces };
     },

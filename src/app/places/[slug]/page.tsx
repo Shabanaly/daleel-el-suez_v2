@@ -47,7 +47,7 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
     const { data: { user } } = await supabase.auth.getUser();
 
     const [relatedPlaces, initialReviewsData, favoriteStatus] = await Promise.all([
-        getRelatedPlaces(place.category, place.id),
+        getRelatedPlaces(place.categoryId, place.id, 6, place.category),
         getReviews(place.id, 1, 5),
         user ? isItemFavorite(place.id, 'place') : false
     ]);

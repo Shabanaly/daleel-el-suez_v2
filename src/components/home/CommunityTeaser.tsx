@@ -96,6 +96,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                                                 alt={post.author.full_name || 'User'}
                                                 fill
                                                 unoptimized
+                                                sizes="48px"
                                                 className="object-cover"
                                             />
                                         ) : (
@@ -123,7 +124,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                                     <div className="grid grid-cols-2 gap-2 mb-6 pointer-events-none">
                                         {post.images.slice(0, 2).map((img: string, i: number) => (
                                             <div key={i} className={`relative rounded-2xl overflow-hidden border border-border-subtle/50 aspect-4/3 ${post.images?.length === 1 ? 'col-span-2' : ''}`}>
-                                                <Image src={img} alt="Preview" fill unoptimized className="object-cover" />
+                                                <Image src={img} alt="Preview" fill unoptimized sizes="(max-width: 768px) 50vw, 300px" className="object-cover" />
                                             </div>
                                         ))}
                                     </div>

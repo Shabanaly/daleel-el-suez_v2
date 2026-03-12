@@ -38,13 +38,14 @@ export default async function PlacesPage({
     const area = allAreas.find(a => a.name === areaName);
 
     // 3. Fetch paginated places
-    const initialPlaces = await getPlaces(page, category?.id, area?.id, sort);
+    const { places: initialPlaces, total } = await getPlaces(page, category?.id, area?.id, sort);
 
     // 🎨 Pass the raw data down to the Client Component
     return (
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-bold text-primary animate-pulse">جاري تحميل الأماكن...</div>}>
             <PlacesClient
                 initialPlaces={initialPlaces}
+                totalCount={total}
                 categories={categoriesList}
                 areas={allAreas}
                 districts={districts}

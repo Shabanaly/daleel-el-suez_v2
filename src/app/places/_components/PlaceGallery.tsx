@@ -55,6 +55,7 @@ export function PlaceGallery({ images, placeName, onImageClick }: PlaceGalleryPr
                                 src={images[currentIndex]}
                                 alt=""
                                 fill
+                                sizes="1vw"
                                 className="object-cover"
                             />
                         </div>

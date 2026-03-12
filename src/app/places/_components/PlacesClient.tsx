@@ -1,22 +1,26 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { Search, SlidersHorizontal, X, MapPin, ChevronRight, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Place } from '@/lib/types/places';
 import { usePlacesFilter } from '@/hooks/usePlacesFilter';
 import { PlaceCard } from './PlaceCard';
+import { Pagination } from '@/components/common/Pagination';
 
 import { AreaWithDistrict } from '@/lib/actions/areas';
 import SectionHeader from '@/components/ui/SectionHeader';
 
 interface PlacesClientProps {
     initialPlaces: Place[];
+    totalCount: number;
     categories: string[];
     areas: AreaWithDistrict[];
     districts: any[];
 }
 
-export function PlacesClient({ initialPlaces, categories, areas, districts }: PlacesClientProps) {
+export function PlacesClient({ initialPlaces, totalCount, categories, areas, districts }: PlacesClientProps) {
     // 🧠 Here we use our custom hook. All logic is encapsulated inside it!
     const {
         query, setQuery,
@@ -28,13 +32,21 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
         showFilters, setShowFilters,
         filtered, hasActiveFilters, clearFilters,
         availableAreas,
-        isPending
-    } = usePlacesFilter(initialPlaces, categories, areas, districts);
+        isPending,
+        total
+    } = usePlacesFilter(initialPlaces, totalCount, categories, areas, districts);
 
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Removed window.scrollTo from here to prevent premature jumping
     };
+
+    // 🌊 Intelligent Scroll: Scroll to top ONLY when new data has arrived and transition is finished
+    useEffect(() => {
+        if (!isPending) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [isPending, page]); // Triggers when transition ends or page state changes
 
     return (
         <div className="w-full min-h-screen pt-20 md:pt-28 pb-10">
@@ -279,34 +291,12 @@ export function PlacesClient({ initialPlaces, categories, areas, districts }: Pl
                             </motion.div>
 
                             {/* ── Pagination Controls ────────────────────────────────── */}
-                            <div className="mt-12 md:mt-16 flex items-center justify-between md:justify-center md:gap-8 px-2 md:px-0">
-                                <button
-                                    disabled={page === 1 || isPending}
-                                    onClick={() => handlePageChange(Math.max(1, page - 1))}
-                                    className="group flex items-center justify-center gap-2 h-12 w-12 md:w-auto md:px-6 rounded-2xl md:rounded-full bg-surface/80 border border-border-subtle hover:border-primary/40 hover:bg-surface text-text-muted hover:text-primary disabled:opacity-40 disabled:hover:border-border-subtle disabled:hover:text-text-muted disabled:hover:bg-surface/80 disabled:cursor-not-allowed transition-all shadow-sm"
-                                    aria-label="الصفحة السابقة"
-                                >
-                                    <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                    <span className="hidden md:inline font-bold text-sm">السابق</span>
-                                </button>
-
-                                <div className="flex items-center">
-                                    <span className="hidden md:block text-text-muted text-sm font-medium ml-3">صفحة</span>
-                                    <div className="w-14 h-14 md:w-12 md:h-12 flex items-center justify-center bg-primary/10 text-primary border border-primary/20 font-black rounded-[20px] md:rounded-full text-xl md:text-lg shadow-inner">
-                                        {page}
-                                    </div>
-                                </div>
-
-                                <button
-                                    disabled={filtered.length < 20 || isPending}
-                                    onClick={() => handlePageChange(page + 1)}
-                                    className="group flex items-center justify-center gap-2 h-12 w-12 md:w-auto md:px-6 rounded-2xl md:rounded-full bg-surface/80 border border-border-subtle hover:border-primary/40 hover:bg-surface text-text-muted hover:text-primary disabled:opacity-40 disabled:hover:border-border-subtle disabled:hover:text-text-muted disabled:hover:bg-surface/80 disabled:cursor-not-allowed transition-all shadow-sm"
-                                    aria-label="الصفحة التالية"
-                                >
-                                    <span className="hidden md:inline font-bold text-sm">التالي</span>
-                                    <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                                </button>
-                            </div>
+                            <Pagination 
+                                currentPage={page}
+                                totalPages={Math.ceil(total / 20)}
+                                onPageChange={handlePageChange}
+                                isPending={isPending}
+                            />
                         </>
                     ) : (
                         <motion.div

@@ -24,10 +24,6 @@ export default function Hero({ categories = [] }: { categories?: Category[] }) {
         }
     };
 
-    const handleTagClick = (tag: string) => {
-        setSearchTerm(tag);
-        router.push(`/places?q=${encodeURIComponent(tag)}`);
-    };
 
     return (
         <section className="relative w-full flex flex-col items-center justify-center overflow-hidden pt-20 pb-12 md:pt-28 md:pb-16 min-h-[60vh] bg-background">
@@ -64,7 +60,6 @@ export default function Hero({ categories = [] }: { categories?: Category[] }) {
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
                     onSearch={handleSearch}
-                    onTagClick={handleTagClick}
                 />
 
                 <HeroCategories categories={categories} />

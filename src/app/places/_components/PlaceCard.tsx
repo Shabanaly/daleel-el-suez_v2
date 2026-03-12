@@ -10,10 +10,11 @@ import { FavoriteButton } from '@/components/common/FavoriteButton';
 
 interface PlaceCardProps {
   place: Place;
-  index: number;
+  index?: number;
+  className?: string;
 }
 
-export function PlaceCard({ place, index }: PlaceCardProps) {
+export function PlaceCard({ place, index = 0, className = "" }: PlaceCardProps) {
   const [isVisible, setIsVisible] = useState(true);
   const isOpen = place.openHours !== 'مغلق';
 
@@ -21,17 +22,17 @@ export function PlaceCard({ place, index }: PlaceCardProps) {
 
   return (
     <AnimatePresence>
-      <div className="relative group h-full">
-        <Link href={`/places/${encodeURIComponent(place.slug)}`}>
-          <motion.div
-            layout
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.3, delay: index * 0.03 }}
-            whileHover={{ y: -4 }}
-            className="bg-surface rounded-2xl overflow-hidden flex flex-col border border-border-subtle shadow-sm hover:shadow-xl transition-all duration-300 h-full underline-none"
-          >
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.4, delay: index * 0.05 }}
+        className={`relative group ${className}`}
+      >
+        <Link href={`/places/${encodeURIComponent(place.slug)}`} className="block h-full">
+          <div className="bg-surface rounded-2xl overflow-hidden flex flex-col border border-border-subtle shadow-sm hover:shadow-xl transition-all duration-300 h-full underline-none">
             {/* Image Container */}
             <div className="relative aspect-4/3 overflow-hidden bg-muted">
               {place.imageUrl ? (
@@ -39,6 +40,7 @@ export function PlaceCard({ place, index }: PlaceCardProps) {
                   src={place.imageUrl}
                   alt={place.name}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                   onErrorAction={() => setIsVisible(false)}
                 />
@@ -99,10 +101,8 @@ export function PlaceCard({ place, index }: PlaceCardProps) {
                 {place.description || `أفضل الخدمات المتاحة في ${place.area}. اكتشف المزيد من التفاصيل والتقييمات.`}
               </p>
             </div>
-          </motion.div>
+          </div>
         </Link>
-
-        {/* Top Left: Favorite Button - Floating */}
         <div className="absolute top-3 left-3 z-20">
           <FavoriteButton
             itemId={place.id}
@@ -111,7 +111,7 @@ export function PlaceCard({ place, index }: PlaceCardProps) {
             className="shadow-xl bg-surface/80 backdrop-blur-md border border-white/20 hover:scale-110 active:scale-95 transition-all"
           />
         </div>
-      </div>
+      </motion.div>
     </AnimatePresence>
   );
 }

@@ -3,6 +3,7 @@ export interface Place {
     slug: string;
     name: string;
     category: string;
+    categoryId?: number;
     rating: number;
     reviews: number;
     area: string;

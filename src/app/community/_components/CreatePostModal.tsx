@@ -147,7 +147,7 @@ export default function CreatePostModal({ isOpen, onClose, categories, initialDa
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-primary/10 overflow-hidden relative ring-2 ring-background border border-primary/20">
                                         {user.user_metadata?.avatar_url ? (
-                                            <Image src={user.user_metadata.avatar_url} alt="User" fill className="object-cover" />
+                                            <Image src={user.user_metadata.avatar_url} alt="User" fill sizes="40px" className="object-cover" />
                                         ) : (
                                             <User className="w-5 h-5 m-auto text-primary" />
                                         )}
@@ -213,7 +213,7 @@ export default function CreatePostModal({ isOpen, onClose, categories, initialDa
                                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 pt-4 border-t border-border-subtle/30">
                                     {images.map((img, idx) => (
                                         <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border border-border-subtle shadow-sm group">
-                                            <Image src={img} alt="Preview" fill className="object-cover" />
+                                            <Image src={img} alt="Preview" fill sizes="(max-width: 640px) 33vw, 150px" className="object-cover" />
                                             <button
                                                 onClick={() => deleteImage(idx)}
                                                 className="absolute top-1 right-1 w-6 h-6 rounded-lg bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"

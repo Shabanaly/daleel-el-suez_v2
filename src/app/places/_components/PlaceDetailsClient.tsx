@@ -200,9 +200,12 @@ export function PlaceDetailsClient({
 
                         <div className="flex sm:grid flex-nowrap overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 hide-scrollbar pb-6">
                             {relatedPlaces.map((relatedPlace, idx) => (
-                                <div key={relatedPlace.id} className="min-w-[70%] sm:min-w-0 snap-center">
-                                    <PlaceCard place={relatedPlace} index={idx} />
-                                </div>
+                                <PlaceCard
+                                    key={relatedPlace.id}
+                                    place={relatedPlace}
+                                    index={idx}
+                                    className="min-w-[70%] sm:min-w-0 snap-center"
+                                />
                             ))}
                         </div>
                     </section>

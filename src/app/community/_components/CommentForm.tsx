@@ -50,7 +50,7 @@ const CommentForm = forwardRef<HTMLInputElement, CommentFormProps>(({
             <form onSubmit={onSubmit} className="relative flex items-center gap-2 p-1 bg-background border border-border-subtle focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 rounded-2xl shadow-sm transition-all group">
                 <div className="shrink-0 w-7 h-7 sm:w-9 sm:h-9 relative rounded-full overflow-hidden ring-2 ring-background border border-border-subtle/50 mr-1">
                     {user.user_metadata?.avatar_url || user.avatar_url ? (
-                        <Image src={user.user_metadata?.avatar_url || user.avatar_url} alt="User" fill className="object-cover" />
+                        <Image src={user.user_metadata?.avatar_url || user.avatar_url} alt="User" fill sizes="36px" className="object-cover" />
                     ) : (
                         <div className="w-full h-full bg-primary/10 flex items-center justify-center">
                             <User className="w-4 h-4 text-primary" />

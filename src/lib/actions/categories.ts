@@ -101,11 +101,14 @@ export async function getCategoryDetails(id: string) {
                 .eq('category_id', categoryId)
                 .eq('status', 'approved')
                 .order('avg_rating', { ascending: false })
-                .limit(12);
+                .limit(40);
 
             return {
                 ...category,
-                places: (places || []).map(mapPlace)
+                places: (places || [])
+                    .map(mapPlace)
+                    .filter((p: any) => p.imageUrl && p.imageUrl.trim() !== '')
+                    .slice(0, 12)
             };
         },
         [`category-details-${id}`],
@@ -175,7 +178,7 @@ export const getRandomCategoryHighlights = unstable_cache(
             .eq('category_id', randomCategory.id)
             .eq('status', 'approved')
             .order('views_count', { ascending: false })
-            .limit(8);
+            .limit(30);
 
         if (placesError || !places || places.length === 0) {
             return null;
@@ -187,7 +190,10 @@ export const getRandomCategoryHighlights = unstable_cache(
                 name: randomCategory.name,
                 icon: randomCategory.icon
             },
-            places: places.map(mapPlace)
+            places: (places || [])
+                .map(mapPlace)
+                .filter((p: any) => p.imageUrl && p.imageUrl.trim() !== '')
+                .slice(0, 20)
         };
     },
     ['random-category-highlights'],

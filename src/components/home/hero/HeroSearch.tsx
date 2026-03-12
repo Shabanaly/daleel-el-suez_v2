@@ -3,16 +3,13 @@
 import { Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const TRENDING_TAGS = ['مطاعم سمك', 'كافيهات', 'عيادات', 'محلات ملابس'];
-
 interface HeroSearchProps {
     searchTerm: string;
     setSearchTerm: (term: string) => void;
     onSearch: (e?: React.FormEvent) => void;
-    onTagClick: (tag: string) => void;
 }
 
-export default function HeroSearch({ searchTerm, setSearchTerm, onSearch, onTagClick }: HeroSearchProps) {
+export default function HeroSearch({ searchTerm, setSearchTerm, onSearch }: HeroSearchProps) {
     return (
         <>
             {/* ── Search Bar ───────────────────────────────────────────── */}
@@ -49,28 +46,6 @@ export default function HeroSearch({ searchTerm, setSearchTerm, onSearch, onTagC
                     </div>
                 </motion.div>
             </motion.form>
-
-            {/* ── Trending Searches ──────────────────────────────────────── */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-                className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-8 md:mb-12 px-2"
-            >
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface/50 border border-border-subtle/30">
-                    <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                    <span className="text-[10px] md:text-xs font-black text-text-muted uppercase tracking-tight">شائع:</span>
-                </div>
-                {TRENDING_TAGS.map((tag) => (
-                    <button
-                        key={tag}
-                        onClick={() => onTagClick(tag)}
-                        className="px-4 py-1.5 rounded-full bg-surface/60 backdrop-blur-md border border-border-subtle/60 text-[11px] md:text-xs font-bold text-text-muted hover:text-primary hover:border-primary/40 hover:bg-surface hover:translate-y-[-2px] transition-all duration-300 shadow-sm"
-                    >
-                        {tag}
-                    </button>
-                ))}
-            </motion.div>
         </>
     );
 }

@@ -24,18 +24,14 @@ export default function TrendingPlaces({ places }: TrendingPlacesProps) {
                 href="/places?sort=trending"
             />
 
-            <div className="flex overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 gap-6 md:gap-8 pb-10">
-                {places.slice(0, 5).map((place, idx) => (
-                    <motion.div
-                        key={place.id}
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: idx * 0.1 }}
+            <div className="flex overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-4 gap-6 md:gap-8 pb-10">
+                {places.slice(0, 20).map((place, idx) => (
+                    <PlaceCard 
+                        key={place.id} 
+                        place={place} 
+                        index={idx} 
                         className="min-w-[280px] md:min-w-0 flex-1"
-                    >
-                        <PlaceCard place={place} index={idx} />
-                    </motion.div>
+                    />
                 ))}
             </div>
         </section>

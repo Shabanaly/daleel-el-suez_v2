@@ -6,6 +6,7 @@ import { fuzzyMatchArabic } from '../lib/utils/text';
 
 export function usePlacesFilter(
     initialPlaces: Place[],
+    initialTotal: number,
     categories: string[],
     allAreas: AreaWithDistrict[],
     districts: any[]
@@ -26,11 +27,15 @@ export function usePlacesFilter(
 
     // Current displayed places (initial or server-fetched)
     const [places, setPlaces] = useState<Place[]>(initialPlaces);
-
+    const [total, setTotal] = useState(initialTotal);
     // Sync with Server-fetched data when URL changes and page.tsx re-renders
     useEffect(() => {
         setPlaces(initialPlaces);
-    }, [initialPlaces]);
+        setTotal(initialTotal);
+        // We also sync the page state with the URL here to handle "back" button etc.
+        const urlPage = Number(searchParams.get('page')) || 1;
+        setPage(urlPage);
+    }, [initialPlaces, initialTotal, searchParams]);
 
     // Debounced Query State for URL and Filtering
     const [debouncedQuery, setDebouncedQuery] = useState(query);
@@ -38,13 +43,9 @@ export function usePlacesFilter(
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedQuery(query);
-            // Reset page on new search
-            if (query !== searchParams.get('q')) {
-                setPage(1);
-            }
         }, 400); // 400ms debounce
         return () => clearTimeout(handler);
-    }, [query, searchParams]);
+    }, [query]);
 
     // Derived: Areas belonging to the active district
     const availableAreas = useMemo(() => {
@@ -75,21 +76,29 @@ export function usePlacesFilter(
         });
     }, [places, debouncedQuery, allAreas, districts]);
 
+    // Reset page to 1 whenever any filter changes (except page itself)
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedQuery, activeCategory, activeDistrict, activeArea, sortBy]);
+
     // Handle initial routing with debounced query
     useEffect(() => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(); // Fresh params based on current state
 
-        if (debouncedQuery) params.set('q', debouncedQuery); else params.delete('q');
-        if (activeCategory !== 'الكل') params.set('category', activeCategory); else params.delete('category');
-        if (activeDistrict !== 'كل الأحياء') params.set('district', activeDistrict); else params.delete('district');
-        if (activeArea !== 'كل المناطق') params.set('area', activeArea); else params.delete('area');
-        if (sortBy !== 'trending') params.set('sort', sortBy); else params.delete('sort');
-        if (page > 1) params.set('page', page.toString()); else params.delete('page');
+        if (debouncedQuery) params.set('q', debouncedQuery);
+        if (activeCategory !== 'الكل') params.set('category', activeCategory);
+        if (activeDistrict !== 'كل الأحياء') params.set('district', activeDistrict);
+        if (activeArea !== 'كل المناطق') params.set('area', activeArea);
+        if (sortBy !== 'trending') params.set('sort', sortBy);
+        if (page > 1) params.set('page', page.toString());
 
-        const newUrl = `${pathname}?${params.toString()}`;
+        const nextQuery = params.toString();
+        const currentQuery = searchParams.toString();
 
-        if (newUrl !== `${pathname}?${searchParams.toString()}`) {
-            router.push(newUrl, { scroll: false });
+        if (nextQuery !== currentQuery) {
+            startTransition(() => {
+                router.push(`${pathname}?${nextQuery}`, { scroll: false });
+            });
         }
     }, [debouncedQuery, activeCategory, activeDistrict, activeArea, sortBy, page, pathname, router, searchParams]);
 
@@ -116,6 +125,8 @@ export function usePlacesFilter(
         hasActiveFilters,
         clearFilters,
         isPending,
+        // Expose total for pagination
+        total,
         // Expose debounced query for highlight functionality if needed
         debouncedQuery
     };
