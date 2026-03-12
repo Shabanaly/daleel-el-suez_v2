@@ -55,26 +55,17 @@ export function usePlacesFilter(
         return allAreas.filter(a => a.district_id === districtObj.id);
     }, [allAreas, districts, activeDistrict]);
 
-    // Enhance Search with Arabic Normalization and Debounce
+    // Enhance Search: Sync with Server Data while allowing quick local filtering
     const filtered = useMemo(() => {
-        if (!debouncedQuery.trim()) return places;
+        // If there is an active search query, we trust the server-side Genius Results entirely
+        // to avoid mismatch between server ranking/filtering and client fuzzy matching.
+        if (debouncedQuery.trim()) {
+            return places;
+        }
 
-        return places.filter(p => {
-            // Search across multiple fields 
-            const matchesName = fuzzyMatchArabic(p.name, debouncedQuery);
-            const matchesCategory = fuzzyMatchArabic(p.category, debouncedQuery);
-            const matchesAddress = p.address ? fuzzyMatchArabic(p.address, debouncedQuery) : false;
-            // Extract area/district names from IDs using the allAreas and districts arrays
-            const areaId = (p as any).area_id; // Cast to access area_id if it exists
-            const areaObj = areaId ? allAreas.find(a => a.id === areaId) : null;
-            const matchesArea = areaObj ? fuzzyMatchArabic(areaObj.name, debouncedQuery) : false;
-
-            const districtObj = areaObj ? districts.find(d => d.id === areaObj.district_id) : null;
-            const matchesDistrict = districtObj ? fuzzyMatchArabic(districtObj.name, debouncedQuery) : false;
-
-            return matchesName || matchesCategory || matchesAddress || matchesArea || matchesDistrict;
-        });
-    }, [places, debouncedQuery, allAreas, districts]);
+        // Standard logic: if no search, server returns unfiltered or cat/area filtered list
+        return places;
+    }, [places, debouncedQuery]);
 
     // Reset page to 1 whenever any filter changes (except page itself)
     useEffect(() => {

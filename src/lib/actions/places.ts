@@ -43,41 +43,176 @@ async function basePlacesQuery(orderBy: string, ascending = false, limit = 20, o
    Support for Category, Area, and Pagination
 ========================================================= */
 
-export async function getPlaces(page = 1, categoryId?: number, areaId?: number, sortBy: SortOption = 'trending') {
+export async function getPlaces(page = 1, categoryId?: number, areaId?: number, sortBy: SortOption = 'trending', search?: string) {
     const limit = 20;
     const offset = (page - 1) * limit;
 
     return unstable_cache(
-        async (p: number, cid: number | undefined, aid: number | undefined, sort: SortOption) => {
+        async (p: number, cid: number | undefined, aid: number | undefined, sort: SortOption, q: string | undefined) => {
             const supabase = createServiceClient();
+            
+            // Standard selection with relations
+            const selectStr = `
+                *,
+                categories(name, icon),
+                areas(name, districts(name)),
+                reviews_count:reviews(count)
+            `;
+
             let query = supabase
                 .from('places')
-                .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`, { count: 'exact' })
+                .select(selectStr, { count: 'exact' })
                 .eq('status', 'approved');
 
-            // Apply Filters
+            // Apply Search if provided (Truly Genius Logic)
+            if (q && q.trim()) {
+                const term = q.trim();
+                const terms = term.split(/\s+/).filter(t => t.length >= 1);
+                
+                // Helper to generate Arabic variations
+                const getVariants = (t: string) => {
+                    const variants = new Set([t]);
+                    if (t.includes('ة')) variants.add(t.replace(/ة/g, 'ه'));
+                    if (t.includes('ه')) variants.add(t.replace(/ه/g, 'ة'));
+                    const normalizedAlef = t.replace(/[أإآ]/g, 'ا');
+                    if (normalizedAlef !== t) variants.add(normalizedAlef);
+                    return Array.from(variants);
+                };
+
+                const allVariants = terms.flatMap(getVariants);
+                
+                // 🧠 Step 1: Find matching entities in parallel to build a "Search Context"
+                const [catResults, areaResults] = await Promise.all([
+                    supabase.from('categories').select('id, name').or(allVariants.map(v => `name.ilike.%${v}%`).join(',')),
+                    supabase.from('areas').select('id, name').or(allVariants.map(v => `name.ilike.%${v}%`).join(','))
+                ]);
+
+                // Map terms to the IDs they matched (for strict AND logic across entities)
+                const termToMatchedIds = new Map<string, { catIds: number[], areaIds: number[] }>();
+                terms.forEach(t => {
+                    const variants = getVariants(t.toLowerCase());
+                    const matchedCats = (catResults.data || []).filter(c => variants.some(v => c.name.toLowerCase().includes(v))).map(c => c.id);
+                    const matchedAreas = (areaResults.data || []).filter(a => variants.some(v => a.name.toLowerCase().includes(v))).map(a => a.id);
+                    termToMatchedIds.set(t, { catIds: matchedCats, areaIds: matchedAreas });
+                });
+
+                const allMatchedCatIds = (catResults.data || []).map(c => c.id);
+                const allMatchedAreaIds = (areaResults.data || []).map(a => a.id);
+
+                // 🧠 Step 2: Broad initial fetch (OR logic for breadth)
+                const orConditions: string[] = [];
+                allVariants.forEach(v => {
+                    const pattern = `%${v}%`;
+                    orConditions.push(`name.ilike.${pattern}`);
+                    orConditions.push(`description.ilike.${pattern}`);
+                    orConditions.push(`address.ilike.${pattern}`);
+                });
+
+                if (allMatchedCatIds.length > 0) orConditions.push(`category_id.in.(${allMatchedCatIds.join(',')})`);
+                if (allMatchedAreaIds.length > 0) orConditions.push(`area_id.in.(${allMatchedAreaIds.join(',')})`);
+
+                query = query.or(orConditions.join(','));
+
+                // 🧠 Step 3: Fetch candidate pool for high-quality ranking
+                const { data: rawData, count, error } = await query.range(0, 199);
+                if (error || !rawData) return { places: [], total: 0 };
+
+                const noiseWords = ['السويس', 'حي', 'منطقة', 'شارع', 'ش', 'مدينة', 'مساكن', 'محل', 'مركز', 'شركة'];
+
+                // 🧠 Step 4: Weighted Relevance Ranking with Entity Intersection
+                const ranked = rawData.map((place: any) => {
+                    let totalScore = 0;
+                    const matchedTermsCount = new Set<string>();
+                    
+                    const name = (place.name || '').toLowerCase();
+                    const desc = (place.description || '').toLowerCase();
+                    const addr = (place.address || '').toLowerCase();
+                    const catId = place.category_id;
+                    const areaId = place.area_id;
+                    
+                    terms.forEach(t => {
+                        const lowT = t.toLowerCase();
+                        const variants = getVariants(lowT);
+                        const matchedIds = termToMatchedIds.get(t);
+                        let bestTermScore = 0;
+                        
+                        variants.forEach(v => {
+                            const isNoise = noiseWords.includes(v);
+                            
+                            // 1. Name Match (Super High Priority)
+                            if (name === v) bestTermScore = Math.max(bestTermScore, isNoise ? 100 : 20000);
+                            else if (name.includes(v)) bestTermScore = Math.max(bestTermScore, isNoise ? 50 : 10000);
+
+                            // 2. Category Match (High Priority)
+                            if (matchedIds?.catIds.includes(catId)) {
+                                bestTermScore = Math.max(bestTermScore, 15000);
+                            }
+
+                            // 3. Area Match (Location Context)
+                            if (matchedIds?.areaIds.includes(areaId)) {
+                                bestTermScore = Math.max(bestTermScore, 5000);
+                            }
+
+                            // 4. Description/Address Match (Content match)
+                            if (desc.includes(v)) bestTermScore = Math.max(bestTermScore, isNoise ? 1 : 200);
+                            if (addr.includes(v)) bestTermScore = Math.max(bestTermScore, isNoise ? 1 : 100);
+                        });
+
+                        if (bestTermScore > 0) {
+                            totalScore += bestTermScore;
+                            matchedTermsCount.add(t);
+                        }
+                    });
+
+                    // 🧠 Logic: Give MASSIVE boost only if ALL search terms are satisfied somehow
+                    if (terms.length > 1) {
+                        const matchRatio = matchedTermsCount.size / terms.length;
+                        if (matchedTermsCount.size === terms.length) {
+                            totalScore *= 50; // Total Subject + Location intersection
+                        } else {
+                            totalScore *= matchRatio; // Penalize results missing parts of the query
+                        }
+                    }
+
+                    // Metadata bonus
+                    if (place.images?.length > 0) totalScore += 20;
+                    if (place.views_count > 0) totalScore += Math.log10(place.views_count + 1);
+
+                    return { ...place, searchScore: totalScore };
+                });
+
+                ranked.sort((a, b) => b.searchScore - a.searchScore);
+
+                const start = (p - 1) * limit;
+                const paginatedData = ranked.slice(start, start + limit);
+
+                return { 
+                    places: paginatedData.map(mapPlace), 
+                    total: count || ranked.length 
+                };
+            }
+
+            // --- STANDARD PATH (No Search) ---
             if (cid) query = query.eq('category_id', cid);
             if (aid) query = query.eq('area_id', aid);
 
             // Apply Sorting
             switch (sort) {
-                case 'name':
-                    query = query.order('name', { ascending: true });
-                    break;
-                case 'newest':
-                    query = query.order('created_at', { ascending: false });
-                    break;
-                case 'trending':
-                default:
-                    query = query.order('views_count', { ascending: false });
+                case 'name': query = query.order('name', { ascending: true }); break;
+                case 'newest': query = query.order('created_at', { ascending: false }); break;
+                case 'trending': 
+                default: query = query.order('views_count', { ascending: false });
             }
 
-            // We fetch more to filter for images while maintaining the page size
+            // For normal browsing, we STRICTLY require images to maintain site aesthetics
             const { data, count, error } = await query
                 .not('images', 'is', null)
                 .range(offset, offset + 59);
             
-            if (error) return { places: [], total: 0 };
+            if (error) {
+                console.error('getPlaces error:', error);
+                return { places: [], total: 0 };
+            }
             
             const places = (data || [])
                 .map(mapPlace)
@@ -86,17 +221,18 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
 
             return { places, total: count || 0 };
         },
-        keys.placesPaginated(page, { categoryId, areaId, sortBy }),
+        keys.placesPaginated(page, { categoryId, areaId, sortBy, search }),
         {
             tags: [
                 tags.allPlaces(),
                 tags.placesPage(page),
                 ...(categoryId ? [tags.placesByCategory(categoryId.toString())] : []),
-                ...(areaId ? [tags.placesByArea(areaId)] : [])
+                ...(areaId ? [tags.placesByArea(areaId)] : []),
+                ...(search ? [`search-${search}`] : [])
             ],
             revalidate: 86400 // 24 hours
         }
-    )(page, categoryId, areaId, sortBy);
+    )(page, categoryId, areaId, sortBy, search);
 }
 
 /* =========================================================

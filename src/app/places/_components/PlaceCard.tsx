@@ -42,7 +42,12 @@ export function PlaceCard({ place, index = 0, className = "" }: PlaceCardProps) 
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  onErrorAction={() => setIsVisible(false)}
+                  priority={index === 0}
+                  fallback={
+                    <div className="w-full h-full flex items-center justify-center text-3xl opacity-30 bg-primary/5">
+                      📸
+                    </div>
+                  }
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-3xl opacity-30 bg-primary/5">

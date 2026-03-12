@@ -38,7 +38,7 @@ export default async function PlacesPage({
     const area = allAreas.find(a => a.name === areaName);
 
     // 3. Fetch paginated places
-    const { places: initialPlaces, total } = await getPlaces(page, category?.id, area?.id, sort);
+    const { places: initialPlaces, total } = await getPlaces(page, category?.id, area?.id, sort, query);
 
     // 🎨 Pass the raw data down to the Client Component
     return (
