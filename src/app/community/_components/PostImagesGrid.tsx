@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { SafeImage } from '@/components/common/SafeImage';
 import CommunityLightbox from './CommunityLightbox';
 import { toggleLikePost } from '@/lib/actions/posts';
 import { useAuth } from '@/hooks/useAuth';
@@ -74,7 +74,7 @@ export default function PostImagesGrid({
                                 'aspect-square'
                             }`}
                     >
-                        <Image
+                        <SafeImage
                             src={img}
                             alt={`Post Image ${idx + 1}`}
                             fill

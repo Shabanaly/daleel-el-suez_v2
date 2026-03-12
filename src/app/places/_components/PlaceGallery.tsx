@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import { SafeImage } from '@/components/common/SafeImage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 
@@ -51,7 +51,7 @@ export function PlaceGallery({ images, placeName, onImageClick }: PlaceGalleryPr
                     >
                         {/* Blurred Background to 'fill' space without cropping */}
                         <div className="absolute inset-0 z-0 blur-3xl opacity-40 scale-110 overflow-hidden pointer-events-none">
-                            <Image
+                            <SafeImage
                                 src={images[currentIndex]}
                                 alt=""
                                 fill
@@ -61,7 +61,7 @@ export function PlaceGallery({ images, placeName, onImageClick }: PlaceGalleryPr
 
                         {/* Main Image - object-contain prevents cropping */}
                         <div className="relative z-10 w-full h-full pointer-events-none">
-                            <Image
+                            <SafeImage
                                 src={images[currentIndex]}
                                 alt={`${placeName} - ${currentIndex + 1}`}
                                 fill
@@ -112,7 +112,7 @@ export function PlaceGallery({ images, placeName, onImageClick }: PlaceGalleryPr
                                 : 'border-border-subtle/50 opacity-60 hover:opacity-100 hover:border-primary/30 z-0'
                                 }`}
                         >
-                            <Image
+                            <SafeImage
                                 src={img}
                                 alt=""
                                 fill

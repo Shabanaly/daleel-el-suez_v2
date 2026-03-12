@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { User, Clock } from 'lucide-react';
-import Image from 'next/image';
+import { SafeImage } from '@/components/common/SafeImage';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import Link from 'next/link';
@@ -35,11 +35,12 @@ export default function PostCard({ post, categories, isLikedInitial = false, isF
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 overflow-hidden relative ring-2 ring-background border border-primary/20">
             {post.author?.avatar_url ? (
-              <Image
+              <SafeImage
                 src={post.author.avatar_url}
                 alt={post.author.full_name || 'User'}
                 fill
                 className="object-cover"
+                fallback={<User className="w-5 h-5 text-primary" />}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-primary font-black">

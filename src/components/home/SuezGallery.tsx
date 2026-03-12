@@ -4,7 +4,7 @@ import { Lightbox } from '@/app/places/_components/Lightbox';
 import { motion } from 'framer-motion';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Camera, ArrowUpRight } from 'lucide-react';
-import Image from 'next/image';
+import { SafeImage } from '@/components/common/SafeImage';
 
 const galleryItems = [
     {
@@ -58,7 +58,7 @@ export default function SuezGallery() {
                         transition={{ duration: 0.5, delay: idx * 0.1 }}
                         className={`relative rounded-3xl overflow-hidden group cursor-pointer ${item.span}`}
                     >
-                        <Image
+                        <SafeImage
                             src={item.image}
                             alt={item.title}
                             fill

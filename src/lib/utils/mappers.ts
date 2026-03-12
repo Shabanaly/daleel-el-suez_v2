@@ -48,8 +48,21 @@ export function mapPlace(p: any): Place {
         area: typeof p.areas?.name === 'string' ? p.areas.name : 'السويس',
         icon: p.categories?.icon || '📍',
         tags: p.tags || [],
-        imageUrl: p.images?.[0] || '',
-        images: Array.isArray(p.images) ? p.images : (p.images ? [p.images] : []),
+        imageUrl: p.images?.[0] ? (p.images[0].startsWith('http') ? p.images[0] : p.images[0]) : '',
+        images: Array.isArray(p.images) ? p.images.map((img: string) => {
+            if (!img) return '';
+            // If it's a full URL and contains non-ascii characters, it might need encoding
+            // However, usually Cloudinary/Supabase URLs are already encoded or handle it.
+            // But if they are raw paths, we need to be careful.
+            try {
+                // If it's already a valid URL, we don't want to double encode
+                new URL(img);
+                return img;
+            } catch (e) {
+                // Not a full URL or invalid, if it has Arabic characters, encodeURIComponent might be needed for the path
+                return img;
+            }
+        }) : (p.images ? [p.images] : []),
         address: p.address || '',
         phoneNumber: typeof p.phone === 'object' && p.phone !== null ? {
             primary: p.phone.primary || '',
