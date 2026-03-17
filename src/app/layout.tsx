@@ -12,6 +12,7 @@ import { AuthModalProvider } from "@/hooks/useAuthModal";
 import { GoogleOneTap } from "@/components/auth/GoogleOneTap";
 import { DialogProvider } from "@/components/providers/DialogProvider";
 import { CommentsProvider } from "@/components/providers/CommentsProvider";
+import { NotificationProvider } from "@/components/providers/NotificationProvider";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import LoadingScreen from "@/components/ui/LoadingScreen";
@@ -119,30 +120,32 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <Suspense fallback={null}>
-              <LoadingScreen />
-            </Suspense>
-            {googleClientId && <GoogleOneTap clientId={googleClientId} />}
-            <AuthModalProvider>
-              <DialogProvider>
-                <CommentsProvider>
-                  <Navbar />
-                  <DesktopSidebar />
-                  <LeftSidebar />
-                  <MainContentWrapper>
-                    {children}
-                    {/* Show Footer only on desktop, balanced between sidebars */}
-                    <div className="hidden lg:block">
-                      <Footer />
-                    </div>
-                  </MainContentWrapper>
+            <NotificationProvider>
+              <Suspense fallback={null}>
+                <LoadingScreen />
+              </Suspense>
+              {googleClientId && <GoogleOneTap clientId={googleClientId} />}
+              <AuthModalProvider>
+                <DialogProvider>
+                  <CommentsProvider>
+                    <Navbar />
+                    <DesktopSidebar />
+                    <LeftSidebar />
+                    <MainContentWrapper>
+                      {children}
+                      {/* Show Footer only on desktop, balanced between sidebars */}
+                      <div className="hidden lg:block">
+                        <Footer />
+                      </div>
+                    </MainContentWrapper>
 
-                  <BottomNav />
-                  <Analytics />
-                  <SpeedInsights />
-                </CommentsProvider>
-              </DialogProvider>
-            </AuthModalProvider>
+                    <BottomNav />
+                    <Analytics />
+                    <SpeedInsights />
+                  </CommentsProvider>
+                </DialogProvider>
+              </AuthModalProvider>
+            </NotificationProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

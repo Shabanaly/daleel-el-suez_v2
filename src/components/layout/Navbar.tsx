@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MapPin, Bell, User, Search, Store, Users, Map } from 'lucide-react';
+import { MapPin, User, Search, Store, Users, Map } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { NotificationBell } from './NotificationBell';
 
 import Image from 'next/image';
 
@@ -39,9 +40,7 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <div className="flex items-center gap-2">
-              <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-elevated transition text-text-muted">
-                <Bell className="w-5 h-5" />
-              </button>
+              <NotificationBell />
               <Link
                 href={user ? "/profile" : "/login"}
                 className="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden border border-border-subtle hover:border-primary/50 transition-all bg-elevated"
@@ -93,9 +92,7 @@ export default function Navbar() {
           {/* Actions */}
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-elevated transition">
-              <Bell className="w-5 h-5 text-text-muted" />
-            </button>
+            <NotificationBell />
           </div>
 
         </div>
