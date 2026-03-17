@@ -90,9 +90,22 @@ export default function RootLayout({
 
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <head>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775" crossOrigin="anonymous"></script>
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
+      <body
+        className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 lg:pb-0`}
+        suppressHydrationWarning
+      >
+        <Script 
+          async 
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775" 
+          crossOrigin="anonymous" 
+          strategy="afterInteractive" 
+        />
+        <Script 
+          src="https://accounts.google.com/gsi/client" 
+          async 
+          defer 
+          strategy="afterInteractive" 
+        />
         <JsonLd />
         {/* Google Analytics */}
         <Script
@@ -108,11 +121,6 @@ export default function RootLayout({
             gtag('config', 'G-CYWJ3TSSFF');
           `}
         </Script>
-      </head>
-      <body
-        className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 lg:pb-0`}
-        suppressHydrationWarning
-      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
