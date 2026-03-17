@@ -1,4 +1,9 @@
 export default function cloudinaryLoader({ src, width, quality }: { src: string, width: number, quality?: number }) {
+    // Force HTTPS for all external URLs to avoid Mixed Content warnings
+    if (src.startsWith('http://')) {
+        src = src.replace('http://', 'https://');
+    }
+
     // Cloudinary optimization
     if (src.includes('res.cloudinary.com') && src.includes('/upload/')) {
         const params = [

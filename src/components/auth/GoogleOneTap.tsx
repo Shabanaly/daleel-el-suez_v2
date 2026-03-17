@@ -53,7 +53,11 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
                             } else {
                                 console.error('One Tap Error:', result.error);
                             }
-                        } catch (err) {
+                        } catch (err: any) {
+                            // NEXT_REDIRECT is the expected behavior for server actions that redirect
+                            if (err.message === 'NEXT_REDIRECT' || err.digest?.includes('NEXT_REDIRECT')) {
+                                return;
+                            }
                             console.error('One Tap Login Failed:', err);
                         }
                     },
