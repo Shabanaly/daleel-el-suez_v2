@@ -46,7 +46,7 @@ export default function PWAInstallPrompt() {
 
     window.addEventListener('beforeinstallprompt', handler);
 
-    // 4. Initial visibility check with delay
+    // 4. Initial visibility check with delay, synchronized with Cookie Consent
     const checkVisibility = () => {
       const dismissedAt = localStorage.getItem(DISMISS_KEY);
       const now = Date.now();
@@ -55,12 +55,26 @@ export default function PWAInstallPrompt() {
         return;
       }
 
-      // Show after 10 seconds delay
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, 10000);
+      const showWithDelay = () => {
+        const timer = setTimeout(() => {
+          setIsVisible(true);
+        }, 10000); // 10s delay after everything is clear
+        return timer;
+      };
 
-      return () => clearTimeout(timer);
+      // If user hasn't made a cookie choice, wait for it
+      const cookieChoice = localStorage.getItem('daleel-cookie-consent');
+      if (!cookieChoice) {
+        const handleCookieChoice = () => {
+          showWithDelay();
+          window.removeEventListener('daleel-cookie-choice-made', handleCookieChoice);
+        };
+        window.addEventListener('daleel-cookie-choice-made', handleCookieChoice);
+        return () => window.removeEventListener('daleel-cookie-choice-made', handleCookieChoice);
+      } else {
+        const timer = showWithDelay();
+        return () => clearTimeout(timer);
+      }
     };
 
     const cleanupTimeout = checkVisibility();

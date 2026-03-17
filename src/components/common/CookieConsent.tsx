@@ -24,12 +24,13 @@ export default function CookieConsent() {
   const handleAccept = () => {
     localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
     setIsVisible(false);
+    window.dispatchEvent(new Event('daleel-cookie-choice-made'));
   };
 
   const handleDismiss = () => {
     setIsVisible(false);
+    window.dispatchEvent(new Event('daleel-cookie-choice-made'));
     // We don't save 'accepted' here, so it will show again next session
-    // unless the user clicks Accept. This is standard practice.
   };
 
   if (!isVisible) return null;
