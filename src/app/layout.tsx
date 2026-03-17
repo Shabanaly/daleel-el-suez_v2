@@ -17,6 +17,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import PWAInstallPrompt from "@/components/pwa/PWAInstallPrompt";
+import CookieConsent from "@/components/common/CookieConsent";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -125,6 +126,7 @@ export default function RootLayout({
                 <LoadingScreen />
               </Suspense>
               <PWAInstallPrompt />
+              <CookieConsent />
               {googleClientId && <GoogleOneTap clientId={googleClientId} />}
               <AuthModalProvider>
                 <DialogProvider>
