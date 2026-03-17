@@ -139,7 +139,7 @@ export const NotificationBell = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-0 mt-2 w-[340px] bg-background border border-border-subtle rounded-xl shadow-2xl z-100 overflow-hidden"
+            className="absolute left-[-60px] sm:left-[-40px] md:left-0 mt-2 w-[320px] sm:w-[340px] bg-background border border-border-subtle rounded-xl shadow-2xl z-[100] overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 border-b border-border-subtle flex items-center justify-between bg-elevated/30">
