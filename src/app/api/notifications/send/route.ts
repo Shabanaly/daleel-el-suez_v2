@@ -61,7 +61,27 @@ export async function POST(req: Request) {
 
     const response = await admin.messaging().sendEachForMulticast(message);
     
-    console.log(`Successfully sent ${response.successCount} messages; ${response.failureCount} failed.`);
+    // Auto-cleanup failed tokens from Supabase
+    if (response.failureCount > 0) {
+      const failedTokens = response.responses
+        .map((resp, idx) => (!resp.success ? tokens[idx] : null))
+        .filter((token): token is string => token !== null);
+
+      if (failedTokens.length > 0) {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabaseAdmin = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+        await supabaseAdmin
+          .from('user_fcm_tokens')
+          .delete()
+          .in('token', failedTokens);
+        console.log(`Cleaned up ${failedTokens.length} stale tokens`);
+      }
+    }
+
+    console.log(`Sent: ${response.successCount} success, ${response.failureCount} failed.`);
 
     return NextResponse.json({ 
         success: true, 
