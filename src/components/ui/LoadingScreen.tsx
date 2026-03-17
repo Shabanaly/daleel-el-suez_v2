@@ -24,7 +24,7 @@ export default function LoadingScreen() {
         const interval = setInterval(() => {
             setProgress(prev => {
                 if (prev >= 90) return prev;
-                return prev + Math.random() * 15;
+                return Math.min(90, prev + Math.random() * 15);
             });
         }, 200);
         
