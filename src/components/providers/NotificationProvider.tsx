@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { messaging, requestForToken, onMessageListener } from '@/lib/firebase';
+import { requestForToken, onMessageListener } from '@/lib/firebase';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
 
@@ -25,24 +25,34 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     const setupNotifications = async () => {
       if (!user) return;
 
+      console.log('[NotificationProvider] Starting setup for user:', user.id);
+
       // 1. Request Permission and get Token
       const token = await requestForToken();
-      if (token) {
-        setFcmToken(token);
-        
-        // 2. Save/Update token in Supabase
-        const { error } = await supabase
-          .from('user_fcm_tokens')
-          .upsert({ 
-            user_id: user.id, 
-            token: token,
-            device_type: 'web',
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'token' });
+      
+      if (!token) {
+        console.error('[NotificationProvider] Failed to get FCM token');
+        return;
+      }
 
-        if (error) {
-          console.error('Error saving FCM token to Supabase:', error);
-        }
+      console.log('[NotificationProvider] Got token, saving to Supabase...');
+      setFcmToken(token);
+      
+      // 2. Save/Update token in Supabase
+      const { data, error } = await supabase
+        .from('user_fcm_tokens')
+        .upsert({ 
+          user_id: user.id, 
+          token: token,
+          device_type: 'web',
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'token' })
+        .select();
+
+      if (error) {
+        console.error('[NotificationProvider] Supabase upsert error:', JSON.stringify(error));
+      } else {
+        console.log('[NotificationProvider] Token saved successfully:', data);
       }
     };
 
