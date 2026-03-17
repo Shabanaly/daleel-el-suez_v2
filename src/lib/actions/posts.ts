@@ -180,7 +180,7 @@ export async function toggleLikePost(postId: string) {
                 title: 'إعجاب جديد',
                 message: 'أعجب أحد الأعضاء بمنشورك في المجتمع',
                 type: 'COMMUNITY',
-                link: `/community/${postId}`
+                link: `/community/posts/${postId}`
             });
         }
     }

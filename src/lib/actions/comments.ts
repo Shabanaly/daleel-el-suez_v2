@@ -46,7 +46,7 @@ export async function addComment(postId: string, content: string, parentId?: str
             title: 'تعليق جديد',
             message: 'قام أحد الأعضاء بالتعليق على منشورك في المجتمع',
             type: 'COMMUNITY',
-            link: `/community/${postId}`
+            link: `/community/posts/${postId}`
         });
     }
 
