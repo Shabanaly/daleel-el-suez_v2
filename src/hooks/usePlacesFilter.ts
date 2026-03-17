@@ -2,8 +2,6 @@ import { useState, useMemo, useEffect, useTransition } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Place, SortOption } from '../lib/types/places';
 import { AreaWithDistrict } from '../lib/actions/areas';
-import { fuzzyMatchArabic } from '../lib/utils/text';
-
 export function usePlacesFilter(
     initialPlaces: Place[],
     initialTotal: number,

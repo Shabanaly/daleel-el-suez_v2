@@ -3,6 +3,7 @@
 import { Place } from '@/lib/types/places';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { PlaceCard } from '@/app/places/_components/PlaceCard';
 import { motion } from 'framer-motion';
 
@@ -12,6 +13,7 @@ interface CategoryHighlightProps {
             id: number;
             name: string;
             icon: string;
+            slug: string;
         };
         places: Place[];
     } | null;
@@ -22,6 +24,9 @@ export default function CategoryHighlight({ data }: CategoryHighlightProps) {
 
     const { category, places } = data;
 
+    // Dynamically get the Icon component from Lucide
+    const IconComponent = (LucideIcons as any)[category.icon] || LucideIcons.HelpCircle;
+
     return (
         <section className="w-full bg-surface relative py-16">
             {/* Background Decor */}
@@ -31,7 +36,9 @@ export default function CategoryHighlight({ data }: CategoryHighlightProps) {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <span className="text-3xl" aria-hidden="true">{category.icon}</span>
+                            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                                <IconComponent className="w-7 h-7" />
+                            </div>
                             <h2 className="text-3xl md:text-4xl font-black text-text-primary">
                                 اكتشف {category.name}
                             </h2>
@@ -42,7 +49,7 @@ export default function CategoryHighlight({ data }: CategoryHighlightProps) {
                     </div>
 
                     <Link
-                        href={`/places?category=${encodeURIComponent(category.name)}`}
+                        href={`/categories/${category.slug}`}
                         className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary/10 text-primary font-bold hover:bg-primary hover:text-white transition-all group shrink-0"
                     >
                         عرض كل {category.name}

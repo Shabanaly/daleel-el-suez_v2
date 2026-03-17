@@ -23,7 +23,13 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-primary" />
+            <Image 
+              src="/favicon-circular.ico" 
+              alt="Logo" 
+              width={24} 
+              height={24} 
+              className="w-6 h-6 object-contain"
+            />
             <span className="font-semibold text-base text-text-primary">
               دليل السويس
             </span>
@@ -46,8 +52,8 @@ export default function Navbar() {
                     alt="Profile"
                     width={40}
                     height={40}
-                    unoptimized
                     className="w-full h-full object-cover"
+                    priority
                   />
                 ) : (
                   <User className="w-5 h-5 text-text-muted" />
@@ -64,7 +70,13 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-primary" />
+            <Image 
+              src="/favicon-circular.ico" 
+              alt="Logo" 
+              width={28} 
+              height={28} 
+              className="w-7 h-7 object-contain"
+            />
             <span className="font-semibold text-lg text-text-primary tracking-tight">
               دليل السويس
             </span>

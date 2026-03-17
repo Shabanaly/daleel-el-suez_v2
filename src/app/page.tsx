@@ -66,7 +66,6 @@ export default async function Home() {
         </div>
       </section>
       <SuezStats />
-      <AppPromoSection />
     </div>
   );
 }

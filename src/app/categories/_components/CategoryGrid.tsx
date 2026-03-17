@@ -42,7 +42,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
             {categories.map((category) => (
                 <motion.div key={category.id} variants={itemAnim}>
                     <Link
-                        href={`/places?category=${encodeURIComponent(category.name)}`}
+                        href={`/categories/${category.slug}`}
                         className="group relative flex flex-col items-center justify-between text-center p-6 md:p-8 rounded-2xl md:rounded-3xl bg-surface/30 backdrop-blur-xl border border-border-subtle hover:border-primary/40 hover:bg-surface/80 hover:translate-y-[-8px] active:scale-95 transition-all duration-500 w-full min-h-[160px] md:min-h-[200px] shadow-sm hover:shadow-2xl hover:shadow-primary/10 overflow-hidden"
                     >
                         {/* Decorative Background Orb */}

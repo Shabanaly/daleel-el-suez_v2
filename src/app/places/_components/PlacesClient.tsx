@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-import { Search, SlidersHorizontal, X, MapPin, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Place } from '@/lib/types/places';
 import { usePlacesFilter } from '@/hooks/usePlacesFilter';
@@ -51,48 +51,33 @@ export function PlacesClient({ initialPlaces, totalCount, categories, areas, dis
     return (
         <div className="w-full min-h-screen pt-20 md:pt-28 pb-10">
 
-            {/* ── Page Header ──────────────────────────────────────────────── */}
-            <div className="max-w-5xl mx-auto px-4 mb-8 md:mb-12">
+            {/* ── Advanced Search Hub Header ───────────────────────────────── */}
+            <div className="w-full max-w-5xl mx-auto px-4 mb-8 md:mb-12">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
+                    className="flex flex-col gap-4 md:gap-6"
                 >
-                    <SectionHeader
-                        title="الأماكن"
-                        subtitle="اكتشف أفضل الأماكن والأنشطة في مدينة السويس"
-                        icon={MapPin}
-                    />
-                </motion.div>
-            </div>
-
-            {/* ── Search & Filter Bar ──────────────────────────────────────── */}
-            <div className="max-w-5xl mx-auto px-4 mb-8 md:mb-12">
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="flex flex-col gap-6"
-                >
+                    {/* Search & Filter toggle row */}
                     <div className="flex gap-3 md:gap-4 items-center">
-                        {/* Search Unit */}
                         <div className="relative flex-1 group">
-                            <div className="absolute inset-0 bg-primary/5 dark:bg-primary/10 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
-                            <div className="relative h-14 rounded-2xl glass-panel bg-surface/90 dark:bg-surface/40 border border-border-subtle flex items-center overflow-hidden shadow-lg shadow-black/5 dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)] focus-within:border-primary/50 transition-all duration-300">
-                                <Search className="absolute right-5 w-5 h-5 text-text-muted group-focus-within:text-primary transition-colors pointer-events-none" />
+                            <div className="absolute inset-0 bg-primary/10 dark:bg-primary/5 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
+                            <div className="relative h-14 md:h-16 flex items-center bg-surface/90 border-2 border-border-subtle rounded-2xl md:rounded-xl shadow-lg focus-within:border-primary/50 transition-all duration-300 overflow-hidden">
+                                <Search className="absolute right-5 w-5 h-5 md:w-6 md:h-6 text-text-muted group-focus-within:text-primary transition-colors pointer-events-none" />
                                 <input
                                     type="text"
                                     value={query}
                                     onChange={e => setQuery(e.target.value)}
-                                    placeholder="ابحث عن مكان، تصنيف، أو منطقة..."
-                                    className="w-full h-full bg-transparent border-none outline-none text-text-primary placeholder-text-muted/60 pr-16 pl-6 text-[16px] md:text-lg font-medium"
+                                    placeholder="ابحث عن مكان، نشاط، أو منطقة في السويس..."
+                                    className="w-full h-full bg-transparent border-none outline-none text-text-primary placeholder-text-muted/60 pr-14 md:pr-16 pl-6 text-base md:text-xl font-bold"
                                 />
                                 {query && (
                                     <button
                                         onClick={() => setQuery('')}
-                                        className="absolute left-4 w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-elevated/50 transition-all"
+                                        className="absolute left-4 w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-elevated transition-all"
                                     >
-                                        <X className="w-4 h-4" />
+                                        <X className="w-5 h-5" />
                                     </button>
                                 )}
                             </div>
@@ -101,32 +86,31 @@ export function PlacesClient({ initialPlaces, totalCount, categories, areas, dis
                         {/* Filter toggle */}
                         <button
                             onClick={() => setShowFilters(v => !v)}
-                            className={`relative h-14 w-14 rounded-2xl flex items-center justify-center border transition-all duration-300 shrink-0 shadow-lg ${showFilters || hasActiveFilters
-                                ? 'bg-primary text-white border-primary-hover shadow-primary/25'
-                                : 'glass-panel bg-surface/90 dark:bg-surface/40 border-border-subtle text-text-muted hover:border-primary/40 hover:text-text-primary'
+                            className={`relative h-14 md:h-16 w-14 md:w-16 rounded-2xl md:rounded-xl border-2 transition-all duration-300 shrink-0 shadow-lg flex items-center justify-center ${showFilters || hasActiveFilters
+                                ? 'bg-primary border-primary text-white shadow-primary/25'
+                                : 'bg-surface/90 border-border-subtle text-text-muted hover:border-primary/40 hover:text-text-primary'
                                 }`}
                         >
-                            <SlidersHorizontal className={`w-5 h-5 transition-transform duration-300 ${showFilters ? 'rotate-90' : ''}`} />
+                            <SlidersHorizontal className={`w-5 h-5 md:w-6 md:h-6 transition-transform duration-300 ${showFilters ? 'rotate-90' : ''}`} />
                             {hasActiveFilters && (
-                                <span className="absolute -top-1 -left-1 w-4 h-4 bg-accent rounded-full border-2 border-base shadow-accent/50" />
+                                <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-accent rounded-full shadow-lg shadow-accent/50 animate-pulse border-2 border-white dark:border-surface" />
                             )}
                         </button>
                     </div>
 
-                    {/* ── Category Chips (Moved here for better UX) ───────────────── */}
+                    {/* Category Chips - Horizontal Scrollable */}
                     <div className="relative">
-                        {/* Scroll Shadow Indicators */}
-                        <div className="absolute left-0 top-0 bottom-0 w-8 bg-linear-to-r from-base to-transparent z-10 pointer-events-none md:hidden" />
-                        <div className="absolute right-0 top-0 bottom-0 w-8 bg-linear-to-l from-base to-transparent z-10 pointer-events-none md:hidden" />
+                        <div className="absolute left-0 top-0 bottom-0 w-8 bg-linear-to-r from-background to-transparent z-10 pointer-events-none" />
+                        <div className="absolute right-0 top-0 bottom-0 w-8 bg-linear-to-l from-background to-transparent z-10 pointer-events-none" />
 
-                        <div className="flex overflow-x-auto hide-scrollbar gap-1 pb-1 -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
+                        <div className="flex overflow-x-auto hide-scrollbar gap-2 pb-2 -mx-4 px-4 scroll-smooth">
                             {categories.map(cat => (
                                 <button
                                     key={cat}
                                     onClick={() => setActiveCategory(cat)}
-                                    className={`shrink-0 px-6 py-2.5 md:px-7 rounded-xl text-sm font-bold transition-all duration-300 border ${activeCategory === cat
-                                        ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
-                                        : 'bg-surface/50 text-text-muted border-border-subtle hover:bg-surface hover:text-text-primary'
+                                    className={`shrink-0 px-5 md:px-7 py-2.5 md:py-3 rounded-full text-sm md:text-base font-bold transition-all duration-300 border-2 ${activeCategory === cat
+                                        ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
+                                        : 'bg-surface text-text-muted border-border-subtle hover:bg-elevated hover:text-text-primary hover:border-primary/30'
                                         }`}
                                 >
                                     {cat}

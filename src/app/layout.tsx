@@ -14,6 +14,7 @@ import { DialogProvider } from "@/components/providers/DialogProvider";
 import { CommentsProvider } from "@/components/providers/CommentsProvider";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -27,6 +28,7 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+import { Suspense } from "react";
 import MainContentWrapper from "@/components/layout/MainContentWrapper";
 
 export const metadata: Metadata = {
@@ -37,7 +39,6 @@ export const metadata: Metadata = {
   description: "اكتشف أفضل الأماكن، الخدمات، والمطاعم في محافظة السويس. دليل السويس هو رفيقك الموثوق لاستكشاف المدينة.",
   keywords: ["السويس", "دليل السويس", "أماكن في السويس", "خدمات السويس", "عقارات السويس", "وظائف السويس", "مطاعم السويس"],
   authors: [{ name: "Suez Guide Team" }],
-  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -59,7 +60,12 @@ export const metadata: Metadata = {
     description: "دليلك الشامل للأماكن والخدمات في السويس",
   },
   icons: {
-    icon: "/favicon-circular.ico?v=5",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-circular.ico" },
+    ],
     apple: "/apple-touch-icon.png",
   },
 };
@@ -72,6 +78,8 @@ export const viewport: Viewport = {
   interactiveWidget: "resizes-content",
 };
 
+import JsonLd from "@/components/seo/JsonLd";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -79,46 +87,12 @@ export default function RootLayout({
 }>) {
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebSite",
-        "@id": "https://daleel-al-suez.com/#website",
-        "url": "https://daleel-al-suez.com",
-        "name": "دليل السويس",
-        "description": "اكتشف أفضل الأماكن، الخدمات، والمطاعم في محافظة السويس.",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": "https://daleel-al-suez.com/places?q={search_term_string}"
-          },
-          "query-input": "required name=search_term_string"
-        }
-      },
-      {
-        "@type": "Organization",
-        "@id": "https://daleel-al-suez.com/#organization",
-        "url": "https://daleel-al-suez.com",
-        "name": "دليل السويس",
-        "logo": "https://daleel-al-suez.com/icon.png"
-      }
-    ]
-  };
-
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775" crossOrigin="anonymous"></script>
         <script src="https://accounts.google.com/gsi/client" async defer></script>
-        <Script
-          id="json-ld"
-          type="application/ld+json"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <JsonLd />
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-CYWJ3TSSFF"
@@ -145,6 +119,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
+            <Suspense fallback={null}>
+              <LoadingScreen />
+            </Suspense>
             {googleClientId && <GoogleOneTap clientId={googleClientId} />}
             <AuthModalProvider>
               <DialogProvider>

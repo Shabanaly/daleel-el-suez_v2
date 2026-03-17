@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Star, MapPin, Eye, Clock } from 'lucide-react';
+import { Star, MapPin, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { SafeImage } from '@/components/common/SafeImage';
@@ -35,25 +35,44 @@ export function PlaceCard({ place, index = 0, className = "" }: PlaceCardProps) 
           <div className="bg-surface rounded-2xl overflow-hidden flex flex-col border border-border-subtle shadow-sm hover:shadow-xl transition-all duration-300 h-full underline-none">
             {/* Image Container */}
             <div className="relative aspect-4/3 overflow-hidden bg-muted">
-              {place.imageUrl ? (
-                <SafeImage
-                  src={place.imageUrl}
-                  alt={place.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  priority={index === 0}
-                  fallback={
-                    <div className="w-full h-full flex items-center justify-center text-3xl opacity-30 bg-primary/5">
-                      📸
-                    </div>
-                  }
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-3xl opacity-30 bg-primary/5">
-                  📸
-                </div>
-              )}
+              {(() => {
+                // Create a unique list of candidate images
+                const candidateImages = Array.from(new Set([
+                  place.imageUrl,
+                  ...(place.images || [])
+                ])).filter(Boolean);
+
+                const [imgIndex, setImgIndex] = useState(0);
+                const currentSrc = candidateImages[imgIndex] || '/favicon-circular.ico';
+                const isFinalFallback = imgIndex >= candidateImages.length;
+
+                return (
+                  <SafeImage
+                    src={currentSrc}
+                    alt={place.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className={`transition-transform duration-500 group-hover:scale-110 ${
+                      isFinalFallback ? 'object-contain p-12 bg-primary/5' : 'object-cover'
+                    }`}
+                    priority={index === 0}
+                    onErrorAction={() => {
+                        if (imgIndex < candidateImages.length) {
+                            setImgIndex(prev => prev + 1);
+                        }
+                    }}
+                    fallback={
+                      <div className="w-full h-full flex items-center justify-center bg-primary/5 p-12">
+                        <img 
+                          src="/favicon-circular.ico" 
+                          alt="Fallback Logo" 
+                          className="w-full h-full object-contain opacity-20" 
+                        />
+                      </div>
+                    }
+                  />
+                );
+              })()}
 
               {/* Gradient Overlay for better legibility of bottom badges */}
               <div className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-black/50 to-transparent opacity-60 pointer-events-none" />

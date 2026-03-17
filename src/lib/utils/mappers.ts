@@ -79,6 +79,7 @@ export function mapPlace(p: any): Place {
 export function mapCategory(c: any): Category {
     return {
         id: c.id,
+        slug: c.slug || String(c.id),
         name: c.name,
         icon: c.icon || '📍',
         count: `${c.places?.[0]?.count || 0}+ مكان`,

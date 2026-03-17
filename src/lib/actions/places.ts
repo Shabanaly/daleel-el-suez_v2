@@ -69,14 +69,34 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
                 const term = q.trim();
                 const terms = term.split(/\s+/).filter(t => t.length >= 1);
                 
-                // Helper to generate Arabic variations
+                // Helper to generate Arabic variations comprehensively
                 const getVariants = (t: string) => {
-                    const variants = new Set([t]);
-                    if (t.includes('ة')) variants.add(t.replace(/ة/g, 'ه'));
-                    if (t.includes('ه')) variants.add(t.replace(/ه/g, 'ة'));
-                    const normalizedAlef = t.replace(/[أإآ]/g, 'ا');
-                    if (normalizedAlef !== t) variants.add(normalizedAlef);
-                    return Array.from(variants);
+                    let strings = [t];
+                    
+                    // 1. Alef normalizations
+                    if (/[أإآ]/.test(t)) {
+                        strings.push(t.replace(/[أإآ]/g, 'ا'));
+                    }
+                    
+                    // 2. Teh Marbuta / Heh normalizations
+                    const temps1: string[] = [];
+                    strings.forEach(s => {
+                        temps1.push(s);
+                        if (s.includes('ة')) temps1.push(s.replace(/ة/g, 'ه'));
+                        if (s.includes('ه')) temps1.push(s.replace(/ه/g, 'ة'));
+                    });
+                    strings = temps1;
+                    
+                    // 3. Yeh / Alef Maksura normalizations (ي/ى)
+                    const temps2: string[] = [];
+                    strings.forEach(s => {
+                        temps2.push(s);
+                        if (s.endsWith('ي')) temps2.push(s.replace(/ي$/, 'ى'));
+                        if (s.endsWith('ى')) temps2.push(s.replace(/ى$/, 'ي'));
+                    });
+                    strings = temps2;
+
+                    return Array.from(new Set(strings));
                 };
 
                 const allVariants = terms.flatMap(getVariants);
@@ -113,8 +133,9 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
 
                 query = query.or(orConditions.join(','));
 
-                // 🧠 Step 3: Fetch candidate pool for high-quality ranking
-                const { data: rawData, count, error } = await query.range(0, 199);
+                // 🧠 Step 3: Fetch candidate pool for high-quality ranking (Max 200 items)
+                const maxResults = 200;
+                const { data: rawData, count, error } = await query.range(0, maxResults - 1);
                 if (error || !rawData) return { places: [], total: 0 };
 
                 const noiseWords = ['السويس', 'حي', 'منطقة', 'شارع', 'ش', 'مدينة', 'مساكن', 'محل', 'مركز', 'شركة'];
@@ -181,14 +202,20 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
                     return { ...place, searchScore: totalScore };
                 });
 
+                // Sort by highest confidence scores first
                 ranked.sort((a, b) => b.searchScore - a.searchScore);
 
-                const start = (p - 1) * limit;
+                // Paginate safely
+                const start = (page - 1) * limit;
                 const paginatedData = ranked.slice(start, start + limit);
+                
+                // CRITICAL FIX: Ensure total places promised doesn't exceed the max pool we fetched
+                // otherwise clicking page 11+ on a very broad search will show empty results
+                const actualTotal = Math.min(count || ranked.length, maxResults);
 
                 return { 
                     places: paginatedData.map(mapPlace), 
-                    total: count || ranked.length 
+                    total: actualTotal 
                 };
             }
 
