@@ -40,15 +40,14 @@ export async function addComment(postId: string, content: string, parentId?: str
         
     // Send notification if the commenter is not the post author
     if (postData && postData.author_id !== user.id) {
-        await supabase
-            .from('notifications')
-            .insert({
-                user_id: postData.author_id,
-                title: 'تعليق جديد',
-                message: 'قام أحد الأعضاء بالتعليق على منشورك في المجتمع',
-                type: 'COMMUNITY',
-                link: `/community/${postId}`
-            });
+        const { createNotification } = await import('@/lib/services/notifications');
+        await createNotification({
+            userId: postData.author_id,
+            title: 'تعليق جديد',
+            message: 'قام أحد الأعضاء بالتعليق على منشورك في المجتمع',
+            type: 'COMMUNITY',
+            link: `/community/${postId}`
+        });
     }
 
     cacheManager.invalidateComment(postId);

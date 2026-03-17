@@ -113,15 +113,14 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
             ? `تمت الموافقة على نشر "${placeData.name}" بنجاح في دليل السويس.` 
             : `لم تتم الموافقة على نشر "${placeData.name}". يرجى مراجعة الشروط.`;
             
-        await supabase
-            .from('notifications')
-            .insert({
-                user_id: placeData.author_id,
-                title: title,
-                message: message,
-                type: 'SYSTEM',
-                link: status === 'approved' ? `/places/${placeId}` : '#'
-            });
+        const { createNotification } = await import('@/lib/services/notifications');
+        await createNotification({
+            userId: placeData.author_id,
+            title: title,
+            message: message,
+            type: 'SYSTEM',
+            link: status === 'approved' ? `/places/${placeId}` : '#'
+        });
     }
 
     // Revalidate custom cache path

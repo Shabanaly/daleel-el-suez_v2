@@ -67,15 +67,14 @@ export async function toggleFavorite(itemId: string, itemType: 'place' | 'listin
                     .single();
                     
                  if (itemData && itemData.author_id && itemData.author_id !== user.id) {
-                     await supabase
-                        .from('notifications')
-                        .insert({
-                            user_id: itemData.author_id,
-                            title: 'إضافة للمفضلة',
-                            message: `قام أحد الأعضاء بإضافة "${itemData.name}" إلى مفضلته`,
-                            type: 'SYSTEM',
-                            link: `/places/${itemId}`
-                        });
+                     const { createNotification } = await import('@/lib/services/notifications');
+                     await createNotification({
+                        userId: itemData.author_id,
+                        title: 'إضافة للمفضلة',
+                        message: `قام أحد الأعضاء بإضافة "${itemData.name}" إلى مفضلته`,
+                        type: 'SYSTEM',
+                        link: `/places/${itemId}`
+                     });
                  }
             }
         } catch (notifErr) {
