@@ -163,6 +163,27 @@ export async function toggleLikePost(postId: string) {
 
         // Increment like count
         await supabase.rpc('increment_post_likes', { target_post_id: postId });
+        
+        // --- Notification Logic ---
+        // Fetch post author to notify them
+        const { data: postData } = await supabase
+            .from('posts')
+            .select('author_id')
+            .eq('id', postId)
+            .single();
+            
+        // Send notification if the liker is not the post author
+        if (postData && postData.author_id !== user.id) {
+            await supabase
+                .from('notifications')
+                .insert({
+                    user_id: postData.author_id,
+                    title: 'إعجاب جديد',
+                    message: 'أعجب أحد الأعضاء بمنشورك في المجتمع',
+                    type: 'COMMUNITY',
+                    link: `/community/${postId}`
+                });
+        }
     }
 
     cacheManager.invalidatePost(postId, user.id);

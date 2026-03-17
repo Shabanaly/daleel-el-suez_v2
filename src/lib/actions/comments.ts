@@ -30,6 +30,27 @@ export async function addComment(postId: string, content: string, parentId?: str
         return { error: 'حدث خطأ أثناء إضافة التعليق' };
     }
 
+    // --- Notification Logic ---
+    // Fetch post author to notify them
+    const { data: postData } = await supabase
+        .from('posts')
+        .select('author_id')
+        .eq('id', postId)
+        .single();
+        
+    // Send notification if the commenter is not the post author
+    if (postData && postData.author_id !== user.id) {
+        await supabase
+            .from('notifications')
+            .insert({
+                user_id: postData.author_id,
+                title: 'تعليق جديد',
+                message: 'قام أحد الأعضاء بالتعليق على منشورك في المجتمع',
+                type: 'COMMUNITY',
+                link: `/community/${postId}`
+            });
+    }
+
     cacheManager.invalidateComment(postId);
 
     return { success: true, comment: data };

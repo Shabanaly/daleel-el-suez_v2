@@ -89,6 +89,13 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
     await checkAdminOrModerator(); // Secure the update action
     const supabase = createAdminClient();
 
+    // Fetch place author_id before update to send notification
+    const { data: placeData } = await supabase
+        .from('places')
+        .select('author_id, name')
+        .eq('id', placeId)
+        .single();
+
     const { error } = await supabase
         .from('places')
         .update({ status })
@@ -97,6 +104,24 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
     if (error) {
         console.error('Error updating place status:', error);
         throw new Error('فشل تحديث حالة المكان.');
+    }
+    
+    // --- Notification Logic ---
+    if (placeData && placeData.author_id && (status === 'approved' || status === 'rejected')) {
+        const title = status === 'approved' ? 'تم قبول مكانك 🎉' : 'عذراً، تم رفض مكانك';
+        const message = status === 'approved' 
+            ? `تمت الموافقة على نشر "${placeData.name}" بنجاح في دليل السويس.` 
+            : `لم تتم الموافقة على نشر "${placeData.name}". يرجى مراجعة الشروط.`;
+            
+        await supabase
+            .from('notifications')
+            .insert({
+                user_id: placeData.author_id,
+                title: title,
+                message: message,
+                type: 'SYSTEM',
+                link: status === 'approved' ? `/places/${placeId}` : '#'
+            });
     }
 
     // Revalidate custom cache path

@@ -29,18 +29,18 @@ export async function toggleFavorite(itemId: string, itemType: 'place' | 'listin
 
     if (existing) {
         // Remove from favorites
-        const { error } = await supabase
+        const { error: removeError } = await supabase
             .from('favorites')
             .delete()
             .eq('id', existing.id);
 
-        if (error) {
-            console.error('Error removing favorite:', error);
+        if (removeError) {
+            console.error('Error removing favorite:', removeError);
             return { error: 'حدث خطأ أثناء الحذف من المفضلة' };
         }
     } else {
         // Add to favorites
-        const { error } = await supabase
+        const { error: insertError } = await supabase
             .from('favorites')
             .insert({
                 user_id: user.id,
@@ -48,9 +48,38 @@ export async function toggleFavorite(itemId: string, itemType: 'place' | 'listin
                 item_type: itemType
             });
 
-        if (error) {
-            console.error('Error adding favorite:', error);
+        if (insertError) {
+            console.error('Error adding favorite:', insertError);
             return { error: 'حدث خطأ أثناء الإضافة للمفضلة' };
+        }
+        
+        // --- Notification Logic ---
+        try {
+            // Determine table based on itemType
+            const table = itemType === 'place' ? 'places' : 'market_items'; // Assuming market items table name is market_items, adjust if different
+            
+            // For now, only send if it's a place. We need to verify market table name first.
+            if (itemType === 'place') {
+                 const { data: itemData } = await supabase
+                    .from('places')
+                    .select('author_id, name') // Places usually have name and author_id
+                    .eq('id', itemId)
+                    .single();
+                    
+                 if (itemData && itemData.author_id && itemData.author_id !== user.id) {
+                     await supabase
+                        .from('notifications')
+                        .insert({
+                            user_id: itemData.author_id,
+                            title: 'إضافة للمفضلة',
+                            message: `قام أحد الأعضاء بإضافة "${itemData.name}" إلى مفضلته`,
+                            type: 'SYSTEM',
+                            link: `/places/${itemId}`
+                        });
+                 }
+            }
+        } catch (notifErr) {
+            console.error("Failed to send favorite notification:", notifErr);
         }
     }
 
