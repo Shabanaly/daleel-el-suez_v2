@@ -62,14 +62,14 @@ export async function toggleFavorite(itemId: string, itemType: 'place' | 'listin
             if (itemType === 'place') {
                  const { data: itemData } = await supabase
                     .from('places')
-                    .select('author_id, name') // Places usually have name and author_id
+                    .select('added_by, name') 
                     .eq('id', itemId)
                     .single();
                     
-                 if (itemData && itemData.author_id && itemData.author_id !== user.id) {
+                 if (itemData && itemData.added_by && itemData.added_by !== user.id) {
                      const { createNotification } = await import('@/lib/services/notifications');
                      await createNotification({
-                        userId: itemData.author_id,
+                        userId: itemData.added_by,
                         title: 'إضافة للمفضلة',
                         message: `قام أحد الأعضاء بإضافة "${itemData.name}" إلى مفضلته`,
                         type: 'SYSTEM',

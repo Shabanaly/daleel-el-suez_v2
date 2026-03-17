@@ -89,10 +89,10 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
     await checkAdminOrModerator(); // Secure the update action
     const supabase = createAdminClient();
 
-    // Fetch place author_id before update to send notification
+    // Fetch place added_by before update to send notification
     const { data: placeData } = await supabase
         .from('places')
-        .select('author_id, name')
+        .select('added_by, name')
         .eq('id', placeId)
         .single();
 
@@ -107,7 +107,7 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
     }
     
     // --- Notification Logic ---
-    if (placeData && placeData.author_id && (status === 'approved' || status === 'rejected')) {
+    if (placeData && placeData.added_by && (status === 'approved' || status === 'rejected')) {
         const title = status === 'approved' ? 'تم قبول مكانك 🎉' : 'عذراً، تم رفض مكانك';
         const message = status === 'approved' 
             ? `تمت الموافقة على نشر "${placeData.name}" بنجاح في دليل السويس.` 
@@ -115,7 +115,7 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
             
         const { createNotification } = await import('@/lib/services/notifications');
         await createNotification({
-            userId: placeData.author_id,
+            userId: placeData.added_by,
             title: title,
             message: message,
             type: 'SYSTEM',

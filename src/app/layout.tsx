@@ -94,18 +94,9 @@ export default function RootLayout({
         className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 lg:pb-0`}
         suppressHydrationWarning
       >
-        <Script 
-          async 
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775" 
-          crossOrigin="anonymous" 
-          strategy="afterInteractive" 
-        />
-        <Script 
-          src="https://accounts.google.com/gsi/client" 
-          async 
-          defer 
-          strategy="afterInteractive" 
-        />
+        {/* Raw scripts instead of next/script due to AdSense disliking data-nscript */}
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775" crossOrigin="anonymous"></script>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
         <JsonLd />
         {/* Google Analytics */}
         <Script
