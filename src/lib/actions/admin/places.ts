@@ -89,10 +89,10 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
     await checkAdminOrModerator(); // Secure the update action
     const supabase = createAdminClient();
 
-    // Fetch place added_by before update to send notification
+    // Fetch place added_by and slug before update to send notification
     const { data: placeData } = await supabase
         .from('places')
-        .select('added_by, name')
+        .select('added_by, name, slug')
         .eq('id', placeId)
         .single();
 
@@ -119,7 +119,7 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
             title: title,
             message: message,
             type: 'SYSTEM',
-            link: status === 'approved' ? `/places/${placeId}` : '#'
+            link: status === 'approved' && placeData.slug ? `/places/${placeData.slug}` : '#'
         });
     }
 

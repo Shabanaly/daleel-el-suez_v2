@@ -99,7 +99,7 @@ export async function getUserActivities(userId: string, limit = 10) {
                         title: `قيمت المراجعة ${place?.name || 'مكان'} بـ ${review.rating} نجوم`,
                         description: review.comment || 'بدون تعليق',
                         date: review.created_at,
-                        link: `/places/${review.place_id}`,
+                        link: `/places/${place?.slug || review.place_id}`,
                         image: Array.isArray(place?.images) ? place.images[0] : null,
                         rating: review.rating,
                     };

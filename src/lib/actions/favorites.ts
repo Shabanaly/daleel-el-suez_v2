@@ -62,7 +62,7 @@ export async function toggleFavorite(itemId: string, itemType: 'place' | 'listin
             if (itemType === 'place') {
                  const { data: itemData } = await supabase
                     .from('places')
-                    .select('added_by, name') 
+                    .select('added_by, name, slug') 
                     .eq('id', itemId)
                     .single();
                     
@@ -73,7 +73,7 @@ export async function toggleFavorite(itemId: string, itemType: 'place' | 'listin
                         title: 'إضافة للمفضلة',
                         message: `قام أحد الأعضاء بإضافة "${itemData.name}" إلى مفضلته`,
                         type: 'SYSTEM',
-                        link: `/places/${itemId}`
+                        link: `/places/${itemData.slug || itemId}`
                      });
                  }
             }
