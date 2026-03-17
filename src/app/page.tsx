@@ -1,18 +1,19 @@
 import { getPlaces, getNewPlaces, getTrendingPlaces, getHomePageData } from '@/lib/actions/places';
 import { getHomeCategories } from '@/lib/actions/categories';
 import { getHomeDistricts } from '@/lib/actions/areas';
+import { getSuezStats } from '@/lib/actions/stats';
 import Hero from '@/components/home/Hero';
 import TrendingPlaces from '@/components/home/TrendingPlaces';
 import DistrictsExplorer from '@/components/home/DistrictsExplorer';
 import SuezStats from '@/components/home/SuezStats';
 import SuezGallery from '@/components/home/SuezGallery';
 import CommunityTeaser from '@/components/home/CommunityTeaser';
-import AppPromoSection from '@/components/home/AppPromoSection';
 import NewPlaces from '@/components/home/NewPlaces';
 import CategoryHighlight from '@/components/home/CategoryHighlight';
 import { getCommunityPosts } from '@/lib/actions/posts';
 import { createClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: "دليل السويس | Suez Guide - كل مكان في السويس في مكان واحد",
@@ -24,12 +25,13 @@ export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser();
 
   // 🧠 Fetch data using the centralized home page action (logic moved to server)
-  const [categories, districts, homeData, communityPosts, randomCategoryData] = await Promise.all([
+  const [categories, districts, homeData, communityPosts, randomCategoryData, suezStats] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
     getHomePageData(),
     getCommunityPosts(undefined, undefined, 1, 2, user?.id),
-    import('@/lib/actions/categories').then(m => m.getRandomCategoryHighlights())
+    import('@/lib/actions/categories').then(m => m.getRandomCategoryHighlights()),
+    getSuezStats()
   ]);
 
   const { trending, newPlaces } = homeData;
@@ -60,12 +62,15 @@ export default async function Home() {
           <p className="text-lg text-text-muted max-w-2xl mb-8 relative z-10">
             انضم لآلاف الأماكن والأنشطة التجارية في دليل السويس، واصل لعملاء أكثر في منطقتك. التسجيل مجاني وسهل!
           </p>
-          <button className="px-8 py-4 rounded-full bg-linear-to-r from-accent to-primary text-white font-bold text-lg shadow-accent/40 hover:shadow-accent/60 hover:scale-105 transition-all relative z-10">
+          <Link 
+            href="/places/add"
+            className="px-8 py-4 rounded-full bg-linear-to-r from-accent to-primary text-white font-bold text-lg shadow-accent/40 hover:shadow-accent/60 hover:scale-105 transition-all relative z-10"
+          >
             سجل نشاطك الآن
-          </button>
+          </Link>
         </div>
       </section>
-      <SuezStats />
+      <SuezStats stats={suezStats} />
     </div>
   );
 }

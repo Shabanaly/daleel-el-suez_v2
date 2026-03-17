@@ -15,7 +15,7 @@ async function basePlacesQuery(orderBy: string, ascending = false, limit = 20, o
         .from('places')
         .select(`
             *,
-            categories(name, icon),
+            categories(name, icon, slug),
             areas(name, districts(name)),
             reviews_count:reviews(count)
         `)
@@ -54,7 +54,7 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
             // Standard selection with relations
             const selectStr = `
                 *,
-                categories(name, icon),
+                categories(name, icon, slug),
                 areas(name, districts(name)),
                 reviews_count:reviews(count)
             `;
@@ -340,7 +340,7 @@ export async function getPlaceBySlug(slug: string) {
             const supabase = createServiceClient();
             const { data, error } = await supabase
                 .from('places')
-                .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`)
+                .select(`*, categories(name, icon, slug), areas(name, districts(name)), reviews_count:reviews(count)`)
                 .eq('slug', s)
                 .eq('status', 'approved')
                 .single();
@@ -363,7 +363,7 @@ export async function getRelatedPlaces(categoryId: number | undefined, excludeId
             const supabase = createServiceClient();
             let query = supabase
                 .from('places')
-                .select(`*, categories(name, icon), areas(name, districts(name)), reviews_count:reviews(count)`)
+                .select(`*, categories(name, icon, slug), areas(name, districts(name)), reviews_count:reviews(count)`)
                 .neq('id', eid)
                 .eq('status', 'approved')
                 .not('images', 'is', null)

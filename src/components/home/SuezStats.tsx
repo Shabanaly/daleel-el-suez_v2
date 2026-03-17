@@ -3,31 +3,41 @@
 import { motion } from 'framer-motion';
 import { Target, Users, Map, ShieldCheck } from 'lucide-react';
 
-const stats = [
-    {
-        id: 1,
-        label: 'أماكن موثقة',
-        value: '١٢٠٠+',
-        icon: <ShieldCheck className="w-6 h-6" />,
-        color: 'text-primary'
-    },
-    {
-        id: 2,
-        label: 'زائر شهرياً',
-        value: '٥٠ ألف',
-        icon: <Users className="w-6 h-6" />,
-        color: 'text-accent'
-    },
-    {
-        id: 3,
-        label: 'منطقة نغطيها',
-        value: '١٥+',
-        icon: <Map className="w-6 h-6" />,
-        color: 'text-primary'
+interface SuezStatsProps {
+    stats?: {
+        places: number;
+        areas: number;
+        reach: number;
     }
-];
+}
 
-export default function SuezStats() {
+export default function SuezStats({ stats: initialStats }: SuezStatsProps) {
+    const data = [
+        {
+            id: 1,
+            label: 'أماكن موثقة',
+            value: `${initialStats?.places || 1200}+`,
+            icon: <ShieldCheck className="w-6 h-6" />,
+            color: 'text-primary'
+        },
+        {
+            id: 2,
+            label: 'تفاعل ووصول',
+            value: initialStats?.reach 
+                ? (initialStats.reach > 1000 ? `${(initialStats.reach / 1000).toFixed(1)}k+` : initialStats.reach)
+                : '٥٠ ألف',
+            icon: <Users className="w-6 h-6" />,
+            color: 'text-accent'
+        },
+        {
+            id: 3,
+            label: 'منطقة نغطيها',
+            value: `${initialStats?.areas || 15}+`,
+            icon: <Map className="w-6 h-6" />,
+            color: 'text-primary'
+        }
+    ];
+
     return (
         <section className="w-full max-w-7xl mx-auto px-4 py-20 relative overflow-hidden">
             {/* Background glow lines */}
@@ -35,7 +45,7 @@ export default function SuezStats() {
             <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-border-subtle to-transparent" />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-                {stats.map((stat, idx) => (
+                {data.map((stat, idx) => (
                     <motion.div
                         key={stat.id}
                         initial={{ opacity: 0, y: 20 }}

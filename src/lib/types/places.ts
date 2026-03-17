@@ -4,6 +4,7 @@ export interface Place {
     name: string;
     category: string;
     categoryId?: number;
+    categorySlug?: string;
     rating: number;
     reviews: number;
     area: string;

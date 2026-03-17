@@ -70,7 +70,7 @@ export function PlaceDetailsClient({
             {/* ── Top Navigation Bar (Mobile Only) ────────────────────────── */}
             <header className="fixed top-0 w-full z-50 px-4 py-4 flex justify-between items-center bg-background/60 backdrop-blur-xl border-b border-border-subtle/50 md:hidden">
                 <Link
-                    href="/places"
+                    href={place.categorySlug ? `/categories/${place.categorySlug}` : "/places"}
                     className="w-10 h-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-text-primary hover:bg-elevated transition-colors"
                 >
                     <ArrowRight className="w-6 h-6" />
@@ -101,7 +101,13 @@ export function PlaceDetailsClient({
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
                     <Link href="/places" className="text-text-muted hover:text-primary transition-colors">أماكن</Link>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
-                    <span className="text-text-muted/50">{place.category}</span>
+                    {place.categorySlug ? (
+                        <Link href={`/categories/${place.categorySlug}`} className="text-text-muted hover:text-primary transition-colors">
+                            {place.category}
+                        </Link>
+                    ) : (
+                        <span className="text-text-muted/50">{place.category}</span>
+                    )}
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
                     <span className="text-primary">{place.name}</span>
                 </nav>

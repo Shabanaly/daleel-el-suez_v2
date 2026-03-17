@@ -96,7 +96,7 @@ export async function getCategoryDetails(id: string) {
                 .from('places')
                 .select(`
                     *,
-                    categories(name, icon),
+                    categories(name, icon, slug),
                     areas(name)
                 `)
                 .eq('category_id', categoryId)
@@ -143,7 +143,7 @@ export async function getCategoryHighlights(id: string) {
                 .from('places')
                 .select(`
                     *,
-                    categories(name, icon),
+                    categories(name, icon, slug),
                     areas(name, districts(name)),
                     reviews_count:reviews(count)
                 `)
@@ -274,7 +274,7 @@ export const getRandomCategoryHighlights = unstable_cache(
             .from('places')
             .select(`
                 *,
-                categories(name, icon),
+                categories(name, icon, slug),
                 areas(name, districts(name)),
                 reviews_count:reviews(count)
             `)
