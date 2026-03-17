@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image, { ImageProps } from 'next/image';
 
 interface SafeImageProps extends Omit<ImageProps, 'onError'> {
@@ -21,6 +21,11 @@ export function SafeImage({
 }: SafeImageProps) {
     const [hasError, setHasError] = useState(false);
 
+    // Reset error state if src changes (e.g., trying a fallback image)
+    useEffect(() => {
+        setHasError(false);
+    }, [src]);
+
     const handleError = () => {
         setHasError(true);
         if (onErrorAction) {
@@ -28,7 +33,11 @@ export function SafeImage({
         }
     };
 
-    if (hasError) {
+    // Only show fallback if we have an error AND there's no onErrorAction
+    // OR if the parent component decides it's the final fallback based on context.
+    // In our case, the parent changes the `src` when onErrorAction is called,
+    // which resets `hasError` to false via the useEffect above.
+    if (hasError && !onErrorAction) {
         return <>{fallback || null}</>;
     }
 
@@ -42,6 +51,8 @@ export function SafeImage({
             src={src}
             alt={alt}
             onError={handleError}
+            // Add a key based on src so React forces a remount/reload of the img tag when src changes
+            key={typeof src === 'string' ? src : 'img'} 
             {...props}
         />
     );

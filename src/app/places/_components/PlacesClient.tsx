@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import SearchAutocomplete from '@/components/common/SearchAutocomplete';
 import { Place } from '@/lib/types/places';
 import { usePlacesFilter } from '@/hooks/usePlacesFilter';
 import { PlaceCard } from './PlaceCard';
@@ -21,6 +23,7 @@ interface PlacesClientProps {
 }
 
 export function PlacesClient({ initialPlaces, totalCount, categories, areas, districts }: PlacesClientProps) {
+    const router = useRouter();
     // 🧠 Here we use our custom hook. All logic is encapsulated inside it!
     const {
         query, setQuery,
@@ -62,24 +65,18 @@ export function PlacesClient({ initialPlaces, totalCount, categories, areas, dis
                     {/* Search & Filter toggle row */}
                     <div className="flex gap-3 md:gap-4 items-center">
                         <div className="relative flex-1 group">
-                            <div className="absolute inset-0 bg-primary/10 dark:bg-primary/5 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
-                            <div className="relative h-14 md:h-16 flex items-center bg-surface/90 border-2 border-border-subtle rounded-2xl md:rounded-xl shadow-lg focus-within:border-primary/50 transition-all duration-300 overflow-hidden">
-                                <Search className="absolute right-5 w-5 h-5 md:w-6 md:h-6 text-text-muted group-focus-within:text-primary transition-colors pointer-events-none" />
-                                <input
-                                    type="text"
+                            <div className="absolute inset-0 bg-primary/10 dark:bg-primary/5 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 rounded-2xl" />
+                            <div className="relative self-stretch flex items-center bg-surface/90 border-2 border-border-subtle rounded-2xl md:rounded-xl shadow-lg focus-within:border-primary/50 transition-all duration-300 h-14 md:h-16">
+                                <SearchAutocomplete
                                     value={query}
-                                    onChange={e => setQuery(e.target.value)}
+                                    onChange={setQuery}
+                                    onSearch={(term) => {
+                                        setQuery(term);
+                                        router.push(`/places?q=${encodeURIComponent(term.trim())}`);
+                                    }}
                                     placeholder="ابحث عن مكان، نشاط، أو منطقة في السويس..."
-                                    className="w-full h-full bg-transparent border-none outline-none text-text-primary placeholder-text-muted/60 pr-14 md:pr-16 pl-6 text-base md:text-xl font-bold"
+                                    inputClassName="w-full h-full bg-transparent border-none outline-none text-text-primary flex items-center placeholder-text-muted/60 pr-6 md:pr-8 pl-6 text-base md:text-xl font-bold"
                                 />
-                                {query && (
-                                    <button
-                                        onClick={() => setQuery('')}
-                                        className="absolute left-4 w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-elevated transition-all"
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </button>
-                                )}
                             </div>
                         </div>
 

@@ -18,6 +18,14 @@ export function PlaceCard({ place, index = 0, className = "" }: PlaceCardProps) 
   const [isVisible, setIsVisible] = useState(true);
   const isOpen = place.openHours !== 'مغلق';
 
+  // Create a unique list of candidate images
+  const candidateImages = Array.from(new Set([
+    place.imageUrl,
+    ...(place.images || [])
+  ])).filter(Boolean);
+
+  const [imgIndex, setImgIndex] = useState(0);
+
   if (!isVisible) return null;
 
   return (
@@ -36,15 +44,19 @@ export function PlaceCard({ place, index = 0, className = "" }: PlaceCardProps) 
             {/* Image Container */}
             <div className="relative aspect-4/3 overflow-hidden bg-muted">
               {(() => {
-                // Create a unique list of candidate images
-                const candidateImages = Array.from(new Set([
-                  place.imageUrl,
-                  ...(place.images || [])
-                ])).filter(Boolean);
+                if (candidateImages.length === 0 || imgIndex >= candidateImages.length) {
+                  return (
+                    <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-primary/5 p-10">
+                      <img 
+                        src="/favicon-circular.ico" 
+                        alt="شعار دليل السويس البديل" 
+                        className="w-16 h-16 md:w-20 md:h-20 object-contain opacity-30 grayscale saturate-0 mix-blend-multiply" 
+                      />
+                    </div>
+                  );
+                }
 
-                const [imgIndex, setImgIndex] = useState(0);
-                const currentSrc = candidateImages[imgIndex] || '/favicon-circular.ico';
-                const isFinalFallback = imgIndex >= candidateImages.length;
+                const currentSrc = candidateImages[imgIndex];
 
                 return (
                   <SafeImage
@@ -52,24 +64,13 @@ export function PlaceCard({ place, index = 0, className = "" }: PlaceCardProps) 
                     alt={place.name}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className={`transition-transform duration-500 group-hover:scale-110 ${
-                      isFinalFallback ? 'object-contain p-12 bg-primary/5' : 'object-cover'
-                    }`}
+                    className="transition-transform duration-500 group-hover:scale-110 object-cover"
                     priority={index === 0}
                     onErrorAction={() => {
                         if (imgIndex < candidateImages.length) {
                             setImgIndex(prev => prev + 1);
                         }
                     }}
-                    fallback={
-                      <div className="w-full h-full flex items-center justify-center bg-primary/5 p-12">
-                        <img 
-                          src="/favicon-circular.ico" 
-                          alt="Fallback Logo" 
-                          className="w-full h-full object-contain opacity-20" 
-                        />
-                      </div>
-                    }
                   />
                 );
               })()}
