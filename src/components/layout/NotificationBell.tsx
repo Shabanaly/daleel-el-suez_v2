@@ -115,7 +115,11 @@ export const NotificationBell = () => {
 
   const markAsRead = async (id: string) => {
     // Optimistic UI update
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+    setNotifications(prev => {
+        const updated = prev.map(n => n.id === id ? { ...n, is_read: true } : n);
+        updateCache(updated); // Sync with localStorage
+        return updated;
+    });
     setUnreadCount(prev => Math.max(0, prev - 1));
 
     const { success } = await markNotificationAsReadAction(id);
@@ -129,7 +133,11 @@ export const NotificationBell = () => {
     if (!user) return;
     
     // Optimistic UI update
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    setNotifications(prev => {
+        const updated = prev.map(n => ({ ...n, is_read: true }));
+        updateCache(updated); // Sync with localStorage
+        return updated;
+    });
     setUnreadCount(0);
 
     const { success } = await markAllNotificationsAsReadAction();

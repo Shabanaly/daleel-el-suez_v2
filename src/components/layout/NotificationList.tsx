@@ -53,15 +53,8 @@ export const NotificationList = ({ notifications, onMarkAsRead, onClose }: Notif
 
   return (
     <div className="divide-y divide-border-subtle max-h-[400px] overflow-y-auto">
-      {notifications.map((notif) => (
-        <div 
-          key={notif.id}
-          className={`p-4 hover:bg-elevated transition-colors cursor-pointer group relative ${!notif.is_read ? 'bg-primary/5' : ''}`}
-          onClick={() => {
-            if (!notif.is_read) onMarkAsRead(notif.id);
-            if (notif.link) onClose();
-          }}
-        >
+      {notifications.map((notif) => {
+        const Content = (
           <div className="flex gap-3">
             <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${getNotificationBg(notif.title, notif.type)}`}>
               {getNotificationIcon(notif.title, notif.type)}
@@ -79,23 +72,44 @@ export const NotificationList = ({ notifications, onMarkAsRead, onClose }: Notif
               <p className="text-xs text-text-muted line-clamp-2 leading-relaxed">
                 {notif.message}
               </p>
-              
-              {notif.link && (
-                <Link 
-                  href={notif.link}
-                  className="mt-2 text-[10px] font-medium text-primary flex items-center gap-1 hover:underline"
-                >
-                  عرض التفاصيل <ExternalLink className="w-3 h-3" />
-                </Link>
-              )}
             </div>
 
             {!notif.is_read && (
               <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
             )}
           </div>
-        </div>
-      ))}
+        );
+
+        const commonClasses = `p-4 hover:bg-elevated transition-colors cursor-pointer group relative block ${!notif.is_read ? 'bg-primary/5' : ''}`;
+
+        if (notif.link) {
+          return (
+            <Link 
+              key={notif.id}
+              href={notif.link}
+              className={commonClasses}
+              onClick={() => {
+                if (!notif.is_read) onMarkAsRead(notif.id);
+                onClose();
+              }}
+            >
+              {Content}
+            </Link>
+          );
+        }
+
+        return (
+          <div 
+            key={notif.id}
+            className={commonClasses}
+            onClick={() => {
+              if (!notif.is_read) onMarkAsRead(notif.id);
+            }}
+          >
+            {Content}
+          </div>
+        );
+      })}
     </div>
   );
 };
