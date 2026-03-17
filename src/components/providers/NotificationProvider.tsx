@@ -25,32 +25,29 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const supabase = createClient();
 
   useEffect(() => {
-    if (!user || isRegistering.current || fcmToken) return;
+    if (!user || isRegistering.current) return;
 
     const setupNotifications = async () => {
       isRegistering.current = true;
 
       try {
-        // 1. Get FCM token from Firebase
         const newToken = await requestForToken();
-        if (!newToken) {
-          console.warn('[Notifications] Permission denied or token unavailable');
-          return;
-        }
+        if (!newToken) return;
 
         setFcmToken(newToken);
 
-        // 2. Compare with cached token in localStorage
         const cachedToken = localStorage.getItem(FCM_TOKEN_KEY);
+        const lastSync = localStorage.getItem('fcm_last_sync');
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
 
-        if (cachedToken === newToken) {
-          // Token unchanged → no need to hit Supabase
-          console.log('[Notifications] Token unchanged, skipping DB update');
+        // Only skip if token is same AND we synced recently (within 24 hours)
+        if (cachedToken === newToken && lastSync && (now - parseInt(lastSync) < oneDay)) {
+          console.log('[Notifications] Token fresh, skipping sync');
           return;
         }
 
-        // 3. Token is new or changed → save to Supabase
-        console.log('[Notifications] Token changed, updating Supabase...');
+        console.log('[Notifications] Syncing token with Supabase...');
         const { error } = await supabase
           .from('user_fcm_tokens')
           .upsert(
@@ -63,14 +60,13 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
             { onConflict: 'token' }
           );
 
-        if (error) {
-          console.error('[Notifications] Failed to save token:', error.message);
-          return;
+        if (!error) {
+          localStorage.setItem(FCM_TOKEN_KEY, newToken);
+          localStorage.setItem('fcm_last_sync', now.toString());
+          console.log('[Notifications] Token synced successfully');
+        } else {
+          console.error('[Notifications] Sync failed:', error.message);
         }
-
-        // 4. Only update localStorage after successful DB save
-        localStorage.setItem(FCM_TOKEN_KEY, newToken);
-        console.log('[Notifications] Token saved to DB and localStorage');
 
       } catch (err) {
         console.error('[Notifications] Setup error:', err);
@@ -84,7 +80,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
   // Listen for foreground messages
   useEffect(() => {
-    onMessageListener().then((payload: any) => {
+    const unsubscribe = onMessageListener((payload: any) => {
       setNotification(payload);
 
       // Show native notification even when app is in foreground
@@ -95,6 +91,10 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         });
       }
     });
+
+    return () => {
+        if (typeof unsubscribe === 'function') unsubscribe();
+    };
   }, []);
 
   return (

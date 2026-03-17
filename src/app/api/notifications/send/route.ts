@@ -47,14 +47,45 @@ export async function POST(req: Request) {
 
     const tokens = tokenData.map(t => t.token);
 
-    // 4. Send Message via Firebase
+    // 4. Send Message via Firebase with platform-specific configs
     const message = {
       notification: {
         title,
         body,
       },
       data: {
-        click_action: link || '/',
+        url: link || '/',
+      },
+      android: {
+        priority: 'high' as const,
+        notification: {
+          icon: 'stock_ticker_update',
+          color: '#0070f3',
+          sound: 'default',
+        },
+      },
+      webpush: {
+        headers: {
+          TTL: '86400', // 24 hours
+        },
+        notification: {
+          icon: '/favicon-circular.ico',
+          badge: '/favicon-circular.ico',
+          timestamp: Date.now(),
+          requireInteraction: true,
+          actions: [
+            {
+              action: 'view',
+              title: 'عرض التفاصيل',
+            },
+          ],
+          data: {
+            url: link || '/',
+          },
+        },
+        fcmOptions: {
+          link: link || '/',
+        },
       },
       tokens: tokens,
     };

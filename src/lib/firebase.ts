@@ -70,14 +70,14 @@ export const requestForToken = async (): Promise<string | null> => {
   }
 };
 
-export const onMessageListener = () =>
-  new Promise((resolve) => {
-    const messaging = getMessagingInstance();
-    if (!messaging) return;
-    onMessage(messaging, (payload) => {
-      console.log("Foreground message:", payload);
-      resolve(payload);
-    });
+export const onMessageListener = (callback: (payload: any) => void) => {
+  const messaging = getMessagingInstance();
+  if (!messaging) return;
+  
+  return onMessage(messaging, (payload) => {
+    console.log("Foreground message received:", payload);
+    callback(payload);
   });
+};
 
 export default app;
