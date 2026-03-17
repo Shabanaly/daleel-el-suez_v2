@@ -8,6 +8,8 @@ import { Notification } from '@/lib/types/notifications';
 import { NotificationList } from './NotificationList';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { getRecentNotificationsAction, markNotificationAsReadAction, markAllNotificationsAsReadAction } from '@/lib/actions/notifications';
+
 export const NotificationBell = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -16,28 +18,48 @@ export const NotificationBell = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
-  // Fetch initial notifications
+  // Fetch initial notifications with Smart Caching
   const fetchNotifications = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(20);
+    const cacheKey = `daleel_notifications_${user.id}`;
+    const cachedDataStr = localStorage.getItem(cacheKey);
+
+    if (cachedDataStr) {
+      try {
+        const { data: cachedNodes, timestamp } = JSON.parse(cachedDataStr);
+        // If cache is less than 15 minutes old, use it and skip DB hit
+        if (Date.now() - timestamp < 15 * 60 * 1000) {
+          setNotifications(cachedNodes);
+          setUnreadCount(cachedNodes.filter((n: Notification) => !n.is_read).length);
+          return;
+        }
+      } catch (e) {
+        console.error('Error parsing cached notifications', e);
+      }
+    }
+
+    // Call Server Action instead of direct DB query
+    const { data } = await getRecentNotificationsAction();
 
     if (data) {
-      setNotifications(data);
+      setNotifications(data as Notification[]);
       setUnreadCount(data.filter((n: Notification) => !n.is_read).length);
+      localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
     }
+  };
+
+  const updateCache = (newNotifications: Notification[]) => {
+      if (!user) return;
+      const cacheKey = `daleel_notifications_${user.id}`;
+      localStorage.setItem(cacheKey, JSON.stringify({ data: newNotifications, timestamp: Date.now() }));
   };
 
   useEffect(() => {
     if (user) {
       fetchNotifications();
 
-      // Subscribe to real-time notifications
+      // Subscribe to real-time notifications (Runs only on Client)
       const channel = supabase
         .channel(`user-notifications-${user.id}`)
         .on(
@@ -45,7 +67,11 @@ export const NotificationBell = () => {
           { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
           (payload: { new: Notification }) => {
             const newNotif = payload.new as Notification;
-            setNotifications(prev => [newNotif, ...prev.slice(0, 19)]);
+            setNotifications(prev => {
+                const updated = [newNotif, ...prev.slice(0, 19)];
+                updateCache(updated);
+                return updated;
+            });
             setUnreadCount(prev => prev + 1);
           }
         )
@@ -54,7 +80,11 @@ export const NotificationBell = () => {
           { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
           (payload: { new: Notification }) => {
             const updatedNotif = payload.new as Notification;
-            setNotifications(prev => prev.map(n => n.id === updatedNotif.id ? updatedNotif : n));
+            setNotifications(prev => {
+                const updated = prev.map(n => n.id === updatedNotif.id ? updatedNotif : n);
+                updateCache(updated);
+                return updated;
+            });
             // Recalculate unread count
             setUnreadCount(prev => {
                 const oldNotif = notifications.find(n => n.id === updatedNotif.id);
@@ -84,28 +114,28 @@ export const NotificationBell = () => {
   }, []);
 
   const markAsRead = async (id: string) => {
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('id', id);
+    // Optimistic UI update
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+    setUnreadCount(prev => Math.max(0, prev - 1));
 
-    if (!error) {
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
-      setUnreadCount(prev => Math.max(0, prev - 1));
+    const { success } = await markNotificationAsReadAction(id);
+    if (!success) {
+      // Revert on failure
+      fetchNotifications();
     }
   };
 
   const markAllAsRead = async () => {
     if (!user) return;
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('user_id', user.id)
-      .eq('is_read', false);
+    
+    // Optimistic UI update
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    setUnreadCount(0);
 
-    if (!error) {
-      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-      setUnreadCount(0);
+    const { success } = await markAllNotificationsAsReadAction();
+    if (!success) {
+      // Revert on failure
+      fetchNotifications();
     }
   };
 

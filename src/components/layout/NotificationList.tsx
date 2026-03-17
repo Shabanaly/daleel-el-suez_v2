@@ -4,7 +4,7 @@ import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Notification } from '@/lib/types/notifications';
-import { Bell, Check, ExternalLink } from 'lucide-react';
+import { Bell, Check, ExternalLink, Heart, MessageCircle, Star, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface NotificationListProps {
@@ -12,6 +12,31 @@ interface NotificationListProps {
   onMarkAsRead: (id: string) => void;
   onClose: () => void;
 }
+
+const getNotificationIcon = (title: string, type: string) => {
+  if (title.includes('إعجاب')) return <Heart className="w-5 h-5 text-red-500 fill-red-500" />;
+  if (title.includes('تعليق')) return <MessageCircle className="w-5 h-5 text-blue-500" />;
+  if (title.includes('للمفضلة')) return <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />;
+  if (title.includes('قبول')) return <CheckCircle className="w-5 h-5 text-green-500" />;
+  if (title.includes('رفض')) return <XCircle className="w-5 h-5 text-red-500" />;
+  
+  // Fallbacks based on type
+  if (type === 'MARKET') return <Bell className="w-5 h-5 text-orange-600" />;
+  if (type === 'COMMUNITY') return <Bell className="w-5 h-5 text-blue-600" />;
+  return <Bell className="w-5 h-5 text-primary" />;
+};
+
+const getNotificationBg = (title: string, type: string) => {
+  if (title.includes('إعجاب')) return 'bg-red-50';
+  if (title.includes('تعليق')) return 'bg-blue-50';
+  if (title.includes('للمفضلة')) return 'bg-yellow-50';
+  if (title.includes('قبول')) return 'bg-green-50';
+  if (title.includes('رفض')) return 'bg-red-50';
+  
+  if (type === 'MARKET') return 'bg-orange-100';
+  if (type === 'COMMUNITY') return 'bg-blue-100';
+  return 'bg-primary/10';
+};
 
 export const NotificationList = ({ notifications, onMarkAsRead, onClose }: NotificationListProps) => {
   if (notifications.length === 0) {
@@ -38,12 +63,8 @@ export const NotificationList = ({ notifications, onMarkAsRead, onClose }: Notif
           }}
         >
           <div className="flex gap-3">
-            <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${
-              notif.type === 'MARKET' ? 'bg-orange-100 text-orange-600' :
-              notif.type === 'COMMUNITY' ? 'bg-blue-100 text-blue-600' :
-              'bg-primary/10 text-primary'
-            }`}>
-              <Bell className="w-5 h-5" />
+            <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${getNotificationBg(notif.title, notif.type)}`}>
+              {getNotificationIcon(notif.title, notif.type)}
             </div>
             
             <div className="flex-1 min-w-0">
