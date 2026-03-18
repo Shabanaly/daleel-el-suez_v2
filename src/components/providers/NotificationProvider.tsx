@@ -25,9 +25,16 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const supabase = createClient();
 
   useEffect(() => {
-    if (!user || isRegistering.current) return;
+    // We still want to avoid double-registration
+    if (isRegistering.current) return;
 
     const setupNotifications = async () => {
+      // Small delay for guest/new users before asking for permission to avoid prompt fatigue
+      // If user is logged in, we can be more proactive
+      if (!user) {
+        await new Promise(resolve => setTimeout(resolve, 15000)); // 15s delay for guests
+      }
+
       isRegistering.current = true;
 
       try {
@@ -41,18 +48,22 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         const now = Date.now();
         const oneDay = 24 * 60 * 60 * 1000;
 
-        // Only skip if token is same AND we synced recently (within 24 hours)
+        // Skip if same and synced recently
         if (cachedToken === newToken && lastSync && (now - parseInt(lastSync) < oneDay)) {
-          console.log('[Notifications] Token fresh, skipping sync');
-          return;
+          // Extra check: if user just logged in, we might need to update the user_id on the server
+          const lastUserId = localStorage.getItem('fcm_user_id');
+          if (lastUserId === (user?.id || 'guest')) {
+             console.log('[Notifications] Token and User fresh, skipping sync');
+             return;
+          }
         }
 
-        console.log('[Notifications] Syncing token with Supabase...');
+        console.log('[Notifications] Syncing token with Supabase (User:', user?.id || 'Guest', ')');
         const { error } = await supabase
           .from('user_fcm_tokens')
           .upsert(
             {
-              user_id: user.id,
+              user_id: user?.id || null, // Can be null for guests
               token: newToken,
               device_type: 'web',
               updated_at: new Date().toISOString(),
@@ -63,6 +74,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         if (!error) {
           localStorage.setItem(FCM_TOKEN_KEY, newToken);
           localStorage.setItem('fcm_last_sync', now.toString());
+          localStorage.setItem('fcm_user_id', user?.id || 'guest');
           console.log('[Notifications] Token synced successfully');
         } else {
           console.error('[Notifications] Sync failed:', error.message);

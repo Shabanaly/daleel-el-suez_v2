@@ -33,14 +33,17 @@ export async function POST(req: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // 3. Get user tokens
-    const { data: tokenData, error: tokenError } = await supabaseAdmin
-      .from('user_fcm_tokens')
-      .select('token')
-      .eq('user_id', userId);
+    // 3. Get tokens (Specific user or Broadcast to 'all')
+    let query = supabaseAdmin.from('user_fcm_tokens').select('token');
+    
+    if (userId !== 'all') {
+      query = query.eq('user_id', userId);
+    }
+
+    const { data: tokenData, error: tokenError } = await query;
 
     if (tokenError || !tokenData || tokenData.length === 0) {
-        console.log('No tokens found for user:', userId);
+        console.log('No tokens found for target:', userId);
         return NextResponse.json({ success: true, message: 'No tokens found' });
     }
 
