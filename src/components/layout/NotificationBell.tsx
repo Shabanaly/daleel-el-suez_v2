@@ -16,6 +16,7 @@ export const NotificationBell = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const subscriptionRef = useRef<string | null>(null);
   const supabase = createClient();
 
   // Fetch initial notifications with Smart Caching
@@ -57,6 +58,9 @@ export const NotificationBell = () => {
 
   useEffect(() => {
     if (user) {
+      if (subscriptionRef.current === user.id) return; // Prevent duplicate subs for same user
+      subscriptionRef.current = user.id;
+
       console.log(`[NotificationBell] Initializing Realtime for user: ${user.id}`);
       fetchNotifications();
       
@@ -65,39 +69,48 @@ export const NotificationBell = () => {
         .channel(`user-notifications-${user.id}`)
         .on(
           'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+          { event: 'INSERT', schema: 'public', table: 'notifications' }, // Remove filter for robustness
           (payload: { new: Notification }) => {
-            console.log('[NotificationBell] NEW real-time notification received:', payload.new);
-            const newNotif = payload.new as Notification;
-            setNotifications(prev => {
-                const updated = [newNotif, ...prev.slice(0, 19)];
-                updateCache(updated);
-                return updated;
-            });
-            setUnreadCount(prev => prev + 1);
+            // Filter manually in JS to avoid CHANNEL_ERROR from complex server-side filter parsing
+            if (payload.new && payload.new.user_id === user.id) {
+                console.log('[NotificationBell] NEW real-time notification received:', payload.new);
+                const newNotif = payload.new as Notification;
+                setNotifications(prev => {
+                    const updated = [newNotif, ...prev.slice(0, 19)];
+                    updateCache(updated);
+                    return updated;
+                });
+                setUnreadCount(prev => prev + 1);
+            }
           }
         )
         .on(
           'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+          { event: 'UPDATE', schema: 'public', table: 'notifications' }, // Remove filter
           (payload: { new: Notification }) => {
-            console.log('[NotificationBell] UPDATE real-time notification received:', payload.new);
-            const updatedNotif = payload.new as Notification;
-            
-            setNotifications(prev => {
-                const updated = prev.map(n => n.id === updatedNotif.id ? updatedNotif : n);
-                updateCache(updated);
+             // Filter manually in JS
+            if (payload.new && payload.new.user_id === user.id) {
+                console.log('[NotificationBell] UPDATE real-time notification received:', payload.new);
+                const updatedNotif = payload.new as Notification;
                 
-                // Recalculate unread count based on the FRESH state
-                const newUnreadCount = updated.filter(n => !n.is_read).length;
-                setUnreadCount(newUnreadCount);
-                
-                return updated;
-            });
+                setNotifications(prev => {
+                    const updated = prev.map(n => n.id === updatedNotif.id ? updatedNotif : n);
+                    updateCache(updated);
+                    
+                    // Recalculate unread count based on the FRESH state
+                    const newUnreadCount = updated.filter(n => !n.is_read).length;
+                    setUnreadCount(newUnreadCount);
+                    
+                    return updated;
+                });
+            }
           }
         )
-        .subscribe((status: any) => {
+        .subscribe((status: any, err: any) => {
           console.log(`[NotificationBell] Realtime status: ${status}`);
+          if (err) {
+            console.error('[NotificationBell] Realtime subscription error:', err);
+          }
           // Update status for the UI debug indicator
           if (status === 'SUBSCRIBED') {
              (window as any)._rt_status = 'connected';
@@ -106,6 +119,7 @@ export const NotificationBell = () => {
 
       return () => {
         console.log('[NotificationBell] Cleaning up Realtime channel');
+        subscriptionRef.current = null;
         supabase.removeChannel(channel);
       };
     }
