@@ -18,7 +18,7 @@ const NotificationContext = createContext<NotificationContextType>({
 });
 
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [fcmToken, setFcmToken] = useState<string | null>(null);
   const [notification, setNotification] = useState<any>(null);
   const isRegistering = useRef(false);
@@ -29,8 +29,10 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     if (isRegistering.current) return;
 
     const setupNotifications = async () => {
-      // Small delay for guest/new users before asking for permission to avoid prompt fatigue
-      // If user is logged in, we can be more proactive
+      // 1. Wait until Auth is definitely finished loading (either we have a user or confirmed guest)
+      if (authLoading) return;
+
+      // 2. Small delay for guest/new users before asking for permission to avoid prompt fatigue
       if (!user) {
         await new Promise(resolve => setTimeout(resolve, 15000)); // 15s delay for guests
       }
@@ -88,7 +90,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     };
 
     setupNotifications();
-  }, [user?.id]);
+  }, [user?.id, authLoading]);
 
   // Listen for foreground messages
   useEffect(() => {
@@ -100,8 +102,9 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         const n = new Notification(payload.notification.title, {
           body: payload.notification.body,
           icon: '/favicon-circular.ico',
+          badge: '/favicon-circular.ico', // Better for mobile/PWA
           data: {
-            url: payload.data?.url || '/'
+            url: payload.data?.url || payload.fcmOptions?.link || '/'
           }
         });
 
@@ -109,7 +112,10 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         n.onclick = (e) => {
           e.preventDefault();
           window.focus();
-          window.location.href = (e.target as any).data?.url || '/';
+          const targetUrl = (e.target as any).data?.url || '/';
+          if (window.location.pathname !== targetUrl) {
+            window.location.href = targetUrl;
+          }
           n.close();
         };
       }

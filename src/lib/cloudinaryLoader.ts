@@ -27,6 +27,10 @@ export default function cloudinaryLoader({ src, width, quality }: { src: string,
 
     // Google User Profile optimization (common for auth)
     if (src.includes('lh3.googleusercontent.com') || src.includes('googleusercontent.com')) {
+        // Special case: Google Maps images (often starting with /p/) can return 403 if resized this way
+        if (src.includes('/p/')) {
+            return src;
+        }
         const baseUrl = src.split('=')[0];
         return `${baseUrl}=s${width}-c`;
     }
