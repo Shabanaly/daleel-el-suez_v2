@@ -58,7 +58,7 @@ export default function PWAInstallPrompt() {
       const showWithDelay = () => {
         const timer = setTimeout(() => {
           setIsVisible(true);
-        }, 10000); // 10s delay after everything is clear
+        }, 3000); // 3s delay after everything is clear
         return timer;
       };
 

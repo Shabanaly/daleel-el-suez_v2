@@ -58,7 +58,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
           }
         }
 
-        console.log('[Notifications] Syncing token with Supabase (User:', user?.id || 'Guest', ')');
+        console.log(`[Notifications] Syncing token with Supabase (${user?.id ? 'User: ' + user.id : 'Guest'})`);
         const { error } = await supabase
           .from('user_fcm_tokens')
           .upsert(
