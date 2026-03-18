@@ -34,7 +34,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
       // 2. Small delay for guest/new users before asking for permission to avoid prompt fatigue
       if (!user) {
-        await new Promise(resolve => setTimeout(resolve, 15000)); // 15s delay for guests
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Reduced to 2s for better testing experience
       }
 
       isRegistering.current = true;
@@ -81,6 +81,8 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         } else {
           console.error('[Notifications] Sync failed:', error.message);
         }
+
+        console.log('[Notifications] Setup complete');
 
       } catch (err) {
         console.error('[Notifications] Setup error:', err);
