@@ -14,20 +14,32 @@ firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
 
+// Handle background messages
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
+  console.log('[SW] Received background message:', payload);
   
+  // Extract data with fallbacks
   const notificationTitle = payload.notification?.title || payload.data?.title || 'تنبيه جديد';
+  const notificationBody = payload.notification?.body || payload.data?.body || '';
+  
+  // Prioritize link from multiple possible sources (FCM v1 standard)
+  const clickAction = payload.fcmOptions?.link || 
+                      payload.data?.url || 
+                      payload.data?.click_action || 
+                      '/';
+
   const notificationOptions = {
-    body: payload.notification?.body || payload.data?.body || '',
+    body: notificationBody,
     icon: '/favicon-circular.ico',
     badge: '/favicon-circular.ico',
+    tag: payload.data?.tag || 'default-tag', // Prevents notification flooding
+    renotify: true,
     data: {
-      url: payload.data?.url || payload.fcmOptions?.link || '/'
+      url: clickAction
     }
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
 // Handle notification click to open the link
@@ -50,4 +62,9 @@ self.addEventListener('notificationclick', (event) => {
       }
     })
   );
+});
+
+// Skip waiting to activate the new SW immediately
+self.addEventListener('install', () => {
+    self.skipWaiting();
 });

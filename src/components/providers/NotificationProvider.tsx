@@ -41,8 +41,12 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
       try {
         const newToken = await requestForToken();
-        if (!newToken) return;
+        if (!newToken) {
+            console.warn('[Notifications] No token received from requestForToken');
+            return;
+        }
 
+        console.log('[Notifications] Token retrieved:', newToken.substring(0, 10) + '...');
         setFcmToken(newToken);
 
         const cachedToken = localStorage.getItem(FCM_TOKEN_KEY);
@@ -96,7 +100,9 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
   // Listen for foreground messages
   useEffect(() => {
+    console.log('[Notifications] Initializing foreground message listener');
     const unsubscribe = onMessageListener((payload: any) => {
+      console.log('[Notifications] Foreground message event triggered:', payload);
       setNotification(payload);
 
       // Show native notification even when app is in foreground
