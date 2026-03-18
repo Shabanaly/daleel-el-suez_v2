@@ -97,10 +97,21 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
       // Show native notification even when app is in foreground
       if (Notification.permission === 'granted' && payload.notification) {
-        new Notification(payload.notification.title, {
+        const n = new Notification(payload.notification.title, {
           body: payload.notification.body,
           icon: '/favicon-circular.ico',
+          data: {
+            url: payload.data?.url || '/'
+          }
         });
+
+        // Handle click in foreground
+        n.onclick = (e) => {
+          e.preventDefault();
+          window.focus();
+          window.location.href = (e.target as any).data?.url || '/';
+          n.close();
+        };
       }
     });
 

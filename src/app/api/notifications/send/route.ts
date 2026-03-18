@@ -70,25 +70,17 @@ export async function POST(req: Request) {
       webpush: {
         headers: {
           TTL: '86400', // 24 hours
+          Urgency: 'high', // For immediate delivery on mobile browsers
         },
         notification: {
-          // Use Absolute URLs for reliability outside the app
           icon: `${baseUrl}/favicon-circular.ico`,
           badge: `${baseUrl}/favicon-circular.ico`,
           timestamp: Date.now(),
           requireInteraction: true,
-          actions: [
-            {
-              action: 'view',
-              title: 'عرض التفاصيل',
-            },
-          ],
-          data: {
-            url: link || '/',
-          },
+          // data and other actions can be here
         },
         fcmOptions: {
-          link: link || '/',
+          link: link || '/', // Standard way to open URL on click
         },
       },
       tokens: tokens,
