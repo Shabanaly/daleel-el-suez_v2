@@ -65,6 +65,12 @@ export default function Footer() {
                                     عن السويس
                                 </Link>
                             </li>
+                            <li>
+                                <a href="https://tools.daleel-al-suez.com" target="_blank" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
+                                الأدوات
+                                </a>
+                            </li>
+                            
                         </ul>
                     </div>
 
