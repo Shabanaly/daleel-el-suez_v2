@@ -24,9 +24,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!userId || !title || !body) {
-      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
+    if (!title || !body) {
+      return NextResponse.json({ error: 'Missing title/body' }, { status: 400 });
     }
+    // Allow userId to be undefined for general broadcasts if we implement them, 
+    // but here we expect it for targeted messaging. 
+    // If it's explicitly null/undefined, we treat it as guest search if applicable.
 
     // 2. Initialize Supabase Admin
     const supabaseAdmin = createClient(
@@ -49,11 +52,15 @@ export async function POST(req: Request) {
     }
 
     if (!tokenData || tokenData.length === 0) {
-        console.log(`[PushAPI] No tokens found in 'user_fcm_tokens' for target: ${userId}`);
+        console.log(`[PushAPI] No tokens found in 'user_fcm_tokens' for target: ${userId || 'GUEST'}`);
         return NextResponse.json({ success: true, message: 'No tokens found' });
     }
 
     const tokens = tokenData.map(t => t.token);
+    console.log(`[PushAPI] Found ${tokens.length} tokens for userId: ${userId || 'GUEST'}`);
+    if (tokens.length > 0) {
+        console.log(`[PushAPI] First token starts with: ${tokens[0].substring(0, 10)}...`);
+    }
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://daleel-al-suez.com';
 
     // 4. Build the Notification Payload

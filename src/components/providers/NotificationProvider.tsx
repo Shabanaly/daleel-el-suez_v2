@@ -21,6 +21,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const { user, isLoading: authLoading } = useAuth();
   const [fcmToken, setFcmToken] = useState<string | null>(null);
   const [notification, setNotification] = useState<any>(null);
+  const [showToast, setShowToast] = useState(false);
   const isRegistering = useRef(false);
   const supabase = createClient();
 
@@ -54,16 +55,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         const now = Date.now();
         const oneDay = 24 * 60 * 60 * 1000;
 
-        // Skip if same and synced recently
-        if (cachedToken === newToken && lastSync && (now - parseInt(lastSync) < oneDay)) {
-          // Extra check: if user just logged in, we might need to update the user_id on the server
-          const lastUserId = localStorage.getItem('fcm_user_id');
-          if (lastUserId === (user?.id || 'guest')) {
-             console.log('[Notifications] Token and User fresh, skipping sync');
-             return;
-          }
-        }
-
+        // DEBUG: Force sync every time for now to ensure DB is up to date during testing
         console.log(`[Notifications] Syncing token with Supabase (${user?.id ? 'User: ' + user.id : 'Guest'})`);
         const { error } = await supabase
           .from('user_fcm_tokens')
@@ -104,6 +96,8 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     const unsubscribe = onMessageListener((payload: any) => {
       console.log('[Notifications] Foreground message event triggered:', payload);
       setNotification(payload);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 6000);
 
       // Show native notification even when app is in foreground
       if (Notification.permission === 'granted' && payload.notification) {
@@ -137,6 +131,22 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   return (
     <NotificationContext.Provider value={{ fcmToken, notification }}>
       {children}
+      
+      {/* Real-time Visual Toast for Debugging */}
+      {showToast && notification && (
+        <div className="fixed top-24 right-4 z-9999 bg-surface border-2 border-primary shadow-2xl p-4 rounded-2xl max-w-sm animate-in fade-in slide-in-from-top-4 duration-300" dir="rtl">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+              <span className="text-primary text-xl">🔔</span>
+            </div>
+            <div className="flex-1">
+              <h4 className="font-bold text-text-primary text-sm">{notification.notification?.title || 'تنبيه جديد'}</h4>
+              <p className="text-text-muted text-xs mt-1">{notification.notification?.body}</p>
+            </div>
+            <button onClick={() => setShowToast(false)} className="text-text-muted hover:text-text-primary">✕</button>
+          </div>
+        </div>
+      )}
     </NotificationContext.Provider>
   );
 };

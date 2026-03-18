@@ -57,8 +57,9 @@ export const NotificationBell = () => {
 
   useEffect(() => {
     if (user) {
+      console.log(`[NotificationBell] Initializing Realtime for user: ${user.id}`);
       fetchNotifications();
-
+      
       // Subscribe to real-time notifications (Runs only on Client)
       const channel = supabase
         .channel(`user-notifications-${user.id}`)
@@ -66,6 +67,7 @@ export const NotificationBell = () => {
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
           (payload: { new: Notification }) => {
+            console.log('[NotificationBell] NEW real-time notification received:', payload.new);
             const newNotif = payload.new as Notification;
             setNotifications(prev => {
                 const updated = [newNotif, ...prev.slice(0, 19)];
@@ -79,6 +81,7 @@ export const NotificationBell = () => {
           'postgres_changes',
           { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
           (payload: { new: Notification }) => {
+            console.log('[NotificationBell] UPDATE real-time notification received:', payload.new);
             const updatedNotif = payload.new as Notification;
             setNotifications(prev => {
                 const updated = prev.map(n => n.id === updatedNotif.id ? updatedNotif : n);
@@ -94,9 +97,12 @@ export const NotificationBell = () => {
             });
           }
         )
-        .subscribe();
+        .subscribe((status: any) => {
+          console.log(`[NotificationBell] Realtime status: ${status}`);
+        });
 
       return () => {
+        console.log('[NotificationBell] Cleaning up Realtime channel');
         supabase.removeChannel(channel);
       };
     }
