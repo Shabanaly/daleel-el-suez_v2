@@ -64,45 +64,37 @@ export const NotificationBell = () => {
       console.log(`[NotificationBell] Initializing Realtime for user: ${user.id}`);
       fetchNotifications();
       
-      // Subscribe to real-time notifications (Runs only on Client)
+      // Subscribe to real-time notifications with a unique channel name to avoid protocol mismatches
       const channel = supabase
-        .channel(`user-notifications-${user.id}`)
+        .channel(`notifs-${user.id}-${Math.floor(Math.random() * 10000)}`)
         .on(
           'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'notifications' }, // Remove filter for robustness
-          (payload: { new: Notification }) => {
-            // Filter manually in JS to avoid CHANNEL_ERROR from complex server-side filter parsing
+          { event: '*', schema: 'public', table: 'notifications' }, 
+          (payload: any) => {
             if (payload.new && payload.new.user_id === user.id) {
-                console.log('[NotificationBell] NEW real-time notification received:', payload.new);
-                const newNotif = payload.new as Notification;
-                setNotifications(prev => {
-                    const updated = [newNotif, ...prev.slice(0, 19)];
-                    updateCache(updated);
-                    return updated;
-                });
-                setUnreadCount(prev => prev + 1);
-            }
-          }
-        )
-        .on(
-          'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'notifications' }, // Remove filter
-          (payload: { new: Notification }) => {
-             // Filter manually in JS
-            if (payload.new && payload.new.user_id === user.id) {
-                console.log('[NotificationBell] UPDATE real-time notification received:', payload.new);
-                const updatedNotif = payload.new as Notification;
+                console.log(`[NotificationBell] Real-time ${payload.eventType} event received:`, payload.new);
                 
-                setNotifications(prev => {
-                    const updated = prev.map(n => n.id === updatedNotif.id ? updatedNotif : n);
-                    updateCache(updated);
-                    
-                    // Recalculate unread count based on the FRESH state
-                    const newUnreadCount = updated.filter(n => !n.is_read).length;
-                    setUnreadCount(newUnreadCount);
-                    
-                    return updated;
-                });
+                if (payload.eventType === 'INSERT') {
+                    const newNotif = payload.new as Notification;
+                    setNotifications(prev => {
+                        const updated = [newNotif, ...prev.slice(0, 19)];
+                        updateCache(updated);
+                        return updated;
+                    });
+                    setUnreadCount(prev => prev + 1);
+                } else if (payload.eventType === 'UPDATE') {
+                    const updatedNotif = payload.new as Notification;
+                    setNotifications(prev => {
+                        const updated = prev.map(n => n.id === updatedNotif.id ? updatedNotif : n);
+                        updateCache(updated);
+                        
+                        // Recalculate unread count based on the FRESH state
+                        const newUnreadCount = updated.filter(n => !n.is_read).length;
+                        setUnreadCount(newUnreadCount);
+                        
+                        return updated;
+                    });
+                }
             }
           }
         )
