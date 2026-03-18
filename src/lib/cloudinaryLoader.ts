@@ -29,7 +29,8 @@ export default function cloudinaryLoader({ src, width, quality }: { src: string,
     if (src.includes('lh3.googleusercontent.com') || src.includes('googleusercontent.com')) {
         // Special case: Google Maps images (often starting with /p/) can return 403 if resized this way
         if (src.includes('/p/')) {
-            return src;
+            // Append dummy width parameter to satisfy Next.js loader requirement without breaking the URL
+            return src.includes('?') ? `${src}&w=${width}` : `${src}?w=${width}`;
         }
         const baseUrl = src.split('=')[0];
         return `${baseUrl}=s${width}-c`;

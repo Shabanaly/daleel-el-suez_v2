@@ -4,6 +4,7 @@ export type NotificationType = 'SYSTEM' | 'COMMUNITY' | 'MARKET' | 'DIRECTORY';
 
 export interface CreateNotificationParams {
   userId: string;
+  actorId?: string; // Track who triggered the notification
   title: string;
   message: string;
   type: NotificationType;
@@ -12,18 +13,27 @@ export interface CreateNotificationParams {
 
 /**
  * Creates a notification in the database.
- * The Supabase webhook will automatically trigger the push notification API.
+ * The Supabase trigger 'on_notification_created' will handle the push notification.
  */
 export async function createNotification(params: CreateNotificationParams) {
   try {
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+    if (!serviceKey || !supabaseUrl) {
+        console.error('[NotificationService] CRITICAL: Missing Supabase Service Role Key or URL in .env.local');
+        return { success: false, error: 'Missing environment configuration' };
+    }
+
     const supabase = createServiceClient();
     
-    // Explicitly using the service client to bypass RLS for inserting notifications
-    // as the actor (current user) is usually different from the recipient (userId)
+    console.log(`[NotificationService] Attempting to save notification to DB for user: ${params.userId}`);
+
     const { data, error } = await supabase
       .from('notifications')
       .insert({
         user_id: params.userId,
+        actor_id: params.actorId || null,
         title: params.title,
         message: params.message,
         type: params.type,
@@ -34,13 +44,16 @@ export async function createNotification(params: CreateNotificationParams) {
       .single();
 
     if (error) {
-      console.error('[NotificationService] Failed to create notification:', error);
+      console.error('[NotificationService] Supabase Insert Error:', error.message);
+      console.error('[NotificationService] Details:', error.details, error.hint);
+      // If the error is related to the trigger, it often shows up in 'hint' or 'details'
       return { success: false, error };
     }
 
+    console.log('[NotificationService] Notification saved successfully:', data.id);
     return { success: true, notification: data };
   } catch (err) {
-    console.error('[NotificationService] Unexpected error:', err);
+    console.error('[NotificationService] Unexpected exception:', err);
     return { success: false, error: err };
   }
 }

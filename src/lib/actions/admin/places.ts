@@ -114,13 +114,20 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
             : `لم تتم الموافقة على نشر "${placeData.name}". يرجى مراجعة الشروط.`;
             
         const { createNotification } = await import('@/lib/services/notifications');
-        await createNotification({
+        const { data: { user } } = await supabase.auth.getUser(); // Get current admin/actor
+
+        const notificationResult = await createNotification({
             userId: placeData.added_by,
+            actorId: user?.id,
             title: title,
             message: message,
             type: 'SYSTEM',
             link: status === 'approved' && placeData.slug ? `/places/${placeData.slug}` : '#'
         });
+
+        if (!notificationResult.success) {
+            console.error('[AdminAction] Failed to create notification for status update:', notificationResult.error);
+        }
     }
 
     // Revalidate custom cache path

@@ -18,7 +18,8 @@ export async function POST(req: Request) {
     const { userId, title, body, link, secret } = await req.json();
 
     // 1. Security & Validation check
-    if (secret !== process.env.API_SECRET) {
+    if (!secret || secret !== process.env.API_SECRET) {
+      console.warn(`[PushAPI] Unauthorized request! ${secret ? 'Secret mismatch' : 'Missing secret'}`);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -42,8 +43,13 @@ export async function POST(req: Request) {
 
     const { data: tokenData, error: tokenError } = await query;
 
-    if (tokenError || !tokenData || tokenData.length === 0) {
-        console.log('No tokens found for target:', userId);
+    if (tokenError) {
+        console.error('[PushAPI] Supabase token query error:', tokenError.message);
+        return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
+
+    if (!tokenData || tokenData.length === 0) {
+        console.log(`[PushAPI] No tokens found in 'user_fcm_tokens' for target: ${userId}`);
         return NextResponse.json({ success: true, message: 'No tokens found' });
     }
 
