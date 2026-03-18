@@ -83,22 +83,25 @@ export const NotificationBell = () => {
           (payload: { new: Notification }) => {
             console.log('[NotificationBell] UPDATE real-time notification received:', payload.new);
             const updatedNotif = payload.new as Notification;
+            
             setNotifications(prev => {
                 const updated = prev.map(n => n.id === updatedNotif.id ? updatedNotif : n);
                 updateCache(updated);
+                
+                // Recalculate unread count based on the FRESH state
+                const newUnreadCount = updated.filter(n => !n.is_read).length;
+                setUnreadCount(newUnreadCount);
+                
                 return updated;
-            });
-            // Recalculate unread count
-            setUnreadCount(prev => {
-                const oldNotif = notifications.find(n => n.id === updatedNotif.id);
-                if (oldNotif && !oldNotif.is_read && updatedNotif.is_read) return Math.max(0, prev - 1);
-                if (oldNotif && oldNotif.is_read && !updatedNotif.is_read) return prev + 1;
-                return prev;
             });
           }
         )
         .subscribe((status: any) => {
           console.log(`[NotificationBell] Realtime status: ${status}`);
+          // Update status for the UI debug indicator
+          if (status === 'SUBSCRIBED') {
+             (window as any)._rt_status = 'connected';
+          }
         });
 
       return () => {
