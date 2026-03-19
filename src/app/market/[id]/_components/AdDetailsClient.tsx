@@ -56,7 +56,7 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
             {/* ── Top Navigation Bar (Mobile Only) ────────────────────────── */}
             <header className="fixed top-0 w-full z-50 px-4 py-4 flex justify-between items-center bg-background/60 backdrop-blur-xl border-b border-border-subtle/50 md:hidden">
                 <Link
-                    href={`/market?category=${ad.category_id}`}
+                    href={`/market?category=${encodeURIComponent(ad.category_slug || 'all')}`}
                     className="w-10 h-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-text-primary hover:bg-elevated transition-colors"
                 >
                     <ArrowRight className="w-6 h-6" />
@@ -84,7 +84,7 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                 <nav className="hidden md:flex items-center gap-2 mb-10 text-sm font-bold whitespace-nowrap overflow-hidden">
                     <Link href="/market" className="text-text-muted hover:text-primary transition-colors">السوق</Link>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 shrink-0" />
-                    <Link href={`/market?category=${ad.category_id}`} className="text-text-muted hover:text-primary transition-colors">
+                    <Link href={`/market?category=${encodeURIComponent(ad.category_slug || 'all')}`} className="text-text-muted hover:text-primary transition-colors">
                         {ad.category_name || 'قسم آخر'}
                     </Link>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 shrink-0" />

@@ -2,15 +2,18 @@ import { MetadataRoute } from 'next';
 import { getAllPlacesForSitemap } from '@/lib/actions/places';
 import { getAllCategories } from '@/lib/actions/categories';
 import { getAllPosts } from '@/lib/actions/posts';
+import { getMarketCategories, getMarketAdsForSitemap } from '@/lib/actions/market';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
 
     // Fetch all paths in parallel
-    const [places, categories, posts] = await Promise.all([
+    const [places, categories, posts, marketCategories, marketAds] = await Promise.all([
         getAllPlacesForSitemap(),
         getAllCategories(),
         getAllPosts(),
+        getMarketCategories(),
+        getMarketAdsForSitemap(),
     ]);
 
     const postUrls = posts.map((post) => ({
@@ -31,6 +34,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${baseUrl}/categories/${encodeURIComponent(category.slug)}`,
         lastModified: new Date(),
         changeFrequency: 'monthly' as const,
+        priority: 0.6,
+    }));
+
+    // Market URLs
+    const marketCategoryUrls = marketCategories.map((category) => ({
+        url: `${baseUrl}/market/category/${encodeURIComponent(category.slug)}`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+    }));
+
+    const marketAdUrls = marketAds.map((ad) => ({
+        url: `${baseUrl}/market/${ad.id}`,
+        lastModified: new Date(ad.created_at),
+        changeFrequency: 'weekly' as const,
         priority: 0.6,
     }));
 
@@ -62,8 +80,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         {
             url: `${baseUrl}/market`,
             lastModified: new Date(),
-            changeFrequency: 'weekly' as const,
-            priority: 0.7,
+            changeFrequency: 'daily' as const,
+            priority: 0.8,
         },
         {
             url: `${baseUrl}/about`,
@@ -91,5 +109,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
     ];
 
-    return [...staticUrls, ...placeUrls, ...categoryUrls, ...postUrls];
+    return [
+        ...staticUrls, 
+        ...placeUrls, 
+        ...categoryUrls, 
+        ...postUrls,
+        ...marketCategoryUrls,
+        ...marketAdUrls
+    ];
 }

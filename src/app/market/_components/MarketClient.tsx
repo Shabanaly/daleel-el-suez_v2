@@ -9,24 +9,50 @@ import AdCard from "@/components/market/cards/AdCard";
 import { getMarketAds } from "@/lib/actions/market";
 
 import DynamicIcon from "@/components/common/DynamicIcon";
+import SearchAutocomplete, { Suggestion } from "@/components/common/SearchAutocomplete";
 
 import { createClient } from "@/lib/supabase/client";
 import AuthRequiredModal from "@/components/auth/AuthRequiredModal";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export function MarketClient({ initialCategories = [] }: { initialCategories: MarketCategory[] }) {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("all");
-    const [ads, setAds] = useState<MarketAd[]>([]);
-    const [totalAds, setTotalAds] = useState(0);
-    const [loading, setLoading] = useState(true);
+interface MarketClientProps {
+    initialCategories: MarketCategory[];
+    initialAds: MarketAd[];
+    initialTotal: number;
+    initialQuery?: string;
+    initialCategory?: string;
+}
+
+export function MarketClient({ 
+    initialCategories = [],
+    initialAds = [],
+    initialTotal = 0,
+    initialQuery = "",
+    initialCategory = "all"
+}: MarketClientProps) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    
+    const [searchQuery, setSearchQuery] = useState(initialQuery);
+    const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+    const [ads, setAds] = useState<MarketAd[]>(initialAds);
+    const [totalAds, setTotalAds] = useState(initialTotal);
+    const [loading, setLoading] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [isFirstMount, setIsFirstMount] = useState(true);
 
     const categories = [
         { id: 'all', name: 'الكل', slug: 'all', icon: 'LayoutGrid', adCount: 0 },
         ...initialCategories
     ];
 
+    // Sync State with URL logic
     useEffect(() => {
+        if (isFirstMount) {
+            setIsFirstMount(false);
+            return;
+        }
+
         const fetchAds = async () => {
             setLoading(true);
             try {
@@ -38,11 +64,18 @@ export function MarketClient({ initialCategories = [] }: { initialCategories: Ma
             } finally {
                 setLoading(false);
             }
+
+            // Update URL
+            const params = new URLSearchParams(searchParams.toString());
+            if (searchQuery) params.set('q', searchQuery); else params.delete('q');
+            if (selectedCategory && selectedCategory !== 'all') params.set('category', selectedCategory); else params.delete('category');
+            
+            router.replace(`/market?${params.toString()}`, { scroll: false });
         };
 
-        const timer = setTimeout(fetchAds, searchQuery ? 500 : 0);
+        const timer = setTimeout(fetchAds, searchQuery ? 400 : 0);
         return () => clearTimeout(timer);
-    }, [selectedCategory, searchQuery]);
+    }, [selectedCategory, searchQuery, router, searchParams, isFirstMount]);
 
     const handleCreateAdClick = async (e: React.MouseEvent) => {
         const supabase = createClient();
@@ -51,6 +84,18 @@ export function MarketClient({ initialCategories = [] }: { initialCategories: Ma
         if (!user) {
             e.preventDefault();
             setIsAuthModalOpen(true);
+        }
+    };
+
+    const handleSuggestionSelect = (s: Suggestion) => {
+        // If it looks like a category (has slug but not UUID-like id)
+        // Or we can check if it exists in initialCategories
+        const isCategory = initialCategories.find(c => c.slug === s.slug);
+        if (isCategory) {
+            router.push(`/market/category/${encodeURIComponent(s.slug)}`);
+        } else {
+            // It's likely a product ID
+            router.push(`/market/${s.slug}`);
         }
     };
 
@@ -72,15 +117,16 @@ export function MarketClient({ initialCategories = [] }: { initialCategories: Ma
                         <h1 className="text-lg font-black text-text-primary hidden md:block">سوق السويس</h1>
                    </div>
 
-                   <div className="flex-1 max-w-2xl relative group">
-                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-primary transition-colors" />
-                        <input 
-                            type="text"
-                            placeholder="بتدور على إيه النهاردة؟"
+                   <div className="flex-1 max-w-2xl relative group h-10">
+                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-primary transition-colors z-10 pointer-events-none" />
+                        <SearchAutocomplete
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full h-10 pr-10 pl-4 bg-surface border border-border-subtle rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                            dir="rtl"
+                            onChange={setSearchQuery}
+                            onSearch={setSearchQuery}
+                            onSuggestionSelect={handleSuggestionSelect}
+                            apiEndpoint="/api/autocomplete?type=market"
+                            placeholder="بتدور على إيه النهاردة؟"
+                            inputClassName="w-full h-10 pr-10 pl-4 bg-surface border border-border-subtle rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                         />
                    </div>
 
@@ -145,7 +191,7 @@ export function MarketClient({ initialCategories = [] }: { initialCategories: Ma
                             return (
                                 <Link
                                     key={cat.id}
-                                    href={`/market/category/${cat.slug}`}
+                                    href={`/market/category/${encodeURIComponent(cat.slug)}`}
                                     className={`flex flex-col items-center gap-2 min-w-[70px] shrink-0 transition-all ${
                                         isActive ? 'text-primary scale-105' : 'text-text-muted hover:text-text-secondary'
                                     }`}

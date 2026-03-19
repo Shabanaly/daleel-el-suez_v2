@@ -2,33 +2,40 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingBag, Plus, MapPin, ChevronLeft, X } from 'lucide-react';
+import { Search, ShoppingBag, Plus, MapPin, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MarketAd, MarketCategory } from '@/lib/types/market';
 import AdCard from '@/components/market/cards/AdCard';
 import { getMarketAds } from '@/lib/actions/market';
 import DynamicIcon from '@/components/common/DynamicIcon';
+import SearchAutocomplete, { Suggestion } from '@/components/common/SearchAutocomplete';
 import { createClient } from '@/lib/supabase/client';
 import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface CategoryClientProps {
     category: MarketCategory;
     allCategories: MarketCategory[]; // Kept for prop consistency if needed elsewhere, but not used for slider
     initialAds: MarketAd[];
     initialTotal: number;
+    initialQuery?: string;
 }
 
 export function CategoryClient({
     category,
     initialAds,
     initialTotal,
+    initialQuery = '',
 }: CategoryClientProps) {
-    const [searchQuery, setSearchQuery] = useState('');
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [searchQuery, setSearchQuery] = useState(initialQuery);
     const [ads, setAds] = useState<MarketAd[]>(initialAds);
     const [total, setTotal] = useState(initialTotal);
     const [loading, setLoading] = useState(false);
     const [conditionFilter, setConditionFilter] = useState<string>('all');
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [isFirstMount, setIsFirstMount] = useState(true);
 
     const fetchAds = useCallback(async (query: string) => {
         setLoading(true);
@@ -41,12 +48,21 @@ export function CategoryClient({
         } finally {
             setLoading(false);
         }
-    }, [category.slug]);
+
+        // Update URL
+        const params = new URLSearchParams(searchParams.toString());
+        if (query) params.set('q', query); else params.delete('q');
+        router.replace(`/market/category/${category.slug}?${params.toString()}`, { scroll: false });
+    }, [category.slug, router, searchParams]);
 
     useEffect(() => {
+        if (isFirstMount) {
+            setIsFirstMount(false);
+            return;
+        }
         const timer = setTimeout(() => fetchAds(searchQuery), searchQuery ? 400 : 0);
         return () => clearTimeout(timer);
-    }, [searchQuery, fetchAds]);
+    }, [searchQuery, fetchAds, isFirstMount]);
 
     const filteredAds = conditionFilter === 'all'
         ? ads
@@ -58,6 +74,34 @@ export function CategoryClient({
         if (!user) {
             e.preventDefault();
             setIsAuthModalOpen(true);
+        }
+    };
+
+    const handleSuggestionSelect = (s: Suggestion) => {
+        // If it's a category and it's NOT the current one, navigate
+        if (s.slug === category.slug) {
+            setSearchQuery(s.name);
+            return;
+        }
+
+        // Logic to determine if it's a category or product
+        // (Similar to MarketClient)
+        // For simplicity, we can just navigate to whatever it is
+        // But if it's a category, the URL is different
+        // In the API, we return slug for both. 
+        // We might need to adjust the API to include 'type' in results
+        
+        // Let's assume if it has a specific icon or if we can find it in 'allCategories'
+        // But CategoryClient doesn't have 'allCategories' used anymore.
+        // Actually, let's just use the name as searchQuery if we are unsure,
+        // or just navigate to the ad if it's a UUID.
+        
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s.slug);
+        if (isUuid) {
+            router.push(`/market/${s.slug}`);
+        } else {
+            // Likely a category
+            router.push(`/market/category/${encodeURIComponent(s.slug)}`);
         }
     };
 
@@ -112,24 +156,17 @@ export function CategoryClient({
 
                 {/* ─── Search & Filters ─── */}
                 <div className="flex flex-col md:flex-row items-center gap-6 mb-10">
-                    <div className="w-full md:flex-1 relative group">
-                        <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted group-focus-within:text-primary transition-colors" />
-                        <input
-                            type="text"
-                            placeholder={`بحث في ${category.name}...`}
+                    <div className="w-full md:flex-1 relative group h-14">
+                        <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted group-focus-within:text-primary transition-colors z-10 pointer-events-none" />
+                        <SearchAutocomplete
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full h-14 pr-12 pl-4 bg-surface border border-border-subtle rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                            dir="rtl"
+                            onChange={setSearchQuery}
+                            onSearch={setSearchQuery}
+                            onSuggestionSelect={handleSuggestionSelect}
+                            apiEndpoint="/api/autocomplete?type=market"
+                            placeholder={`بحث في ${category.name}...`}
+                            inputClassName="w-full h-14 pr-12 pl-4 bg-surface border border-border-subtle rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                         />
-                        {searchQuery && (
-                            <button
-                                onClick={() => setSearchQuery('')}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        )}
                     </div>
 
                     <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide w-full md:w-auto">

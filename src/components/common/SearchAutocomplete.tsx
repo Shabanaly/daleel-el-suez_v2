@@ -10,7 +10,7 @@ import { useDebounce } from '@/lib/hooks/useDebounce';
 const HISTORY_KEY = 'daleel_search_history';
 const MAX_HISTORY = 5;
 
-interface Suggestion {
+export interface Suggestion {
     name: string;
     slug: string;
     icon: string;
@@ -177,7 +177,8 @@ export default function SearchAutocomplete({
         }
         let cancelled = false;
         setLoading(true);
-        fetch(`${apiEndpoint}?q=${encodeURIComponent(debouncedValue)}`)
+        const separator = apiEndpoint.includes('?') ? '&' : '?';
+        fetch(`${apiEndpoint}${separator}q=${encodeURIComponent(debouncedValue)}`)
             .then((r) => r.json())
             .then((data) => {
                 if (!cancelled) {

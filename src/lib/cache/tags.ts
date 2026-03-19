@@ -11,6 +11,7 @@ export const CACHE_TAGS = {
     favorites: 'favorites',
     community: 'community',
     reviews: 'reviews',
+    market: 'market',
 } as const;
 
 /**
@@ -26,6 +27,12 @@ export const tags = {
     placesByCategory: (category: string) => `${CACHE_TAGS.places}-cat:${category}`,
     placesByArea: (areaId: number | string) => `${CACHE_TAGS.places}-area:${areaId}`,
     placesPage: (page: number) => `${CACHE_TAGS.places}-page:${page}`,
+
+    // Market (Marketplace)
+    allAds: () => CACHE_TAGS.market,
+    ad: (id: string) => `${CACHE_TAGS.market}-id:${id}`,
+    adsByCategory: (slug: string) => `${CACHE_TAGS.market}-cat:${slug}`,
+    marketCategories: () => `${CACHE_TAGS.market}-categories`,
 
     // User specific
     userFavorites: (userId: string) => `user-${userId}-${CACHE_TAGS.favorites}`,

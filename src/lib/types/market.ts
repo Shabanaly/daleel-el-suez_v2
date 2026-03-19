@@ -11,6 +11,7 @@ export interface MarketAd {
     images: string[];
     category_id: string; // UUID
     category_name?: string;
+    category_slug?: string;
     area_id?: number;
     area_name?: string;
     seller_id: string; // auth.users UUID

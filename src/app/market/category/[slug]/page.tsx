@@ -5,6 +5,7 @@ import { CategoryClient } from './_components/CategoryClient';
 
 interface Props {
     params: Promise<{ slug: string }>;
+    searchParams: Promise<{ q?: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -17,13 +18,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params, searchParams }: Props) {
     const { slug } = await params;
+    const { q } = await searchParams;
 
     const [category, allCategories, adsResult] = await Promise.all([
         getMarketCategoryBySlug(slug),
         getMarketCategories(),
-        getMarketAds(1, slug),
+        getMarketAds(1, slug, q),
     ]);
 
     if (!category) notFound();
@@ -34,6 +36,7 @@ export default async function CategoryPage({ params }: Props) {
             allCategories={allCategories}
             initialAds={adsResult.ads}
             initialTotal={adsResult.total}
+            initialQuery={q}
         />
     );
 }

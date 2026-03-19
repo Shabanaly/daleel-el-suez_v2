@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Category } from "../types/category";
 import { Place } from "../types/places";
 import { MarketAd, MarketCategory } from "../types/market";
@@ -99,7 +100,8 @@ export function mapMarketAd(p: any): MarketAd {
         condition: p.condition as any,
         images: Array.isArray(p.images) ? p.images : [],
         category_id: String(p.category_id),
-        category_name: p.categories?.name,
+        category_name: Array.isArray(p.categories) ? p.categories[0]?.name : p.categories?.name,
+        category_slug: Array.isArray(p.categories) ? p.categories[0]?.slug : p.categories?.slug,
         seller_id: p.seller_id,
         seller_name: p.profiles?.full_name || 'صاحب الإعلان',
         seller_phone: p.contact_phone || '',

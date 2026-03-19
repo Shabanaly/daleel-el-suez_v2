@@ -5,6 +5,7 @@ import { createServiceClient } from "../supabase/client-service";
 import { createClient } from "../supabase/server";
 import { mapMarketAd, mapMarketCategory } from "../utils/mappers";
 import { MarketAd } from "../types/market";
+import { tags } from "@/lib/cache";
 
 // ── Categories ──────────────────────────────────────────────────────
 
@@ -34,7 +35,7 @@ async function getMarketCategoriesInternal() {
 export const getMarketCategories = unstable_cache(
     getMarketCategoriesInternal,
     ['market-categories'],
-    { tags: ['market-categories', 'categories'], revalidate: 3600 }
+    { tags: [tags.marketCategories(), 'categories'], revalidate: 7200 }
 );
 
 export async function getMarketCategoryBySlug(slug: string) {
@@ -77,19 +78,9 @@ export async function getMarketAds(
                 .eq('status', 'active');
 
             if (cid && cid !== 'all') {
-                // First get the category ID from the slug
-                const { data: catData } = await supabase
-                    .from('categories')
-                    .select('id')
-                    .eq('slug', cid)
-                    .eq('type', 'market')
-                    .maybeSingle();
-                
-                if (catData) {
-                    query = query.eq('category_id', catData.id);
-                } else {
-                    return { ads: [], total: 0 };
-                }
+                // First get the category ID from the slug (or use slug directly if joined)
+                // In listings, category_id is a foreign key. We can join categories to filter by slug.
+                query = query.filter('categories.slug', 'eq', cid);
             }
 
             if (q && q.trim()) {
@@ -100,7 +91,6 @@ export async function getMarketAds(
                 .order('created_at', { ascending: false })
                 .range(offset, offset + limit - 1);
 
-            console.log(`getMarketAds query returned ${data?.length || 0} ads. Total count: ${count}`);
             if (error) {
                 console.error('getMarketAds DB error:', error);
                 return { ads: [], total: 0 };
@@ -113,8 +103,11 @@ export async function getMarketAds(
         },
         [`market-ads-p${page}-cat${categoryId}-q${search}`],
         { 
-            tags: ['market-ads'], 
-            revalidate: 1 
+            tags: [
+                tags.allAds(),
+                ...(categoryId && categoryId !== 'all' ? [tags.adsByCategory(categoryId)] : [])
+            ], 
+            revalidate: 7200 
         }
     )(page, categoryId, search);
 }
@@ -140,7 +133,7 @@ export async function getMarketAdById(id: string) {
             return mapMarketAd(data);
         },
         [`market-ad-${id}`],
-        { tags: [`market-ad-${id}`, 'market-ads'], revalidate: 3600 }
+        { tags: [tags.ad(id), tags.allAds()], revalidate: 7200 }
     )(id);
 }
 
@@ -197,7 +190,7 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
             status: 'active',
             public_ids: adData.images 
         })
-        .select()
+        .select(`*, categories(slug)`)
         .single();
 
     if (error) {
@@ -205,9 +198,13 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
         return { success: false, error: error.message };
     }
 
-    revalidateTag('market-ads', 'page');
-    if (adData.category_id) {
-        revalidateTag(`market-cat-${adData.category_id}`, 'page');
+    // Revalidate relevant tags
+    revalidateTag(tags.allAds(), 'max');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const categories: any = (data as any).categories;
+    const catSlug = Array.isArray(categories) ? categories[0]?.slug : categories?.slug;
+    if (catSlug) {
+        revalidateTag(tags.adsByCategory(catSlug), 'max');
     }
 
     return { success: true, data: data };
@@ -224,7 +221,7 @@ export async function deleteMarketAd(id: string) {
     // Check ownership first
     const { data: ad } = await serviceSupabase
         .from('listings')
-        .select('seller_id, images')
+        .select('seller_id, images, categories(slug)')
         .eq('id', id)
         .single();
 
@@ -239,10 +236,36 @@ export async function deleteMarketAd(id: string) {
 
     if (error) return { success: false, error: error.message };
 
-    revalidateTag('market-ads', 'page');
-    revalidateTag(`market-ad-${id}`, 'page');
+    // Revalidate relevant tags
+    revalidateTag(tags.allAds(), 'max');
+    revalidateTag(tags.ad(id), 'max');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const categories: any = (ad as any).categories;
+    const catSlug = Array.isArray(categories) ? categories[0]?.slug : categories?.slug;
+    if (catSlug) {
+        revalidateTag(tags.adsByCategory(catSlug), 'max');
+    }
 
     return { success: true };
+}
+
+
+// ── Sitemap ─────────────────────────────────────────────────────────
+
+export async function getMarketAdsForSitemap() {
+    const supabase = createServiceClient();
+    const { data, error } = await supabase
+        .from('listings')
+        .select('id, created_at')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('getMarketAdsForSitemap error:', error);
+        return [];
+    }
+
+    return data || [];
 }
 
 
