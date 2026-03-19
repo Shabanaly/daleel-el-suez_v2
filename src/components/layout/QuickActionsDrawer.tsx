@@ -102,6 +102,20 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                         onClick={(e) => handleProtectedAction(e, '/favorites')}
                                     />
                                     <ActionItem
+                                        href="/market/create"
+                                        icon={<Plus className="w-6 h-6" />}
+                                        label="أضف إعلان"
+                                        color="bg-primary"
+                                        onClick={(e) => handleProtectedAction(e, '/market/create')}
+                                    />
+                                    <ActionItem
+                                        href="/market"
+                                        icon={<Store className="w-6 h-6" />}
+                                        label="سوق السويس"
+                                        color="bg-primary"
+                                        onClick={onClose}
+                                    />
+                                    <ActionItem
                                         href="/community"
                                         icon={<Users className="w-6 h-6" />}
                                         label="المجتمع"

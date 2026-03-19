@@ -23,7 +23,10 @@ export async function GET(req: NextRequest) {
         .order('likes_count', { ascending: false })
         .limit(6);
 
-    if (error || !data) return NextResponse.json([]);
+    if (error || !data) {
+        console.error("Community autocomplete error:", error);
+        return NextResponse.json([]);
+    }
 
     // استخرج جمل مختصرة من المحتوى كاقتراحات
     const suggestions = data.map((p: any) => {

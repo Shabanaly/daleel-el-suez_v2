@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as LucideIcons from 'lucide-react';
-import { Search, Clock, X, TrendingUp } from 'lucide-react';
+import { Search, Clock, X, TrendingUp, ArrowRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { useDebounce } from '@/lib/hooks/useDebounce';
@@ -23,6 +23,7 @@ interface SearchAutocompleteProps {
     placeholder?: string;
     inputClassName?: string;
     apiEndpoint?: string;
+    onSuggestionSelect?: (suggestion: Suggestion) => void;
 }
 
 const IconRenderer = ({ iconName, className }: { iconName: string, className?: string }) => {
@@ -69,6 +70,7 @@ export default function SearchAutocomplete({
     placeholder = 'ابحث...',
     inputClassName = '',
     apiEndpoint = '/api/autocomplete',
+    onSuggestionSelect,
 }: SearchAutocompleteProps) {
     const [open, setOpen] = useState(false);
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -77,6 +79,43 @@ export default function SearchAutocomplete({
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
     const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768);
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Mobile overlay hash management (intercept back button)
+    useEffect(() => {
+        if (!isMobile) return;
+        
+        const handleHashChange = () => {
+            if (window.location.hash !== '#search' && open) {
+                setOpen(false);
+                onChange('');
+            }
+        };
+
+        if (open) {
+            if (window.location.hash !== '#search') {
+                window.history.pushState(null, '', window.location.pathname + window.location.search + '#search');
+            }
+            window.addEventListener('hashchange', handleHashChange);
+            document.body.style.overflow = 'hidden';
+        } else {
+            if (window.location.hash === '#search') {
+                window.history.back();
+            }
+            document.body.style.overflow = '';
+        }
+
+        return () => {
+            window.removeEventListener('hashchange', handleHashChange);
+            document.body.style.overflow = '';
+        };
+    }, [open, isMobile]);
 
     const debouncedValue = useDebounce(value, 300);
 
@@ -106,7 +145,7 @@ export default function SearchAutocomplete({
         };
     }, []);
 
-    const isOpen = (open && !value.trim() && history.length > 0) || (open && value.trim().length > 0 && (suggestions.length > 0 || loading));
+    const isOpen = isMobile ? open : ((open && !value.trim() && history.length > 0) || (open && value.trim().length > 0));
 
     /* position update for portal */
     const updateDropdownPosition = useCallback(() => {
@@ -154,14 +193,26 @@ export default function SearchAutocomplete({
 
     /* when user picks an item */
     const handleSelect = useCallback(
-        (term: string) => {
-            onChange(term);
-            saveToHistory(term);
-            setHistory(getHistory());
-            setOpen(false);
-            onSearch(term);
+        (item: string | Suggestion) => {
+            if (typeof item === 'string') {
+                onChange(item);
+                saveToHistory(item);
+                setHistory(getHistory());
+                setOpen(false);
+                onSearch(item);
+            } else {
+                saveToHistory(item.name);
+                setHistory(getHistory());
+                setOpen(false);
+                if (onSuggestionSelect) {
+                    onSuggestionSelect(item);
+                } else {
+                    onChange(item.name);
+                    onSearch(item.name);
+                }
+            }
         },
-        [onChange, onSearch]
+        [onChange, onSearch, onSuggestionSelect]
     );
 
     /* keyboard: Enter */
@@ -182,7 +233,7 @@ export default function SearchAutocomplete({
     };
 
     const showHistory = open && !value.trim() && history.length > 0;
-    const showSuggestions = open && value.trim().length > 0 && (suggestions.length > 0 || loading);
+    const showSuggestions = open && value.trim().length > 0;
 
     const dropdownContent = (
         <AnimatePresence>
@@ -193,17 +244,47 @@ export default function SearchAutocomplete({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.98 }}
                     transition={{ duration: 0.18, ease: 'easeOut' }}
-                    style={{
+                    style={isMobile ? {
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 999999
+                    } : {
                         position: 'fixed',
                         top: dropdownRect.bottom + 8,
-                        left: isMobile ? 16 : dropdownRect.left,
-                        width: isMobile ? 'calc(100vw - 32px)' : dropdownRect.width,
+                        left: dropdownRect.left,
+                        width: dropdownRect.width,
                         zIndex: 999999
                     }}
-                    className="bg-surface border border-border-subtle rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 overflow-y-auto max-h-[60vh]"
+                    className={isMobile 
+                        ? "bg-background flex flex-col" 
+                        : "bg-surface border border-border-subtle rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 overflow-y-auto max-h-[60vh]"
+                    }
                     dir="rtl"
                 >
-                    {/* ── History Section ── */}
+                    {isMobile && (
+                        <div className="flex items-center gap-3 p-3 border-b border-border-subtle bg-surface shadow-sm shrink-0">
+                            <button onClick={() => { setOpen(false); onChange(''); }} className="p-2 -mr-2 text-text-muted hover:bg-elevated rounded-full transition-colors">
+                                <ArrowRight className="w-5 h-5" />
+                            </button>
+                            <input
+                                autoFocus
+                                type="text"
+                                value={value}
+                                onChange={(e) => onChange(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder={placeholder}
+                                className="flex-1 bg-transparent border-none outline-none text-base font-bold text-text-primary h-10"
+                            />
+                            {value && (
+                                <button onClick={() => onChange('')} className="p-1.5 text-text-muted hover:bg-elevated rounded-full transition-colors">
+                                   <X className="w-4 h-4" />
+                                </button>
+                            )}
+                        </div>
+                    )}
+                    
+                    <div className={isMobile ? "flex-1 overflow-y-auto pt-2" : ""}>
+                        {/* ── History Section ── */}
                     {showHistory && (
                         <div>
                             <div className="flex items-center gap-2 px-4 pt-3 pb-2">
@@ -223,7 +304,7 @@ export default function SearchAutocomplete({
                                             <span
                                                 role="button"
                                                 onClick={(e) => handleRemoveHistory(term, e)}
-                                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-border-subtle text-text-muted"
+                                                className={`p-1 rounded-md hover:bg-border-subtle text-text-muted transition-opacity ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                                             >
                                                 <X className="w-3.5 h-3.5" />
                                             </span>
@@ -247,13 +328,13 @@ export default function SearchAutocomplete({
                                     <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                                     <span className="text-sm text-text-muted">جاري البحث...</span>
                                 </div>
-                            ) : (
+                            ) : suggestions.length > 0 ? (
                                 <ul>
                                     {suggestions.map((s) => (
                                         <li key={s.slug}>
                                             <button
                                                 type="button"
-                                                onClick={() => handleSelect(s.name)}
+                                                onClick={() => handleSelect(s)}
                                                 className="w-full flex items-center gap-3 px-4 py-2.5 text-right hover:bg-elevated transition-colors"
                                             >
                                                 <span className="flex shrink-0 w-6 items-center justify-center text-text-secondary">
@@ -265,9 +346,22 @@ export default function SearchAutocomplete({
                                         </li>
                                     ))}
                                 </ul>
+                            ) : (
+                                <div className="px-4 py-6 text-center">
+                                    <span className="text-sm font-bold text-text-muted">لا توجد نتائج مطابقة لبحثك</span>
+                                </div>
                             )}
                         </div>
                     )}
+                    
+                    {isMobile && !showHistory && !showSuggestions && (
+                        <div className="flex flex-col items-center justify-center h-40 mt-10 text-text-muted/50">
+                            <Search className="w-12 h-12 mb-4 opacity-30" />
+                            <span className="text-sm font-bold">عن إيه بتبحث النهاردة؟</span>
+                        </div>
+                    )}
+
+                    </div>
 
                     {/* bottom padding */}
                     <div className="h-2" />

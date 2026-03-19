@@ -165,3 +165,67 @@ export async function getFavoritePlaces(userId: string) {
         { tags: [`user-${userId}-favorites`], revalidate: false }
     )(userId);
 }
+export async function getFavoriteAds(userId: string) {
+    return unstable_cache(
+        async (uid: string) => {
+            const supabase = createServiceClient();
+
+            // 1. Fetch favorite records for listings (market ads)
+            const { data: favorites, error: favError } = await supabase
+                .from('favorites')
+                .select('item_id')
+                .eq('user_id', uid)
+                .eq('item_type', 'listing');
+
+            if (favError || !favorites || favorites.length === 0) {
+                if (favError) console.error('Error fetching favorite ads list:', favError);
+                return [];
+            }
+
+            const adIds = favorites.map(f => f.item_id);
+
+            // 2. Fetch full ad details
+            const { data: ads, error: adsError } = await supabase
+                .from('listings')
+                .select(`
+                    *,
+                    categories (name, icon),
+                    areas (name)
+                `)
+                .eq('status', 'active')
+                .in('id', adIds);
+
+            if (adsError) {
+                console.error('Error fetching favorite ads details:', adsError);
+                return [];
+            }
+
+            // Map to MarketAd type
+            return (ads || []).map(ad => ({
+                id: ad.id,
+                title: ad.title,
+                description: ad.description,
+                price: ad.price,
+                currency: 'ج.م',
+                images: ad.images,
+                category_id: ad.category_id,
+                category_name: ad.categories?.name,
+                location: ad.areas?.name,
+                area_id: ad.area_id,
+                area_name: ad.areas?.name,
+                condition: ad.condition,
+                status: ad.status,
+                phone: ad.phone,
+                whatsapp: ad.whatsapp,
+                user_id: ad.user_id,
+                seller_id: ad.seller_id,
+                seller_name: ad.seller_name,
+                seller_phone: ad.seller_phone,
+                views_count: ad.views_count || 0,
+                created_at: ad.created_at
+            }));
+        },
+        [`user-${userId}-favorite-ads`],
+        { tags: [`user-${userId}-favorites`], revalidate: false }
+    )(userId);
+}

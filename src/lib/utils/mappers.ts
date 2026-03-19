@@ -1,5 +1,6 @@
 import { Category } from "../types/category";
 import { Place } from "../types/places";
+import { MarketAd, MarketCategory } from "../types/market";
 
 export function mapPlace(p: any): Place {
     // Robustly handle working_hours (can be JSON object, stringified JSON, or legacy string)
@@ -85,5 +86,37 @@ export function mapCategory(c: any): Category {
         icon: c.icon || '📍',
         count: `${c.places?.[0]?.count || 0}+ مكان`,
         rawCount: c.places?.[0]?.count || 0
+    };
+}
+
+export function mapMarketAd(p: any): MarketAd {
+    return {
+        id: p.id,
+        title: p.title,
+        description: p.description || '',
+        price: Number(p.price) || 0,
+        currency: 'ج.م',
+        condition: p.condition as any,
+        images: Array.isArray(p.images) ? p.images : [],
+        category_id: String(p.category_id),
+        category_name: p.categories?.name,
+        seller_id: p.seller_id,
+        seller_name: p.seller_name || 'بائع مجهول',
+        seller_phone: p.seller_phone || '',
+        status: p.status as any,
+        location: p.areas?.name || 'السويس',
+        views_count: p.views_count || 0,
+        created_at: p.created_at,
+        updated_at: p.updated_at
+    };
+}
+
+export function mapMarketCategory(c: any): MarketCategory {
+    return {
+        id: String(c.id),
+        slug: c.slug,
+        name: c.name,
+        icon: c.icon || 'ShoppingBag',
+        adCount: c.listings?.[0]?.count || 0
     };
 }

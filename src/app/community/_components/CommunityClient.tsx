@@ -59,6 +59,7 @@ export default function CommunityClient({ initialPosts, categories, userAvatar }
                     value={searchQuery}
                     onChange={setSearchQuery}
                     onSearch={handleSearch}
+                    onSuggestionSelect={(s) => router.push(`/community/posts/${s.slug}`)}
                     placeholder="ابحث في مجتمع السويس..."
                     apiEndpoint="/api/community-autocomplete"
                     inputClassName="w-full h-14 pr-12 pl-4 bg-surface text-right border border-border-subtle rounded-2xl font-bold text-text-primary placeholder:text-text-muted/40 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none"
