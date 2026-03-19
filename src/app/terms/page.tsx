@@ -24,36 +24,46 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-bold text-text-primary mb-4">1. قبول الشروط</h2>
                         <p className="text-text-secondary leading-relaxed">
-                            هذا النص هو مثال لنص يمكن أن يستبدل في نفس المساحة، لقد تم توليد هذا النص من مولد النص العربى، حيث يمكنك أن تولد مثل هذا النص أو العديد من النصوص الأخرى إضافة إلى زيادة عدد الحروف التى يولدها التطبيق.
-                        </p>
-                        <p className="text-text-secondary leading-relaxed mt-2">
-                            باستخدامك لمنصة دليل السويس، فإنك توافق التام على جميع الشروط والأحكام المذكورة هنا.
+                            باستخدامك لمنصة "دليل السويس"، أنت تقر بموافقتك الكاملة على هذه الشروط والأحكام. تم تصميم هذه القواعد لضمان بيئة آمنة ومفيدة لجميع المستخدمين في مدينة السويس، وهي ملزمة لكل من يصل إلى الخدمة عبر الموقع أو التطبيق.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold text-text-primary mb-4">2. حقوق الملكية الفكرية</h2>
                         <p className="text-text-secondary leading-relaxed mb-4">
-                            إذا كنت تحتاج إلى عدد أكبر من الفقرات يتيح لك المولد استخدام أكثر من فقرة لتلبية احتياجاتك.
+                            تحترم المنصة الإبداع وتحمي حقوقها وحقوق الآخرين:
                         </p>
-                        <ul className="list-disc list-inside text-text-secondary space-y-2 leading-relaxed">
-                            <li>جميع المحتويات على هذا الموقع هي ملك حصري لدليل السويس.</li>
-                            <li>يمنع استنساخ أو نقل أي جزء من الموقع بدون إذن صريح.</li>
+                        <ul className="list-disc list-inside text-text-secondary space-y-2 leading-relaxed pr-4 border-r-2 border-primary/20">
+                            <li>جميع محتويات المنصة من نصوص، تصميمات، وقاعدة بيانات الأماكن هي ملك حصري لـ "دليل السويس".</li>
+                            <li>يُمنع منعاً باتاً استنساخ أو كشط أو إعادة استخدام البيانات المنشورة لأغراض تجارية دون إذن كتابي مسبق.</li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold text-text-primary mb-4">3. استخدام الخدمة</h2>
+                        <h2 className="text-2xl font-bold text-text-primary mb-4">3. مسؤولية المحتوى والمجتمع</h2>
                         <p className="text-text-secondary leading-relaxed">
-                            يجب استخدام المنصة بشكل قانوني وللأغراض المخصصة لها فقط، وعدم التدخل بأي شكل يعطل أو يعيق الخدمات المقدمة للآخرين.
+                            نحن نشجع على التفاعل ولكن بمسؤولية. أنت مسؤول بالكامل عن أي محتوى (تعليقات، منشورات، صور) تنشره في المجتمع. يمنع نشر محتوى مضلل، مسيء للآخرين، أو ينتهك خصوصية أي فرد أو جهة. نحتفظ بالحق في إزالة أي محتوى يخالف هذه السياسة دون سابق إنذار.
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold text-text-primary mb-4">4. التغييرات في الشروط</h2>
+                        <h2 className="text-2xl font-bold text-text-primary mb-4">4. التعديلات وإخلاء المسؤولية</h2>
                         <p className="text-text-secondary leading-relaxed">
-                            نحتفظ بالحق في تعديل هذه الشروط في أي وقت. وسيتم نشر أي تعديلات على هذه الصفحة.
+                            نحن نسعى دائماً لتطوير "دليل السويس"، لذا قد نقوم بتعديل هذه الشروط في أي وقت لتناسب التحديثات الجديدة. كما نخلي مسؤوليتنا عن أي معلومات غير دقيقة يتم تقديمها من قبل أطراف ثالثة (مثل مراجعات المستخدمين)، ولكننا نلتزم بالتحقق وتصحيح أي بلاغات تصلنا.
                         </p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold text-text-primary mb-4">5. سوق السويس (الماركت)</h2>
+                        <p className="text-text-secondary leading-relaxed mb-4">
+                            يوفر "دليل السويس" مساحة للمستخدمين لعرض سلعهم، ولكن يرجى العلم بما يلي:
+                        </p>
+                        <ul className="list-disc list-inside text-text-secondary space-y-2 leading-relaxed pr-4 border-r-2 border-primary/20">
+                            <li>المنصة هي مجرد وسيط للعرض؛ أي عملية بيع أو شراء تتم هي مسؤولية كاملة بين البائع والمشتري.</li>
+                            <li>يُمنع منعاً باتاً عرض سلع غير قانونية، مقلدة، أو مخالفة للآداب العامة والشرع.</li>
+                            <li>ننصح دائماً بإتمام المعاملات في أماكن عامة ومعروفة في السويس لضمان أمان الطرفين.</li>
+                            <li>نحتفظ بالحق في حذف أي إعلان نراه مضللاً أو مخالفاً لسياسة المنصة.</li>
+                        </ul>
                     </section>
                 </div>
             </div>
