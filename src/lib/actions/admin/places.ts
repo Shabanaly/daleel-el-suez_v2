@@ -3,6 +3,8 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { NotificationService } from '@/lib/notifications/service';
+import { NotificationEvent } from '@/lib/notifications/types';
 
 export type PlaceStatus = 'pending' | 'approved' | 'rejected';
 
@@ -108,26 +110,24 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
     
     // --- Notification Logic ---
     if (placeData && placeData.added_by && (status === 'approved' || status === 'rejected')) {
-        const title = status === 'approved' ? 'تم قبول مكانك 🎉' : 'عذراً، تم رفض مكانك';
-        const message = status === 'approved' 
-            ? `تمت الموافقة على نشر "${placeData.name}" بنجاح في دليل السويس.` 
-            : `لم تتم الموافقة على نشر "${placeData.name}". يرجى مراجعة الشروط.`;
-            
-        const { createNotification } = await import('@/lib/services/notifications');
-        const { data: { user } } = await supabase.auth.getUser(); // Get current admin/actor
+        const { data: { user: adminUser } } = await supabase.auth.getUser();
+        
+        // Fetch admin's name (actor)
+        const { data: adminProfile } = await supabase
+            .from('profiles')
+            .select('full_name, username')
+            .eq('id', adminUser?.id)
+            .single();
 
-        const notificationResult = await createNotification({
-            userId: placeData.added_by,
-            actorId: user?.id,
-            title: title,
-            message: message,
-            type: 'SYSTEM',
-            link: status === 'approved' && placeData.slug ? `/places/${placeData.slug}` : '#'
+        await NotificationService.trigger(NotificationEvent.PLACE_STATUS_UPDATED, {
+            placeId: placeId,
+            placeName: placeData.name,
+            status: status as 'approved' | 'rejected',
+            actorName: adminProfile?.full_name || adminProfile?.username || 'إدارة دليل السويس',
+            recipientId: placeData.added_by,
+            actorId: adminUser?.id || '',
+            slug: placeData.slug
         });
-
-        if (!notificationResult.success) {
-            console.error('[AdminAction] Failed to create notification for status update:', notificationResult.error);
-        }
     }
 
     // Revalidate custom cache path

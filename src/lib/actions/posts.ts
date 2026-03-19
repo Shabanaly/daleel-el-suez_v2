@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/client-service';
+import { NotificationService } from '@/lib/notifications/service';
+import { NotificationEvent } from '@/lib/notifications/types';
 import { unstable_cache } from 'next/cache';
 import { revalidatePath } from 'next/cache';
 import { cacheManager, tags } from '../cache';
@@ -165,23 +167,32 @@ export async function toggleLikePost(postId: string) {
         await supabase.rpc('increment_post_likes', { target_post_id: postId });
         
         // --- Notification Logic ---
-        // Fetch post author to notify them
         const { data: postData } = await supabase
             .from('posts')
-            .select('author_id')
+            .select('author_id, content')
             .eq('id', postId)
             .single();
             
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, username')
+            .eq('id', user.id)
+            .single();
+
         // Send notification if the liker is not the post author
         if (postData && postData.author_id !== user.id) {
-            const { createNotification } = await import('@/lib/services/notifications');
-            await createNotification({
-                userId: postData.author_id,
-                title: 'إعجاب جديد',
-                message: 'أعجب أحد الأعضاء بمنشورك في المجتمع',
-                type: 'COMMUNITY',
-                link: `/community/posts/${postId}`
-            });
+            try {
+                const actorName = profile?.full_name || profile?.username || 'عضو';
+                await NotificationService.trigger(NotificationEvent.POST_LIKED, {
+                    postId,
+                    postContent: postData.content || 'منشور',
+                    actorName: actorName,
+                    recipientId: postData.author_id,
+                    actorId: user.id,
+                });
+            } catch (notificationError) {
+                console.error('Error sending post liked notification:', notificationError);
+            }
         }
     }
 

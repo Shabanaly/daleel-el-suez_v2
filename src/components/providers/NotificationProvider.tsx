@@ -26,59 +26,73 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const supabase = createClient();
 
   useEffect(() => {
-    // We still want to avoid double-registration
-    if (isRegistering.current) return;
+    if (isRegistering.current || authLoading) return;
 
     const setupNotifications = async () => {
-      // 1. Wait until Auth is definitely finished loading (either we have a user or confirmed guest)
-      if (authLoading) return;
-
-      // 2. Small delay for guest/new users before asking for permission to avoid prompt fatigue
-      if (!user) {
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Reduced to 2s for better testing experience
-      }
-
       isRegistering.current = true;
 
       try {
+        // 1. Get current FCM token
         const newToken = await requestForToken();
         if (!newToken) {
-            console.warn('[Notifications] No token received from requestForToken');
+            console.debug('[Notifications] No token received');
             return;
         }
 
-        console.log('[Notifications] Token retrieved:', newToken.substring(0, 10) + '...');
         setFcmToken(newToken);
 
+        // 2. Intelligent Sync Check
         const cachedToken = localStorage.getItem(FCM_TOKEN_KEY);
-        const lastSync = localStorage.getItem('fcm_last_sync');
+        const lastUserId = localStorage.getItem('fcm_user_id');
+        const lastSyncStr = localStorage.getItem('fcm_last_sync');
+        const lastSync = lastSyncStr ? parseInt(lastSyncStr, 10) : 0;
+        
         const now = Date.now();
-        const oneDay = 24 * 60 * 60 * 1000;
+        const sevenDays = 7 * 24 * 60 * 60 * 1000;
+        
+        const tokenChanged = newToken !== cachedToken;
+        const userChanged = (user?.id || 'guest') !== lastUserId;
+        const needsScheduledSync = (now - lastSync) > sevenDays;
 
-        // DEBUG: Force sync every time for now to ensure DB is up to date during testing
-        console.log(`[Notifications] Syncing token with Supabase (${user?.id ? 'User: ' + user.id : 'Guest'})`);
-        const { error } = await supabase
-          .from('user_fcm_tokens')
-          .upsert(
-            {
-              user_id: user?.id || null, // Can be null for guests
-              token: newToken,
-              device_type: 'web',
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: 'token' }
-          );
+        if (tokenChanged || userChanged || needsScheduledSync) {
+          console.log(`[Notifications] Syncing token (${user?.id ? 'User: ' + user.id : 'Guest'}) - Reason: ${tokenChanged? 'Token' : userChanged? 'User' : 'Time'}`);
+          
+          const { error } = await supabase
+            .from('user_fcm_tokens')
+            .upsert(
+              {
+                user_id: user?.id || null,
+                token: newToken,
+                device_type: 'web',
+                last_seen_at: new Date().toISOString(),
+                metadata: {
+                  userAgent: window.navigator.userAgent,
+                  language: window.navigator.language,
+                }
+              },
+              { onConflict: 'token' }
+            );
 
-        if (!error) {
-          localStorage.setItem(FCM_TOKEN_KEY, newToken);
-          localStorage.setItem('fcm_last_sync', now.toString());
-          localStorage.setItem('fcm_user_id', user?.id || 'guest');
-          console.log('[Notifications] Token synced successfully');
+          if (!error) {
+            localStorage.setItem(FCM_TOKEN_KEY, newToken);
+            localStorage.setItem('fcm_last_sync', now.toString());
+            localStorage.setItem('fcm_user_id', user?.id || 'guest');
+            console.log('[Notifications] Token synced successfully');
+          } else {
+            console.error('[Notifications] Sync failed:', error.message);
+          }
         } else {
-          console.error('[Notifications] Sync failed:', error.message);
+          console.debug('[Notifications] Token sync skipped (already up to date)');
+          
+          // Optionally update last_seen_at silently if it's been a while (e.g. > 1 day)
+          const lastSeenSync = (now - lastSync) > (24 * 60 * 60 * 1000);
+          if (lastSeenSync) {
+             await supabase
+              .from('user_fcm_tokens')
+              .update({ last_seen_at: new Date().toISOString() })
+              .eq('token', newToken);
+          }
         }
-
-        console.log('[Notifications] Setup complete');
 
       } catch (err) {
         console.error('[Notifications] Setup error:', err);

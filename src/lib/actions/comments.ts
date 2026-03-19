@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/client-service';
 import { unstable_cache } from 'next/cache';
 import { cacheManager, tags } from '../cache';
+import { NotificationService } from '@/lib/notifications/service';
+import { NotificationEvent } from '@/lib/notifications/types';
 
 /**
  * Adds a comment to a post.
@@ -31,23 +33,59 @@ export async function addComment(postId: string, content: string, parentId?: str
     }
 
     // --- Notification Logic ---
-    // Fetch post author to notify them
-    const { data: postData } = await supabase
-        .from('posts')
-        .select('author_id')
-        .eq('id', postId)
-        .single();
-        
-    // Send notification if the commenter is not the post author
-    if (postData && postData.author_id !== user.id) {
-        const { createNotification } = await import('@/lib/services/notifications');
-        await createNotification({
-            userId: postData.author_id,
-            title: 'تعليق جديد',
-            message: 'قام أحد الأعضاء بالتعليق على منشورك في المجتمع',
-            type: 'COMMUNITY',
-            link: `/community/posts/${postId}`
-        });
+    if (data) {
+        // Fetch post author and some post details for a better notification
+        const { data: postData } = await supabase
+            .from('posts')
+            .select('author_id, content')
+            .eq('id', postId)
+            .single();
+            
+        if (!postData) return;
+        // Fetch commenter's name
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, username')
+            .eq('id', user.id)
+            .single();
+
+        try {
+            const actorName = profile?.full_name || profile?.username || 'عضو';
+
+            // 1. If it's a reply, notify the parent comment author
+            if (parentId) {
+                const { data: parentComment } = await supabase
+                    .from('comments')
+                    .select('author_id')
+                    .eq('id', parentId)
+                    .single();
+
+                if (parentComment && parentComment.author_id && parentComment.author_id !== user.id) {
+                    await NotificationService.trigger(NotificationEvent.COMMENT_REPLIED, {
+                        postId,
+                        postTitle: postData.content || 'منشور',
+                        parentCommentId: parentId,
+                        actorName,
+                        recipientId: parentComment.author_id,
+                        actorId: user.id,
+                    });
+                }
+            }
+
+            // 2. Notify the post author (if not the actor and not already notified as parent author)
+            // Note: In some UX models, you might notify post author of ALL comments.
+            if (postData.author_id && postData.author_id !== user.id) {
+                await NotificationService.trigger(NotificationEvent.COMMENT_ADDED, {
+                    postId,
+                    postTitle: postData.content || 'منشور',
+                    actorName,
+                    recipientId: postData.author_id,
+                    actorId: user.id,
+                });
+            }
+        } catch (notifErr) {
+            console.error("Failed to send comment notification:", notifErr);
+        }
     }
 
     cacheManager.invalidateComment(postId);

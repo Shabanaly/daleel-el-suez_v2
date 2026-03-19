@@ -15,8 +15,14 @@ if (!admin.apps.length) {
 }
 
 export async function POST(req: Request) {
+  let notificationLogId: string | null = null;
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
   try {
-    const { userId, title, body, link, secret } = await req.json();
+    const { userId, title, body, link, secret, notificationId } = await req.json();
 
     // 1. Security & Validation check
     if (!secret || secret !== process.env.API_SECRET) {
@@ -27,20 +33,30 @@ export async function POST(req: Request) {
     if (!title || !body) {
       return NextResponse.json({ error: 'Missing title/body' }, { status: 400 });
     }
-    // Allow userId to be undefined for general broadcasts if we implement them, 
-    // but here we expect it for targeted messaging. 
-    // If it's explicitly null/undefined, we treat it as guest search if applicable.
 
-    // 2. Initialize Supabase Admin
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    // 2. Create initial audit log if notificationId is provided
+    if (notificationId) {
+      const { data: logData } = await supabaseAdmin
+        .from('notification_logs')
+        .insert({
+          notification_id: notificationId,
+          status: 'pending'
+        })
+        .select('id')
+        .single();
+      notificationLogId = logData?.id || null;
+    }
 
-    // 3. Get tokens (Specific user or Broadcast to 'all')
+    // 3. Get tokens (Specific user, Guest, or All)
     let query = supabaseAdmin.from('user_fcm_tokens').select('token');
     
-    if (userId !== 'all') {
+    if (userId === 'all') {
+      // Broadcast to everyone
+    } else if (!userId || userId === 'null') {
+      // Targeted for guests (though usually we need a specific token for that)
+      // For now, we'll assume 'all' is used for general broadcasts and specific userId for targeted.
+      query = query.is('user_id', null);
+    } else {
       query = query.eq('user_id', userId);
     }
 
@@ -48,22 +64,24 @@ export async function POST(req: Request) {
 
     if (tokenError) {
         console.error('[PushAPI] Supabase token query error:', tokenError.message);
+        if (notificationLogId) {
+          await supabaseAdmin.from('notification_logs').update({ status: 'failed', error_message: tokenError.message }).eq('id', notificationLogId);
+        }
         return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
     if (!tokenData || tokenData.length === 0) {
-        console.log(`[PushAPI] No tokens found in 'user_fcm_tokens' for target: ${userId || 'GUEST'}`);
+        console.log(`[PushAPI] No tokens found for target: ${userId}`);
+        if (notificationLogId) {
+          await supabaseAdmin.from('notification_logs').update({ status: 'sent', error_message: 'No tokens found' }).eq('id', notificationLogId);
+        }
         return NextResponse.json({ success: true, message: 'No tokens found' });
     }
 
     const tokens = tokenData.map(t => t.token);
-    console.log(`[PushAPI] Found ${tokens.length} tokens for userId: ${userId || 'GUEST'}`);
-    if (tokens.length > 0) {
-        console.log(`[PushAPI] First token starts with: ${tokens[0].substring(0, 10)}...`);
-    }
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://daleel-al-suez.com';
 
-    // 4. Build the Notification Payload
+    // 4. Build the Notification Payload (FCM v1)
     const message = {
       notification: {
         title,
@@ -71,6 +89,7 @@ export async function POST(req: Request) {
       },
       data: {
         url: link || '/',
+        notification_id: notificationId || '',
       },
       android: {
         priority: 'high' as const,
@@ -78,22 +97,28 @@ export async function POST(req: Request) {
           icon: 'stock_ticker_update',
           color: '#0070f3',
           sound: 'default',
+          clickAction: link || '/',
         },
       },
       webpush: {
         headers: {
           TTL: '86400', // 24 hours
-          Urgency: 'high', // For immediate delivery on mobile browsers
+          Urgency: 'high',
         },
         notification: {
           icon: `${baseUrl}/favicon-circular.ico`,
           badge: `${baseUrl}/favicon-circular.ico`,
           timestamp: Date.now(),
           requireInteraction: true,
-          // data and other actions can be here
+          actions: [
+            {
+              action: 'open_url',
+              title: 'فتح الآن',
+            }
+          ]
         },
         fcmOptions: {
-          link: link || '/', // Standard way to open URL on click
+          link: link || '/',
         },
       },
       tokens: tokens,
@@ -102,13 +127,23 @@ export async function POST(req: Request) {
     // 5. Send multicast message
     const response = await admin.messaging().sendEachForMulticast(message);
     
-    // 6. Intelligent Token Cleanup
+    // 6. Audit Logging & Cleanup
+    if (notificationLogId) {
+      await supabaseAdmin.from('notification_logs').update({
+        status: response.failureCount === tokens.length ? 'failed' : 'sent',
+        response_payload: {
+          successCount: response.successCount,
+          failureCount: response.failureCount,
+          results: response.responses.map(r => ({ success: r.success, error: r.error?.code }))
+        }
+      }).eq('id', notificationLogId);
+    }
+
     if (response.failureCount > 0) {
       const failedTokens = response.responses
         .map((resp, idx) => {
           if (!resp.success) {
             const errorCode = resp.error?.code;
-            // Only cleanup if the token is definitely invalid or expired
             if (errorCode === 'messaging/registration-token-not-registered' || 
                 errorCode === 'messaging/invalid-registration-token') {
               return tokens[idx];
@@ -123,11 +158,9 @@ export async function POST(req: Request) {
           .from('user_fcm_tokens')
           .delete()
           .in('token', failedTokens);
-        console.log(`Cleaned up ${failedTokens.length} stale/invalid tokens`);
+        console.log(`[PushAPI] Cleaned up ${failedTokens.length} invalid tokens`);
       }
     }
-
-    console.log(`Push Notification: ${response.successCount} success, ${response.failureCount} failed.`);
 
     return NextResponse.json({ 
         success: true, 
@@ -137,6 +170,9 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error('CRITICAL: Error sending push notification:', error);
+    if (notificationLogId) {
+      await supabaseAdmin.from('notification_logs').update({ status: 'failed', error_message: error.message }).eq('id', notificationLogId);
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

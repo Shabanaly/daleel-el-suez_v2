@@ -5,6 +5,8 @@ import { createServiceClient } from '@/lib/supabase/client-service';
 import { unstable_cache, revalidateTag } from 'next/cache';
 import { mapPlace } from '../utils/mappers';
 import { tags, keys, cacheManager } from '@/lib/cache';
+import { NotificationService } from '@/lib/notifications/service';
+import { NotificationEvent } from '@/lib/notifications/types';
 
 /**
  * Toggles a favorite item for the current user.
@@ -55,10 +57,6 @@ export async function toggleFavorite(itemId: string, itemType: 'place' | 'listin
         
         // --- Notification Logic ---
         try {
-            // Determine table based on itemType
-            const table = itemType === 'place' ? 'places' : 'market_items'; // Assuming market items table name is market_items, adjust if different
-            
-            // For now, only send if it's a place. We need to verify market table name first.
             if (itemType === 'place') {
                  const { data: itemData } = await supabase
                     .from('places')
@@ -67,13 +65,20 @@ export async function toggleFavorite(itemId: string, itemType: 'place' | 'listin
                     .single();
                     
                  if (itemData && itemData.added_by && itemData.added_by !== user.id) {
-                     const { createNotification } = await import('@/lib/services/notifications');
-                     await createNotification({
-                        userId: itemData.added_by,
-                        title: 'إضافة للمفضلة',
-                        message: `قام أحد الأعضاء بإضافة "${itemData.name}" إلى مفضلته`,
-                        type: 'SYSTEM',
-                        link: `/places/${itemData.slug || itemId}`
+                     // Fetch liker's name
+                     const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('full_name, username')
+                        .eq('id', user.id)
+                        .single();
+
+                     await NotificationService.trigger(NotificationEvent.PLACE_FAVORITED, {
+                        placeId: itemId,
+                        placeName: itemData.name,
+                        placeSlug: itemData.slug || itemId,
+                        actorName: profile?.full_name || profile?.username || 'عضو',
+                        recipientId: itemData.added_by,
+                        actorId: user.id,
                      });
                  }
             }
