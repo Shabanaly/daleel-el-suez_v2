@@ -144,7 +144,7 @@ export function AuthFormUI({
                     )}
                     <span className="text-sm">جوجل</span>
                 </button>
-                <button
+                {/* <button
                     type="button"
                     onClick={() => onSocialLogin('facebook')}
                     disabled={isLoading || socialLoading !== null}
@@ -156,7 +156,7 @@ export function AuthFormUI({
                         <Facebook className="w-5 h-5 text-white fill-white group-hover:scale-110 transition-transform" />
                     )}
                     <span className="text-sm">فيسبوك</span>
-                </button>
+                </button> */}
             </div>
 
             <div className="text-center pt-8 relative z-10">
