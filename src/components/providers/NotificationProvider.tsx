@@ -149,22 +149,22 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       {/* Real-time Visual Toast for Debugging */}
       {showToast && notification && (
         <div 
-           className="fixed top-24 right-4 bg-surface border-2 border-primary shadow-2xl p-4 rounded-2xl max-w-sm animate-in fade-in slide-in-from-top-4 duration-300" 
+           className="fixed bottom-6 lg:bottom-auto lg:top-24 left-1/2 -translate-x-1/2 lg:left-auto lg:right-4 lg:translate-x-0 w-[94%] max-w-[340px] lg:max-w-sm bg-surface border-2 border-primary/30 lg:border-primary shadow-2xl p-3 lg:p-4 rounded-2xl animate-in fade-in slide-in-from-bottom-6 lg:slide-in-from-top-4 duration-300" 
            dir="rtl"
            style={{ zIndex: 99999 }}
         >
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
-              <span className="text-primary text-xl">🔔</span>
+          <div className="flex items-start gap-2.5 lg:gap-3">
+            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+              <span className="text-primary text-lg lg:text-xl">🔔</span>
             </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                 <h4 className="font-bold text-text-primary text-sm">{notification.notification?.title || notification.data?.title || 'تنبيه جديد'}</h4>
-                 <span className="text-[10px] bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded-full font-bold">REAL-TIME</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 mb-0.5 lg:mb-1">
+                 <h4 className="font-bold text-text-primary text-[13px] lg:text-sm truncate">{notification.notification?.title || notification.data?.title || 'تنبيه جديد'}</h4>
+                 <span className="text-[9px] lg:text-[10px] bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded-full font-bold whitespace-nowrap">REAL-TIME</span>
               </div>
-              <p className="text-text-muted text-xs leading-relaxed">{notification.notification?.body || notification.data?.body || 'لا يوجد محتوى'}</p>
+              <p className="text-text-muted text-[11px] lg:text-xs leading-relaxed line-clamp-2">{notification.notification?.body || notification.data?.body || 'لا يوجد محتوى'}</p>
             </div>
-            <button onClick={() => setShowToast(false)} className="text-text-muted hover:text-text-primary p-1">✕</button>
+            <button onClick={() => setShowToast(false)} className="text-text-muted hover:text-text-primary p-1 shrink-0">✕</button>
           </div>
         </div>
       )}
