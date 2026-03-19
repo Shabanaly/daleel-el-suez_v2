@@ -110,6 +110,8 @@ export async function POST(req: Request) {
           badge: `${baseUrl}/favicon-circular.ico`,
           timestamp: Date.now(),
           requireInteraction: true,
+          tag: notificationId || `notif-${Date.now()}`,
+          renotify: true,
           actions: [
             {
               action: 'open_url',

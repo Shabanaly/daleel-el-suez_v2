@@ -109,32 +109,16 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     console.log('[Notifications] Initializing foreground message listener');
     const unsubscribe = onMessageListener((payload: any) => {
       console.log('[Notifications] Foreground message event triggered:', payload);
-      setNotification(payload);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 6000);
-
-      // Show native notification even when app is in foreground
-      if (Notification.permission === 'granted' && payload.notification) {
-        const n = new Notification(payload.notification.title, {
-          body: payload.notification.body,
-          icon: '/favicon-circular.ico',
-          badge: '/favicon-circular.ico', // Better for mobile/PWA
-          data: {
-            url: payload.data?.url || payload.fcmOptions?.link || '/'
-          }
-        });
-
-        // Handle click in foreground
-        n.onclick = (e) => {
-          e.preventDefault();
-          window.focus();
-          const targetUrl = (e.target as any).data?.url || '/';
-          if (window.location.pathname !== targetUrl) {
-            window.location.href = targetUrl;
-          }
-          n.close();
-        };
+      
+      // Only show toast if this specific tab is focused to avoid duplicates across tabs
+      if (document.hasFocus()) {
+        setNotification(payload);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 6000);
       }
+
+      // REMOVED: Native Notification here was causing double notifications in foreground
+      // Background notifications are handled separately by the Service Worker
     });
 
     return () => {

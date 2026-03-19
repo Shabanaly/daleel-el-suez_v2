@@ -169,7 +169,7 @@ export async function toggleLikePost(postId: string) {
         // --- Notification Logic ---
         const { data: postData } = await supabase
             .from('posts')
-            .select('author_id, content')
+            .select('author_id, content, title')
             .eq('id', postId)
             .single();
             
@@ -182,10 +182,12 @@ export async function toggleLikePost(postId: string) {
         // Send notification if the liker is not the post author
         if (postData && postData.author_id !== user.id) {
             try {
-                const actorName = profile?.full_name || profile?.username || 'عضو';
+                const actorName = profile?.full_name || profile?.username || 'عضو في المجتمع';
+                const postContent = postData.content || postData.title || 'منشور';
+                
                 await NotificationService.trigger(NotificationEvent.POST_LIKED, {
                     postId,
-                    postContent: postData.content || 'منشور',
+                    postContent: postContent,
                     actorName: actorName,
                     recipientId: postData.author_id,
                     actorId: user.id,

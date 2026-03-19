@@ -37,7 +37,7 @@ export async function addComment(postId: string, content: string, parentId?: str
         // Fetch post author and some post details for a better notification
         const { data: postData } = await supabase
             .from('posts')
-            .select('author_id, content')
+            .select('author_id, content, title')
             .eq('id', postId)
             .single();
             
@@ -50,7 +50,8 @@ export async function addComment(postId: string, content: string, parentId?: str
                 .single();
 
             try {
-                const actorName = profile?.full_name || profile?.username || 'عضو';
+                const actorName = profile?.full_name || profile?.username || 'عضو في المجتمع';
+                const postTitle = postData.content || postData.title || 'منشور';
 
                 // 1. If it's a reply, notify the parent comment author
                 if (parentId) {
@@ -63,7 +64,7 @@ export async function addComment(postId: string, content: string, parentId?: str
                     if (parentComment && parentComment.author_id && parentComment.author_id !== user.id) {
                         await NotificationService.trigger(NotificationEvent.COMMENT_REPLIED, {
                             postId,
-                            postTitle: postData.content || 'منشور',
+                            postTitle: postTitle,
                             parentCommentId: parentId,
                             actorName,
                             recipientId: parentComment.author_id,
@@ -73,11 +74,10 @@ export async function addComment(postId: string, content: string, parentId?: str
                 }
 
                 // 2. Notify the post author (if not the actor and not already notified as parent author)
-                // Note: In some UX models, you might notify post author of ALL comments.
                 if (postData.author_id && postData.author_id !== user.id) {
                     await NotificationService.trigger(NotificationEvent.COMMENT_ADDED, {
                         postId,
-                        postTitle: postData.content || 'منشور',
+                        postTitle: postTitle,
                         actorName,
                         recipientId: postData.author_id,
                         actorId: user.id,
