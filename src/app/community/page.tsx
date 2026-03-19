@@ -7,41 +7,23 @@ import type { Metadata } from 'next';
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string | string[]; q?: string | string[] }>;
+  searchParams: Promise<{ q?: string | string[] }>;
 }): Promise<Metadata> {
   const resolvedParams = await searchParams;
   const q = Array.isArray(resolvedParams.q) ? resolvedParams.q[0] : resolvedParams.q;
-  const categoryParam = Array.isArray(resolvedParams.category)
-    ? resolvedParams.category[0]
-    : resolvedParams.category;
 
-  const categoryId = categoryParam ? parseInt(categoryParam) : undefined;
+  const title = q
+    ? `نتائج البحث عن "${q}" - مجتمع السويس`
+    : 'مجتمع السويس - دليل السويس';
 
-  let title = 'مجتمع السويس - دليل السويس';
-  let description = 'شارك، اسأل، وتواصل مع أهل السويس في أذكى مجتمع محلي. شارك أخبارك، استفساراتك، وتجاربك مع الجميع.';
-
-  const categories = await getCommunityCategories();
-
-  if (categoryId) {
-    const category = categories.find(c => c.id === categoryId);
-    if (category) {
-      title = `قسم ${category.name} - مجتمع السويس`;
-      description = `تصفح أحدث المنشورات والمناقشات في قسم ${category.name} بمجتمع السويس.`;
-    }
-  }
-
-  if (q) {
-    title = `نتائج البحث عن "${q}" - مجتمع السويس`;
-    description = `نتائج البحث عن "${q}" في مجتمع السويس. استكشف المناقشات والمنشورات المتعلقة.`;
-  }
+  const description = q
+    ? `نتائج البحث عن "${q}" في مجتمع السويس. استكشف المناقشات والمنشورات المتعلقة.`
+    : 'شارك، اسأل، وتواصل مع أهل السويس في أذكى مجتمع محلي. شارك أخبارك، استفساراتك، وتجاربك مع الجميع.';
 
   return {
     title,
     description,
-    openGraph: {
-      title,
-      description,
-    },
+    openGraph: { title, description },
   };
 }
 
@@ -49,22 +31,17 @@ export async function generateMetadata({
 export default async function CommunityPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string | string[]; q?: string | string[] }>;
+  searchParams: Promise<{ q?: string | string[] }>;
 }) {
   const resolvedParams = await searchParams;
   const q = Array.isArray(resolvedParams.q) ? resolvedParams.q[0] : resolvedParams.q;
-  const categoryParam = Array.isArray(resolvedParams.category)
-    ? resolvedParams.category[0]
-    : resolvedParams.category;
-
-  const categoryId = categoryParam ? parseInt(categoryParam) : undefined;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Fetch data in parallel
+  // Fetch all posts (no category filter) + categories for post creation modal
   const [posts, categories] = await Promise.all([
-    getCommunityPosts(categoryId, q, 1, 10, user?.id),
+    getCommunityPosts(undefined, q, 1, 20, user?.id),
     getCommunityCategories(),
   ]);
 

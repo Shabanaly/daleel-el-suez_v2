@@ -22,6 +22,7 @@ interface SearchAutocompleteProps {
     onSearch: (term: string) => void;
     placeholder?: string;
     inputClassName?: string;
+    apiEndpoint?: string;
 }
 
 const IconRenderer = ({ iconName, className }: { iconName: string, className?: string }) => {
@@ -67,6 +68,7 @@ export default function SearchAutocomplete({
     onSearch,
     placeholder = 'ابحث...',
     inputClassName = '',
+    apiEndpoint = '/api/autocomplete',
 }: SearchAutocompleteProps) {
     const [open, setOpen] = useState(false);
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -136,7 +138,7 @@ export default function SearchAutocomplete({
         }
         let cancelled = false;
         setLoading(true);
-        fetch(`/api/autocomplete?q=${encodeURIComponent(debouncedValue)}`)
+        fetch(`${apiEndpoint}?q=${encodeURIComponent(debouncedValue)}`)
             .then((r) => r.json())
             .then((data) => {
                 if (!cancelled) {
