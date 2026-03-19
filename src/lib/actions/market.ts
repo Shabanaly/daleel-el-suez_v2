@@ -37,6 +37,21 @@ export const getMarketCategories = unstable_cache(
     { tags: ['market-categories', 'categories'], revalidate: 3600 }
 );
 
+export async function getMarketCategoryBySlug(slug: string) {
+    const supabase = createServiceClient();
+    const { data, error } = await supabase
+        .from('categories')
+        .select(`id, name, slug, icon, listings(count)`)
+        .eq('type', 'market')
+        .eq('slug', slug)
+        .maybeSingle();
+
+    if (error || !data) return null;
+    return mapMarketCategory(data);
+}
+
+
+
 // ── Ads (Listings) ──────────────────────────────────────────────────
 
 export async function getMarketAds(

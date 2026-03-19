@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MapPin } from 'lucide-react';
+import { MapPin, Mail, MessageCircle } from 'lucide-react';
 
 export default function Footer() {
     const pathname = usePathname();
@@ -106,13 +106,15 @@ export default function Footer() {
                             تواصل معنا
                         </h3>
                         <ul className="space-y-4">
-                            <li className="flex flex-col gap-1">
-                                <span className="text-[10px] text-text-muted font-black uppercase opacity-60">البريد الإلكتروني</span>
-                                <span className="text-sm font-bold text-text-primary tracking-tight">hello@suezguide.com</span>
+                            <li className="flex flex-col gap-1"> <a href="mailto:sa676185@gmail.com">
+                                <span className="text-[10px] text-text-muted font-black uppercase opacity-60 flex items-center gap-2"><Mail className="w-3 h-3" />البريد الإلكتروني</span>
+                                <span className="text-sm font-bold text-text-primary tracking-tight">daleel_suez@gmail.com</span>
+                            </a>
                             </li>
-                            <li className="flex flex-col gap-1">
-                                <span className="text-[10px] text-text-muted font-black uppercase opacity-60">واتساب</span>
-                                <span className="text-sm font-bold text-text-primary tracking-tight">+20 100 000 0000</span>
+                            <li className="flex flex-col gap-1"><a href="https://wa.me/+201019979315">
+                                <span className="text-[10px] text-text-muted font-black uppercase opacity-60 flex items-center gap-2"><MessageCircle className="w-3 h-3" />واتساب</span>
+                                <span className="text-sm font-bold text-text-primary tracking-tight">+201019979315</span>
+                            </a>
                             </li>
                         </ul>
                     </div>
@@ -121,7 +123,7 @@ export default function Footer() {
                 {/* Bottom Bar */}
                 <div className="pt-8 border-t border-border-subtle/50 flex flex-col md:flex-row items-center justify-between gap-6">
                     <p className="text-text-muted text-xs md:text-sm font-bold opacity-60">
-                        © {mounted ? new Date().getFullYear() : '2026'} دليل السويس • صنع بكل حب في مدينة الغريب 🌊
+                        © {mounted ? new Date().getFullYear() : '2026'} دليل السويس • لكل أهل السويس 🌊
                     </p>
                     <div className="flex items-center gap-6">
                         <Link href="#" className="text-text-muted hover:text-primary transition-all scale-110">

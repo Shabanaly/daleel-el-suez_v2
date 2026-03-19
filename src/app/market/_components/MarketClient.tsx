@@ -107,33 +107,55 @@ export function MarketClient({ initialCategories = [] }: { initialCategories: Ma
                     </div>
                     
                     <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mask-fade-edges">
-                        {categories.map((cat) => (
-                            <button
-                                key={cat.id}
-                                onClick={() => setSelectedCategory(cat.slug)}
-                                className={`flex flex-col items-center gap-2 min-w-[70px] shrink-0 transition-all ${
-                                    selectedCategory === cat.slug 
-                                    ? "text-primary scale-105" 
-                                    : "text-text-muted hover:text-text-secondary"
-                                }`}
-                            >
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
-                                    selectedCategory === cat.slug 
-                                    ? "bg-primary text-white shadow-xl shadow-primary/30" 
-                                    : "bg-surface border border-border-subtle"
-                                }`}>
-                                   <DynamicIcon 
-                                        name={cat.icon || 'ShoppingBag'} 
-                                        className="w-6 h-6" 
-                                        fallback={<ShoppingBag className="w-6 h-6" />}
-                                    />
-                                </div>
-                                <span className={`text-[11px] font-bold whitespace-nowrap ${selectedCategory === cat.slug ? "font-black" : ""}`}>
-                                    {cat.name}
-                                </span>
-                            </button>
-                        ))}
+                        {categories.map((cat) => {
+                            const isActive = selectedCategory === cat.slug;
+                            const content = (
+                                <>
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
+                                        isActive
+                                            ? 'bg-primary text-white shadow-xl shadow-primary/30'
+                                            : 'bg-surface border border-border-subtle'
+                                    }`}>
+                                        <DynamicIcon
+                                            name={cat.icon || 'ShoppingBag'}
+                                            className="w-6 h-6"
+                                            fallback={<ShoppingBag className="w-6 h-6" />}
+                                        />
+                                    </div>
+                                    <span className={`text-[11px] font-bold whitespace-nowrap ${isActive ? 'font-black' : ''}`}>
+                                        {cat.name}
+                                    </span>
+                                </>
+                            );
+
+                            if (cat.id === 'all') {
+                                return (
+                                    <button
+                                        key={cat.id}
+                                        onClick={() => setSelectedCategory('all')}
+                                        className={`flex flex-col items-center gap-2 min-w-[70px] shrink-0 transition-all ${
+                                            isActive ? 'text-primary scale-105' : 'text-text-muted hover:text-text-secondary'
+                                        }`}
+                                    >
+                                        {content}
+                                    </button>
+                                );
+                            }
+
+                            return (
+                                <Link
+                                    key={cat.id}
+                                    href={`/market/category/${cat.slug}`}
+                                    className={`flex flex-col items-center gap-2 min-w-[70px] shrink-0 transition-all ${
+                                        isActive ? 'text-primary scale-105' : 'text-text-muted hover:text-text-secondary'
+                                    }`}
+                                >
+                                    {content}
+                                </Link>
+                            );
+                        })}
                     </div>
+
                 </section>
 
                 {/* ─── Results Section ─── */}
