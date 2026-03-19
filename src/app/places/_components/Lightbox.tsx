@@ -23,6 +23,28 @@ export function Lightbox({ images, index: initialIndex, isOpen, onClose }: Light
         setCurrentIndex(initialIndex);
     }, [initialIndex]);
 
+    // Handle browser back button to close lightbox instead of leaving page
+    useEffect(() => {
+        if (!isOpen) return;
+
+        let popped = false;
+
+        const handlePopState = () => {
+            popped = true;
+            onClose();
+        };
+
+        window.history.pushState({ lightbox: 'open' }, '', window.location.href);
+        window.addEventListener('popstate', handlePopState);
+
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+            if (!popped) {
+                window.history.back();
+            }
+        };
+    }, [isOpen, onClose]);
+
     // Format images for the lightbox
     const slides = images.map((src) => ({ src }));
 

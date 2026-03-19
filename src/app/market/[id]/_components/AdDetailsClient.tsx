@@ -149,7 +149,7 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                             <Info className="w-5 h-5 text-primary" />
                             التفاصيل
                         </h3>
-                        <p className="text-text-secondary leading-loose text-lg whitespace-pre-line font-medium p-6 rounded-[24px] bg-elevated/30 border border-border-subtle/30">
+                        <p className="text-text-secondary leading-loose text-lg whitespace-pre-line font-medium p-6 rounded-3xl bg-elevated/30 border border-border-subtle/30">
                             {ad.description}
                         </p>
                     </div>
