@@ -10,12 +10,16 @@ import { getMarketAds } from "@/lib/actions/market";
 
 import DynamicIcon from "@/components/common/DynamicIcon";
 
+import { createClient } from "@/lib/supabase/client";
+import AuthRequiredModal from "@/components/auth/AuthRequiredModal";
+
 export function MarketClient({ initialCategories = [] }: { initialCategories: MarketCategory[] }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [ads, setAds] = useState<MarketAd[]>([]);
     const [totalAds, setTotalAds] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     const categories = [
         { id: 'all', name: 'الكل', slug: 'all', icon: 'LayoutGrid', adCount: 0 },
@@ -40,8 +44,24 @@ export function MarketClient({ initialCategories = [] }: { initialCategories: Ma
         return () => clearTimeout(timer);
     }, [selectedCategory, searchQuery]);
 
+    const handleCreateAdClick = async (e: React.MouseEvent) => {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            e.preventDefault();
+            setIsAuthModalOpen(true);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-background pb-20 pt-20 overflow-x-hidden">
+            <AuthRequiredModal 
+                isOpen={isAuthModalOpen} 
+                onClose={() => setIsAuthModalOpen(false)} 
+                title="سجل دخولك أولاً"
+                description="يجب عليك تسجيل الدخول لتتمكن من إضافة إعلانات جديدة في سوق السويس."
+            />
             {/* ─── Header Section ─── */}
             <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border-subtle">
                 <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -66,6 +86,7 @@ export function MarketClient({ initialCategories = [] }: { initialCategories: Ma
 
                    <Link 
                         href="/market/create"
+                        onClick={handleCreateAdClick}
                         className="bg-primary hover:bg-primary-hover text-white px-4 h-10 rounded-full flex items-center gap-2 text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
                     >
                         <Plus className="w-4 h-4" />

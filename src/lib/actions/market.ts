@@ -9,6 +9,7 @@ import { MarketAd } from "../types/market";
 // ── Categories ──────────────────────────────────────────────────────
 
 async function getMarketCategoriesInternal() {
+    console.log('Fetching market categories from DB...');
     const supabase = createServiceClient();
     const { data, error } = await supabase
         .from('categories')
@@ -26,6 +27,7 @@ async function getMarketCategoriesInternal() {
         return [];
     }
 
+    console.log(`Fetched ${data?.length || 0} categories for market`);
     return (data || []).map(mapMarketCategory);
 }
 
@@ -54,12 +56,25 @@ export async function getMarketAds(
                 .select(`
                     *,
                     categories(name, slug),
-                    areas(name)
+                    areas(name),
+                    profiles(full_name)
                 `, { count: 'exact' })
                 .eq('status', 'active');
 
             if (cid && cid !== 'all') {
-                query = query.eq('category_id', cid);
+                // First get the category ID from the slug
+                const { data: catData } = await supabase
+                    .from('categories')
+                    .select('id')
+                    .eq('slug', cid)
+                    .eq('type', 'market')
+                    .maybeSingle();
+                
+                if (catData) {
+                    query = query.eq('category_id', catData.id);
+                } else {
+                    return { ads: [], total: 0 };
+                }
             }
 
             if (q && q.trim()) {
@@ -70,8 +85,9 @@ export async function getMarketAds(
                 .order('created_at', { ascending: false })
                 .range(offset, offset + limit - 1);
 
+            console.log(`getMarketAds query returned ${data?.length || 0} ads. Total count: ${count}`);
             if (error) {
-                console.error('getMarketAds error:', error);
+                console.error('getMarketAds DB error:', error);
                 return { ads: [], total: 0 };
             }
 
@@ -82,8 +98,8 @@ export async function getMarketAds(
         },
         [`market-ads-p${page}-cat${categoryId}-q${search}`],
         { 
-            tags: ['market-ads', ...(categoryId ? [`market-cat-${categoryId}`] : [])], 
-            revalidate: 60 
+            tags: ['market-ads'], 
+            revalidate: 1 
         }
     )(page, categoryId, search);
 }
@@ -99,7 +115,8 @@ export async function getMarketAdById(id: string) {
                 .select(`
                     *,
                     categories(name, slug),
-                    areas(name)
+                    areas(name),
+                    profiles(full_name)
                 `)
                 .eq('id', adId)
                 .single();
@@ -124,7 +141,8 @@ export async function getUserMarketAds() {
         .select(`
             *,
             categories(name, slug),
-            areas(name)
+            areas(name),
+            profiles(full_name)
         `)
         .eq('seller_id', user.id)
         .order('created_at', { ascending: false });
@@ -160,8 +178,7 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
             category_id: adData.category_id,
             area_id: adData.area_id,
             seller_id: user.id,
-            seller_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Unknown User',
-            seller_phone: adData.seller_phone,
+            contact_phone: adData.seller_phone,
             status: 'active',
             public_ids: adData.images 
         })

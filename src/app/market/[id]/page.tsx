@@ -4,11 +4,12 @@ import { notFound } from "next/navigation";
 import { Metadata } from 'next';
 
 interface Props {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const ad = await getMarketAdById(params.id);
+    const { id } = await params;
+    const ad = await getMarketAdById(id);
     if (!ad) return { title: 'إعلان غير موجود' };
 
     return {
@@ -23,7 +24,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function AdDetailsPage({ params }: Props) {
-    const ad = await getMarketAdById(params.id);
+    const { id } = await params;
+    const ad = await getMarketAdById(id);
 
     if (!ad) {
         notFound();
