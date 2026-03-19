@@ -18,7 +18,7 @@ export function SecuritySection() {
         const formData = new FormData(e.currentTarget)
         const result = await updatePassword(formData)
 
-        if (result.error) {
+        if (result && result.error) {
             setMessage({ type: 'error', text: result.error })
         } else {
             setMessage({ type: 'success', text: 'تم تحديث كلمة المرور بنجاح' })

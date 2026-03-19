@@ -50,9 +50,9 @@ export function ReviewForm({ placeId, onSuccess, initialData }: ReviewFormProps)
 
         setIsSubmitting(false);
 
-        if (result.error) {
+        if (result && result.error) {
             setError(result.error);
-        } else {
+        } else if (result) {
             if (!initialData) {
                 setComment('');
                 setRating(0);

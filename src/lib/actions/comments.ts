@@ -41,50 +41,51 @@ export async function addComment(postId: string, content: string, parentId?: str
             .eq('id', postId)
             .single();
             
-        if (!postData) return;
-        // Fetch commenter's name
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name, username')
-            .eq('id', user.id)
-            .single();
+        if (postData) {
+            // Fetch commenter's name
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('full_name, username')
+                .eq('id', user.id)
+                .single();
 
-        try {
-            const actorName = profile?.full_name || profile?.username || 'عضو';
+            try {
+                const actorName = profile?.full_name || profile?.username || 'عضو';
 
-            // 1. If it's a reply, notify the parent comment author
-            if (parentId) {
-                const { data: parentComment } = await supabase
-                    .from('comments')
-                    .select('author_id')
-                    .eq('id', parentId)
-                    .single();
+                // 1. If it's a reply, notify the parent comment author
+                if (parentId) {
+                    const { data: parentComment } = await supabase
+                        .from('comments')
+                        .select('author_id')
+                        .eq('id', parentId)
+                        .single();
 
-                if (parentComment && parentComment.author_id && parentComment.author_id !== user.id) {
-                    await NotificationService.trigger(NotificationEvent.COMMENT_REPLIED, {
+                    if (parentComment && parentComment.author_id && parentComment.author_id !== user.id) {
+                        await NotificationService.trigger(NotificationEvent.COMMENT_REPLIED, {
+                            postId,
+                            postTitle: postData.content || 'منشور',
+                            parentCommentId: parentId,
+                            actorName,
+                            recipientId: parentComment.author_id,
+                            actorId: user.id,
+                        });
+                    }
+                }
+
+                // 2. Notify the post author (if not the actor and not already notified as parent author)
+                // Note: In some UX models, you might notify post author of ALL comments.
+                if (postData.author_id && postData.author_id !== user.id) {
+                    await NotificationService.trigger(NotificationEvent.COMMENT_ADDED, {
                         postId,
                         postTitle: postData.content || 'منشور',
-                        parentCommentId: parentId,
                         actorName,
-                        recipientId: parentComment.author_id,
+                        recipientId: postData.author_id,
                         actorId: user.id,
                     });
                 }
+            } catch (notifErr) {
+                console.error("Failed to send comment notification:", notifErr);
             }
-
-            // 2. Notify the post author (if not the actor and not already notified as parent author)
-            // Note: In some UX models, you might notify post author of ALL comments.
-            if (postData.author_id && postData.author_id !== user.id) {
-                await NotificationService.trigger(NotificationEvent.COMMENT_ADDED, {
-                    postId,
-                    postTitle: postData.content || 'منشور',
-                    actorName,
-                    recipientId: postData.author_id,
-                    actorId: user.id,
-                });
-            }
-        } catch (notifErr) {
-            console.error("Failed to send comment notification:", notifErr);
         }
     }
 

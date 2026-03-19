@@ -22,7 +22,7 @@ export function PersonalInfoForm({ user }: PersonalInfoFormProps) {
         const formData = new FormData(e.currentTarget)
         const result = await updateProfile(formData)
 
-        if (result.error) {
+        if (result && result.error) {
             setMessage({ type: 'error', text: result.error })
         } else {
             setMessage({ type: 'success', text: 'تم تحديث البيانات بنجاح' })

@@ -38,7 +38,7 @@ export default function PostHeaderActions({
                 setIsDeleting(true);
                 try {
                     const result = await deletePost(post.id);
-                    if (result.error) {
+                    if (result && result.error) {
                         showAlert({
                             title: 'خطأ',
                             message: result.error,

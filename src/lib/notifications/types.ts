@@ -12,6 +12,19 @@ export enum NotificationEvent {
 }
 
 export type NotificationType = 'SYSTEM' | 'COMMUNITY' | 'MARKET' | 'DIRECTORY';
+export type NotificationStatus = 'READ' | 'UNREAD';
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  link?: string;
+  is_read: boolean;
+  created_at: string;
+  metadata?: Record<string, any>;
+}
 
 export interface NotificationPayload {
   userId: string | 'all';

@@ -132,7 +132,7 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
                 setIsDeleting(true);
                 try {
                     const result = await deletePlace(place.id);
-                    if (result.success) {
+                    if (result && result.success) {
                         router.push('/places');
                         router.refresh();
                         showAlert({

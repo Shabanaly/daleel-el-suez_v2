@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bell, CheckSquare } from 'lucide-react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
-import { Notification } from '@/lib/types/notifications';
+import { Notification } from '@/lib/notifications/types';
 import { NotificationList } from './NotificationList';
 import { motion, AnimatePresence } from 'framer-motion';
 

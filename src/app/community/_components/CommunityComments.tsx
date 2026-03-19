@@ -65,7 +65,7 @@ export default function CommunityComments({ postId, isInline = false }: Communit
         setIsSubmitting(true);
         try {
             const result = await addComment(postId, newComment, replyTo?.id);
-            if (result.success) {
+            if (result && result.success) {
                 setNewComment("");
                 setReplyTo(null);
                 await fetchComments();
@@ -82,7 +82,7 @@ export default function CommunityComments({ postId, isInline = false }: Communit
     const handleDeleteComment = async (commentId: string) => {
         try {
             const result = await deleteComment(commentId, postId);
-            if (result.success) {
+            if (result && result.success) {
                 await fetchComments();
             } else {
                 showAlert({

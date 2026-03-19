@@ -1,7 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { Notification } from '@/lib/types/notifications';
+import { Notification } from '@/lib/notifications/types';
 
 /**
  * Fetch the latest 20 notifications for the current authenticated user.
