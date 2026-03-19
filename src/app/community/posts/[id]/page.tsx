@@ -1,5 +1,6 @@
 import { getPostById } from '@/lib/actions/posts';
 import { getCommunityCategories } from '@/lib/actions/categories';
+import { getPostComments } from '@/lib/actions/comments';
 import { createClient } from '@/lib/supabase/server';
 import PostCard from '../../_components/PostCard';
 import { notFound } from 'next/navigation';
@@ -61,10 +62,11 @@ export default async function PostPage({ params }: PostPageProps) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Fetch post and categories in parallel
-    const [post, categories] = await Promise.all([
+    // Fetch post, categories and comments in parallel
+    const [post, categories, initialComments] = await Promise.all([
         getPostById(id, user?.id),
-        getCommunityCategories()
+        getCommunityCategories(),
+        getPostComments(id)
     ]);
 
     if (!post) {
@@ -117,7 +119,11 @@ export default async function PostPage({ params }: PostPageProps) {
                 {/* Comments Section (Inline for individual page) */}
                 <div className="mt-8">
                     <Suspense fallback={<div className="h-40 bg-surface animate-pulse rounded-2xl" />}>
-                        <CommunityComments postId={post.id} isInline={true} />
+                        <CommunityComments
+                            postId={post.id}
+                            isInline={true}
+                            initialComments={initialComments}
+                        />
                     </Suspense>
                 </div>
             </div>

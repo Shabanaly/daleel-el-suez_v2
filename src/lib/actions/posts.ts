@@ -224,7 +224,11 @@ export async function getCommunityPosts(categoryId?: number, search?: string, pa
             if (catId) query = query.eq('category_id', catId);
             if (queryStr) query = query.ilike('content', `%${queryStr}%`);
 
-            const { data: posts, error } = await query;
+            // Order by date and limit to a reasonable pool (e.g., 200) to keep ranking fast
+            const { data: posts, error } = await query
+                .order('created_at', { ascending: false })
+                .limit(200);
+
             if (error || !posts) return [];
 
             const now = new Date();

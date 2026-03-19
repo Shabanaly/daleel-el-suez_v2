@@ -12,30 +12,29 @@ import CommentForm from './CommentForm';
 interface CommunityCommentsProps {
     postId: string;
     isInline?: boolean;
+    initialComments?: any[];
 }
 
-export default function CommunityComments({ postId, isInline = false }: CommunityCommentsProps) {
+export default function CommunityComments({ postId, isInline = false, initialComments }: CommunityCommentsProps) {
     const { user } = useAuth();
     const { showAlert } = useDialog();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const [comments, setComments] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [comments, setComments] = useState<any[]>(initialComments || []);
+    const [isLoading, setIsLoading] = useState(!initialComments);
     const [newComment, setNewComment] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [replyTo, setReplyTo] = useState<any | null>(null);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     useEffect(() => {
-        if (postId) {
+        if (postId && !initialComments) {
             fetchComments();
         }
 
         const handleFocus = () => {
             if (inputRef.current) {
                 inputRef.current.focus();
-                // When focusing, we want to scroll the parent, but let the browser 
-                // handle the keyboard interaction natively with resizes-content
                 setTimeout(() => {
                     inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 300);
@@ -44,7 +43,7 @@ export default function CommunityComments({ postId, isInline = false }: Communit
 
         window.addEventListener('community:focus-comment-input', handleFocus);
         return () => window.removeEventListener('community:focus-comment-input', handleFocus);
-    }, [postId]);
+    }, [postId, initialComments]);
 
     const fetchComments = async () => {
         setIsLoading(true);
@@ -62,17 +61,48 @@ export default function CommunityComments({ postId, isInline = false }: Communit
         e.preventDefault();
         if (!newComment.trim() || isSubmitting || !user || !postId) return;
 
+        const commentText = newComment.trim();
+        const parentId = replyTo?.id;
+
+        // Optimistic UI update
+        const optimisticComment = {
+            id: 'temp-' + Date.now(),
+            post_id: postId,
+            content: commentText,
+            parent_id: parentId || null,
+            created_at: new Date().toISOString(),
+            author_id: user.id,
+            author: {
+                id: user.id,
+                username: user.user_metadata?.username || '...',
+                full_name: user.user_metadata?.full_name || 'أنت',
+                avatar_url: user.user_metadata?.avatar_url
+            },
+            isOptimistic: true
+        };
+
+        setComments(prev => [...prev, optimisticComment]);
+        setNewComment("");
+        setReplyTo(null);
         setIsSubmitting(true);
+
         try {
-            const result = await addComment(postId, newComment, replyTo?.id);
+            const result = await addComment(postId, commentText, parentId);
             if (result && result.success) {
-                setNewComment("");
-                setReplyTo(null);
-                await fetchComments();
+                // Replace optimistic comment with real one
+                setComments(prev =>
+                    prev.map(c => c.id === optimisticComment.id ? result.comment : c)
+                );
             } else {
+                // Rollback on failure
+                setComments(prev => prev.filter(c => c.id !== optimisticComment.id));
+                setNewComment(commentText); // Restore input
                 showAlert({ title: "خطأ", message: result.error || "فشل إرسال التعليق", type: "error" });
             }
         } catch (error) {
+            // Rollback on error
+            setComments(prev => prev.filter(c => c.id !== optimisticComment.id));
+            setNewComment(commentText);
             console.error('Failed to add comment:', error);
         } finally {
             setIsSubmitting(false);
@@ -80,18 +110,30 @@ export default function CommunityComments({ postId, isInline = false }: Communit
     };
 
     const handleDeleteComment = async (commentId: string) => {
+        const commentToDelete = comments.find(c => c.id === commentId);
+        if (!commentToDelete) return;
+
+        // Optimistic delete
+        setComments(prev => prev.filter(c => c.id !== commentId));
+
         try {
             const result = await deleteComment(commentId, postId);
-            if (result && result.success) {
-                await fetchComments();
-            } else {
+            if (!result || !result.success) {
+                // Rollback
+                setComments(prev => [...prev, commentToDelete].sort((a, b) =>
+                    new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                ));
                 showAlert({
                     title: "خطأ في الحذف",
-                    message: result.error || "حدث خطأ غير متوقع.",
+                    message: result?.error || "حدث خطأ غير متوقع.",
                     type: "error"
                 });
             }
         } catch (error) {
+            // Rollback
+            setComments(prev => [...prev, commentToDelete].sort((a, b) =>
+                new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            ));
             console.error('Delete comment failed:', error);
         }
     };

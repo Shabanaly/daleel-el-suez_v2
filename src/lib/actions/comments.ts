@@ -24,7 +24,10 @@ export async function addComment(postId: string, content: string, parentId?: str
             content: content,
             parent_id: parentId || null
         })
-        .select()
+        .select(`
+            *,
+            author:profiles!author_id(id, username, full_name, avatar_url)
+        `)
         .single();
 
     if (error) {
@@ -42,14 +45,9 @@ export async function addComment(postId: string, content: string, parentId?: str
             .single();
             
         if (postData) {
-            // Fetch commenter's name
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('full_name, username')
-                .eq('id', user.id)
-                .single();
-
             try {
+                // Use the author data we already got from the insert.select()
+                const profile = (data as any)?.author;
                 const actorName = profile?.full_name || profile?.username || 'عضو في المجتمع';
                 const postTitle = postData.content || postData.title || 'منشور';
 
