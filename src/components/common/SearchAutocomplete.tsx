@@ -251,14 +251,14 @@ export default function SearchAutocomplete({
                         zIndex: 999999
                     } : {
                         position: 'fixed',
-                        top: dropdownRect.bottom + 8,
+                        top: dropdownRect.bottom,
                         left: dropdownRect.left,
                         width: dropdownRect.width,
                         zIndex: 999999
                     }}
                     className={isMobile 
                         ? "bg-background flex flex-col" 
-                        : "bg-surface border border-border-subtle rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 overflow-y-auto max-h-[60vh]"
+                        : "bg-surface border border-border-subtle border-t-0 rounded-b-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 overflow-y-auto max-h-[60vh]"
                     }
                     dir="rtl"
                 >

@@ -156,8 +156,8 @@ export function CategoryClient({
 
                 {/* ─── Search & Filters ─── */}
                 <div className="flex flex-col md:flex-row items-center gap-6 mb-10">
-                    <div className="w-full md:flex-1 relative group h-14">
-                        <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted group-focus-within:text-primary transition-colors z-10 pointer-events-none" />
+                    <div className="w-full md:flex-1 relative group h-14 md:h-18">
+                        <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 text-text-muted group-focus-within:text-primary transition-colors z-10 pointer-events-none" />
                         <SearchAutocomplete
                             value={searchQuery}
                             onChange={setSearchQuery}
@@ -165,7 +165,7 @@ export function CategoryClient({
                             onSuggestionSelect={handleSuggestionSelect}
                             apiEndpoint="/api/autocomplete?type=market"
                             placeholder={`بحث في ${category.name}...`}
-                            inputClassName="w-full h-14 pr-12 pl-4 bg-surface border border-border-subtle rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            inputClassName="w-full h-full pr-14 pl-6 bg-surface/90 dark:bg-elevated/90 backdrop-blur-2xl border-2 border-border-subtle/60 rounded-2xl md:rounded-3xl text-base md:text-lg font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all placeholder:text-text-muted/50 shadow-xl shadow-black/5 dark:shadow-primary/10"
                         />
                     </div>
 

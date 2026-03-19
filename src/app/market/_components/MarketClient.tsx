@@ -100,7 +100,7 @@ export function MarketClient({
     };
 
     return (
-        <div className="min-h-screen bg-background pb-20 pt-20 overflow-x-hidden">
+        <div className="min-h-screen bg-background pb-20 pt-28 md:pt-32 overflow-x-hidden">
             <AuthRequiredModal 
                 isOpen={isAuthModalOpen} 
                 onClose={() => setIsAuthModalOpen(false)} 
@@ -109,16 +109,13 @@ export function MarketClient({
             />
             {/* ─── Header Section ─── */}
             <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border-subtle">
-                <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+                <div className="max-w-7xl mx-auto px-4 h-24 md:h-28 flex items-center justify-between gap-4">
                    <div className="flex items-center gap-3">
-                        <Link href="/" className="p-2 -mr-2 text-text-muted hover:text-text-primary transition-colors">
-                            <ArrowRight className="w-5 h-5" />
-                        </Link>
-                        <h1 className="text-lg font-black text-text-primary hidden md:block">سوق السويس</h1>
+                        <h1 className="text-xl md:text-2xl font-black text-text-primary tracking-tight">سوق السويس</h1>
                    </div>
 
-                   <div className="flex-1 max-w-2xl relative group h-10">
-                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-primary transition-colors z-10 pointer-events-none" />
+                   <div className="flex-1 max-w-2xl relative group h-14 md:h-18">
+                        <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 text-text-muted group-focus-within:text-primary transition-colors z-10 pointer-events-none" />
                         <SearchAutocomplete
                             value={searchQuery}
                             onChange={setSearchQuery}
@@ -126,16 +123,16 @@ export function MarketClient({
                             onSuggestionSelect={handleSuggestionSelect}
                             apiEndpoint="/api/autocomplete?type=market"
                             placeholder="بتدور على إيه النهاردة؟"
-                            inputClassName="w-full h-10 pr-10 pl-4 bg-surface border border-border-subtle rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            inputClassName="w-full h-full pr-14 pl-6 bg-surface/90 dark:bg-elevated/90 backdrop-blur-2xl border-2 border-border-subtle/60 rounded-2xl md:rounded-3xl text-base md:text-lg font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all placeholder:text-text-muted/50 shadow-xl shadow-black/5 dark:shadow-primary/10"
                         />
                    </div>
 
                    <Link 
                         href="/market/create"
                         onClick={handleCreateAdClick}
-                        className="bg-primary hover:bg-primary-hover text-white px-4 h-10 rounded-full flex items-center gap-2 text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
+                        className="bg-primary hover:bg-primary-hover text-white px-6 md:px-10 h-14 md:h-18 rounded-2xl md:rounded-3xl flex items-center gap-2 text-base md:text-lg font-black shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
                     >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-5 h-5 md:w-6 md:h-6" />
                         <span className="hidden sm:inline">أضف إعلانك</span>
                     </Link>
                 </div>

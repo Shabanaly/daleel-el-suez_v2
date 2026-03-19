@@ -37,7 +37,7 @@ export default function DesktopSidebar() {
 
     return (
 
-        <aside className="group/sidebar hidden lg:flex fixed top-[72px] right-0 z-40 w-20 hover:w-72 h-[calc(100vh-72px)] flex-col bg-surface/50 dark:bg-background/50 backdrop-blur-2xl border-l border-border-subtle shadow-[20px_0_50px_rgba(0,0,0,0.1)] hover:shadow-[30px_0_60px_rgba(0,0,0,0.15)] transition-all duration-300 ease-in-out overflow-hidden">
+        <aside className="group/sidebar hidden lg:flex fixed top-0 right-0 z-50 w-20 hover:w-72 h-screen flex-col bg-surface/50 dark:bg-background/50 backdrop-blur-2xl border-l border-border-subtle shadow-[20px_0_50px_rgba(0,0,0,0.1)] hover:shadow-[30px_0_60px_rgba(0,0,0,0.15)] transition-all duration-300 ease-in-out overflow-hidden">
 
             {/* 👤 Header: User Profile Section (Persistent) */}
             <div className="p-2 group-hover/sidebar:p-4 border-b border-border-subtle/30 bg-surface/30 dark:bg-background/30 transition-all duration-300">
