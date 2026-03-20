@@ -10,7 +10,6 @@ import { tags } from "@/lib/cache";
 // ── Categories ──────────────────────────────────────────────────────
 
 async function getMarketCategoriesInternal() {
-    console.log('Fetching market categories from DB...');
     const supabase = createServiceClient();
     const { data, error } = await supabase
         .from('categories')
@@ -28,7 +27,6 @@ async function getMarketCategoriesInternal() {
         return [];
     }
 
-    console.log(`Fetched ${data?.length || 0} categories for market`);
     return (data || []).map(mapMarketCategory);
 }
 
@@ -59,12 +57,13 @@ export async function getMarketAds(
     page = 1,
     categoryId?: string,
     search?: string,
-    limit = 20
+    limit = 20,
+    excludeIds: string[] = []
 ) {
     const offset = (page - 1) * limit;
 
     return unstable_cache(
-        async (p: number, cid: string | undefined, q: string | undefined) => {
+        async (p: number, cid: string | undefined, q: string | undefined, exIds: string[]) => {
             const supabase = createServiceClient();
 
             let selectStr = `
@@ -99,6 +98,10 @@ export async function getMarketAds(
                 query = query.ilike('title', `%${q.trim()}%`);
             }
 
+            if (exIds && exIds.length > 0) {
+                query = query.not('id', 'in', `(${exIds.join(',')})`);
+            }
+
             const { data, count, error } = await query
                 .order('created_at', { ascending: false })
                 .order('view_date', { foreignTable: 'listing_daily_views', ascending: false })
@@ -115,7 +118,7 @@ export async function getMarketAds(
                 total: count || 0
             };
         },
-        [`market-ads-p${page}-cat${categoryId}-q${search}`],
+        [`market-ads-p${page}-cat${categoryId}-q${search}-ex${excludeIds.join(',')}`],
         {
             tags: [
                 tags.allAds(),
@@ -123,8 +126,59 @@ export async function getMarketAds(
             ],
             revalidate: 7200
         }
-    )(page, categoryId, search);
+    )(page, categoryId, search, excludeIds);
 }
+
+// ── Featured & Recent (Home Page) ───────────────────────────────────
+
+async function baseMarketAdsQuery(orderBy: string, ascending = false, limit = 15) {
+    const supabase = createServiceClient();
+
+    const { data, error } = await supabase
+        .from('listings')
+        .select(`
+            *,
+            categories(name, slug),
+            areas(name),
+            profiles(full_name),
+            listing_daily_views(count, view_date)
+        `)
+        .eq('status', 'active')
+        .order(orderBy, { ascending })
+        .order('view_date', { foreignTable: 'listing_daily_views', ascending: false })
+        .limit(1, { foreignTable: 'listing_daily_views' })
+        .limit(limit);
+
+    if (error) {
+        console.error(`Error fetching ads (${orderBy}):`, error);
+        return [];
+    }
+
+    return (data || []).map(mapMarketAd);
+}
+
+export const getMarketHomePageData = unstable_cache(
+    async () => {
+        // Fetch 30 of each to allow for de-duplication and still have up to 15
+        const [trendingPotential, latestPotential] = await Promise.all([
+            baseMarketAdsQuery('views_count', false, 30),
+            baseMarketAdsQuery('created_at', false, 30)
+        ]);
+
+        // 1. Take top 15 trending
+        const trendingAds = trendingPotential.slice(0, 15);
+        const trendingIds = new Set(trendingAds.map(ad => ad.id));
+
+        // 2. Take top 15 latest that are NOT in trending
+        const latestAds = latestPotential
+            .filter(ad => !trendingIds.has(ad.id))
+            .slice(0, 15);
+
+        return { trendingAds, latestAds };
+    },
+    ['market-home-highlights'],
+    { tags: [tags.allAds()], revalidate: 3600 }
+);
 
 // ── Single Ad ───────────────────────────────────────────────────────
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Plus, MapPin, Store, Users, Heart, Share2, Settings, Info, User, LogOut, Loader2, FileText, ShieldCheck, Copyright as CopyIcon } from 'lucide-react';
+import { Plus, MapPin, Store, Users, Heart, Share2, Settings, Info, User, LogOut, Loader2, FileText, ShieldCheck, ShoppingBag, Copyright as CopyIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -18,6 +18,9 @@ export default function DesktopSidebar() {
     const SIDEBAR_ITEMS = [
         { icon: <Plus className="w-5 h-5" />, label: 'أضف مكان جديد', href: '/places/add', color: 'bg-primary' },
         { icon: <MapPin className="w-5 h-5" />, label: 'استكشف الأماكن', href: '/places', color: 'bg-primary' },
+        { icon: <Store className="w-5 h-5" />, label: 'سوق السويس', href: '/market', color: 'bg-primary' },
+        { icon: <Plus className="w-5 h-5" />, label: 'أضف إعلان جديد', href: '/market/create', color: 'bg-primary' },
+        { icon: <ShoppingBag className="w-5 h-5" />, label: 'إعلاناتي', href: '/market/my-ads', color: 'bg-primary' },
         { icon: <Heart className="w-5 h-5" />, label: 'الأماكن المفضلة', href: '/favorites', color: 'bg-accent' },
         { icon: <User className="w-5 h-5" />, label: 'البروفايل', href: '/profile', color: 'bg-accent' },
         { icon: <Info className="w-5 h-5" />, label: 'عن دليل السويس', href: '/about', color: 'bg-accent' },

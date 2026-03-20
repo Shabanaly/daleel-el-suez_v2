@@ -1,6 +1,6 @@
 import { MarketClient } from './_components/MarketClient';
 import type { Metadata } from 'next';
-import { getMarketCategories, getMarketAds } from '@/lib/actions/market';
+import { getMarketCategories, getMarketAds, getMarketHomePageData } from '@/lib/actions/market';
 import { MarketAd, MarketCategory } from '@/lib/types/market';
 
 export const metadata: Metadata = {
@@ -17,10 +17,26 @@ export default async function MarketPage({ searchParams }: Props) {
     const q = params.q || '';
     const category = params.category || 'all';
     
-    const [categories, adsResult] = await Promise.all([
+    // 1. Fetch Categories and Highlights first
+    const [categories, highlights] = await Promise.all([
         getMarketCategories(),
-        getMarketAds(1, category === 'all' ? undefined : category, q)
+        getMarketHomePageData()
     ]);
+
+    // 2. Collect IDs to exclude from main results to avoid duplicates
+    const excludeIds = [
+        ...highlights.trendingAds.map(ad => ad.id),
+        ...highlights.latestAds.map(ad => ad.id)
+    ];
+
+    // 3. Fetch main ads excluding the ones already shown in highlights (only if not searching)
+    const adsResult = await getMarketAds(
+        1, 
+        category === 'all' ? undefined : category, 
+        q, 
+        20, 
+        q ? [] : excludeIds
+    );
     
     return (
         <MarketClient 
@@ -29,6 +45,9 @@ export default async function MarketPage({ searchParams }: Props) {
             initialTotal={adsResult.total}
             initialQuery={q}
             initialCategory={category}
+            trendingAds={highlights.trendingAds}
+            latestAds={highlights.latestAds}
+            excludeIds={excludeIds}
         />
     );
 }

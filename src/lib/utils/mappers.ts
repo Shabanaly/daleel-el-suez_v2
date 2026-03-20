@@ -126,6 +126,11 @@ export function mapMarketCategory(c: any): MarketCategory {
         slug: c.slug,
         name: c.name,
         icon: c.icon || 'ShoppingBag',
-        adCount: c.listings?.[0]?.count || 0
+        adCount: (() => {
+            const listings = c.listings;
+            if (Array.isArray(listings)) return listings[0]?.count || 0;
+            if (typeof listings === 'object' && listings !== null) return (listings as any).count || 0;
+            return 0;
+        })()
     };
 }

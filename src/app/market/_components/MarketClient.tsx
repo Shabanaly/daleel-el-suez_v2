@@ -1,20 +1,19 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { ShoppingBag, Search, Plus, SlidersHorizontal, ChevronLeft } from "lucide-react";
-
-import { motion, AnimatePresence } from "framer-motion";
-import { MarketAd, MarketCategory } from "@/lib/types/market";
-import AdCard from "@/components/market/cards/AdCard";
 import { getMarketAds } from "@/lib/actions/market";
-
-import DynamicIcon from "@/components/common/DynamicIcon";
-import SearchAutocomplete, { Suggestion } from "@/components/common/SearchAutocomplete";
-
+import { MarketAd, MarketCategory } from "@/lib/types/market";
 import { createClient } from "@/lib/supabase/client";
 import AuthRequiredModal from "@/components/auth/AuthRequiredModal";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { Suggestion } from "@/components/common/SearchAutocomplete";
+
+// New Components
+import MarketHero from "./MarketHero";
+import MarketSearchHeader from "./MarketSearchHeader";
+import MarketCategories from "./MarketCategories";
+import MarketHighlights from "./MarketHighlights";
+import MarketResults from "./MarketResults";
 
 interface MarketClientProps {
     initialCategories: MarketCategory[];
@@ -22,6 +21,9 @@ interface MarketClientProps {
     initialTotal: number;
     initialQuery?: string;
     initialCategory?: string;
+    trendingAds?: MarketAd[];
+    latestAds?: MarketAd[];
+    excludeIds?: string[];
 }
 
 export function MarketClient({ 
@@ -29,57 +31,48 @@ export function MarketClient({
     initialAds = [],
     initialTotal = 0,
     initialQuery = "",
-    initialCategory = "all"
+    trendingAds = [],
+    latestAds = [],
+    excludeIds = []
 }: MarketClientProps) {
     const router = useRouter();
-    const searchParams = useSearchParams();
     
+    // Core State
     const [searchQuery, setSearchQuery] = useState(initialQuery);
-    const [selectedCategory, setSelectedCategory] = useState(initialCategory);
     const [ads, setAds] = useState<MarketAd[]>(initialAds);
     const [totalAds, setTotalAds] = useState(initialTotal);
     const [loading, setLoading] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     
     // Use ref to track the last synced parameters to prevent loops
-    const lastSyncKey = useRef(`${initialCategory}-${initialQuery}`);
+    const lastSyncKey = useRef(initialQuery);
 
-    const filteredCategories = [
-        { id: 'all', name: 'الكل', slug: 'all', icon: 'LayoutGrid', adCount: 0 },
-        ...initialCategories.filter(c => c.adCount > 0)
-    ];
+    const filteredCategories = initialCategories.filter((c: MarketCategory) => c.adCount > 0);
 
-    // Sync State with URL logic
+    // Sync State with URL logic (Live Search)
     useEffect(() => {
-        const currentSyncKey = `${selectedCategory}-${searchQuery}`;
+        const currentSyncKey = searchQuery;
         
-        // Debounce timer
         const timer = setTimeout(async () => {
-            // ONLY fetch if things actually changed from our last successful sync
             if (lastSyncKey.current === currentSyncKey) return;
             
             setLoading(true);
             try {
-                // Fetch data
-                const result = await getMarketAds(1, selectedCategory === 'all' ? undefined : selectedCategory, searchQuery);
+                // Pass excludeIds only if not searching
+                const result = await getMarketAds(1, undefined, searchQuery, 20, searchQuery ? [] : excludeIds);
                 setAds(result.ads);
                 setTotalAds(result.total);
                 
-                // Construct new params for URL sync
                 const params = new URLSearchParams();
                 if (searchQuery) params.set('q', searchQuery);
-                if (selectedCategory && selectedCategory !== 'all') params.set('category', selectedCategory);
                 
                 const newQueryString = params.toString();
-                // Check current browser search params directly to avoid stale closured searchParams
                 const currentQueryString = new URLSearchParams(window.location.search).toString();
 
-                // ONLY update URL if it actually changed to prevent refresh loops
                 if (newQueryString !== currentQueryString) {
                     router.replace(`/market?${newQueryString}`, { scroll: false });
                 }
 
-                // Update the sync key to mark this state as handled
                 lastSyncKey.current = currentSyncKey;
             } catch (error) {
                 console.error("Failed to fetch ads:", error);
@@ -89,7 +82,7 @@ export function MarketClient({
         }, searchQuery ? 500 : 50);
 
         return () => clearTimeout(timer);
-    }, [selectedCategory, searchQuery, router]);
+    }, [searchQuery, router]);
 
     const handleCreateAdClick = async (e: React.MouseEvent) => {
         const supabase = createClient();
@@ -102,19 +95,16 @@ export function MarketClient({
     };
 
     const handleSuggestionSelect = (s: Suggestion) => {
-        // If it looks like a category (has slug but not UUID-like id)
-        // Or we can check if it exists in initialCategories
-        const isCategory = initialCategories.find(c => c.slug === s.slug);
+        const isCategory = initialCategories.find((c: MarketCategory) => c.slug === s.slug);
         if (isCategory) {
             router.push(`/market/category/${encodeURIComponent(s.slug)}`);
         } else {
-            // It's likely a product/ad
             router.push(`/market/${s.slug}`);
         }
     };
 
     return (
-        <div className="min-h-screen bg-background pb-20 pt-14 lg:pt-16 overflow-x-hidden">
+        <div className="min-h-screen bg-background pb-20 pt-14 lg:pt-16 overflow-x-hidden text-right" dir="rtl">
             <AuthRequiredModal 
                 isOpen={isAuthModalOpen} 
                 onClose={() => setIsAuthModalOpen(false)} 
@@ -122,168 +112,36 @@ export function MarketClient({
                 description="يجب عليك تسجيل الدخول لتتمكن من إضافة إعلانات جديدة في سوق السويس."
             />
 
-            {/* ─── Hero Section (Non-sticky) ─── */}
-            <section className="pt-12 md:pt-24 pb-8 md:pb-16 text-center px-4 relative overflow-hidden">
-                {/* Background Decorations */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] -z-10" />
-                
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                >
-                    <h1 className="text-3xl md:text-6xl lg:text-8xl font-black text-text-primary tracking-tighter leading-tight mb-4 md:mb-6">
-                        سوق <span className="text-primary drop-shadow-[0_0_25px_rgba(var(--primary-rgb),0.3)]">السويس</span>
-                    </h1>
-                    <p className="text-sm md:text-2xl text-text-muted font-bold max-w-2xl mx-auto leading-relaxed">
-                        المنصة الأولى للبيع والشراء في مدينة السويس.<br className="hidden md:block"/> كل اللي بتدور عليه في مكان واحد.
-                    </p>
-                </motion.div>
-            </section>
+            {/* 1. Hero Section */}
+            <MarketHero />
 
-            {/* ─── Sticky Search Header ─── */}
-            <header className="sticky top-14 lg:top-16 w-full z-40 bg-background/80 backdrop-blur-xl border-b border-border-subtle py-4">
-                <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-3 md:gap-6">
-                   {/* Search Area */}
-                   <div className="flex-1 relative group h-14 md:h-18">
-                        <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 text-text-muted group-focus-within:text-primary transition-colors z-10 pointer-events-none" />
-                        <SearchAutocomplete
-                            value={searchQuery}
-                            onChange={setSearchQuery}
-                            onSearch={setSearchQuery}
-                            onSuggestionSelect={handleSuggestionSelect}
-                            apiEndpoint="/api/autocomplete?type=market"
-                            placeholder="بتدور على إيه النهاردة؟"
-                            inputClassName="w-full h-full pr-14 pl-6 bg-surface/90 dark:bg-elevated/90 backdrop-blur-2xl border-2 border-border-subtle/60 rounded-2xl md:rounded-3xl text-base md:text-lg font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all placeholder:text-text-muted/50 shadow-xl shadow-black/5 dark:shadow-primary/10"
-                        />
-                   </div>
-
-                   {/* Add Ad Button */}
-                   <Link 
-                        href="/market/create"
-                        onClick={handleCreateAdClick}
-                        className="bg-primary hover:bg-primary-hover text-white px-5 md:px-10 h-14 md:h-18 rounded-2xl md:rounded-3xl flex items-center gap-2 text-sm md:text-lg font-black shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
-                    >
-                        <Plus className="w-5 h-5 md:w-6 md:h-6 shrink-0" />
-                        <span className="hidden sm:inline">أضف إعلانك</span>
-                        <span className="sm:hidden">أضف</span>
-                    </Link>
-                </div>
-            </header>
+            {/* 2. Sticky Search Header */}
+            <MarketSearchHeader 
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                handleSuggestionSelect={handleSuggestionSelect}
+                handleCreateAdClick={handleCreateAdClick}
+            />
 
             <main className="max-w-7xl mx-auto px-4 py-8">
-                {/* ─── Categories Section ─── */}
-                <section className="mb-10 overflow-hidden">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-black text-text-primary min-w-fit">التصنيفات</h2>
-                        <Link 
-                            href="/market/category"
-                            className="bg-primary/10 hover:bg-primary/10 text-primary px-4 py-2 rounded-xl text-xs font-black transition-all active:scale-95 flex items-center gap-2"
-                        >
-                            عرض الكل
-                            <ChevronLeft className="w-4 h-4" />
-                        </Link>
-                    </div>
-                    
-                    <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mask-fade-edges">
-                        {filteredCategories.map((cat) => {
+                {/* 3. Categories Section (Immediately below header) */}
+                <MarketCategories categories={filteredCategories} />
 
-                            const isActive = selectedCategory === cat.slug;
-                            const content = (
-                                <>
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
-                                        isActive
-                                            ? 'bg-primary text-white shadow-xl shadow-primary/30'
-                                            : 'bg-surface border border-border-subtle'
-                                    }`}>
-                                        <DynamicIcon
-                                            name={cat.icon || 'ShoppingBag'}
-                                            className="w-6 h-6"
-                                            fallback={<ShoppingBag className="w-6 h-6" />}
-                                        />
-                                    </div>
-                                    <span className={`text-[11px] font-bold whitespace-nowrap ${isActive ? 'font-black' : ''}`}>
-                                        {cat.name}
-                                    </span>
-                                </>
-                            );
+                {/* 4. Highlights Sections (Only when not searching) */}
+                {!searchQuery && (
+                    <MarketHighlights 
+                        trendingAds={trendingAds}
+                        latestAds={latestAds}
+                    />
+                )}
 
-                            if (cat.id === 'all') {
-                                return (
-                                    <button
-                                        key={cat.id}
-                                        onClick={() => setSelectedCategory('all')}
-                                        className={`flex flex-col items-center gap-2 min-w-[70px] shrink-0 transition-all ${
-                                            isActive ? 'text-primary scale-105' : 'text-text-muted hover:text-text-secondary'
-                                        }`}
-                                    >
-                                        {content}
-                                    </button>
-                                );
-                            }
-
-                            return (
-                                <Link
-                                    key={cat.id}
-                                    href={`/market/category/${encodeURIComponent(cat.slug)}`}
-                                    className={`flex flex-col items-center gap-2 min-w-[70px] shrink-0 transition-all ${
-                                        isActive ? 'text-primary scale-105' : 'text-text-muted hover:text-text-secondary'
-                                    }`}
-                                >
-                                    {content}
-                                </Link>
-                            );
-                        })}
-                    </div>
-
-                </section>
-
-                {/* ─── Results Section ─── */}
-                <section>
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-lg font-black text-text-primary flex items-center gap-2">
-                             {searchQuery ? "نتائج البحث" : "أحدث الإعلانات"}
-                             <span className="px-2 py-0.5 rounded-md bg-elevated text-[10px] text-text-muted font-bold">
-                                {totalAds} نتيجة
-                             </span>
-                        </h2>
-                    </div>
-
-                    {loading ? (
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-                            {Array.from({ length: 8 }).map((_, i) => (
-                                <div key={i} className="aspect-4/5 bg-surface border border-border-subtle rounded-3xl animate-pulse" />
-                            ))}
-                        </div>
-                    ) : ads.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-                            <AnimatePresence mode="popLayout">
-                                {ads.map((ad, index) => (
-                                    <motion.div
-                                        key={ad.id}
-                                        layout
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.9 }}
-                                        transition={{ duration: 0.2, delay: index * 0.05 }}
-                                    >
-                                        <AdCard ad={ad} priority={index === 0} />
-                                    </motion.div>
-                                ))}
-                            </AnimatePresence>
-                        </div>
-                    ) : (
-                        <div className="py-20 flex flex-col items-center justify-center text-center">
-                            <div className="w-20 h-20 bg-elevated rounded-full flex items-center justify-center mb-4 text-text-muted/30">
-                                <Search className="w-10 h-10" />
-                            </div>
-                            <h3 className="text-lg font-bold text-text-primary mb-2">مفيش نتائج</h3>
-                            <p className="text-text-muted text-sm max-w-xs mx-auto">
-                                {searchQuery ? `مش لاقيين حاجة لـ "${searchQuery}"` : "القسم ده لسه مفيش فيه إعلانات، كن أول من ينشر!"}
-                            </p>
-                        </div>
-                    )}
-                </section>
+                {/* 5. Results Section */}
+                <MarketResults 
+                    searchQuery={searchQuery}
+                    totalAds={totalAds}
+                    loading={loading}
+                    ads={ads}
+                />
             </main>
         </div>
     );

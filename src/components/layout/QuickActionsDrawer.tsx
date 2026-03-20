@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, MapPin, Store, Users, Settings, LogOut, Info, Heart, Share2, User, FileText, ShieldCheck, Copyright as CopyIcon } from 'lucide-react';
+import { X, Plus, MapPin, Store, Users, Settings, LogOut, Info, Heart, Share2, User, FileText, ShieldCheck, ShoppingBag, Copyright as CopyIcon } from 'lucide-react';
 import ShareButton from '@/components/ui/ShareButton';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -114,6 +114,13 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                         label="سوق السويس"
                                         color="bg-primary"
                                         onClick={onClose}
+                                    />
+                                    <ActionItem
+                                        href="/market/my-ads"
+                                        icon={<ShoppingBag className="w-6 h-6" />}
+                                        label="إعلاناتي"
+                                        color="bg-primary"
+                                        onClick={(e) => handleProtectedAction(e, '/market/my-ads')}
                                     />
                                     <ActionItem
                                         href="/community"

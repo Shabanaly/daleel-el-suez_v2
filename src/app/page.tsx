@@ -9,8 +9,10 @@ import SuezStats from '@/components/home/SuezStats';
 import SuezGallery from '@/components/home/SuezGallery';
 import CommunityTeaser from '@/components/home/CommunityTeaser';
 import NewPlaces from '@/components/home/NewPlaces';
+import HomeMarketSection from '@/components/home/HomeMarketSection';
 import CategoryHighlight from '@/components/home/CategoryHighlight';
 import { getCommunityPosts } from '@/lib/actions/posts';
+import { getMarketHomePageData } from '@/lib/actions/market';
 import { createClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -25,16 +27,18 @@ export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser();
 
   // 🧠 Fetch data using the centralized home page action (logic moved to server)
-  const [categories, districts, homeData, communityPosts, randomCategoryData, suezStats] = await Promise.all([
+  const [categories, districts, homeData, communityPosts, randomCategoryData, suezStats, marketData] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
     getHomePageData(),
     getCommunityPosts(undefined, undefined, 1, 2, user?.id),
     import('@/lib/actions/categories').then(m => m.getRandomCategoryHighlights()),
-    getSuezStats()
+    getSuezStats(),
+    getMarketHomePageData()
   ]);
 
   const { trending, newPlaces } = homeData;
+  const homeMarketAds = [...marketData.trendingAds, ...marketData.latestAds].slice(0, 8); // Top 8 combined
 
   return (
     <div className="w-full flex flex-col items-center overflow-hidden">
@@ -42,6 +46,7 @@ export default async function Home() {
 
       <TrendingPlaces places={trending} />
       <NewPlaces places={newPlaces} />
+      <HomeMarketSection ads={homeMarketAds} />
       {randomCategoryData && <CategoryHighlight data={randomCategoryData} />}
       <SuezGallery />
       <DistrictsExplorer districts={districts} />
