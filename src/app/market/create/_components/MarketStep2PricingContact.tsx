@@ -52,6 +52,22 @@ export function MarketStep2PricingContact({
                             />
                             <div className="absolute right-6 top-1/2 -translate-y-1/2 text-text-muted font-bold text-sm pointer-events-none">ج.م</div>
                         </div>
+                        
+                        {/* Negotiable Toggle */}
+                        <div className="flex items-center gap-3 mt-4 mr-2">
+                            <button
+                                type="button"
+                                onClick={() => updateFormData({ isNegotiable: !formData.isNegotiable })}
+                                className={`w-12 h-6 rounded-full transition-all relative ${formData.isNegotiable ? 'bg-primary' : 'bg-border-subtle'}`}
+                            >
+                                <motion.div 
+                                    animate={{ x: formData.isNegotiable ? 24 : 4 }}
+                                    className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"
+                                />
+                            </button>
+                            <span className="text-xs font-bold text-text-primary">السعر قابل للتفاوض</span>
+                        </div>
+
                         {errors.price && <p className="text-red-500 text-[10px] font-bold mt-1 mr-2">{errors.price}</p>}
                     </div>
 

@@ -127,7 +127,7 @@ export default function MyAdsClient({ initialAds }: MyAdsClientProps) {
                                     
                                     <div className="flex items-center gap-2">
                                         <Link 
-                                            href={`/market/${ad.id}`}
+                                            href={`/market/${ad.slug}`}
                                             className="w-10 h-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-text-muted hover:text-primary transition-colors"
                                             title="عرض"
                                         >

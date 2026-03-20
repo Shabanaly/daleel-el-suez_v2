@@ -93,6 +93,7 @@ export function mapCategory(c: any): Category {
 export function mapMarketAd(p: any): MarketAd {
     return {
         id: p.id,
+        slug: p.slug,
         title: p.title,
         description: p.description || '',
         price: Number(p.price) || 0,
@@ -107,7 +108,13 @@ export function mapMarketAd(p: any): MarketAd {
         seller_phone: p.contact_phone || '',
         status: p.status as any,
         location: p.areas?.name || 'السويس',
+        is_negotiable: p.is_negotiable || false,
         views_count: p.views_count || 0,
+        daily_views: (() => {
+            const today = new Date().toISOString().split('T')[0];
+            const dv = Array.isArray(p.listing_daily_views) ? p.listing_daily_views[0] : p.listing_daily_views;
+            return dv?.view_date === today ? dv.count || 0 : 0;
+        })(),
         created_at: p.created_at,
         updated_at: p.updated_at
     };

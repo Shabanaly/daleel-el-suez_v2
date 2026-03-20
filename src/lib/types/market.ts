@@ -3,6 +3,7 @@ export type AdCondition = 'new' | 'used' | 'na';
 
 export interface MarketAd {
     id: string; // UUID
+    slug: string;
     title: string;
     description: string;
     price: number;
@@ -20,7 +21,9 @@ export interface MarketAd {
     seller_photo?: string;
     status: AdStatus;
     location: string; // Area name
+    is_negotiable: boolean;
     views_count: number;
+    daily_views: number;
     created_at: string;
     updated_at?: string;
 }

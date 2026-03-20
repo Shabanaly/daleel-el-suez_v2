@@ -46,7 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     const marketAdUrls = marketAds.map((ad) => ({
-        url: `${baseUrl}/market/${ad.id}`,
+        url: `${baseUrl}/market/${encodeURIComponent(ad.slug)}`,
         lastModified: new Date(ad.created_at),
         changeFrequency: 'weekly' as const,
         priority: 0.6,

@@ -12,6 +12,7 @@ export type MarketFormData = {
     areaId: string;
     phone: string;
     condition: 'new' | 'used' | 'na';
+    isNegotiable: boolean;
 };
 
 interface MarketStep1BasicInfoProps {

@@ -11,7 +11,8 @@ import {
     Info,
     ArrowRight,
     Tag,
-    Clock
+    Clock,
+    TrendingUp
 } from 'lucide-react';
 import FavoriteButton from '@/components/market/ui/FavoriteButton';
 import ShareButton from '@/components/ui/ShareButton';
@@ -20,6 +21,8 @@ import Link from 'next/link';
 import { PlaceGallery } from '@/app/places/_components/PlaceGallery';
 import { Lightbox } from '@/app/places/_components/Lightbox';
 import { AdStickyActionsBar } from './AdStickyActionsBar';
+import { useEffect } from 'react';
+import { incrementMarketAdView } from '@/lib/actions/market';
 
 interface AdDetailsClientProps {
     ad: MarketAd;
@@ -28,6 +31,23 @@ interface AdDetailsClientProps {
 export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+    // Throttled View Increment (1 per ad per 24h)
+    useEffect(() => {
+        const checkAndView = async () => {
+            const lastViewKey = `last_view_${ad.id}`;
+            const lastView = localStorage.getItem(lastViewKey);
+            const now = Date.now();
+            const dayInMs = 24 * 60 * 60 * 1000;
+
+            if (!lastView || now - parseInt(lastView) > dayInMs) {
+                await incrementMarketAdView(ad.id);
+                localStorage.setItem(lastViewKey, now.toString());
+            }
+        };
+        
+        checkAndView();
+    }, [ad.id]);
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('ar-EG').format(price);
@@ -117,6 +137,11 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                             <Eye className="w-3 h-3" />
                             <span>{ad.views_count} مشاهدة</span>
                         </div>
+                        <span className="text-text-muted text-[10px] font-black opacity-30">•</span>
+                        <div className="flex items-center gap-1.5 bg-primary/5 px-3 py-1.5 rounded-full text-[10px] font-black border border-primary/10 text-primary">
+                            <TrendingUp className="w-3 h-3" />
+                            <span>{ad.daily_views || 0} النهاردة</span>
+                        </div>
                     </div>
 
                     <div className="flex items-start justify-between gap-4 mb-4">
@@ -131,9 +156,16 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-text-muted font-bold mb-6 justify-start bg-surface p-4 sm:p-2 rounded-xl border border-border-subtle/30">
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-black text-primary">{formatPrice(ad.price)}</span>
-                            <span className="text-sm font-bold text-primary/60">ج.م</span>
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-3xl font-black text-primary">{formatPrice(ad.price)}</span>
+                                <span className="text-sm font-bold text-primary/60">ج.م</span>
+                            </div>
+                            {ad.is_negotiable && (
+                                <span className="px-2 py-1 rounded-lg bg-green-500/10 text-green-600 text-[10px] font-black border border-green-500/20">
+                                    قابل للتفاوض
+                                </span>
+                            )}
                         </div>
                         <span className="hidden sm:inline opacity-30">•</span>
                         <span className="flex items-center gap-1">

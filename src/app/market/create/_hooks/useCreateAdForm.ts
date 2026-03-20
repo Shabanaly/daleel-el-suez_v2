@@ -30,6 +30,7 @@ export function useCreateAdForm() {
         areaId: '',
         phone: '',
         condition: 'used' as 'new' | 'used' | 'na',
+        isNegotiable: false,
     });
 
     const updateFormData = (data: Partial<typeof formData>) => {
@@ -109,6 +110,7 @@ export function useCreateAdForm() {
                 title: formData.title,
                 description: formData.description,
                 price: Number(formData.price),
+                is_negotiable: formData.isNegotiable,
                 currency: 'ج.م',
                 category_id: formData.categoryId,
                 area_id: Number(formData.areaId),

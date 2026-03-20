@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ShoppingBag, ArrowRight, Search, Plus, SlidersHorizontal } from "lucide-react";
+import { ShoppingBag, Search, Plus, SlidersHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MarketAd, MarketCategory } from "@/lib/types/market";
 import AdCard from "@/components/market/cards/AdCard";
@@ -39,7 +39,9 @@ export function MarketClient({
     const [totalAds, setTotalAds] = useState(initialTotal);
     const [loading, setLoading] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [isFirstMount, setIsFirstMount] = useState(true);
+    
+    // Use ref to track the last synced parameters to prevent loops
+    const lastSyncKey = useRef(`${initialCategory}-${initialQuery}`);
 
     const categories = [
         { id: 'all', name: 'الكل', slug: 'all', icon: 'LayoutGrid', adCount: 0 },
@@ -48,34 +50,45 @@ export function MarketClient({
 
     // Sync State with URL logic
     useEffect(() => {
-        if (isFirstMount) {
-            setIsFirstMount(false);
-            return;
-        }
-
-        const fetchAds = async () => {
+        const currentSyncKey = `${selectedCategory}-${searchQuery}`;
+        
+        // Debounce timer
+        const timer = setTimeout(async () => {
+            // ONLY fetch if things actually changed from our last successful sync
+            if (lastSyncKey.current === currentSyncKey) return;
+            
             setLoading(true);
             try {
+                // Fetch data
                 const result = await getMarketAds(1, selectedCategory === 'all' ? undefined : selectedCategory, searchQuery);
                 setAds(result.ads);
                 setTotalAds(result.total);
+                
+                // Construct new params for URL sync
+                const params = new URLSearchParams();
+                if (searchQuery) params.set('q', searchQuery);
+                if (selectedCategory && selectedCategory !== 'all') params.set('category', selectedCategory);
+                
+                const newQueryString = params.toString();
+                // Check current browser search params directly to avoid stale closured searchParams
+                const currentQueryString = new URLSearchParams(window.location.search).toString();
+
+                // ONLY update URL if it actually changed to prevent refresh loops
+                if (newQueryString !== currentQueryString) {
+                    router.replace(`/market?${newQueryString}`, { scroll: false });
+                }
+
+                // Update the sync key to mark this state as handled
+                lastSyncKey.current = currentSyncKey;
             } catch (error) {
                 console.error("Failed to fetch ads:", error);
             } finally {
                 setLoading(false);
             }
+        }, searchQuery ? 500 : 50);
 
-            // Update URL
-            const params = new URLSearchParams(searchParams.toString());
-            if (searchQuery) params.set('q', searchQuery); else params.delete('q');
-            if (selectedCategory && selectedCategory !== 'all') params.set('category', selectedCategory); else params.delete('category');
-            
-            router.replace(`/market?${params.toString()}`, { scroll: false });
-        };
-
-        const timer = setTimeout(fetchAds, searchQuery ? 400 : 0);
         return () => clearTimeout(timer);
-    }, [selectedCategory, searchQuery, router, searchParams, isFirstMount]);
+    }, [selectedCategory, searchQuery, router]);
 
     const handleCreateAdClick = async (e: React.MouseEvent) => {
         const supabase = createClient();
@@ -94,27 +107,44 @@ export function MarketClient({
         if (isCategory) {
             router.push(`/market/category/${encodeURIComponent(s.slug)}`);
         } else {
-            // It's likely a product ID
+            // It's likely a product/ad
             router.push(`/market/${s.slug}`);
         }
     };
 
     return (
-        <div className="min-h-screen bg-background pb-20 pt-28 md:pt-32 overflow-x-hidden">
+        <div className="min-h-screen bg-background pb-20 pt-14 lg:pt-16 overflow-x-hidden">
             <AuthRequiredModal 
                 isOpen={isAuthModalOpen} 
                 onClose={() => setIsAuthModalOpen(false)} 
                 title="سجل دخولك أولاً"
                 description="يجب عليك تسجيل الدخول لتتمكن من إضافة إعلانات جديدة في سوق السويس."
             />
-            {/* ─── Header Section ─── */}
-            <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border-subtle">
-                <div className="max-w-7xl mx-auto px-4 h-24 md:h-28 flex items-center justify-between gap-4">
-                   <div className="flex items-center gap-3">
-                        <h1 className="text-xl md:text-2xl font-black text-text-primary tracking-tight">سوق السويس</h1>
-                   </div>
 
-                   <div className="flex-1 max-w-2xl relative group h-14 md:h-18">
+            {/* ─── Hero Section (Non-sticky) ─── */}
+            <section className="pt-12 md:pt-24 pb-8 md:pb-16 text-center px-4 relative overflow-hidden">
+                {/* Background Decorations */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] -z-10" />
+                
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <h1 className="text-3xl md:text-6xl lg:text-8xl font-black text-text-primary tracking-tighter leading-tight mb-4 md:mb-6">
+                        سوق <span className="text-primary drop-shadow-[0_0_25px_rgba(var(--primary-rgb),0.3)]">السويس</span>
+                    </h1>
+                    <p className="text-sm md:text-2xl text-text-muted font-bold max-w-2xl mx-auto leading-relaxed">
+                        المنصة الأولى للبيع والشراء في مدينة السويس.<br className="hidden md:block"/> كل اللي بتدور عليه في مكان واحد.
+                    </p>
+                </motion.div>
+            </section>
+
+            {/* ─── Sticky Search Header ─── */}
+            <header className="sticky top-14 lg:top-16 w-full z-40 bg-background/80 backdrop-blur-xl border-b border-border-subtle py-4">
+                <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-3 md:gap-6">
+                   {/* Search Area */}
+                   <div className="flex-1 relative group h-14 md:h-18">
                         <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 text-text-muted group-focus-within:text-primary transition-colors z-10 pointer-events-none" />
                         <SearchAutocomplete
                             value={searchQuery}
@@ -127,13 +157,15 @@ export function MarketClient({
                         />
                    </div>
 
+                   {/* Add Ad Button */}
                    <Link 
                         href="/market/create"
                         onClick={handleCreateAdClick}
-                        className="bg-primary hover:bg-primary-hover text-white px-6 md:px-10 h-14 md:h-18 rounded-2xl md:rounded-3xl flex items-center gap-2 text-base md:text-lg font-black shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
+                        className="bg-primary hover:bg-primary-hover text-white px-5 md:px-10 h-14 md:h-18 rounded-2xl md:rounded-3xl flex items-center gap-2 text-sm md:text-lg font-black shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
                     >
-                        <Plus className="w-5 h-5 md:w-6 md:h-6" />
+                        <Plus className="w-5 h-5 md:w-6 md:h-6 shrink-0" />
                         <span className="hidden sm:inline">أضف إعلانك</span>
+                        <span className="sm:hidden">أضف</span>
                     </Link>
                 </div>
             </header>

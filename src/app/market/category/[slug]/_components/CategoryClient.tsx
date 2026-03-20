@@ -116,13 +116,7 @@ export function CategoryClient({
 
             <div className="max-w-7xl mx-auto px-4">
                 {/* ─── Breadcrumbs ─── */}
-                <nav className="flex items-center gap-2 text-sm font-bold text-text-muted mb-8">
-                    <Link href="/" className="hover:text-primary transition-colors">الرئيسية</Link>
-                    <ChevronLeft className="w-4 h-4" />
-                    <Link href="/market" className="hover:text-primary transition-colors">سوق السويس</Link>
-                    <ChevronLeft className="w-4 h-4" />
-                    <span className="text-primary">{category.name}</span>
-                </nav>
+                {/* Breadcrumbs removed as requested */}
 
                 {/* ─── Hero Header ─── */}
                 <div className="w-full p-6 md:p-10 rounded-3xl bg-surface border border-border-subtle mb-10 shadow-sm flex flex-col md:flex-row items-center gap-6">

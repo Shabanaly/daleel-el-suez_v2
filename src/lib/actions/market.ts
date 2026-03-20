@@ -56,9 +56,9 @@ export async function getMarketCategoryBySlug(slug: string) {
 // ── Ads (Listings) ──────────────────────────────────────────────────
 
 export async function getMarketAds(
-    page = 1, 
-    categoryId?: string, 
-    search?: string, 
+    page = 1,
+    categoryId?: string,
+    search?: string,
     limit = 20
 ) {
     const offset = (page - 1) * limit;
@@ -66,14 +66,15 @@ export async function getMarketAds(
     return unstable_cache(
         async (p: number, cid: string | undefined, q: string | undefined) => {
             const supabase = createServiceClient();
-            
+
             let query = supabase
                 .from('listings')
                 .select(`
                     *,
                     categories(name, slug),
                     areas(name),
-                    profiles(full_name)
+                    profiles(full_name),
+                    listing_daily_views(count, view_date)
                 `, { count: 'exact' })
                 .eq('status', 'active');
 
@@ -89,6 +90,8 @@ export async function getMarketAds(
 
             const { data, count, error } = await query
                 .order('created_at', { ascending: false })
+                .order('view_date', { foreignTable: 'listing_daily_views', ascending: false })
+                .limit(1, { foreignTable: 'listing_daily_views' })
                 .range(offset, offset + limit - 1);
 
             if (error) {
@@ -96,23 +99,55 @@ export async function getMarketAds(
                 return { ads: [], total: 0 };
             }
 
-            return { 
-                ads: (data || []).map(mapMarketAd), 
-                total: count || 0 
+            return {
+                ads: (data || []).map(mapMarketAd),
+                total: count || 0
             };
         },
         [`market-ads-p${page}-cat${categoryId}-q${search}`],
-        { 
+        {
             tags: [
                 tags.allAds(),
                 ...(categoryId && categoryId !== 'all' ? [tags.adsByCategory(categoryId)] : [])
-            ], 
-            revalidate: 7200 
+            ],
+            revalidate: 7200
         }
     )(page, categoryId, search);
 }
 
 // ── Single Ad ───────────────────────────────────────────────────────
+
+export async function getMarketAdBySlug(slug: string): Promise<MarketAd | null> {
+    return unstable_cache(
+        async (adSlug: string): Promise<MarketAd | null> => {
+            const decodedSlug = decodeURIComponent(adSlug);
+            const supabase = createServiceClient();
+            const { data, error } = await supabase
+                .from('listings')
+                .select(`
+                    *,
+                    categories(name, slug),
+                    areas(name),
+                    profiles(full_name),
+                    listing_daily_views(count, view_date)
+                `)
+                .eq('slug', decodedSlug)
+                .order('view_date', { foreignTable: 'listing_daily_views', ascending: false })
+                .limit(1, { foreignTable: 'listing_daily_views' })
+                .maybeSingle();
+
+            if (error || !data) {
+                // Fallback: Check if it's an ID
+                const { data: byId } = await supabase.from('listings').select('slug').eq('id', decodedSlug).maybeSingle();
+                if (byId) return getMarketAdBySlug(byId.slug); 
+                return null;
+            }
+            return mapMarketAd(data);
+        },
+        [`market-ad-v5-${slug}`],
+        { tags: [tags.allAds(), `ad-v5-${slug}`], revalidate: 3600 }
+    )(slug);
+}
 
 export async function getMarketAdById(id: string) {
     return unstable_cache(
@@ -124,9 +159,12 @@ export async function getMarketAdById(id: string) {
                     *,
                     categories(name, slug),
                     areas(name),
-                    profiles(full_name)
+                    profiles(full_name),
+                    listing_daily_views(count, view_date)
                 `)
                 .eq('id', adId)
+                .order('view_date', { foreignTable: 'listing_daily_views', ascending: false })
+                .limit(1, { foreignTable: 'listing_daily_views' })
                 .single();
 
             if (error || !data) return null;
@@ -150,10 +188,13 @@ export async function getUserMarketAds() {
             *,
             categories(name, slug),
             areas(name),
-            profiles(full_name)
+            profiles(full_name),
+            listing_daily_views(count, view_date)
         `)
         .eq('seller_id', user.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .order('view_date', { foreignTable: 'listing_daily_views', ascending: false })
+        .limit(1, { foreignTable: 'listing_daily_views' });
 
     if (error) {
         console.error('getUserMarketAds error:', error);
@@ -174,13 +215,24 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
     }
 
     const serviceSupabase = createServiceClient();
-    
+
+    // Generate slug (matched to DB logic: title-with-dashes + last 5 chars of a random UUID)
+    const baseSlug = (adData.title || 'ad')
+        .toLowerCase()
+        .replace(/[^a-z0-9\u0600-\u06FF]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+    const randomSuffix = Math.random().toString(36).substring(2, 7);
+    const slug = `${baseSlug}-${randomSuffix}`;
+
     const { data, error } = await serviceSupabase
         .from('listings')
         .insert({
             title: adData.title,
+            slug: slug,
             description: adData.description,
             price: Number(adData.price),
+            is_negotiable: adData.is_negotiable,
             condition: adData.condition,
             images: adData.images,
             category_id: adData.category_id,
@@ -188,7 +240,7 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
             seller_id: user.id,
             contact_phone: adData.seller_phone,
             status: 'active',
-            public_ids: adData.images 
+            public_ids: adData.images
         })
         .select(`*, categories(slug)`)
         .single();
@@ -210,6 +262,21 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
     return { success: true, data: data };
 }
 
+export async function incrementMarketAdView(id: string) {
+    const supabase = createServiceClient();
+
+    const { error } = await supabase.rpc('increment_listing_view', {
+        l_id: id
+    });
+
+    if (error) {
+        console.error('Error incrementing view:', error);
+        return { success: false, error: error.message };
+    }
+
+    return { success: true };
+}
+
 export async function deleteMarketAd(id: string) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -217,7 +284,7 @@ export async function deleteMarketAd(id: string) {
     if (!user) return { success: false, error: 'Unauthorized' };
 
     const serviceSupabase = createServiceClient();
-    
+
     // Check ownership first
     const { data: ad } = await serviceSupabase
         .from('listings')
@@ -256,7 +323,7 @@ export async function getMarketAdsForSitemap() {
     const supabase = createServiceClient();
     const { data, error } = await supabase
         .from('listings')
-        .select('id, created_at')
+        .select('slug, created_at')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 

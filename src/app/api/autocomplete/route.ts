@@ -13,7 +13,7 @@ const getCachedSuggestions = (q: string, type: string = 'places') =>
                 const [adsRes, catsRes] = await Promise.all([
                     supabase
                         .from('listings')
-                        .select('title, id')
+                        .select('title, id, slug')
                         .eq('status', 'active')
                         .ilike('title', `%${term}%`)
                         .limit(5),
@@ -27,7 +27,7 @@ const getCachedSuggestions = (q: string, type: string = 'places') =>
 
                 const ads = (adsRes.data || []).map(ad => ({
                     name: ad.title,
-                    slug: ad.id,
+                    slug: ad.slug || ad.id,
                     icon: 'ShoppingBag'
                 }));
 
