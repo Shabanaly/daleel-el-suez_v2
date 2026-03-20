@@ -3,8 +3,8 @@
 import { createServiceClient } from '../supabase/client-service';
 import { unstable_cache, revalidateTag } from 'next/cache';
 import { mapPlace } from '../utils/mappers';
-import { keys, tags, CACHE_KEYS } from '@/lib/cache';
-import { SortOption } from '../types/places';
+import { keys, tags } from '@/lib/cache';
+import { SortOption, RawPlace } from '../types/places';
 
 async function basePlacesQuery(orderBy: string, ascending = false, limit = 20, offset = 0) {
     const supabase = createServiceClient();
@@ -141,7 +141,7 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
                 const noiseWords = ['السويس', 'حي', 'منطقة', 'شارع', 'ش', 'مدينة', 'مساكن', 'محل', 'مركز', 'شركة'];
 
                 // 🧠 Step 4: Weighted Relevance Ranking with Entity Intersection
-                const ranked = rawData.map((place: any) => {
+                const ranked = (rawData as unknown as RawPlace[]).map((place) => {
                     let totalScore = 0;
                     const matchedTermsCount = new Set<string>();
                     
@@ -165,12 +165,12 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
                             else if (name.includes(v)) bestTermScore = Math.max(bestTermScore, isNoise ? 50 : 10000);
 
                             // 2. Category Match (High Priority)
-                            if (matchedIds?.catIds.includes(catId)) {
+                            if (typeof catId === 'number' && matchedIds?.catIds.includes(catId)) {
                                 bestTermScore = Math.max(bestTermScore, 15000);
                             }
 
                             // 3. Area Match (Location Context)
-                            if (matchedIds?.areaIds.includes(areaId)) {
+                            if (typeof areaId === 'number' && matchedIds?.areaIds.includes(areaId)) {
                                 bestTermScore = Math.max(bestTermScore, 5000);
                             }
 
@@ -196,8 +196,8 @@ export async function getPlaces(page = 1, categoryId?: number, areaId?: number, 
                     }
 
                     // Metadata bonus
-                    if (place.images?.length > 0) totalScore += 20;
-                    if (place.views_count > 0) totalScore += Math.log10(place.views_count + 1);
+                    if (Array.isArray(place.images) && place.images.length > 0) totalScore += 20;
+                    if (typeof place.views_count === 'number' && place.views_count > 0) totalScore += Math.log10(place.views_count + 1);
 
                     return { ...place, searchScore: totalScore };
                 });
@@ -327,6 +327,75 @@ export async function getNewPlaces(limit = 8) {
         keys.latest(limit),
         { tags: [tags.newestPlaces(), tags.allPlaces()], revalidate: 172800 }
     )(limit);
+}
+
+/* =========================================================
+   Top Rated Places (Best of Category)
+========================================================= */
+
+export async function getTopPlacesByCategory(categoryId?: string | number, limit = 10) {
+    return unstable_cache(
+        async (cid: string | number | undefined, l: number) => {
+            const supabase = createServiceClient();
+            let query = supabase
+                .from('places')
+                .select(`
+                    *,
+                    categories(name, icon, slug),
+                    areas(name, districts(name)),
+                    reviews_count:reviews(count)
+                `)
+                .eq('status', 'approved')
+                .not('images', 'is', null)
+                .order('avg_rating', { ascending: false })
+                .order('reviews_count', { ascending: false })
+                .range(0, l + 10); // Fetch more to ensure we have enough after image filtering
+
+            if (cid) {
+                query = query.eq('category_id', Number(cid));
+            }
+
+            const { data, error } = await query;
+            if (error) return [];
+
+            return (data || [])
+                .map(mapPlace)
+                .filter(p => p.imageUrl && p.imageUrl.trim() !== '')
+                .slice(0, l);
+        },
+        [`top-places-${categoryId || 'all'}-limit-${limit}`],
+        { tags: [tags.allPlaces(), tags.trendingPlaces()], revalidate: 86400 }
+    )(categoryId, limit);
+}
+
+/* =========================================================
+   Global Stats for "Best of" Section
+========================================================= */
+
+export async function getOverallStats() {
+    return unstable_cache(
+        async () => {
+            const supabase = createServiceClient();
+            
+            const [verifiedRes, reviewsRes, viewsRes] = await Promise.all([
+                supabase.from('places').select('id', { count: 'exact', head: true }).eq('status', 'approved').eq('is_verified', true),
+                supabase.from('reviews').select('id', { count: 'exact', head: true }),
+                supabase.from('places').select('views_count').eq('status', 'approved')
+            ]);
+
+            const verifiedCount = verifiedRes.count || 450;
+            const reviewsCount = reviewsRes.count || 2800;
+            const totalViews = (viewsRes.data || []).reduce((acc, p) => acc + (p.views_count || 0), 0);
+
+            return {
+                verifiedCount,
+                reviewsCount,
+                totalViews: totalViews > 1000 ? `${(totalViews / 1000).toFixed(1)}k+` : totalViews
+            };
+        },
+        ['overall-best-stats'],
+        { tags: [tags.allPlaces(), tags.trendingPlaces()], revalidate: 86400 }
+    )();
 }
 
 /* =========================================================

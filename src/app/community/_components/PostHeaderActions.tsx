@@ -8,11 +8,12 @@ import { deletePost } from '@/lib/actions/posts';
 import { useAuth } from '@/hooks/useAuth';
 import { useDialog } from '@/components/providers/DialogProvider';
 import CreatePostModal from './CreatePostModal';
+import { CommunityPost, CommunityCategory } from '@/lib/types/community';
 
 interface PostHeaderActionsProps {
-    post: any;
+    post: CommunityPost;
     origin: string;
-    categories: any[];
+    categories: CommunityCategory[];
 }
 
 export default function PostHeaderActions({
@@ -135,7 +136,7 @@ export default function PostHeaderActions({
                     initialData={{
                         id: post.id,
                         content: post.content,
-                        categoryId: post.category_id,
+                        categoryId: typeof post.category_id === 'number' ? post.category_id : Number(post.category_id) || 0,
                         images: post.images || [],
                         publicIds: post.public_ids || []
                     }}

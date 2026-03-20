@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingBag, Plus, MapPin, ChevronLeft } from 'lucide-react';
+import { Search, ShoppingBag, Plus, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MarketAd, MarketCategory } from '@/lib/types/market';
 import AdCard from '@/components/market/cards/AdCard';
@@ -11,7 +11,7 @@ import DynamicIcon from '@/components/common/DynamicIcon';
 import SearchAutocomplete, { Suggestion } from '@/components/common/SearchAutocomplete';
 import { createClient } from '@/lib/supabase/client';
 import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 interface CategoryClientProps {
     category: MarketCategory;
@@ -28,7 +28,6 @@ export function CategoryClient({
     initialQuery = '',
 }: CategoryClientProps) {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const [searchQuery, setSearchQuery] = useState(initialQuery);
     const [ads, setAds] = useState<MarketAd[]>(initialAds);
     const [total, setTotal] = useState(initialTotal);

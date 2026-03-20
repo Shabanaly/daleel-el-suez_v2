@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/client-service';
 import { revalidatePath, unstable_cache } from 'next/cache';
 import { cacheManager, tags } from '../cache';
+import { Review } from '../types/reviews';
 
 export async function submitReview(formData: {
     placeId: string;
@@ -68,13 +69,13 @@ export async function getReviews(placeId: string, page = 1, limit = 10) {
             }
 
             // Map profiles to user to maintain compatibility with the UI
-            const reviewsWithUser = data?.map(review => {
-                const { profiles, ...rest } = review;
+            const reviewsWithUser = (data || []).map(review => {
+                const { profiles, ...rest } = review as unknown as { profiles: unknown };
                 return {
                     ...rest,
-                    user: profiles
-                };
-            }) || [];
+                    user: profiles as Review['user']
+                } as Review;
+            });
 
             return {
                 reviews: reviewsWithUser,

@@ -5,17 +5,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Users } from 'lucide-react';
 import SearchAutocomplete from '@/components/common/SearchAutocomplete';
 import CommunityFeed from './CommunityFeed';
+import { CommunityPost, CommunityCategory } from '@/lib/types/community';
 import CreatePostTrigger from './CreatePostTrigger';
 
-interface Category {
-    id: number;
-    name: string;
-    icon: string;
-}
-
 interface CommunityClientProps {
-    initialPosts: any[];
-    categories: Category[];
+    initialPosts: CommunityPost[];
+    categories: CommunityCategory[];
     userAvatar?: string | null;
 }
 

@@ -98,7 +98,7 @@ export default async function FavoritesPage({
                 ) : (
                     favoriteAds.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-                            {favoriteAds.map((ad, index) => (
+                            {favoriteAds.map((ad) => (
                                 ad && <AdCard key={ad.id} ad={ad} />
                             ))}
                         </div>
@@ -117,7 +117,15 @@ export default async function FavoritesPage({
     );
 }
 
-function EmptyState({ title, desc, btnLink, btnText, icon }: any) {
+interface EmptyStateProps {
+    title: string;
+    desc: string;
+    btnLink: string;
+    btnText: string;
+    icon: React.ReactNode;
+}
+
+function EmptyState({ title, desc, btnLink, btnText, icon }: EmptyStateProps) {
     return (
         <div className="flex flex-col items-center justify-center py-20 bg-surface rounded-[32px] border border-dashed border-border-subtle/50">
             <div className="w-20 h-20 rounded-full bg-accent/5 flex items-center justify-center text-accent/30 mb-6">

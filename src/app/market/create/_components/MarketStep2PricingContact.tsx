@@ -1,6 +1,6 @@
 'use client';
 
-import { DollarSign, Phone, MapPin, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Phone, MapPin, ArrowRight, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { MarketFormData } from './MarketStep1BasicInfo';

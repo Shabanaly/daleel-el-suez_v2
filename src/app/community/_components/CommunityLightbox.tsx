@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import LightboxComponent from 'yet-another-react-lightbox';
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
-import { X, Heart, MessageCircle, Share2 } from 'lucide-react';
+import { Heart, MessageCircle, Share2 } from 'lucide-react';
 import { useDialog } from '@/components/providers/DialogProvider';
 import ShareButton from '@/components/ui/ShareButton';
+import { CommunityPost } from '@/lib/types/community';
 
 // CSS imports
 import 'yet-another-react-lightbox/styles.css';
@@ -15,8 +16,7 @@ interface CommunityLightboxProps {
     initialIndex: number;
     isOpen: boolean;
     onClose: () => void;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    post: any;
+    post: CommunityPost;
     isLiked: boolean;
     likesCount: number;
     onLike: (e: React.MouseEvent) => void;
@@ -89,13 +89,15 @@ export default function CommunityLightbox({
                                 <span className="text-base font-black">{likesCount}</span>
                             </button>
 
-                            <button
-                                onClick={onComment}
-                                className="flex items-center gap-2 px-6 h-14 rounded-2xl bg-white/10 text-white border border-white/10 hover:bg-white/20 transition-all active:scale-90 shadow-lg"
-                            >
-                                <MessageCircle className="w-6 h-6" />
-                                <span className="text-base font-black">{post.comments_count?.[0]?.count || 0}</span>
-                            </button>
+                    <button
+                        onClick={onComment}
+                        className="flex items-center gap-2 px-6 h-14 rounded-2xl bg-white/10 text-white border border-white/10 hover:bg-white/20 transition-all active:scale-90 shadow-lg"
+                    >
+                        <MessageCircle className="w-6 h-6" />
+                        <span className="text-base font-black">
+                            {Array.isArray(post.comments_count) ? post.comments_count[0]?.count || 0 : (post.comments_count || 0)}
+                        </span>
+                    </button>
 
                             <ShareButton
                                 title="دليل السويس - منشور في المجتمع"
@@ -121,7 +123,7 @@ export default function CommunityLightbox({
                 container: { backgroundColor: "rgba(0, 0, 0, 0.95)" },
                 root: {
                     "--yarl__color_backdrop": "rgba(0, 0, 0, 0.95)",
-                } as any,
+                } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
             }}
         />
     );

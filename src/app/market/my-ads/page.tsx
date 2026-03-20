@@ -3,7 +3,7 @@ import MyAdsClient from "./_components/MyAdsClient";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from 'next/link';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 export const metadata = {
     title: 'إعلاناتي | سوق السويس',

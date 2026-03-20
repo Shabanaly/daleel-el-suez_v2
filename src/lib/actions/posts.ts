@@ -232,9 +232,11 @@ export async function getCommunityPosts(categoryId?: number, search?: string, pa
             if (error || !posts) return [];
 
             const now = new Date();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const rankedPosts = posts.map((post: any) => {
                 const commentCount = post.comments_count?.[0]?.count || 0;
                 const likesCount = post.likes_count || 0;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const isLiked = userId ? post.likes?.some((l: any) => l.user_id === userId) : false;
                 const createdDate = new Date(post.created_at);
                 const hoursSince = Math.max(0, (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60));
@@ -275,6 +277,7 @@ export async function getPostById(id: string, currentUserId?: string | null) {
 
             if (error || !data) return null;
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const isLiked = userId ? data.likes?.some((l: any) => l.user_id === userId) : false;
 
             return {

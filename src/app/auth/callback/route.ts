@@ -18,7 +18,7 @@ export async function GET(request: Request) {
                 console.warn(`[AUTH] Blocked potential open redirect to: ${next}`)
                 next = '/'
             }
-        } catch (e) {
+        } catch {
             next = '/'
         }
     }

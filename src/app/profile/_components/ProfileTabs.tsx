@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Star, MapPin, Heart, Clock } from 'lucide-react';
+import { Activity, Star, MapPin, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -55,7 +55,7 @@ export function ProfileTabs({ activities, reviews = [], places = [] }: ProfileTa
                 ].map((tab) => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id as any)}
+                        onClick={() => setActiveTab(tab.id as 'all' | 'reviews' | 'places')}
                         className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm whitespace-nowrap snap-center transition-all ${activeTab === tab.id
                             ? 'bg-primary text-white shadow-md shadow-primary/20'
                             : 'bg-surface text-text-muted hover:text-text-primary hover:bg-elevated border border-border-subtle'
@@ -74,7 +74,7 @@ export function ProfileTabs({ activities, reviews = [], places = [] }: ProfileTa
 
                 <AnimatePresence mode="popLayout">
                     {filteredActivities.length > 0 ? (
-                        filteredActivities.map((activity, index) => (
+                        filteredActivities.map((activity) => (
                             <motion.div
                                 key={activity.id}
                                 layout

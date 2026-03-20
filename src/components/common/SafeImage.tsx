@@ -23,7 +23,7 @@ export function SafeImage({
 
     // Reset error state if src changes (e.g., trying a fallback image)
     useEffect(() => {
-        setHasError(false);
+        setTimeout(() => setHasError(false), 0);
     }, [src]);
 
     const handleError = () => {

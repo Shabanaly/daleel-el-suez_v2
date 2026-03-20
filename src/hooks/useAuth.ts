@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { login, signup } from '@/lib/actions/auth';
 import { useAuth as useAuthProvider } from '@/components/providers/AuthProvider';
-import { useRouter } from 'next/navigation';
+// Removed unused useRouter import
 
 export function useAuth() {
     const { user, isLoading: authLoading } = useAuthProvider();
@@ -24,6 +24,7 @@ export function useAuth() {
                 return { error: result.error };
             }
             return { success: true };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             if (err.message !== 'NEXT_REDIRECT') {
                 setError('حدث خطأ غير متوقع');
@@ -44,6 +45,7 @@ export function useAuth() {
                 return { error: result.error };
             }
             return { success: true };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             if (err.message !== 'NEXT_REDIRECT') {
                 setError('حدث خطأ غير متوقع');
@@ -67,6 +69,7 @@ export function useAuth() {
                 },
             });
             if (error) throw error;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             setError(err.message || 'حدث خطأ أثناء الاتصال');
             setSocialLoading(null);

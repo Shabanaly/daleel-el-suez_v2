@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
-import { ChevronLeft } from 'lucide-react';
+import { LucideIcon, HelpCircle } from 'lucide-react';
 
 import type { Category } from '@/lib/types/category';
 import SectionHeader from '@/components/ui/SectionHeader';
@@ -14,10 +14,10 @@ interface HeroCategoriesProps {
 
 // Dynamic Icon Renderer
 const IconRenderer = ({ iconName, className }: { iconName: string, className?: string }) => {
-    const Icon = (LucideIcons as any)[iconName];
+    const Icon = (LucideIcons as unknown as Record<string, LucideIcon>)[iconName];
     if (!Icon) {
         if (iconName && iconName.length <= 4) return <span className="text-xl">{iconName}</span>;
-        return <LucideIcons.HelpCircle className={className} />;
+        return <HelpCircle className={className} />;
     }
     return <Icon className={className} />;
 };

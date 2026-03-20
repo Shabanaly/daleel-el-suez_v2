@@ -1,6 +1,4 @@
 'use server';
-
-import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/client-service';
 import { unstable_cache } from 'next/cache';
 

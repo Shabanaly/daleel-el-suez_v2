@@ -27,6 +27,7 @@ async function fetchRawCategories() {
     // Filter out:
     // 1. Categories with 0 places
     // 2. Categories with "مراجعة" or "راجع" in name (internal/pending)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (data || []).filter((c: any) => {
         const count = c.places?.[0]?.count || 0;
         const name = c.name.toLowerCase();
@@ -38,6 +39,7 @@ async function fetchRawCategories() {
 // ── Internal Helpers (No Cache) ──────────────────────────────────
 async function getCategoriesInternal(): Promise<string[]> {
     const data = await fetchRawCategories();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return ['الكل', ...data.map((c: any) => c.name)];
 }
 
@@ -92,7 +94,7 @@ export async function getCategoryDetails(id: string) {
             if (catError || !category) return null;
 
             // Fetch places in this category
-            const { data: places, error: placesError } = await supabase
+            const { data: places } = await supabase
                 .from('places')
                 .select(`
                     *,
@@ -108,6 +110,7 @@ export async function getCategoryDetails(id: string) {
                 ...category,
                 places: (places || [])
                     .map(mapPlace)
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     .filter((p: any) => p.imageUrl && p.imageUrl.trim() !== '')
                     .slice(0, 12)
             };
@@ -139,7 +142,7 @@ export async function getCategoryHighlights(id: string) {
             if (catError || !category) return null;
 
             // 2. Fetch TOP 6 places for the "Highlights" grid
-            const { data: places, error: placesError } = await supabase
+            const { data: places } = await supabase
                 .from('places')
                 .select(`
                     *,
@@ -166,12 +169,14 @@ export async function getCategoryHighlights(id: string) {
                 .eq('status', 'approved')
                 .limit(100);
             
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const areaNames = Array.from(new Set((areasData || []).map((a: any) => a.areas?.name).filter(Boolean)));
 
             return {
                 id: category.id,
                 name: category.name,
                 icon: category.icon,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 totalPlaces: (category as any).places?.[0]?.count || 0,
                 highlights: mappedPlaces,
                 topAreas: areaNames.slice(0, 5)
@@ -190,27 +195,36 @@ export async function getCategoryInfoBySlug(slug: string) {
             const supabase = createServiceClient();
 
             // Fetch category by slug + total count
-            const { data: category, error: catError } = await supabase
+            const { data, error } = await supabase
                 .from('categories')
                 .select(`
-                    id,
-                    name,
-                    slug,
-                    icon,
-                    places(count)
+                    *,
+                    places!category_id(
+                        id,
+                        views_count,
+                        reviews_count:reviews(count)
+                    )
                 `)
                 .eq('slug', categorySlug)
-                .eq('type', 'place')
                 .single();
 
-            if (catError || !category) return null;
+            if (error || !data) return null;
+
+            const places = data.places || [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const totalReviews = places.reduce((acc: number, p: any) => acc + (p.reviews_count?.[0]?.count || 0), 0);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const totalViews = places.reduce((acc: number, p: any) => acc + (p.views_count || 0), 0);
 
             return {
-                id: category.id,
-                slug: category.slug,
-                name: category.name,
-                icon: category.icon,
-                totalPlaces: (category as any).places?.[0]?.count || 0,
+                id: data.id,
+                name: data.name,
+                slug: data.slug,
+                description: data.description,
+                icon: data.icon,
+                totalPlaces: places.length,
+                totalReviews,
+                totalViews: totalViews > 1000 ? `${(totalViews / 1000).toFixed(1)}k+` : totalViews
             };
         },
         [`category-info-slug-${slug}`],
@@ -233,13 +247,13 @@ export const getCategoriesWithIds = unstable_cache(
 );
 
 export const getCommunityCategories = unstable_cache(
-    async (): Promise<{ id: number; name: string; icon: string }[]> => {
+    async (): Promise<{ id: number; name: string; icon: string; slug: string }[]> => {
         const supabase = createServiceClient();
         const { data } = await supabase
             .from('categories')
-            .select('id, name, icon')
+            .select('id, name, icon, slug')
             .eq('type', 'community');
-        return (data || []) as { id: number; name: string; icon: string }[];
+        return (data || []) as { id: number; name: string; icon: string; slug: string }[];
     },
     ['community-categories-list'],
     { tags: ['categories'], revalidate: 86400 }
@@ -296,6 +310,7 @@ export const getRandomCategoryHighlights = unstable_cache(
             },
             places: (places || [])
                 .map(mapPlace)
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .filter((p: any) => p.imageUrl && p.imageUrl.trim() !== '')
                 .slice(0, 20)
         };

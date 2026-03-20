@@ -6,14 +6,16 @@ import Link from 'next/link';
 import { useDialog } from "@/components/providers/DialogProvider";
 import {
     ArrowRight, MapPin, Phone, Building2,
-    Image as ImageIcon, CheckCircle2, Send, Clock, Info, Loader2, Trash2,
-    Facebook, Instagram, Globe, Tag, FileText, ChevronRight, Plus, X, MessageCircle
+    Image as ImageIcon, CheckCircle2, Send, Clock, Loader2, Trash2,
+    Facebook, Instagram, Globe, MessageCircle,
+    Plus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getCloudinarySignature, deleteCloudinaryImage } from '@/lib/actions/media';
+import { getCloudinarySignature } from '@/lib/actions/media';
 import { updatePlace, deletePlace } from '@/lib/actions/mutations';
 import { StepIndicator } from '@/app/places/add/_components/StepIndicator';
 import { Place } from '@/lib/types/places';
+import { SafeImage } from '@/components/common/SafeImage';
 
 interface EditPlaceFormProps {
     place: Place;
@@ -43,7 +45,7 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
     const [step, setStep] = useState(1);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
+    const [, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const { showConfirm, showAlert } = useDialog();
@@ -97,7 +99,7 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
             } else {
                 throw new Error('فشل رفع الصورة');
             }
-        } catch (err: any) {
+        } catch {
             setError('حدث خطأ أثناء رفع الصورة');
         } finally {
             setIsUploading(false);
@@ -112,11 +114,14 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
         try {
             await updatePlace(place.id, {
                 ...formData,
-                images: formData.imageUrl ? [formData.imageUrl] : []
+                images: formData.imageUrl ? [formData.imageUrl] : [],
+                publicIds: formData.publicId ? [formData.publicId] : (place.publicIds || []),
+                openHours: formData.openHours || 'قريباً'
             });
             setIsSubmitted(true);
-        } catch (err: any) {
-            setError(err.message || 'حدث خطأ أثناء تحديث البيانات');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'حدث خطأ أثناء تحديث البيانات';
+            setError(message);
         } finally {
             setIsUploading(false);
         }
@@ -141,11 +146,12 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
                             type: 'success'
                         });
                     }
-                } catch (err: any) {
+                } catch (err: unknown) {
                     console.error('Delete error:', err);
+                    const message = err instanceof Error ? err.message : 'حدث خطأ غير متوقع';
                     showAlert({
                         title: 'خطأ',
-                        message: err.message || 'حدث خطأ غير متوقع',
+                        message,
                         type: 'error'
                     });
                 } finally {
@@ -419,7 +425,12 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
                                     <label className="text-xs font-black text-text-muted mr-3 block uppercase tracking-wide">صورة الغلاف</label>
                                     <div className="relative h-48 rounded-3xl border-2 border-dashed border-border-subtle flex flex-col items-center justify-center text-text-muted/40 hover:border-primary/50 hover:text-primary transition-all group overflow-hidden bg-background/30">
                                         {formData.imageUrl ? (
-                                            <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                                            <SafeImage 
+                                                src={formData.imageUrl} 
+                                                alt="Preview" 
+                                                fill
+                                                className="w-full h-full object-cover" 
+                                            />
                                         ) : (
                                             <>
                                                 <div className="w-16 h-16 rounded-2xl bg-elevated border border-border-subtle flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">

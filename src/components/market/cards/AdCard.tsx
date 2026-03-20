@@ -11,6 +11,8 @@ import SellerInfo from '../ui/SellerInfo';
 import { FavoriteButton } from '@/components/common/FavoriteButton';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import Image from 'next/image';
+import { SafeImage } from '@/components/common/SafeImage';
 
 interface AdCardProps {
     ad: MarketAd;
@@ -37,14 +39,15 @@ export default function AdCard({ ad, priority = false }: AdCardProps) {
             {/* Image Section */}
             <div className="relative aspect-4/3 overflow-hidden bg-muted flex items-center justify-center">
                 {ad.images && ad.images.length > 0 ? (
-                    <img
+                    <SafeImage
                         src={ad.images[0]}
                         alt={ad.title}
+                        fill
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                 ) : (
                     <div className="w-full h-full bg-primary/5 flex items-center justify-center p-8 opacity-20 grayscale saturate-0 mix-blend-multiply">
-                        <img src="/favicon-circular.ico" alt="دليل السويس" className="w-16 h-16 object-contain" />
+                        <Image src="/favicon-circular.ico" alt="دليل السويس" width={64} height={64} className="w-16 h-16 object-contain" />
                     </div>
                 )}
                 

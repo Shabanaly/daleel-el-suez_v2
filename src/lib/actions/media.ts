@@ -13,6 +13,7 @@ export async function getCloudinarySignature(folder?: string) {
     }
 
     const timestamp = Math.round(new Date().getTime() / 1000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any = {
         timestamp,
         upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,

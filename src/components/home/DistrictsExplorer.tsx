@@ -5,7 +5,14 @@ import { Map } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import SectionHeader from '../ui/SectionHeader';
 
-export default function DistrictsExplorer({ districts }: { districts: any[] }) {
+interface District {
+    id: string | number;
+    name: string;
+    icon: string;
+    count: number | string;
+}
+
+export default function DistrictsExplorer({ districts }: { districts: District[] }) {
     const router = useRouter();
 
     const handleDistrictClick = (name: string) => {
@@ -15,7 +22,7 @@ export default function DistrictsExplorer({ districts }: { districts: any[] }) {
     if (!districts || districts.length === 0) return null;
 
     return (
-        <section className="w-full py-4 px-4 md:px-6 md:py-16 mb-4 md:mb-5 overflow-hidden relative border-t border-border-subtle/30">
+        <section className="w-full pt-0 pb-8 md:pt-0 md:pb-16 px-4 md:px-6 overflow-hidden relative border-t border-border-subtle/30">
             {/* Header */}
             <SectionHeader
                 title="الأحياء"
@@ -34,7 +41,7 @@ export default function DistrictsExplorer({ districts }: { districts: any[] }) {
                 <div
                     className="flex overflow-x-auto md:overflow-x-visible hide-scrollbar gap-4 md:gap-6 px-6 md:px-4 pb-8 md:pb-0 scroll-smooth snap-x snap-mandatory md:justify-center"
                 >
-                    {districts.map((district: any, idx: number) => (
+                    {districts.map((district, idx: number) => (
                         <motion.div
                             key={district.id}
                             initial={{ opacity: 0, scale: 0.9, x: 20 }}

@@ -11,7 +11,7 @@ import { SuccessState } from './SuccessState';
 interface AddPlaceFormProps {
     categories: { id: number; name: string }[];
     areas: { id: number; name: string }[];
-    districts: any[];
+    districts: { id: number; name: string }[];
 }
 
 export function AddPlaceForm({ categories, areas, districts }: AddPlaceFormProps) {

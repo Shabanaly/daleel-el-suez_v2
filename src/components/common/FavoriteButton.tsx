@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { Heart } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { toggleFavorite, isItemFavorite } from '@/lib/actions/favorites';
 import { useAuth } from '@/hooks/useAuth';
 import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
 import { useDialog } from '@/components/providers/DialogProvider';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 interface FavoriteButtonProps {
@@ -30,7 +30,7 @@ export function FavoriteButton({
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const { user } = useAuth();
     const { showAlert } = useDialog();
-    const router = useRouter();
+    // const router = useRouter();
 
     // Fetch actual status on mount to ensure persistence
     useEffect(() => {
@@ -75,7 +75,7 @@ export function FavoriteButton({
             } else if (result.success) {
                 setIsFavorite(result.isFavorite!);
             }
-        } catch (error) {
+        } catch {
             setIsFavorite(isFavorite);
         } finally {
             setIsLoading(false);

@@ -2,12 +2,12 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/client-service';
-import { unstable_cache, revalidateTag } from 'next/cache';
+import { unstable_cache } from 'next/cache';
 import { mapPlace, mapMarketAd } from '../utils/mappers';
 import { tags, keys, cacheManager } from '@/lib/cache';
 import { NotificationService } from '@/lib/notifications/service';
 import { NotificationEvent } from '@/lib/notifications/types';
-import { MarketAd } from '../types/market';
+
 
 /**
  * Toggles a favorite item for the current user.

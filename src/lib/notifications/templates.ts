@@ -1,9 +1,8 @@
-import { NotificationEvent, NotificationPayload } from './types';
+import { NotificationEvent, NotificationPayload, EventData } from './types';
 
-export const NotificationTemplates: Record<
-  NotificationEvent,
-  (data: any) => Partial<NotificationPayload>
-> = {
+export const NotificationTemplates: {
+  [K in NotificationEvent]: (data: EventData[K]) => Partial<NotificationPayload>
+} = {
   [NotificationEvent.COMMENT_ADDED]: (data) => ({
     userId: data.recipientId,
     actorId: data.actorId,

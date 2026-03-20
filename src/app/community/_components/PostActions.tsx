@@ -37,8 +37,10 @@ export default function PostActions({
 
     // Sync state with props if they change (e.g. after server revalidation)
     useEffect(() => {
-        setIsLiked(initialIsLiked);
-        setLikesCount(initialLikesCount);
+        setTimeout(() => {
+            setIsLiked(initialIsLiked);
+            setLikesCount(initialLikesCount);
+        }, 0);
     }, [initialIsLiked, initialLikesCount]);
 
     const handleLike = async (e: React.MouseEvent) => {
@@ -60,7 +62,7 @@ export default function PostActions({
                 setIsLiked(!newIsLiked);
                 setLikesCount((prev) => !newIsLiked ? prev + 1 : Math.max(0, prev - 1));
             }
-        } catch (error) {
+        } catch {
             // Rollback
             setIsLiked(!newIsLiked);
             setLikesCount((prev) => !newIsLiked ? prev + 1 : Math.max(0, prev - 1));

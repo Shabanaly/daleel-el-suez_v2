@@ -35,3 +35,33 @@ export interface MarketCategory {
     icon: string;
     adCount: number;
 }
+
+export interface RawMarketAd {
+    id: string;
+    slug: string;
+    title: string;
+    description?: string;
+    price: number | string;
+    condition?: string;
+    images?: string[];
+    category_id?: string | number;
+    categories?: { name: string; slug: string } | { name: string; slug: string }[];
+    seller_id: string;
+    profiles?: { full_name: string | null };
+    contact_phone?: string;
+    status: string;
+    areas?: { name: string };
+    is_negotiable?: boolean;
+    views_count?: number;
+    listing_daily_views?: { view_date: string; count: number }[] | { view_date: string; count: number };
+    created_at: string;
+    updated_at: string;
+}
+
+export interface RawMarketCategory {
+    id: number | string;
+    slug: string;
+    name: string;
+    icon: string;
+    listings?: { count: number }[];
+}

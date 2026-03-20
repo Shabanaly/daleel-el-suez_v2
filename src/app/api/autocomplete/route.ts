@@ -55,12 +55,18 @@ const getCachedSuggestions = (q: string, type: string = 'places') =>
 
             if (error || !data) return [];
 
-            return data.map((p) => {
-                const cat = Array.isArray(p.categories) ? p.categories[0] : (p.categories as any);
+            interface PlaceResult {
+                name: string;
+                slug: string;
+                categories: { icon: string } | { icon: string }[] | null;
+            }
+
+            return (data as unknown as PlaceResult[]).map((p) => {
+                const cat = Array.isArray(p.categories) ? p.categories[0] : p.categories;
                 return {
-                    name: p.name as string,
-                    slug: p.slug as string,
-                    icon: (cat?.icon as string) || '📍',
+                    name: p.name,
+                    slug: p.slug,
+                    icon: cat?.icon || '📍',
                 };
             });
         },

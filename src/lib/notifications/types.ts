@@ -23,7 +23,7 @@ export interface Notification {
   link?: string;
   is_read: boolean;
   created_at: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface NotificationPayload {
@@ -34,7 +34,7 @@ export interface NotificationPayload {
   message: string;
   type: NotificationType;
   link?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface EventData {

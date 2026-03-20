@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getMessaging, getToken, onMessage, Messaging } from "firebase/messaging";
+import { getMessaging, getToken, onMessage, Messaging, MessagePayload } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -74,7 +74,7 @@ export const requestForToken = async (): Promise<string | null> => {
   }
 };
 
-export const onMessageListener = (callback: (payload: any) => void) => {
+export const onMessageListener = (callback: (payload: MessagePayload) => void) => {
   const messaging = getMessagingInstance();
   if (!messaging) return;
   

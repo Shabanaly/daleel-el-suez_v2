@@ -73,7 +73,7 @@ export async function getAdminPlaces(params?: { search?: string, status?: PlaceS
         throw new Error('فشل جلب الأماكن. يرجى المحاولة مرة أخرى.');
     }
 
-    // Map the relationships to match expected data types in the frontend
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mappedPlaces = data.map((place: any) => ({
         ...place,
         category: place.category ? place.category : undefined,

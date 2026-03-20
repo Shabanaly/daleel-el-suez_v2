@@ -5,19 +5,15 @@ import { MarketAd } from '@/lib/types/market';
 import { deleteMarketAd } from '@/lib/actions/market';
 import { 
     Trash2, 
-    Edit3, 
-    Eye, 
-    MoreVertical, 
     ExternalLink, 
-    AlertCircle,
     Loader2,
     Plus,
-    ShoppingBag,
-    Search
+    ShoppingBag
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { SafeImage } from '@/components/common/SafeImage';
 
 interface MyAdsClientProps {
     initialAds: MarketAd[];
@@ -94,9 +90,10 @@ export default function MyAdsClient({ initialAds }: MyAdsClientProps) {
                         >
                             {/* Image Container */}
                             <div className="w-full md:w-48 aspect-video md:aspect-square rounded-2xl overflow-hidden bg-surface shrink-0 relative">
-                                <img 
+                                <SafeImage 
                                     src={ad.images[0]} 
                                     alt={ad.title} 
+                                    fill
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
                                 <div className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-black/40 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-tight">

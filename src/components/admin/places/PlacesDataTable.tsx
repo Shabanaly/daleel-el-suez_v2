@@ -2,7 +2,7 @@
 
 import { PlaceStatus } from '@/lib/actions/admin/places';
 import { PlaceStatusBadge } from './PlaceStatusBadge';
-import { MapPin, Phone, Star, User, MoreVertical, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { MapPin, Phone, Star, User, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useState } from 'react';

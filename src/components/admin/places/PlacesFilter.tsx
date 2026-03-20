@@ -2,7 +2,7 @@
 
 import { Search, Filter } from 'lucide-react';
 import { PlaceStatus } from '@/lib/actions/admin/places';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 interface PlacesFilterProps {
     onFilterChange: (search: string, status?: PlaceStatus) => void;

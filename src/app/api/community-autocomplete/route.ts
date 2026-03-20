@@ -28,8 +28,14 @@ export async function GET(req: NextRequest) {
         return NextResponse.json([]);
     }
 
+    interface AutoCompletePost {
+        id: string;
+        content: string;
+        category: { name: string; icon: string } | { name: string; icon: string }[] | null;
+    }
+
     // استخرج جمل مختصرة من المحتوى كاقتراحات
-    const suggestions = data.map((p: any) => {
+    const suggestions = (data as unknown as AutoCompletePost[]).map((p) => {
         const cat = Array.isArray(p.category) ? p.category[0] : p.category;
         // اقتطع النص عند 60 حرف كحد أقصى للاقتراح
         const snippet = (p.content as string).slice(0, 60).replace(/\n/g, ' ').trim();

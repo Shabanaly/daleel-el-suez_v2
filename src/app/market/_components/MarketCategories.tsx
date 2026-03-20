@@ -26,7 +26,7 @@ export default function MarketCategories({ categories }: MarketCategoriesProps) 
             </div>
             
             <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mask-fade-edges">
-                {activeCategories.map((cat: any) => (
+                {activeCategories.map((cat) => (
                     <Link
                         key={cat.id}
                         href={`/market/category/${encodeURIComponent(cat.slug)}`}

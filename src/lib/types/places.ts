@@ -26,6 +26,7 @@ export interface Place {
     description?: string;
     createdAt: string;
     district: string;
+    publicIds?: string[];
     socialLinks?: {
         platform: string;
         url: string;
@@ -50,3 +51,35 @@ export interface DaySchedule {
 }
 
 export type WeeklySchedule = Record<DayKey, DaySchedule>;
+
+export interface RawPlace {
+    id: string;
+    slug: string;
+    name: string;
+    category_id?: number;
+    area_id?: number;
+    categories?: {
+        name: string;
+        slug: string;
+        icon: string;
+    } | null;
+    avg_rating?: number | string;
+    reviews_count?: number | { count: number }[];
+    areas?: {
+        name: string;
+        districts?: {
+            name: string;
+        } | null;
+    } | null;
+    tags?: string[];
+    images?: string[];
+    address?: string;
+    phone?: unknown;
+    is_verified?: boolean;
+    working_hours?: unknown;
+    views_count?: number | string;
+    description?: string;
+    created_at?: string;
+    public_ids?: string[];
+    social_links?: unknown;
+}

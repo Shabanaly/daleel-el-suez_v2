@@ -28,7 +28,7 @@ interface SearchAutocompleteProps {
 
 const IconRenderer = ({ iconName, className }: { iconName: string, className?: string }) => {
     if (!iconName) return null;
-    const Icon = (LucideIcons as any)[iconName];
+    const Icon = (LucideIcons as unknown as Record<string, LucideIcons.LucideIcon>)[iconName];
     if (Icon) {
         return <Icon className={className || "w-4 h-4"} />;
     }
@@ -81,7 +81,7 @@ export default function SearchAutocomplete({
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        setIsMobile(window.innerWidth < 768);
+        setTimeout(() => setIsMobile(window.innerWidth < 768), 0);
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
@@ -115,7 +115,7 @@ export default function SearchAutocomplete({
             window.removeEventListener('hashchange', handleHashChange);
             document.body.style.overflow = '';
         };
-    }, [open, isMobile]);
+    }, [open, isMobile, onChange]);
 
     const debouncedValue = useDebounce(value, 300);
 
@@ -171,12 +171,14 @@ export default function SearchAutocomplete({
     /* fetch suggestions when debounced value changes */
     useEffect(() => {
         if (!debouncedValue.trim()) {
-            setSuggestions([]);
-            setLoading(false);
+            setTimeout(() => {
+                setSuggestions([]);
+                setLoading(false);
+            }, 0);
             return;
         }
         let cancelled = false;
-        setLoading(true);
+        setTimeout(() => setLoading(true), 0);
         const separator = apiEndpoint.includes('?') ? '&' : '?';
         fetch(`${apiEndpoint}${separator}q=${encodeURIComponent(debouncedValue)}`)
             .then((r) => r.json())
@@ -190,7 +192,7 @@ export default function SearchAutocomplete({
                 if (!cancelled) setLoading(false);
             });
         return () => { cancelled = true; };
-    }, [debouncedValue]);
+    }, [debouncedValue, apiEndpoint]);
 
     /* when user picks an item */
     const handleSelect = useCallback(

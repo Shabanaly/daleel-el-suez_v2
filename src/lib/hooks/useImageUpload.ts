@@ -63,7 +63,7 @@ export function useImageUpload({
             setIsCompressing(true);
             try {
                 filesToUpload = await compressImages(pendingFiles, compression);
-            } catch (err: any) {
+            } catch {
                 setError('فشل ضغط الصور، سيتم الرفع بدون ضغط');
                 filesToUpload = pendingFiles; // Graceful fallback: upload originals
             } finally {
@@ -110,8 +110,8 @@ export function useImageUpload({
             setPreviews([]);
 
             return { urls: allUrls, publicIds: allPublicIds };
-        } catch (err: any) {
-            setError(err.message || 'فشل رفع الصور');
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'فشل رفع الصور');
             throw err;
         } finally {
             setIsUploading(false);

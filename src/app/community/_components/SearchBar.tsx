@@ -34,14 +34,16 @@ export default function SearchBar() {
     useEffect(() => {
         // Only trigger if the debounced query actually changed from what's in the URL
         if (debouncedQuery !== initialQuery) {
-            handleSearch(debouncedQuery);
+            setTimeout(() => handleSearch(debouncedQuery), 0);
         }
     }, [debouncedQuery, handleSearch, initialQuery]);
 
     useEffect(() => {
         // If the URL changes (e.g. browser back), sync the local state
-        setQuery(initialQuery);
-        setIsPending(false);
+        setTimeout(() => {
+            setQuery(initialQuery);
+            setIsPending(false);
+        }, 0);
     }, [initialQuery]);
 
     return (

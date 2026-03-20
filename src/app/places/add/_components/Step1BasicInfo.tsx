@@ -14,7 +14,7 @@ interface Step1Props {
     updateFormData: (data: Partial<Step1Props['formData']>) => void;
     categories: { id: number; name: string }[];
     areas: { id: number; name: string }[];
-    districts: any[];
+    districts: { id: number; name: string }[];
     isVerifyingArea?: boolean;
     handleVerifyArea?: () => void;
     onNext: () => void;
@@ -106,9 +106,7 @@ export function Step1BasicInfo({ formData, updateFormData, categories, areas, di
                             <input
                                 required={isAddingCustomArea}
                                 type="text"
-                                // @ts-ignore
                                 value={formData.customAreaName || ''}
-                                // @ts-ignore
                                 onChange={e => updateFormData({ customAreaName: e.target.value })}
                                 placeholder="اكتب اسم المنطقة..."
                                 className={`w-full h-14 px-6 rounded-xl bg-background border ${errors?.customAreaName ? 'border-red-500' : 'border-border-subtle'} text-text-primary focus:border-primary transition-all outline-hidden`}
@@ -122,9 +120,7 @@ export function Step1BasicInfo({ formData, updateFormData, categories, areas, di
                                 <div className="relative flex-1">
                                     <select
                                         required={isAddingCustomArea}
-                                        // @ts-ignore
                                         value={formData.customDistrictId || ''}
-                                        // @ts-ignore
                                         onChange={e => updateFormData({ customDistrictId: Number(e.target.value) })}
                                         className={`w-full h-14 px-6 rounded-xl bg-background border ${errors?.customDistrictId ? 'border-red-500' : 'border-border-subtle'} text-text-primary focus:border-primary transition-all outline-hidden appearance-none`}
                                     >

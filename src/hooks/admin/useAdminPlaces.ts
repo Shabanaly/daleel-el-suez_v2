@@ -40,8 +40,8 @@ export function useAdminPlaces() {
             setPlaces(prev => prev.filter(p => p.id !== placeId));
             setTotalCount(prev => Math.max(0, prev - 1));
             return { success: true };
-        } catch (err: any) {
-            return { success: false, error: err.message };
+        } catch (err: unknown) {
+            return { success: false, error: err instanceof Error ? err.message : 'فشل الحذف. يرجى المحاولة مرة أخرى.' };
         }
     };
 

@@ -1,8 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Ship, Anchor, Waves, Info, Sparkles, ShieldCheck, Zap, Heart } from 'lucide-react';
-import Image from 'next/image';
+import { Ship, Anchor, Waves, Info, Sparkles, ShieldCheck, Zap } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 const SUEZ_HIGHLIGHTS = [

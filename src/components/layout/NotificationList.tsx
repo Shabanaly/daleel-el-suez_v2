@@ -4,7 +4,7 @@ import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Notification } from '@/lib/notifications/types';
-import { Bell, Check, ExternalLink, Heart, MessageCircle, Star, CheckCircle, XCircle } from 'lucide-react';
+import { Bell, Heart, MessageCircle, Star, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface NotificationListProps {

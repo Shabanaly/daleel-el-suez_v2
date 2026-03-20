@@ -13,8 +13,11 @@ export default function LoadingScreen() {
 
     // Reset loading state when route changes
     useEffect(() => {
-        setIsLoading(false);
-        setProgress(0);
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+            setProgress(0);
+        }, 0);
+        return () => clearTimeout(timer);
     }, [pathname, searchParams]);
 
     // Simulated progress logic

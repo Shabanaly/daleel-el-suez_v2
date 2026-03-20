@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 
@@ -19,6 +19,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const supabase = createClient();
+
+    // Force aggressive refresh function
+    const refreshSession = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error) {
+                setSession(null);
+                setUser(null);
+                setIsLoading(false);
+                return;
+            }
+            const { data: { session } } = await supabase.auth.getSession();
+            setSession(session);
+            setUser(user ?? null);
+        } catch (error) {
+            console.error("Error refreshing session:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [supabase]);
 
     useEffect(() => {
         let mounted = true;
@@ -66,27 +87,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
     }, [supabase]);
 
-    // Force aggressive refresh function
-    const refreshSession = async () => {
-        setIsLoading(true);
-        try {
-            const { data: { user }, error } = await supabase.auth.getUser();
-            if (error) {
-                setSession(null);
-                setUser(null);
-                setIsLoading(false);
-                return;
-            }
-            const { data: { session } } = await supabase.auth.getSession();
-            setSession(session);
-            setUser(user ?? null);
-        } catch (error) {
-            console.error("Error refreshing session:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     // Auto-refresh when window regains focus (helps with redirect flows)
     useEffect(() => {
         const handleFocus = () => {
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
         window.addEventListener('visibilitychange', handleFocus);
         return () => window.removeEventListener('visibilitychange', handleFocus);
-    }, [supabase]);
+    }, [refreshSession]);
 
     const logout = async () => {
         setIsLoading(true);

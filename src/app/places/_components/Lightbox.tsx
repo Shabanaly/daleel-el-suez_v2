@@ -90,8 +90,9 @@ export function Lightbox({ images, index: initialIndex, isOpen, onClose }: Light
                     "--yarl__thumbnails_container_background": "transparent",
                     "--yarl__thumbnails_thumbnail_background": "rgba(255, 255, 255, 0.1)",
                     "--yarl__thumbnails_thumbnail_active_border_color": "var(--primary)",
-                } as any,
-            }}
+                },
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any}
         />
     );
 }

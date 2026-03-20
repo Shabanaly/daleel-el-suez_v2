@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Star, MapPin, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { SafeImage } from '@/components/common/SafeImage';
 import { Place } from '@/lib/types/places';
 import { FavoriteButton } from '@/components/common/FavoriteButton';
@@ -15,7 +16,7 @@ interface PlaceCardProps {
 }
 
 export function PlaceCard({ place, index = 0, className = "" }: PlaceCardProps) {
-  const [isVisible, setIsVisible] = useState(true);
+  const isVisible = true;
   const isOpen = place.openHours !== 'مغلق';
 
   // Create a unique list of candidate images
@@ -47,9 +48,11 @@ export function PlaceCard({ place, index = 0, className = "" }: PlaceCardProps) 
                 if (candidateImages.length === 0 || imgIndex >= candidateImages.length) {
                   return (
                     <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-primary/5 p-10">
-                      <img 
+                      <Image 
                         src="/favicon-circular.ico" 
                         alt="شعار دليل السويس البديل" 
+                        width={80}
+                        height={80}
                         className="w-16 h-16 md:w-20 md:h-20 object-contain opacity-30 grayscale saturate-0 mix-blend-multiply" 
                       />
                     </div>

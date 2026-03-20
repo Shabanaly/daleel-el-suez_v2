@@ -114,7 +114,8 @@ export async function getMarketAds(
             }
 
             return {
-                ads: (data || []).map(mapMarketAd),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                ads: (data as any[] || []).map(mapMarketAd),
                 total: count || 0
             };
         },

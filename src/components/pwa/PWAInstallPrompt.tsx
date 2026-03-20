@@ -5,40 +5,48 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Share, PlusSquare, Download, Smartphone } from 'lucide-react';
 import Image from 'next/image';
 
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
+}
+
 const DISMISS_KEY = 'pwa-prompt-dismissed';
 const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export default function PWAInstallPrompt() {
   const [isVisible, setIsVisible] = useState(false);
-  const [prompt, setPrompt] = useState<any>(null);
+  const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // 1. Check if already installed
     const checkStandalone = () => {
       return (
         window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone ||
+        (window.navigator as Navigator & { standalone?: boolean }).standalone ||
         document.referrer.includes('android-app://')
       );
     };
 
+    const detectIOS = () => {
+      return (
+        /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream
+      );
+    };
+
     if (checkStandalone()) {
-      setIsStandalone(true);
+      setTimeout(() => setIsStandalone(true), 0);
       return;
     }
 
-    // 2. Detect iOS
-    const detectIOS = () => {
-      return (
-        /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
-      );
-    };
-    setIsIOS(detectIOS());
+    setTimeout(() => setIsIOS(detectIOS()), 0);
 
     // 3. Handle Chrome/Android "beforeinstallprompt"
-    const handler = (e: any) => {
+    const handler = (e: BeforeInstallPromptEvent) => {
       e.preventDefault();
       setPrompt(e);
       checkVisibility();
@@ -134,7 +142,7 @@ export default function PWAInstallPrompt() {
             
             <div className="flex-1 pt-1" dir="rtl">
               <h3 className="text-text-primary font-black text-sm mb-1">
-                ثبت تطبيق "دليل السويس" 🚀
+                ثبت تطبيق &quot;دليل السويس&quot; 🚀
               </h3>
               <p className="text-text-muted text-[11px] leading-relaxed">
                 استمتع بتجربة أسرع، إشعارات لحظية، ووصول سهل من الشاشة الرئيسية.
@@ -156,7 +164,7 @@ export default function PWAInstallPrompt() {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-4 h-4 flex items-center justify-center bg-white rounded-md shadow-sm">2</span>
-                    اختر "إضافة إلى الشاشة الرئيسية" <PlusSquare className="w-3 h-3 text-blue-500 inline mx-0.5" />.
+                    اختر &quot;إضافة إلى الشاشة الرئيسية&quot; <PlusSquare className="w-3 h-3 text-blue-500 inline mx-0.5" />.
                   </li>
                 </ul>
               </div>

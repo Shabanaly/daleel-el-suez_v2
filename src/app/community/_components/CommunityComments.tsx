@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { MessageCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { addComment, getPostComments, deleteComment } from '@/lib/actions/comments';
@@ -9,10 +9,12 @@ import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 
+import { CommunityComment } from '@/lib/types/community';
+
 interface CommunityCommentsProps {
     postId: string;
     isInline?: boolean;
-    initialComments?: any[];
+    initialComments?: CommunityComment[];
 }
 
 export default function CommunityComments({ postId, isInline = false, initialComments }: CommunityCommentsProps) {
@@ -20,12 +22,24 @@ export default function CommunityComments({ postId, isInline = false, initialCom
     const { showAlert } = useDialog();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const [comments, setComments] = useState<any[]>(initialComments || []);
+    const [comments, setComments] = useState<CommunityComment[]>(initialComments || []);
     const [isLoading, setIsLoading] = useState(!initialComments);
     const [newComment, setNewComment] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [replyTo, setReplyTo] = useState<any | null>(null);
+    const [replyTo, setReplyTo] = useState<CommunityComment | null>(null);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+    const fetchComments = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const data = await getPostComments(postId);
+            setComments(data);
+        } catch (error) {
+            console.error('Failed to fetch comments:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [postId]);
 
     useEffect(() => {
         if (postId && !initialComments) {
@@ -43,19 +57,7 @@ export default function CommunityComments({ postId, isInline = false, initialCom
 
         window.addEventListener('community:focus-comment-input', handleFocus);
         return () => window.removeEventListener('community:focus-comment-input', handleFocus);
-    }, [postId, initialComments]);
-
-    const fetchComments = async () => {
-        setIsLoading(true);
-        try {
-            const data = await getPostComments(postId);
-            setComments(data);
-        } catch (error) {
-            console.error('Failed to fetch comments:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    }, [postId, initialComments, fetchComments]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

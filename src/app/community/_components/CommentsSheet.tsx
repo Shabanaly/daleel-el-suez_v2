@@ -20,7 +20,7 @@ export default function CommentsSheet({ postId, onClose }: Props) {
     if (postId) {
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden";
-      setDragOffset(0);
+      setTimeout(() => setDragOffset(0), 0);
     } else {
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";

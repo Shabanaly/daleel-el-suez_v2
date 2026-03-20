@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, Lock, LogIn, Facebook, Eye, EyeOff, Loader2, UserPlus } from 'lucide-react';
+import { Mail, Lock, LogIn, Eye, EyeOff, Loader2, UserPlus } from 'lucide-react';
 
 interface AuthFormUIProps {
     type: 'login' | 'signup';

@@ -11,10 +11,11 @@ import PostActions from './PostActions';
 import PostHeaderActions from './PostHeaderActions';
 import PostImagesGrid from './PostImagesGrid';
 import PostCardAnimation from './PostCardAnimation';
+import { CommunityPost, CommunityCategory } from '@/lib/types/community';
 
 interface PostCardProps {
-  post: any;
-  categories: any[];
+  post: CommunityPost;
+  categories: CommunityCategory[];
   isLikedInitial?: boolean;
   isFullPage?: boolean;
 }
@@ -26,7 +27,7 @@ export default function PostCard({ post, categories, isLikedInitial = false, isF
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
 
   const likesCount = post.likes_count || 0;
-  const commentsCount = post.comments_count?.[0]?.count || 0;
+  const commentsCount = Array.isArray(post.comments_count) ? post.comments_count[0]?.count || 0 : (post.comments_count || 0);
 
   return (
     <PostCardAnimation id={`post-${post.id}`}>

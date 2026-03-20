@@ -6,20 +6,19 @@ import { useRouter } from 'next/navigation';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SearchAutocomplete from '@/components/common/SearchAutocomplete';
-import { Place } from '@/lib/types/places';
+import { Place, SortOption } from '@/lib/types/places';
 import { usePlacesFilter } from '@/hooks/usePlacesFilter';
 import { PlaceCard } from './PlaceCard';
 import { Pagination } from '@/components/common/Pagination';
 
 import { AreaWithDistrict } from '@/lib/actions/areas';
-import SectionHeader from '@/components/ui/SectionHeader';
 
 interface PlacesClientProps {
     initialPlaces: Place[];
     totalCount: number;
     categories: string[];
     areas: AreaWithDistrict[];
-    districts: any[];
+    districts: { id: number; name: string }[];
 }
 
 export function PlacesClient({ initialPlaces, totalCount, categories, areas, districts }: PlacesClientProps) {
@@ -198,7 +197,7 @@ export function PlacesClient({ initialPlaces, totalCount, categories, areas, dis
                                         ].map(opt => (
                                             <button
                                                 key={opt.value}
-                                                onClick={() => setSortBy(opt.value as any)}
+                                                onClick={() => setSortBy(opt.value as SortOption)}
                                                 className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 border ${sortBy === opt.value
                                                     ? 'bg-accent text-white border-accent shadow-md shadow-accent/20'
                                                     : 'bg-surface text-text-muted border-border-subtle hover:border-accent hover:text-accent'

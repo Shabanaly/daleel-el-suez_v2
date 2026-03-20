@@ -2,16 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Home, MapPin, Store, Users, Plus } from 'lucide-react';
-import { useAuth } from '@/components/providers/AuthProvider';
-import { useAuthModal } from '@/hooks/useAuthModal';
+// import { useAuth } from '@/components/providers/AuthProvider';
+// import { useAuthModal } from '@/hooks/useAuthModal';
 import QuickActionsDrawer from './QuickActionsDrawer';
 
 export default function BottomNav() {
     const pathname = usePathname();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const { user } = useAuth();
+    // const { user } = useAuth();
     // Removed handleProtectedAction to allow guest access to Community & Market
 
     const isAuthPage = pathname === '/login' || pathname === '/signup';

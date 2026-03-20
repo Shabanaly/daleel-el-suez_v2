@@ -36,8 +36,8 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [options, setOptions] = useState<DialogOptions | null>(null);
 
-    const showAlert = useCallback((opts: any) => {
-        setOptions({ ...opts, type: opts.type || 'info' });
+    const showAlert = useCallback((opts: Omit<DialogOptions, 'type' | 'onCancel' | 'cancelLabel'> & { type?: Exclude<DialogType, 'confirm'> }) => {
+        setOptions({ ...opts, type: opts.type || 'info' } as DialogOptions);
         setIsOpen(true);
     }, []);
 

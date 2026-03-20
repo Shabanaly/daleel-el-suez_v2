@@ -1,5 +1,6 @@
 import React from 'react';
 import { User } from 'lucide-react';
+import { SafeImage } from '@/components/common/SafeImage';
 
 interface SellerInfoProps {
     name: string;
@@ -19,7 +20,12 @@ export default function SellerInfo({
             {showAvatar && (
                 <div className="w-6 h-6 rounded-full bg-elevated border border-border-subtle overflow-hidden flex items-center justify-center shrink-0 text-text-muted">
                     {photo ? (
-                        <img src={photo} alt={name} className="w-full h-full object-cover" />
+                        <SafeImage 
+                            src={photo} 
+                            alt={name} 
+                            fill
+                            className="w-full h-full object-cover" 
+                        />
                     ) : (
                         <User className="w-3.5 h-3.5" />
                     )}

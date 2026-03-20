@@ -1,6 +1,6 @@
 'use client';
 
-import { Phone, MapPin, Clock, ArrowRight, Check, X, Facebook, Instagram, Globe, MessageCircle, Plus, Trash2 } from 'lucide-react';
+import { Phone, MapPin, Clock, ArrowRight, X, Facebook, Instagram, Globe, MessageCircle, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DayKey, WeeklySchedule } from '@/lib/types/places';
 
@@ -15,7 +15,7 @@ interface Step2Props {
         openHours: WeeklySchedule;
         socialLinks: { platform: string; url: string }[];
     };
-    updateFormData: (data: any) => void;
+    updateFormData: (data: Partial<Step2Props['formData']>) => void;
     onNext: () => void;
     onBack: () => void;
     errors?: Record<string, string>;

@@ -13,7 +13,7 @@ export default function HomeMarketSection({ ads }: HomeMarketSectionProps) {
     if (!ads || ads.length === 0) return null;
 
     return (
-        <section className="w-full max-w-7xl mx-auto px-4 relative overflow-hidden py-12 md:py-20">
+        <section className="w-full max-w-7xl mx-auto px-4 relative overflow-hidden pt-0 pb-8 md:pt-0 md:pb-16">
              {/* Ambient Background Glow */}
              <div className="absolute top-0 right-1/3 w-72 h-72 bg-primary/5 rounded-full blur-[110px] pointer-events-none" />
              <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-accent/2 rounded-full blur-[100px] pointer-events-none" />

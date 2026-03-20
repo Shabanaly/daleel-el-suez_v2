@@ -28,7 +28,7 @@ export default async function EditPlacePage({ params }: { params: Promise<{ slug
             <div className="max-w-2xl mx-auto px-4">
                 <div className="mb-8 text-center">
                     <h1 className="text-4xl font-black text-text-primary tracking-tight">تعديل بيانات المكان</h1>
-                    <p className="mt-2 text-text-muted font-medium">تحديث معلومات "{place.name}"</p>
+                    <p className="mt-2 text-text-muted font-medium">تحديث معلومات &quot;{place.name}&quot;</p>
                 </div>
 
                 <EditPlaceForm

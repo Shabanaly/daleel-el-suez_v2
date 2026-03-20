@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { SafeImage } from '@/components/common/SafeImage';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PlaceGalleryProps {
     images: string[];
@@ -44,7 +44,7 @@ export function PlaceGallery({ images, placeName, onImageClick }: PlaceGalleryPr
                         className="relative w-full h-full cursor-grab active:cursor-grabbing flex items-center justify-center touch-pan-y"
                         onClick={(e) => {
                             // Only trigger click if it wasn't a drag
-                            if (Math.abs((e.nativeEvent as any).movementX || 0) < 5) {
+                            if (Math.abs((e.nativeEvent as MouseEvent).movementX || 0) < 5) {
                                 onImageClick(currentIndex);
                             }
                         }}

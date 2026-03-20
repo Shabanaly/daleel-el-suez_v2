@@ -12,8 +12,8 @@ interface Step3Props {
     updateFormData: (data: Partial<{ description: string }>) => void;
     onBack: () => void;
     isUploading: boolean;
-    onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void | Promise<any>;
-    onDeleteImage: (index: number) => Promise<any>;
+    onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void | Promise<void>;
+    onDeleteImage: (index: number) => Promise<void>;
     onSubmit: (e: React.FormEvent) => Promise<void>;
     errors?: Record<string, string>;
 }
@@ -28,8 +28,8 @@ export function Step3MediaInfo({
     onSubmit,
     errors
 }: Step3Props) {
-    const maxImages = 5;
-    const remainingSlots = maxImages - formData.images.length;
+    // const maxImages = 5;
+    // const remainingSlots = maxImages - formData.images.length;
 
     return (
         <motion.div

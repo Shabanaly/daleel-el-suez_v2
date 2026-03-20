@@ -7,9 +7,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useDialog } from '@/components/providers/DialogProvider';
 
+import { CommunityComment } from '@/lib/types/community';
+
 interface CommentItemProps {
-  comment: any;
-  onReply?: (comment: any) => void;
+  comment: CommunityComment;
+  onReply?: (comment: CommunityComment) => void;
   onDelete?: (commentId: string) => Promise<void>;
   currentUserId?: string;
   isReply?: boolean;

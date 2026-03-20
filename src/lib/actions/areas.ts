@@ -107,7 +107,7 @@ export const getHomeDistricts = unstable_cache(
             // Calculate total count by summing places in all areas of this district
             let totalPlaces = 0;
             if (dbMatch?.places_count) {
-                // @ts-ignore
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 dbMatch.places_count.forEach((area: any) => {
                     totalPlaces += area.places?.[0]?.count || 0;
                 });

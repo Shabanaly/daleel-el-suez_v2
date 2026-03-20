@@ -5,6 +5,7 @@ import { getCategories, getCategoriesWithIds } from '@/lib/actions/categories';
 import { PlacesClient } from './_components/PlacesClient';
 import { getAreasAction, getDistricts } from '@/lib/actions/areas';
 import type { Metadata } from 'next';
+import { SortOption } from '@/lib/types/places';
 
 export const metadata: Metadata = {
     title: 'دليل السويس الشامل | خدمات، أماكن، ومطاعم',
@@ -28,11 +29,12 @@ export default async function PlacesPage({
 }) {
     const params = await searchParams;
     const page = Number(params.page) || 1;
-    const district = params.district as string;
     const areaName = params.area as string;
     const categoryName = params.category as string;
     const query = params.q as string;
-    const sort = (params.sort as any) || 'trending';
+    const sort = (typeof params.sort === 'string' && ['name', 'newest', 'trending'].includes(params.sort) 
+        ? params.sort as SortOption 
+        : 'trending');
 
     // 1. Fetch metadata (categories, districts, areas)
     const [categoriesList, categoriesWithIds, districts, allAreas] = await Promise.all([

@@ -13,7 +13,7 @@ interface DynamicIconProps extends LucideProps {
  * Example: <DynamicIcon name="ShoppingBag" className="w-6 h-6" />
  */
 export default function DynamicIcon({ name, fallback, ...props }: DynamicIconProps) {
-  // @ts-ignore - Dynamic access to icons
+  // @ts-expect-error - Dynamic access to icons
   const IconComponent = Icons[name];
 
   if (!IconComponent) {

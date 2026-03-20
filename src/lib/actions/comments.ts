@@ -47,6 +47,7 @@ export async function addComment(postId: string, content: string, parentId?: str
         if (postData) {
             try {
                 // Use the author data we already got from the insert.select()
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const profile = (data as any)?.author;
                 const actorName = profile?.full_name || profile?.username || 'عضو في المجتمع';
                 const postTitle = postData.content || postData.title || 'منشور';

@@ -7,9 +7,20 @@ import { createClient } from '@/lib/supabase/client';
 
 const FCM_TOKEN_KEY = 'fcm_token';
 
+interface NotificationPayload {
+  notification?: {
+    title?: string;
+    body?: string;
+    image?: string;
+  };
+  data?: {
+    [key: string]: string;
+  };
+}
+
 interface NotificationContextType {
   fcmToken: string | null;
-  notification: any | null;
+  notification: NotificationPayload | null;
 }
 
 const NotificationContext = createContext<NotificationContextType>({
@@ -20,7 +31,7 @@ const NotificationContext = createContext<NotificationContextType>({
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading: authLoading } = useAuth();
   const [fcmToken, setFcmToken] = useState<string | null>(null);
-  const [notification, setNotification] = useState<any>(null);
+  const [notification, setNotification] = useState<NotificationPayload | null>(null);
   const [showToast, setShowToast] = useState(false);
   const isRegistering = useRef(false);
   const supabase = createClient();
@@ -102,12 +113,12 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     };
 
     setupNotifications();
-  }, [user?.id, authLoading]);
+  }, [user?.id, authLoading, supabase]);
 
   // Listen for foreground messages
   useEffect(() => {
     console.log('[Notifications] Initializing foreground message listener');
-    const unsubscribe = onMessageListener((payload: any) => {
+    const unsubscribe = onMessageListener((payload) => {
       console.log('[Notifications] Foreground message event triggered:', payload);
       
       // Only show toast if this specific tab is focused to avoid duplicates across tabs

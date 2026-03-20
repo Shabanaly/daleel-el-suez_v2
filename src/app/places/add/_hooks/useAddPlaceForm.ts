@@ -19,10 +19,9 @@ const defaultSchedule: WeeklySchedule = {
 interface UseAddPlaceFormProps {
     categories: { id: number; name: string }[];
     areas: { id: number; name: string }[];
-    districts?: any[]; // added for future use if needed inside the hook
 }
 
-export function useAddPlaceForm({ categories, areas, districts }: UseAddPlaceFormProps) {
+export function useAddPlaceForm({ areas }: UseAddPlaceFormProps) {
     const {
         images,
         publicIds,
@@ -120,7 +119,7 @@ export function useAddPlaceForm({ categories, areas, districts }: UseAddPlaceFor
                 newErrors.address = 'العنوان يجب أن يكون 5 أحرف على الأقل';
             }
 
-            Object.entries(formData.openHours).forEach(([day, schedule]) => {
+            Object.entries(formData.openHours).forEach(([, schedule]) => {
                 if (schedule.isOpen && (!schedule.from || !schedule.to)) {
                     newErrors.openHours = 'يرجى تحديد مواعيد العمل للأيام المفتوحة';
                 }
@@ -166,8 +165,6 @@ export function useAddPlaceForm({ categories, areas, districts }: UseAddPlaceFor
         setError(null);
 
         try {
-            const searchName = formData.customAreaName.trim().toLowerCase();
-
             // 1. Client-Side Validation (Smart Match across all districts)
             const normalizeText = (text: string) => text
                 .replace(/[أإآا]/g, 'ا') // Normalize aleph
@@ -218,9 +215,10 @@ export function useAddPlaceForm({ categories, areas, districts }: UseAddPlaceFor
             delete newErrors.customDistrictId;
             setErrors(newErrors);
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Area Verification Error:', err);
-            setError(err.message || 'فشل التحقق من المنطقة');
+            const message = err instanceof Error ? err.message : 'فشل التحقق من المنطقة';
+            setError(message);
         } finally {
             setIsVerifyingArea(false);
         }
@@ -246,9 +244,10 @@ export function useAddPlaceForm({ categories, areas, districts }: UseAddPlaceFor
             });
 
             setIsSubmitted(true);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Submission error:', err);
-            setError(err.message || 'حدث خطأ أثناء حفظ البيانات');
+            const message = err instanceof Error ? err.message : 'حدث خطأ أثناء حفظ البيانات';
+            setError(message);
         } finally {
             setIsSubmitting(false);
         }

@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell, CheckSquare } from 'lucide-react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { Notification } from '@/lib/notifications/types';
 import { NotificationList } from './NotificationList';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,7 +21,7 @@ export const NotificationBell = () => {
   const supabase = createClient();
 
   // Fetch initial notifications with Smart Caching
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!user) return;
 
     const cacheKey = `daleel_notifications_${user.id}`;
@@ -48,13 +49,13 @@ export const NotificationBell = () => {
       setUnreadCount(data.filter((n: Notification) => !n.is_read).length);
       localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
     }
-  };
+  }, [user]);
 
-  const updateCache = (newNotifications: Notification[]) => {
+  const updateCache = useCallback((newNotifications: Notification[]) => {
       if (!user) return;
       const cacheKey = `daleel_notifications_${user.id}`;
       localStorage.setItem(cacheKey, JSON.stringify({ data: newNotifications, timestamp: Date.now() }));
-  };
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -62,7 +63,7 @@ export const NotificationBell = () => {
       subscriptionRef.current = user.id;
 
       console.log(`[NotificationBell] Initializing Realtime for user: ${user.id}`);
-      fetchNotifications();
+      setTimeout(() => fetchNotifications(), 0);
       
       // Subscribe to real-time notifications with a unique channel name to avoid protocol mismatches
       const channel = supabase
@@ -70,8 +71,8 @@ export const NotificationBell = () => {
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'notifications' }, 
-          (payload: any) => {
-            if (payload.new && payload.new.user_id === user.id) {
+          (payload: RealtimePostgresChangesPayload<Notification>) => {
+            if ((payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') && payload.new && 'user_id' in payload.new && payload.new.user_id === user.id) {
                 console.log(`[NotificationBell] Real-time ${payload.eventType} event received:`, payload.new);
                 
                 if (payload.eventType === 'INSERT') {
@@ -98,14 +99,14 @@ export const NotificationBell = () => {
             }
           }
         )
-        .subscribe((status: any, err: any) => {
+        .subscribe((status: string, err: Error | undefined) => {
           console.log(`[NotificationBell] Realtime status: ${status}`);
           if (err) {
             console.error('[NotificationBell] Realtime subscription error:', err);
           }
           // Update status for the UI debug indicator
           if (status === 'SUBSCRIBED') {
-             (window as any)._rt_status = 'connected';
+             console.log('[NotificationBell] Subscribed to realtime');
           }
         });
 
@@ -115,7 +116,7 @@ export const NotificationBell = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [user]);
+  }, [user, supabase, fetchNotifications, updateCache]);
 
   // Handle click outside to close dropdown
   useEffect(() => {

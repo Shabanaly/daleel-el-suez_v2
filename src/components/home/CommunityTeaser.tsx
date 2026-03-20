@@ -2,19 +2,20 @@
 
 import { motion } from 'framer-motion';
 import { MessageSquare, Heart, Share2 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useAuth } from '@/hooks/useAuth';
 import { toggleLikePost } from '@/lib/actions/posts';
 import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
+import SectionHeader from '@/components/ui/SectionHeader';
+import { CommunityPost } from '@/lib/types/community';
+import { SafeImage } from '@/components/common/SafeImage';
 import ShareButton from '@/components/ui/ShareButton';
 import { useEffect, useState } from 'react';
-import SectionHeader from '@/components/ui/SectionHeader';
 
 interface CommunityTeaserProps {
-    posts: any[];
+    posts: CommunityPost[];
 }
 
 export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
@@ -24,7 +25,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
     const [origin, setOrigin] = useState('');
 
     useEffect(() => {
-        setOrigin(window.location.origin);
+        setTimeout(() => setOrigin(window.location.origin), 0);
     }, []);
 
     // If no posts, don't render the section
@@ -43,7 +44,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
 
         try {
             await toggleLikePost(postId);
-        } catch (error) {
+        } catch {
             setLikedPosts(prev => ({ ...prev, [postId]: currentIsLiked }));
         }
     };
@@ -57,7 +58,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
     };
 
     return (
-        <section className="w-full max-w-7xl mx-auto px-4 py-4 md:py-16 mb-4 md:mb-5 overflow-hidden relative border-t border-border-subtle/30">
+        <section className="w-full max-w-7xl mx-auto px-4 pt-0 pb-8 md:pt-0 md:pb-16 overflow-hidden relative border-t border-border-subtle/30">
             {/* Decorative elements */}
             <div className="absolute top-1/4 right-0 w-64 h-64 bg-primary/5 blur-[100px] pointer-events-none" />
 
@@ -91,13 +92,12 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                                 <div className="flex items-start gap-4 mb-6">
                                     <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/10 border border-border-subtle">
                                         {post.author?.avatar_url ? (
-                                            <Image
+                                            <SafeImage
                                                 src={post.author.avatar_url}
                                                 alt={post.author.full_name || 'User'}
                                                 fill
-                                                unoptimized
-                                                sizes="48px"
                                                 className="object-cover"
+                                                sizes="48px"
                                             />
                                         ) : (
                                             <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-black uppercase text-base">
@@ -122,9 +122,9 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                                 {/* Images Preview */}
                                 {post.images && post.images.length > 0 && (
                                     <div className="grid grid-cols-2 gap-2 mb-6 pointer-events-none">
-                                        {post.images.slice(0, 2).map((img: string, i: number) => (
+                                        {post.images.slice(0, 2).map((img, i: number) => (
                                             <div key={i} className={`relative rounded-2xl overflow-hidden border border-border-subtle/50 aspect-4/3 ${post.images?.length === 1 ? 'col-span-2' : ''}`}>
-                                                <Image src={img} alt="Preview" fill unoptimized sizes="(max-width: 768px) 50vw, 300px" className="object-cover" />
+                                                <SafeImage src={img} alt="Preview" fill sizes="(max-width: 768px) 50vw, 300px" className="object-cover" />
                                             </div>
                                         ))}
                                     </div>
@@ -144,7 +144,11 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                                             className="flex items-center gap-2 text-text-muted hover:text-primary transition-all cursor-pointer"
                                         >
                                             <MessageSquare className="w-4.5 h-4.5" />
-                                            <span className="text-xs font-black">{post.commentCount || 0}</span>
+                                            <span className="text-xs font-black">
+                                                {typeof post.comments_count === 'number'
+                                                    ? post.comments_count
+                                                    : (Array.isArray(post.comments_count) ? post.comments_count[0]?.count || 0 : 0)}
+                                            </span>
                                         </div>
                                     </div>
                                     <div onClick={(e) => e.stopPropagation()}>

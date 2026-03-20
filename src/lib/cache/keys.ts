@@ -12,7 +12,7 @@ export const CACHE_KEYS = {
 
 export const keys = {
     // Places
-    placesPaginated: (page: number, filters: Record<string, any>) =>
+    placesPaginated: (page: number, filters: Record<string, unknown>) =>
         [CACHE_KEYS.places, `page-${page}`, JSON.stringify(filters)],
 
     trending: (limit: number) => [CACHE_KEYS.trending, `limit-${limit}`],

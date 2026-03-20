@@ -4,8 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, MapPin, Store, Users, Settings, LogOut, Info, Heart, Share2, User, FileText, ShieldCheck, ShoppingBag, Copyright as CopyIcon } from 'lucide-react';
 import ShareButton from '@/components/ui/ShareButton';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useAuthModal } from '@/hooks/useAuthModal';
 import { logout } from '@/lib/actions/auth';
@@ -16,7 +15,7 @@ interface QuickActionsDrawerProps {
 }
 
 export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDrawerProps) {
-    const pathname = usePathname();
+    // const pathname = usePathname();
     const { user, logout: authLogout } = useAuth();
     const { openModal } = useAuthModal();
 
@@ -28,7 +27,7 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
         }
     }, [isOpen]);
 
-    const handleProtectedAction = (e: React.MouseEvent, href: string) => {
+    const handleProtectedAction = (e: React.MouseEvent) => {
         if (!user) {
             e.preventDefault();
             onClose();
@@ -85,7 +84,7 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                         icon={<Plus className="w-6 h-6" />}
                                         label="أضف مكان"
                                         color="bg-primary"
-                                        onClick={(e) => handleProtectedAction(e, '/places/add')}
+                                        onClick={(e) => handleProtectedAction(e)}
                                     />
                                     <ActionItem
                                         href="/places"
@@ -99,14 +98,14 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                         icon={<Heart className="w-6 h-6" />}
                                         label="المفضلة"
                                         color="bg-accent"
-                                        onClick={(e) => handleProtectedAction(e, '/favorites')}
+                                        onClick={(e) => handleProtectedAction(e)}
                                     />
                                     <ActionItem
                                         href="/market/create"
                                         icon={<Plus className="w-6 h-6" />}
                                         label="أضف إعلان"
                                         color="bg-primary"
-                                        onClick={(e) => handleProtectedAction(e, '/market/create')}
+                                        onClick={(e) => handleProtectedAction(e)}
                                     />
                                     <ActionItem
                                         href="/market"
@@ -120,7 +119,7 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                         icon={<ShoppingBag className="w-6 h-6" />}
                                         label="إعلاناتي"
                                         color="bg-primary"
-                                        onClick={(e) => handleProtectedAction(e, '/market/my-ads')}
+                                        onClick={(e) => handleProtectedAction(e)}
                                     />
                                     <ActionItem
                                         href="/community"
@@ -144,8 +143,8 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
 
                                 {/* Bottom Links List */}
                                 <div className="px-6 pt-2 space-y-2">
-                                    <ListLink icon={<User className="w-5 h-5" />} label="البروفايل" href="/profile" onClick={(e) => handleProtectedAction(e, '/profile')} />
-                                    <ListLink icon={<Settings className="w-5 h-5" />} label="الإعدادات" href="/settings" onClick={(e) => handleProtectedAction(e, '/settings')} />
+                                    <ListLink icon={<User className="w-5 h-5" />} label="البروفايل" href="/profile" onClick={(e) => handleProtectedAction(e)} />
+                                    <ListLink icon={<Settings className="w-5 h-5" />} label="الإعدادات" href="/settings" onClick={(e) => handleProtectedAction(e)} />
 
                                     <div className="h-px bg-border-subtle/50 my-2" />
 

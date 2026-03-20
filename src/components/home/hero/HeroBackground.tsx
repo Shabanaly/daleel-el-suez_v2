@@ -3,21 +3,31 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
+interface Particle {
+    id: number;
+    duration: number;
+    delay: number;
+    left: string;
+    top: string;
+}
+
 export default function HeroBackground() {
     const [mounted, setMounted] = useState(false);
-    const [particles, setParticles] = useState<any[]>([]);
+    const [particles, setParticles] = useState<Particle[]>([]);
 
     useEffect(() => {
-        setMounted(true);
-        // Generate particles only on the client
-        const newParticles = [...Array(6)].map((_, i) => ({
-            id: i,
-            duration: 5 + Math.random() * 5,
-            delay: Math.random() * 5,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`
-        }));
-        setParticles(newParticles);
+        setTimeout(() => {
+            setMounted(true);
+            // Generate particles only on the client
+            const newParticles = [...Array(6)].map((_, i) => ({
+                id: i,
+                duration: 5 + Math.random() * 5,
+                delay: Math.random() * 5,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`
+            }));
+            setParticles(newParticles);
+        }, 0);
     }, []);
 
     return (

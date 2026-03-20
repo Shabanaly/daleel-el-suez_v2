@@ -6,29 +6,20 @@ import { ar } from 'date-fns/locale';
 import { User, MoreVertical, Edit2, Trash2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useDialog } from '@/components/providers/DialogProvider';
+import { SafeImage } from '@/components/common/SafeImage';
+import { Review } from '@/lib/types/reviews';
 
 interface ReviewItemProps {
-    review: {
-        id: string;
-        user_id: string;
-        rating: number;
-        comment: string;
-        created_at: string;
-        user: {
-            username: string;
-            full_name?: string;
-            avatar_url?: string;
-        };
-    };
+    review: Review;
     currentUserId?: string;
-    onEdit?: (review: any) => void;
+    onEdit?: (review: Review) => void;
     onDelete?: (reviewId: string) => void;
 }
 
 export function ReviewItem({ review, currentUserId, onEdit, onDelete }: ReviewItemProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
-    const displayName = review.user.full_name || review.user.username;
+    const displayName = review.user?.full_name || review.user?.username || 'مستخدم';
     const isOwner = currentUserId === review.user_id;
     const { showConfirm } = useDialog();
 
@@ -89,10 +80,11 @@ export function ReviewItem({ review, currentUserId, onEdit, onDelete }: ReviewIt
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden shrink-0">
-                        {review.user.avatar_url ? (
-                            <img
+                        {review.user?.avatar_url ? (
+                            <SafeImage
                                 src={review.user.avatar_url}
                                 alt={displayName}
+                                fill
                                 className="w-full h-full object-cover"
                             />
                         ) : (

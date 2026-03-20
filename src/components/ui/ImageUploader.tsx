@@ -1,11 +1,12 @@
 'use client';
 
 import { Image as ImageIcon, Loader2, X, Plus } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { SafeImage } from '@/components/common/SafeImage';
+// import { motion, AnimatePresence } from 'framer-motion';
 
 interface ImageUploaderProps {
     images: string[];
-    onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void | Promise<any>;
+    onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void | Promise<unknown>;
     onDeleteImage: (index: number) => Promise<void>;
     isUploading: boolean;
     maxImages?: number;
@@ -34,7 +35,7 @@ export function ImageUploader({
                 <div className="col-span-2 row-span-2 relative aspect-square rounded-[32px] border-2 border-dashed border-border-subtle overflow-hidden bg-background/30 group">
                     {images[0] ? (
                         <>
-                            <img src={images[0]} alt="Cover" className="w-full h-full object-cover" />
+                            <SafeImage src={images[0]} alt="Cover" fill className="w-full h-full object-cover" />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <button
                                     type="button"
@@ -76,7 +77,7 @@ export function ImageUploader({
                         <div key={idx} className="relative aspect-square rounded-xl border-2 border-dashed border-border-subtle overflow-hidden bg-background/30 group">
                             {images[idx] ? (
                                 <>
-                                    <img src={images[idx]} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                                    <SafeImage src={images[idx]} alt={`Preview ${idx}`} fill className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                         <button
                                             type="button"

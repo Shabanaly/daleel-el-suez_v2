@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getReviews, deleteReview, getCurrentUserReview } from '@/lib/actions/reviews';
 import { ReviewItem } from './ReviewItem';
 import { ReviewForm } from './ReviewForm';
+import { Review } from '@/lib/types/reviews';
 import { MessageSquare, Plus, X, Edit3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -13,23 +14,23 @@ import { useAuthModal } from '@/hooks/useAuthModal';
 interface ReviewsSectionProps {
     placeId: string;
     initialReviewsCount: number;
-    initialReviews?: any[];
+    initialReviews?: Review[];
 }
 
 export function ReviewsSection({ placeId, initialReviewsCount, initialReviews }: ReviewsSectionProps) {
-    const [reviews, setReviews] = useState<any[]>(initialReviews || []);
+    const [reviews, setReviews] = useState<Review[]>(initialReviews || []);
     const [totalCount, setTotalCount] = useState(initialReviewsCount);
     const [isLoading, setIsLoading] = useState(!initialReviews);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const { user } = useAuth();
     const currentUserId = user?.id;
-    const [userReview, setUserReview] = useState<any | null>(null);
-    const [editingReview, setEditingReview] = useState<any | null>(null);
+    const [userReview, setUserReview] = useState<Review | null>(null);
+    const [editingReview, setEditingReview] = useState<Review | null>(null);
     const [showAll, setShowAll] = useState(false);
-    const { showAlert, showConfirm } = useDialog();
+    const { showAlert } = useDialog();
     const { openModal } = useAuthModal();
 
-    const fetchReviews = async (silent = false) => {
+    const fetchReviews = useCallback(async (silent = false) => {
         if (!silent) setIsLoading(true);
         const result = await getReviews(placeId, 1, 10);
         setReviews(result.reviews || []);
@@ -40,12 +41,15 @@ export function ReviewsSection({ placeId, initialReviewsCount, initialReviews }:
         setUserReview(myReview);
 
         if (!silent) setIsLoading(false);
-    };
+    }, [placeId]);
 
     useEffect(() => {
-        setShowAll(false);
-        fetchReviews(!!initialReviews);
-    }, [placeId]);
+        const timer = setTimeout(() => {
+            setShowAll(false);
+            fetchReviews(!!initialReviews);
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [placeId, initialReviews, fetchReviews]);
 
     const handleReviewSuccess = () => {
         setIsFormOpen(false);
@@ -53,7 +57,7 @@ export function ReviewsSection({ placeId, initialReviewsCount, initialReviews }:
         fetchReviews();
     };
 
-    const handleDelete = async (reviewId: string) => {
+    const handleDelete = async () => {
         const result = await deleteReview(placeId);
         if (result.success) {
             fetchReviews();
@@ -71,7 +75,7 @@ export function ReviewsSection({ placeId, initialReviewsCount, initialReviews }:
         }
     };
 
-    const handleEdit = (review: any) => {
+    const handleEdit = (review: Review) => {
         setEditingReview(review);
         setIsFormOpen(true);
     };

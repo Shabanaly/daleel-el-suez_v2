@@ -9,7 +9,7 @@ export class NotificationService {
   static async trigger<T extends NotificationEvent>(
     event: T,
     data: EventData[T]
-  ): Promise<{ success: boolean; error?: any }> {
+  ): Promise<{ success: boolean; error?: unknown }> {
     try {
       const templateFn = NotificationTemplates[event];
       if (!templateFn) {
@@ -20,7 +20,7 @@ export class NotificationService {
       return await this.saveToDatabase(payload);
     } catch (err) {
       console.error(`[NotificationService] Error triggering ${event}:`, err);
-      return { success: false, error: err };
+      return { success: false, error: err instanceof Error ? err.message : String(err) };
     }
   }
 

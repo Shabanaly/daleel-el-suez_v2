@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Plus, MapPin, Store, Users, Heart, Share2, Settings, Info, User, LogOut, Loader2, FileText, ShieldCheck, ShoppingBag, Copyright as CopyIcon } from 'lucide-react';
+import { Plus, MapPin, Store, Heart, Info, User, LogOut, Loader2, FileText, ShieldCheck, ShoppingBag, Copyright as CopyIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';

@@ -10,6 +10,7 @@ interface CategoryGridProps {
 }
 
 const DynamicIcon = ({ iconName, className }: { iconName: string, className?: string }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const Icon = (LucideIcons as any)[iconName];
     if (!Icon) {
         if (iconName && iconName.length <= 4) return <span className="text-xl md:text-3xl">{iconName}</span>;

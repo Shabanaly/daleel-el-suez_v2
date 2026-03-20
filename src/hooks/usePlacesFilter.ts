@@ -7,6 +7,7 @@ export function usePlacesFilter(
     initialTotal: number,
     categories: string[],
     allAreas: AreaWithDistrict[],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     districts: any[]
 ) {
     const router = useRouter();
@@ -28,6 +29,7 @@ export function usePlacesFilter(
     const [total, setTotal] = useState(initialTotal);
     // Sync with Server-fetched data when URL changes and page.tsx re-renders
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPlaces(initialPlaces);
         setTotal(initialTotal);
         // We also sync the page state with the URL here to handle "back" button etc.
@@ -67,6 +69,7 @@ export function usePlacesFilter(
 
     // Reset page to 1 whenever any filter changes (except page itself)
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPage(1);
     }, [debouncedQuery, activeCategory, activeDistrict, activeArea, sortBy]);
 

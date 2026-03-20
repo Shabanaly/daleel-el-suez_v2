@@ -170,11 +170,12 @@ export async function POST(req: Request) {
         failureCount: response.failureCount 
     });
 
-  } catch (error: any) {
-    console.error('CRITICAL: Error sending push notification:', error);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('CRITICAL: Error sending push notification:', err);
     if (notificationLogId) {
-      await supabaseAdmin.from('notification_logs').update({ status: 'failed', error_message: error.message }).eq('id', notificationLogId);
+      await supabaseAdmin.from('notification_logs').update({ status: 'failed', error_message: err.message }).eq('id', notificationLogId);
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

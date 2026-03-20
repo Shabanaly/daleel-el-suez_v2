@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { toggleFavorite, isItemFavorite } from '@/lib/actions/favorites';
 
 interface FavoriteButtonProps {

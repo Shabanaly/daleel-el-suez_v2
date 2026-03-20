@@ -22,7 +22,7 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
             if (window.google?.accounts?.id) {
                 try {
                     window.google.accounts.id.cancel();
-                } catch (e) {
+                } catch {
                     // Ignore if google script isn't fully ready yet
                 }
             }
@@ -42,10 +42,10 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
             try {
                 window.google.accounts.id.initialize({
                     client_id: clientId,
-                    callback: async (response: any) => {
+                    callback: async (response) => {
                         try {
                             const result = await loginWithIdToken(response.credential);
-                            // @ts-ignore - Handle possible result variations
+                            // @ts-expect-error - Handle possible result variations
                             if (result?.success || !result?.error) {
                                 await refreshSession();
                                 router.refresh();
@@ -53,10 +53,12 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
                             } else {
                                 console.error('One Tap Error:', result.error);
                             }
-                        } catch (err: any) {
-                            // NEXT_REDIRECT is the expected behavior for server actions that redirect
-                            if (err.message === 'NEXT_REDIRECT' || err.digest?.includes('NEXT_REDIRECT')) {
-                                return;
+                        } catch (err: unknown) {
+                            if (err instanceof Error) {
+                                // NEXT_REDIRECT is the expected behavior for server actions that redirect
+                                if (err.message === 'NEXT_REDIRECT' || (err as { digest?: string }).digest?.includes('NEXT_REDIRECT')) {
+                                    return;
+                                }
                             }
                             console.error('One Tap Login Failed:', err);
                         }
@@ -116,7 +118,21 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
 // Add global type for Google
 declare global {
     interface Window {
-        google: any;
+        google: {
+            accounts: {
+                id: {
+                    initialize: (config: {
+                        client_id: string;
+                        callback: (response: { credential: string }) => Promise<void>;
+                        auto_select?: boolean;
+                        cancel_on_tap_outside?: boolean;
+                        use_fedcm_for_prompt?: boolean;
+                    }) => void;
+                    prompt: () => void;
+                    cancel: () => void;
+                };
+            };
+        };
         __GSI_INITIALIZED__?: boolean;
     }
 }

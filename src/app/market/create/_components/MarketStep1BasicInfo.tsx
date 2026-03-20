@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Type, ArrowLeft, Tag, Menu } from 'lucide-react';
+import { ArrowLeft, Tag, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MarketCategory } from '@/lib/types/market';
 
@@ -76,7 +76,7 @@ export function MarketStep1BasicInfo({
                             <button
                                 key={choice.id}
                                 type="button"
-                                onClick={() => updateFormData({ condition: choice.id as any })}
+                                onClick={() => updateFormData({ condition: choice.id as 'new' | 'used' | 'na' })}
                                 className={`h-12 rounded-xl text-xs font-black transition-all border-2 ${
                                     formData.condition === choice.id
                                         ? 'border-primary bg-primary/5 text-primary'

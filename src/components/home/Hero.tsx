@@ -26,7 +26,7 @@ export default function Hero({ categories = [] }: { categories?: Category[] }) {
 
 
     return (
-        <section className="relative w-full flex flex-col items-center justify-center overflow-hidden pt-20 pb-12 md:pt-28 md:pb-16 min-h-[60vh] bg-background">
+        <section className="relative w-full flex flex-col items-center justify-center overflow-hidden pt-20 pb-0 md:pt-28 md:pb-0 min-h-[60vh] bg-background">
 
             <HeroBackground />
 

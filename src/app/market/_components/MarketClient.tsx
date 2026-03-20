@@ -82,7 +82,7 @@ export function MarketClient({
         }, searchQuery ? 500 : 50);
 
         return () => clearTimeout(timer);
-    }, [searchQuery, router]);
+    }, [searchQuery, router, excludeIds]);
 
     const handleCreateAdClick = async (e: React.MouseEvent) => {
         const supabase = createClient();

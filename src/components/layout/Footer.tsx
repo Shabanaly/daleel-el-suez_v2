@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MapPin, Mail, MessageCircle } from 'lucide-react';
+import { MapPin, Mail, MessageCircle, Award } from 'lucide-react';
 
 export default function Footer() {
     const pathname = usePathname();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
+        setTimeout(() => setMounted(true), 0);
     }, []);
 
     const isAuthPage = pathname === '/login' || pathname === '/signup';
@@ -48,6 +48,12 @@ export default function Footer() {
                             <li>
                                 <Link href="/" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
                                     الرئيسية
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/best" className="text-primary text-sm font-black hover:opacity-80 transition-opacity flex items-center gap-2">
+                                    <Award className="w-3.5 h-3.5" />
+                                    أفضل ما في السويس
                                 </Link>
                             </li>
                             <li>

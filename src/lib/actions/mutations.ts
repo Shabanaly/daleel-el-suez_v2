@@ -4,10 +4,29 @@ import { createClient } from '../supabase/server';
 import { revalidatePath } from 'next/cache';
 import { cacheManager } from '../cache';
 
+import { WeeklySchedule } from '../types/places';
+
+interface PlaceMutationData {
+    name: string;
+    description: string;
+    categoryId: number;
+    areaId: number;
+    address: string;
+    phone: {
+        primary: string;
+        others: string[];
+        whatsapp: string;
+    };
+    socialLinks: { platform: string, url: string }[];
+    images: string[];
+    publicIds: string[];
+    openHours: string | WeeklySchedule;
+}
+
 /**
  * Server Action to add a new place with revalidation
  */
-export async function addPlace(formData: any) {
+export async function addPlace(formData: PlaceMutationData) {
     const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -53,7 +72,7 @@ export async function addPlace(formData: any) {
 /**
  * Server Action to update an existing place
  */
-export async function updatePlace(id: string, formData: any) {
+export async function updatePlace(id: string, formData: PlaceMutationData) {
     const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();

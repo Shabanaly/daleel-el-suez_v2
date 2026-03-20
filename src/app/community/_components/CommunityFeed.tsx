@@ -1,11 +1,12 @@
 import { Suspense } from 'react';
 import { Users } from 'lucide-react';
+import { CommunityPost, CommunityCategory } from '@/lib/types/community';
 import PostCard from './PostCard';
 import CommentsWrapper from './CommentsWrapper';
 
 interface CommunityFeedProps {
-    initialPosts: any[];
-    categories: any[];
+    initialPosts: CommunityPost[];
+    categories: CommunityCategory[];
 }
 
 export default function CommunityFeed({ initialPosts, categories }: CommunityFeedProps) {
@@ -13,7 +14,7 @@ export default function CommunityFeed({ initialPosts, categories }: CommunityFee
         <>
             <div className="space-y-8">
                 {initialPosts.length > 0 ? (
-                    initialPosts.map((post: any) => (
+                    initialPosts.map((post) => (
                         <PostCard
                             key={post.id}
                             post={post}

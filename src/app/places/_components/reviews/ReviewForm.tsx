@@ -22,13 +22,15 @@ export function ReviewForm({ placeId, onSuccess, initialData }: ReviewFormProps)
 
     // Update state if initialData changes (e.g. when opening edit modal)
     useEffect(() => {
-        if (initialData) {
-            setRating(initialData.rating);
-            setComment(initialData.comment);
-        } else {
-            setRating(0);
-            setComment('');
-        }
+        setTimeout(() => {
+            if (initialData) {
+                setRating(initialData.rating);
+                setComment(initialData.comment);
+            } else {
+                setRating(0);
+                setComment('');
+            }
+        }, 0);
     }, [initialData]);
 
     const handleSubmit = async (e: React.FormEvent) => {

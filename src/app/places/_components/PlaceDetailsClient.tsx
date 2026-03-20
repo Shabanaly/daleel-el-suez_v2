@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ShareButton from '@/components/ui/ShareButton';
 import { useDialog } from "@/components/providers/DialogProvider";
-import { Heart, Share2, MapPin, Phone, MessageCircle, Clock, Star, Info, ChevronRight, ChevronLeft, X, ExternalLink, ArrowRight, CheckCircle2, Eye } from 'lucide-react';
+import { Share2, MapPin, Star, ChevronLeft, ArrowRight, CheckCircle2, Eye } from 'lucide-react';
+import { Review } from '@/lib/types/reviews';
 import { Place } from '@/lib/types/places';
 import { PlaceCard } from './PlaceCard';
 import { Lightbox } from './Lightbox';
@@ -21,7 +22,7 @@ import { FavoriteButton } from '@/components/common/FavoriteButton';
 interface PlaceDetailsClientProps {
     place: Place;
     relatedPlaces: Place[];
-    initialReviews?: any[];
+    initialReviews?: Review[];
     isFavorite?: boolean;
 }
 
@@ -63,7 +64,7 @@ export function PlaceDetailsClient({
         setIsLightboxOpen(true);
     };
 
-    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.area + ' السويس')}`;
+    // removed unused googleMapsUrl
 
     return (
         <div className="w-full min-h-screen bg-background pb-24 md:pb-32 text-right" dir="rtl">

@@ -19,7 +19,7 @@ export default function SectionHeader({
     viewAllText = "عرض الكل"
 }: SectionHeaderProps) {
     return (
-        <div className="flex items-center justify-between mb-8 md:mb-12 relative z-10 w-full">
+        <div className="flex items-center justify-between mb-4 md:mb-6 relative z-10 w-full">
             <div className="flex flex-col justify-center">
                 <div className="flex items-center gap-2 md:gap-3">
                     <Icon className="w-6 h-6 md:w-8 md:h-8 text-primary" />

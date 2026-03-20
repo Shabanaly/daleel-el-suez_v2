@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     const postUrls = posts.map((post) => ({
-        url: `${baseUrl}/community/posts/${post.id}`,
+        url: `${baseUrl}/community/posts/${encodeURIComponent(post.id)}`,
         lastModified: new Date(post.created_at),
         changeFrequency: 'weekly' as const,
         priority: 0.7,
@@ -50,6 +50,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: new Date(ad.created_at),
         changeFrequency: 'weekly' as const,
         priority: 0.6,
+    }));
+    
+    // Best of Suez URLs
+    const bestOfUrls = categories.map((category) => ({
+        url: `${baseUrl}/best/${encodeURIComponent(category.slug)}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
     }));
 
     const staticUrls = [
@@ -107,6 +115,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: 'yearly' as const,
             priority: 0.3,
         },
+        {
+            url: `${baseUrl}/gallery`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 0.9,
+        },
+        {
+            url: `${baseUrl}/best`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 0.9,
+        },
     ];
 
     return [
@@ -115,6 +135,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ...categoryUrls, 
         ...postUrls,
         ...marketCategoryUrls,
-        ...marketAdUrls
+        ...marketAdUrls,
+        ...bestOfUrls
     ];
 }

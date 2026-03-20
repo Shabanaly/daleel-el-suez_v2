@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, X } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import Link from 'next/link';
 
 const COOKIE_CONSENT_KEY = 'daleel-cookie-consent';
@@ -54,7 +54,7 @@ export default function CookieConsent() {
           <div className="flex-1 text-right" dir="rtl">
             <h4 className="text-text-primary font-bold text-sm mb-1">خصوصيتك تهمنا 🛡️</h4>
             <p className="text-text-muted text-[11px] leading-relaxed">
-              نحن نستخدم ملفات تعريف الارتباط (Cookies) لتحسين تجربة تصفحك وعرض إعلانات مخصصة لك. بضغطك على "موافق"، فإنك تقبل استخدامنا لها.
+              نحن نستخدم ملفات تعريف الارتباط (Cookies) لتحسين تجربة تصفحك وعرض إعلانات مخصصة لك. بضغطك على &quot;موافق&quot;، فإنك تقبل استخدامنا لها.
               {' '}
               <Link href="/privacy" className="text-primary hover:underline font-bold">
                 اقرأ سياسة الخصوصية

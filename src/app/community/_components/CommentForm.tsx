@@ -5,13 +5,16 @@ import Image from 'next/image';
 
 import { forwardRef } from 'react';
 
+import { CommunityComment } from '@/lib/types/community';
+import { User as SupabaseUser } from '@supabase/supabase-js';
+
 interface CommentFormProps {
     value: string;
     onChange: (val: string) => void;
     onSubmit: (e: React.FormEvent) => void;
     isSubmitting: boolean;
-    user: any;
-    replyTo?: any;
+    user: SupabaseUser | null;
+    replyTo?: CommunityComment | null;
     onCancelReply?: () => void;
     onAuthRequired: () => void;
 }
@@ -37,6 +40,8 @@ const CommentForm = forwardRef<HTMLInputElement, CommentFormProps>(({
         );
     }
 
+    const userAvatar = (user?.user_metadata?.avatar_url as string) || (user as { avatar_url?: string } | null)?.avatar_url;
+
     return (
         <div className="space-y-2">
             {replyTo && (
@@ -49,8 +54,8 @@ const CommentForm = forwardRef<HTMLInputElement, CommentFormProps>(({
             )}
             <form onSubmit={onSubmit} className="relative flex items-center gap-2 p-1 bg-background border border-border-subtle focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 rounded-2xl shadow-sm transition-all group">
                 <div className="shrink-0 w-7 h-7 sm:w-9 sm:h-9 relative rounded-full overflow-hidden ring-2 ring-background border border-border-subtle/50 mr-1">
-                    {user.user_metadata?.avatar_url || user.avatar_url ? (
-                        <Image src={user.user_metadata?.avatar_url || user.avatar_url} alt="User" fill sizes="36px" className="object-cover" />
+                    {userAvatar ? (
+                        <Image src={userAvatar} alt="User" fill sizes="36px" className="object-cover" />
                     ) : (
                         <div className="w-full h-full bg-primary/10 flex items-center justify-center">
                             <User className="w-4 h-4 text-primary" />

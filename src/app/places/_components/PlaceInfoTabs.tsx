@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     MapPin, Phone, Clock, Facebook, Instagram, Globe, MessageCircle
 } from 'lucide-react';
-import { Place, DayKey, DaySchedule } from '@/lib/types/places';
+import { Place, DayKey } from '@/lib/types/places';
 
 interface PlaceInfoTabsProps {
     place: Place;
@@ -24,7 +24,7 @@ export function PlaceInfoTabs({ place }: PlaceInfoTabsProps) {
         { key: 'friday', label: 'الجمعة' },
     ];
 
-    const formatTime = (schedule?: any) => {
+    const formatTime = (schedule?: { isOpen?: boolean; is_open?: boolean; from?: string; to?: string; start?: string; end?: string }) => {
         if (!schedule) return 'مغلق';
         if (typeof schedule === 'string') return schedule;
 
@@ -179,8 +179,9 @@ export function PlaceInfoTabs({ place }: PlaceInfoTabsProps) {
                                     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                                         {daysMapping.map(({ key, label }) => {
                                             // Case-insensitive lookup (handles "monday" or "Monday")
-                                            const schedule = (place.workingHours as any)?.[key] ||
-                                                (place.workingHours as any)?.[key.charAt(0).toUpperCase() + key.slice(1)];
+                                            const workingHours = place.workingHours as Record<string, { isOpen?: boolean; is_open?: boolean; from?: string; to?: string; start?: string; end?: string }>;
+                                            const schedule = workingHours?.[key] ||
+                                                workingHours?.[key.charAt(0).toUpperCase() + key.slice(1)];
 
                                             return (
                                                 <div key={key} className="flex items-center justify-between py-3 px-2 rounded-xl bg-background/50 border border-border-subtle/20 group hover:border-primary/20 transition-colors">

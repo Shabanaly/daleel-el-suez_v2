@@ -1,4 +1,4 @@
-import { getPlaces, getNewPlaces, getTrendingPlaces, getHomePageData } from '@/lib/actions/places';
+import { getHomePageData, getOverallStats } from '@/lib/actions/places';
 import { getHomeCategories } from '@/lib/actions/categories';
 import { getHomeDistricts } from '@/lib/actions/areas';
 import { getSuezStats } from '@/lib/actions/stats';
@@ -11,9 +11,11 @@ import CommunityTeaser from '@/components/home/CommunityTeaser';
 import NewPlaces from '@/components/home/NewPlaces';
 import HomeMarketSection from '@/components/home/HomeMarketSection';
 import CategoryHighlight from '@/components/home/CategoryHighlight';
+import BestOfSuezHome from '@/components/home/BestOfSuezHome';
 import { getCommunityPosts } from '@/lib/actions/posts';
 import { getMarketHomePageData } from '@/lib/actions/market';
 import { createClient } from '@/lib/supabase/server';
+import { getTopGalleryImages } from '@/lib/actions/gallery';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -27,14 +29,16 @@ export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser();
 
   // 🧠 Fetch data using the centralized home page action (logic moved to server)
-  const [categories, districts, homeData, communityPosts, randomCategoryData, suezStats, marketData] = await Promise.all([
+  const [categories, districts, homeData, communityPosts, randomCategoryData, suezStats, marketData, statsData, topGalleryImages] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
     getHomePageData(),
     getCommunityPosts(undefined, undefined, 1, 2, user?.id),
     import('@/lib/actions/categories').then(m => m.getRandomCategoryHighlights()),
     getSuezStats(),
-    getMarketHomePageData()
+    getMarketHomePageData(),
+    getOverallStats(),
+    getTopGalleryImages(5)
   ]);
 
   const { trending, newPlaces } = homeData;
@@ -47,14 +51,15 @@ export default async function Home() {
       <TrendingPlaces places={trending} />
       <NewPlaces places={newPlaces} />
       <HomeMarketSection ads={homeMarketAds} />
+      <BestOfSuezHome stats={statsData} />
       {randomCategoryData && <CategoryHighlight data={randomCategoryData} />}
-      <SuezGallery />
+      <SuezGallery initialImages={topGalleryImages} />
       <DistrictsExplorer districts={districts} />
       <CommunityTeaser posts={communityPosts} />
 
 
       {/* Call to action banner at the end */}
-      <section className="w-full max-w-7xl mx-auto px-4 pb-24 md:pb-32">
+      <section className="w-full max-w-7xl mx-auto px-4 pb-6 md:pb-12">
         <div className="w-full rounded-[32px] md:rounded-[48px] bg-linear-to-br from-surface via-surface to-primary/5 border border-primary/15 p-8 md:p-16 text-center flex flex-col items-center shadow-2xl shadow-primary/5 relative overflow-hidden group">
           {/* Canal teal orb top-right */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full mix-blend-screen filter blur-[100px] opacity-40 pointer-events-none group-hover:opacity-60 transition-opacity duration-1000" />

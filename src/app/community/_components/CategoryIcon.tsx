@@ -1,9 +1,8 @@
-'use client';
-
+import React from 'react';
 import * as Icons from 'lucide-react';
 import { LucideProps } from 'lucide-react';
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, React.ComponentType<LucideProps>> = {
     // Emojis (Fallback for existing DB data)
     '📰': Icons.Newspaper,
     '🔧': Icons.Wrench,
@@ -32,7 +31,7 @@ export default function CategoryIcon({ name, ...props }: CategoryIconProps) {
 
     // If not in map, check if it's a direct Lucide name string
     if (!IconComponent) {
-        IconComponent = (Icons as any)[name];
+        IconComponent = (Icons as unknown as Record<string, React.ComponentType<LucideProps>>)[name];
     }
 
     // Fallback to LayoutGrid if nothing found

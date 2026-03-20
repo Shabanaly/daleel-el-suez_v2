@@ -16,9 +16,11 @@ const AUTH_ERRORS_AR: Record<string, string> = {
     'rate_limit': 'لقد قمت بمحاولات كثيرة جداً، يرجى الانتظار قليلاً',
 }
 
-function getErrorMessage(error: any): string {
-    const message = error?.message || String(error);
-    if (error?.status === 429) return AUTH_ERRORS_AR['rate_limit'];
+function getErrorMessage(error: unknown): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const message = (error as any)?.message || String(error);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((error as any)?.status === 429) return AUTH_ERRORS_AR['rate_limit'];
     return AUTH_ERRORS_AR[message] || 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً';
 }
 

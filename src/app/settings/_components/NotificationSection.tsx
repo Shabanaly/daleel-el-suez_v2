@@ -70,7 +70,7 @@ export function NotificationSection() {
                 {sections.map((section) => (
                     <div
                         key={section.id}
-                        onClick={() => toggleNotification(section.id as any)}
+                        onClick={() => toggleNotification(section.id as keyof typeof notifications)}
                         className={`p-4 md:p-6 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${section.enabled
                             ? 'bg-primary/5 border-primary/20'
                             : 'bg-surface border-border-subtle hover:border-border-subtle/80'

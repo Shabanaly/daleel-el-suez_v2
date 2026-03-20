@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Target, Users, Map, ShieldCheck } from 'lucide-react';
+import { Users, Map, ShieldCheck } from 'lucide-react';
 
 interface SuezStatsProps {
     stats?: {
@@ -39,7 +39,7 @@ export default function SuezStats({ stats: initialStats }: SuezStatsProps) {
     ];
 
     return (
-        <section className="w-full max-w-7xl mx-auto px-4 py-20 relative overflow-hidden">
+        <section className="w-full max-w-7xl mx-auto px-4 pt-0 pb-8 md:pt-0 md:pb-16 relative overflow-hidden">
             {/* Background glow lines */}
             <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-border-subtle to-transparent" />
             <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-border-subtle to-transparent" />
