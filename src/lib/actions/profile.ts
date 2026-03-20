@@ -144,7 +144,7 @@ export async function getUserActivities(userId: string, limit = 10) {
                         title: `نشرت منشوراً جديداً`,
                         description: post.title || post.content.substring(0, 100),
                         date: post.created_at,
-                        link: `/community/post/${post.id}`,
+                        link: `/community/posts/${post.id}`,
                     };
                 });
 
@@ -162,7 +162,7 @@ export async function getUserActivities(userId: string, limit = 10) {
                         title: isReply ? `رددت على تعليق في: ${postDisplayName}` : `علقت على: ${postDisplayName}`,
                         description: comment.content,
                         date: comment.created_at,
-                        link: `/community/post/${comment.post_id}`,
+                        link: `/community/posts/${comment.post_id}`,
                     };
                 });
 
