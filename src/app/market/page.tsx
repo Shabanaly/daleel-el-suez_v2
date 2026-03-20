@@ -4,8 +4,18 @@ import { getMarketCategories, getMarketAds, getMarketHomePageData } from '@/lib/
 import { MarketAd, MarketCategory } from '@/lib/types/market';
 
 export const metadata: Metadata = {
-    title: 'سوق السويس - بيع وشراء في السويس',
-    description: 'سوق السويس المحلي - منصة لبيع وشراء المنتجات الجديدة والمستعملة بين أهل السويس بسهولة وأمان.',
+    title: 'سوق السويس | بيع وشراء، مستعمل، وعروض في السويس',
+    description: 'سوق السويس المحلي - أفضل منصة لبيع وشراء المنتجات الجديدة والمستعملة، العقارات، والسيارات في محافظة السويس. أضف إعلانك الآن مجاناً.',
+    keywords: [
+        "سوق السويس", "بيع وشراء السويس", "مستعمل السويس", "اعلانات مبوبة السويس", 
+        "حراج السويس", "عقارات السويس", "سيارات للبيع في السويس", "خدمات السويس"
+    ],
+    openGraph: {
+        title: 'سوق السويس - بيع وشراء في السويس',
+        description: 'منصة أهل السويس لبيع وشراء كل شيء. تصفح آلاف العروض المتاحة الآن.',
+        type: 'website',
+        locale: 'ar_EG',
+    }
 };
 
 interface Props {

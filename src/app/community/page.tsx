@@ -23,7 +23,18 @@ export async function generateMetadata({
   return {
     title,
     description,
-    openGraph: { title, description },
+    keywords: ["مجتمع السويس", "منتدى السويس", "اخبار السويس", "اسال السويس", "مناقشات السويس", "سويس كافيه"],
+    openGraph: { 
+      title, 
+      description,
+      type: 'website',
+      siteName: 'مجتمع السويس'
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    }
   };
 }
 

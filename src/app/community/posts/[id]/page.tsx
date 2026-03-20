@@ -34,6 +34,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
     return {
         title,
         description,
+        keywords: [post.author?.full_name || '', post.category_name || '', "مجتمع السويس", "منتدى السويس", "اخبار السويس"].filter(Boolean),
         alternates: {
             canonical: `${baseUrl}/community/posts/${encodeURIComponent(id)}`,
         },
@@ -75,7 +76,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
     const jsonLd = {
         '@context': 'https://schema.org',
-        '@type': 'SocialMediaPosting',
+        '@type': 'DiscussionForumPosting',
         headline: post.content.substring(0, 100),
         description: post.content.substring(0, 160),
         author: {
@@ -84,6 +85,11 @@ export default async function PostPage({ params }: PostPageProps) {
         },
         datePublished: post.created_at,
         image: post.images?.length ? post.images[0] : undefined,
+        interactionStatistic: {
+            '@type': 'InteractionCounter',
+            'interactionType': 'https://schema.org/CommentAction',
+            'userInteractionCount': initialComments.length
+        }
     };
 
     return (

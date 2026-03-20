@@ -23,13 +23,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     
     if (!ad) return { title: 'إعلان غير موجود' };
 
+    const title = `${ad.title} | سوق السويس`;
+    const description = ad.description ? ad.description.substring(0, 160) : `إعلان ${ad.title} في سوق السويس. السعر: ${ad.price} ج.م.`;
+
     return {
-        title: `${ad.title} | سوق السويس`,
-        description: ad.description.substring(0, 160),
+        title,
+        description,
+        keywords: [ad.title, ad.category_name || '', ad.location, "سوق السويس", "بيع وشراء", "مستعمل"].filter(Boolean),
         openGraph: {
-            title: ad.title,
-            description: ad.description.substring(0, 160),
+            title,
+            description,
             images: ad.images[0] ? [{ url: ad.images[0] }] : [],
+            type: 'article',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: ad.images[0] ? [ad.images[0]] : [],
         }
     };
 }
@@ -51,5 +62,35 @@ export default async function AdDetailsPage({ params }: Props) {
         notFound();
     }
 
-    return <AdDetailsClient ad={ad} />;
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": ad.title,
+        "description": ad.description,
+        "image": ad.images,
+        "sku": ad.id,
+        "offers": {
+            "@type": "Offer",
+            "url": `https://daleel-al-suez.com/market/${ad.slug}`,
+            "priceCurrency": "EGP",
+            "price": ad.price,
+            "itemCondition": ad.condition === 'new' ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
+            "availability": "https://schema.org/InStock",
+            "priceValidUntil": new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0]
+        },
+        "brand": {
+            "@type": "Brand",
+            "name": "سوق السويس"
+        }
+    };
+
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <AdDetailsClient ad={ad} />
+        </>
+    );
 }

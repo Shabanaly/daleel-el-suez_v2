@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return {
         title,
         description,
+        keywords: [place.name, place.category, place.area, "السويس", "دليل السويس", "اماكن السويس"],
         openGraph: {
             title,
             description,
