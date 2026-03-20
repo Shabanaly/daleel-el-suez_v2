@@ -29,11 +29,12 @@ export function MarketStep2PricingContact({
             exit={{ opacity: 0, x: -20 }}
             className="space-y-6"
         >
-            <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                    <DollarSign className="w-5 h-5" />
-                </div>
-                <h3 className="text-xl font-black text-text-primary">السعر والتواصل</h3>
+            <div className="flex flex-col items-center gap-2 mb-8 text-center">
+                <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider rounded-lg border border-primary/20">
+                    الخطوة 3 من 4
+                </span>
+                <h2 className="text-2xl font-black text-text-primary">السعر والتواصل</h2>
+                <p className="text-text-muted text-sm font-bold">حدد السعر المناسب وبيانات التواصل ومنطقة البيع</p>
             </div>
 
             <div className="glass-panel p-6 sm:p-8 rounded-[32px] border border-border-subtle/50 space-y-8">

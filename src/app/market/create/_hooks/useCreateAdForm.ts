@@ -47,14 +47,20 @@ export function useCreateAdForm() {
 
     const validateStep1 = () => {
         const newErrors: Record<string, string> = {};
-        if (!formData.title || formData.title.trim().length < 5) newErrors.title = 'العنوان يجب أن يكون 5 أحرف على الأقل';
         if (!formData.categoryId) newErrors.categoryId = 'برجاء اختيار القسم';
-        if (!formData.description || formData.description.trim().length < 10) newErrors.description = 'الوصف يحب أن يكون 10 أحرف على الأقل';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const validateStep2 = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.title || formData.title.trim().length < 5) newErrors.title = 'العنوان يجب أن يكون 5 أحرف على الأقل';
+        if (!formData.description || formData.description.trim().length < 10) newErrors.description = 'الوصف يحب أن يكون 10 أحرف على الأقل';
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const validateStep3 = () => {
         const newErrors: Record<string, string> = {};
         if (!formData.price || isNaN(Number(formData.price))) newErrors.price = 'برجاء إدخال سعر صحيح';
         if (!formData.areaId) newErrors.areaId = 'برجاء اختيار المنطقة';
@@ -64,7 +70,7 @@ export function useCreateAdForm() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const validateStep3 = () => {
+    const validateStep4 = () => {
         const newErrors: Record<string, string> = {};
         if (images.length === 0) newErrors.images = 'برجاء رفع صورة واحدة على الأقل';
         if (images.length > 5) newErrors.images = 'الحد الأقصى هو 5 صور';
@@ -79,6 +85,9 @@ export function useCreateAdForm() {
         } else if (step === 2 && validateStep2()) {
             setStep(3);
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (step === 3 && validateStep3()) {
+            setStep(4);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
@@ -90,13 +99,13 @@ export function useCreateAdForm() {
     };
 
     const validateAll = () => {
-        return validateStep1() && validateStep2() && validateStep3();
+        return validateStep1() && validateStep2() && validateStep3() && validateStep4();
     };
 
     const handleSubmit = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
 
-        if (!validateStep3() || !validateAll()) return;
+        if (!validateStep4() || !validateAll()) return;
 
         setIsSubmitting(true);
         setError(null);

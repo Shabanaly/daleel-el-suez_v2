@@ -67,21 +67,32 @@ export async function getMarketAds(
         async (p: number, cid: string | undefined, q: string | undefined) => {
             const supabase = createServiceClient();
 
-            let query = supabase
-                .from('listings')
-                .select(`
+            let selectStr = `
+                *,
+                categories(name, slug),
+                areas(name),
+                profiles(full_name),
+                listing_daily_views(count, view_date)
+            `;
+
+            if (cid && cid !== 'all') {
+                // Use !inner join to filter parents by category slug
+                selectStr = `
                     *,
-                    categories(name, slug),
+                    categories!inner(name, slug),
                     areas(name),
                     profiles(full_name),
                     listing_daily_views(count, view_date)
-                `, { count: 'exact' })
+                `;
+            }
+
+            let query = supabase
+                .from('listings')
+                .select(selectStr, { count: 'exact' })
                 .eq('status', 'active');
 
             if (cid && cid !== 'all') {
-                // First get the category ID from the slug (or use slug directly if joined)
-                // In listings, category_id is a foreign key. We can join categories to filter by slug.
-                query = query.filter('categories.slug', 'eq', cid);
+                query = query.eq('categories.slug', cid);
             }
 
             if (q && q.trim()) {

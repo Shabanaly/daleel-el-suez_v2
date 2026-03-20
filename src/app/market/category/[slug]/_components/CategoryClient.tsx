@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Search, ShoppingBag, Plus, MapPin, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -36,31 +36,43 @@ export function CategoryClient({
     const [conditionFilter, setConditionFilter] = useState<string>('all');
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isFirstMount, setIsFirstMount] = useState(true);
+    const lastSyncKey = useRef(`${category.slug}-${initialQuery}`);
 
     const fetchAds = useCallback(async (query: string) => {
+        const currentSyncKey = `${category.slug}-${query}`;
+        if (lastSyncKey.current === currentSyncKey) return;
+
         setLoading(true);
         try {
             const result = await getMarketAds(1, category.slug, query || undefined);
             setAds(result.ads);
             setTotal(result.total);
+            
+            // Sync URL only if needed
+            const params = new URLSearchParams(window.location.search);
+            if (query) params.set('q', query); else params.delete('q');
+            
+            const newQueryString = params.toString();
+            const currentQueryString = new URLSearchParams(window.location.search).toString();
+
+            if (newQueryString !== currentQueryString) {
+                router.replace(`/market/category/${category.slug}?${newQueryString}`, { scroll: false });
+            }
+
+            lastSyncKey.current = currentSyncKey;
         } catch (err) {
             console.error('Failed to fetch ads:', err);
         } finally {
             setLoading(false);
         }
-
-        // Update URL
-        const params = new URLSearchParams(searchParams.toString());
-        if (query) params.set('q', query); else params.delete('q');
-        router.replace(`/market/category/${category.slug}?${params.toString()}`, { scroll: false });
-    }, [category.slug, router, searchParams]);
+    }, [category.slug, router]);
 
     useEffect(() => {
         if (isFirstMount) {
             setIsFirstMount(false);
             return;
         }
-        const timer = setTimeout(() => fetchAds(searchQuery), searchQuery ? 400 : 0);
+        const timer = setTimeout(() => fetchAds(searchQuery), searchQuery ? 400 : 50);
         return () => clearTimeout(timer);
     }, [searchQuery, fetchAds, isFirstMount]);
 

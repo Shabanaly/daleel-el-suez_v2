@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
 import { MarketStepIndicator } from './MarketStepIndicator';
+import MarketStep1Category from './MarketStep1Category';
 import { MarketStep1BasicInfo } from './MarketStep1BasicInfo';
 import { MarketStep2PricingContact } from './MarketStep2PricingContact';
 import { MarketStep3Media } from './MarketStep3Media';
@@ -77,8 +78,18 @@ export function CreateAdForm({ categories, areas }: CreateAdFormProps) {
 
                 <AnimatePresence mode="wait">
                     {step === 1 && (
+                        <MarketStep1Category
+                            key="category-step"
+                            categories={categories}
+                            selectedId={formData.categoryId}
+                            onSelect={(id) => updateFormData({ categoryId: id })}
+                            onNext={nextStep}
+                        />
+                    )}
+
+                    {step === 2 && (
                         <MarketStep1BasicInfo
-                            key="step1"
+                            key="basic-info-step"
                             formData={formData}
                             updateFormData={updateFormData}
                             categories={categories}
@@ -87,9 +98,9 @@ export function CreateAdForm({ categories, areas }: CreateAdFormProps) {
                         />
                     )}
 
-                    {step === 2 && (
+                    {step === 3 && (
                         <MarketStep2PricingContact
-                            key="step2"
+                            key="pricing-step"
                             formData={formData}
                             updateFormData={updateFormData}
                             areas={areas}
@@ -99,9 +110,9 @@ export function CreateAdForm({ categories, areas }: CreateAdFormProps) {
                         />
                     )}
 
-                    {step === 3 && (
+                    {step === 4 && (
                         <MarketStep3Media
-                            key="step3"
+                            key="media-step"
                             images={images}
                             onFileChange={handleFileChange}
                             onDeleteImage={handleDeleteImage}

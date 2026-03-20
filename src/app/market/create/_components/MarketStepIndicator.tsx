@@ -5,22 +5,23 @@ interface MarketStepIndicatorProps {
 }
 
 const steps = [
-    { id: 1, label: 'بيانات أساسية' },
-    { id: 2, label: 'السعر والتواصل' },
-    { id: 3, label: 'صور الإعلان' },
+    { id: 1, label: 'القسم' },
+    { id: 2, label: 'بيانات أساسية' },
+    { id: 3, label: 'السعر والتواصل' },
+    { id: 4, label: 'صور الإعلان' },
 ];
 
 export function MarketStepIndicator({ currentStep }: MarketStepIndicatorProps) {
     return (
         <div className="mb-10 md:mb-14 relative w-full px-4">
             {/* Container for the progress line */}
-            <div className="absolute top-4 md:top-5 right-[16.66%] left-[16.66%] h-[2px] bg-border-subtle/60 z-0" />
+            <div className="absolute top-4 md:top-5 right-[12.5%] left-[12.5%] h-[2px] bg-border-subtle/60 z-0" />
 
             {/* Active progress line layer */}
             <div
-                className="absolute top-4 md:top-5 right-[16.66%] h-[2px] bg-primary z-0 transition-all duration-500 ease-in-out"
+                className="absolute top-4 md:top-5 right-[12.5%] h-[2px] bg-primary z-0 transition-all duration-500 ease-in-out"
                 style={{
-                    width: currentStep === 1 ? '0%' : currentStep === 2 ? '33.33%' : '66.66%'
+                    width: `${((currentStep - 1) / (steps.length - 1)) * 75}%`
                 }}
             />
 

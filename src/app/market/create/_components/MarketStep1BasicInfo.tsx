@@ -1,6 +1,7 @@
 'use client';
 
-import { Type, ArrowLeft } from 'lucide-react';
+import React from 'react';
+import { Type, ArrowLeft, Tag, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MarketCategory } from '@/lib/types/market';
 
@@ -26,7 +27,6 @@ interface MarketStep1BasicInfoProps {
 export function MarketStep1BasicInfo({
     formData,
     updateFormData,
-    categories,
     onNext,
     errors
 }: MarketStep1BasicInfoProps) {
@@ -37,81 +37,76 @@ export function MarketStep1BasicInfo({
             exit={{ opacity: 0, x: -20 }}
             className="space-y-6"
         >
-            <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                    <Type className="w-5 h-5" />
-                </div>
-                <h3 className="text-xl font-black text-text-primary">بيانات أساسية</h3>
+            <div className="flex flex-col items-center gap-2 mb-8 text-center">
+                <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider rounded-lg border border-primary/20">
+                    الخطوة 2 من 4
+                </span>
+                <h2 className="text-2xl font-black text-text-primary">بيانات الإعلان الأساسية</h2>
+                <p className="text-text-muted text-sm font-bold">اكتب عنوان جذاب ووصف دقيق للحاجة اللي بتبيعها</p>
             </div>
 
             <div className="glass-panel p-6 sm:p-8 rounded-[32px] border border-border-subtle/50 space-y-8">
                 {/* Title */}
                 <div className="space-y-2">
-                    <label className="text-xs font-black text-text-muted mr-2 uppercase tracking-wide">عنوان الإعلان</label>
-                    <input 
+                    <label className="text-sm font-black text-text-primary flex items-center gap-2 pr-1">
+                        <Tag className="w-4 h-4 text-primary" />
+                        عنوان الإعلان
+                    </label>
+                    <input
                         type="text"
-                        placeholder="مثال: آيفون 13 برو ماكس 256 جيجا بحالة الزيرو"
                         value={formData.title}
                         onChange={(e) => updateFormData({ title: e.target.value })}
-                        className={`w-full h-14 px-6 rounded-2xl bg-background border ${errors.title ? 'border-red-500' : 'border-border-subtle'} font-bold focus:border-primary transition-all text-sm outline-none`}
+                        placeholder="مثال: آيفون 13 برو ماكس مساحة 256 جيجا"
+                        className={`w-full h-14 px-6 rounded-2xl bg-surface border-2 transition-all font-bold placeholder:text-text-muted/40 focus:outline-none ${
+                            errors.title ? 'border-red-500 bg-red-500/5' : 'border-border-subtle focus:border-primary/50 focus:ring-4 focus:ring-primary/5'
+                        }`}
                     />
-                    {errors.title && <p className="text-red-500 text-[10px] font-bold mt-1 mr-2">{errors.title}</p>}
+                    {errors.title && <p className="text-red-500 text-xs font-bold mt-1 pr-1">{errors.title}</p>}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Category */}
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-text-muted mr-2 uppercase tracking-wide">القسم</label>
-                        <select 
-                            value={formData.categoryId}
-                            onChange={(e) => updateFormData({ categoryId: e.target.value })}
-                            className={`w-full h-14 px-6 rounded-2xl bg-background border ${errors.categoryId ? 'border-red-500' : 'border-border-subtle'} font-bold focus:border-primary transition-all text-sm outline-none appearance-none`}
-                        >
-                            <option value="">اختر القسم المناسب</option>
-                            {categories.map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.name}</option>
-                            ))}
-                        </select>
-                        {errors.categoryId && <p className="text-red-500 text-[10px] font-bold mt-1 mr-2">{errors.categoryId}</p>}
-                    </div>
-
-                    {/* Condition */}
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-text-muted mr-2 uppercase tracking-wide">الحالة</label>
-                        <div className="flex p-1.5 bg-surface border border-border-subtle rounded-2xl">
-                            {[
-                                { id: 'used', label: 'مستعمل' },
-                                { id: 'new', label: 'جديد' },
-                                { id: 'na', label: 'أخرى/عقار' }
-                            ].map((opt) => (
-                                <button
-                                    key={opt.id}
-                                    type="button"
-                                    onClick={() => updateFormData({ condition: opt.id as MarketFormData['condition'] })}
-                                    className={`flex-1 h-11 rounded-xl text-xs font-bold transition-all ${
-                                        formData.condition === opt.id 
-                                        ? 'bg-primary text-white shadow-lg shadow-primary/20' 
-                                        : 'text-text-muted hover:text-text-primary'
-                                    }`}
-                                >
-                                    {opt.label}
-                                </button>
-                            ))}
-                        </div>
+                {/* Condition Selection */}
+                <div className="space-y-2 text-right">
+                    <label className="text-sm font-black text-text-primary block pr-1">حالة المنتج</label>
+                    <div className="grid grid-cols-3 gap-3">
+                        {[
+                            { id: 'new', label: 'جديد' },
+                            { id: 'used', label: 'مستعمل' },
+                            { id: 'na', label: 'أخرى' }
+                        ].map((choice) => (
+                            <button
+                                key={choice.id}
+                                type="button"
+                                onClick={() => updateFormData({ condition: choice.id as any })}
+                                className={`h-12 rounded-xl text-xs font-black transition-all border-2 ${
+                                    formData.condition === choice.id
+                                        ? 'border-primary bg-primary/5 text-primary'
+                                        : 'border-border-subtle hover:border-primary/30 text-text-muted'
+                                }`}
+                            >
+                                {choice.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
                 {/* Description */}
                 <div className="space-y-2">
-                    <label className="text-xs font-black text-text-muted mr-2 uppercase tracking-wide">وصف الإعلان</label>
-                    <textarea 
-                        rows={5}
-                        placeholder="اكتب كل التفاصيل اللي المشتري ممكن يحتاج يعرفها..."
+                    <label className="text-sm font-black text-text-primary flex items-center gap-2 pr-1">
+                        <Menu className="w-4 h-4 text-primary" />
+                        وصف الإعلان
+                    </label>
+                    <textarea
                         value={formData.description}
                         onChange={(e) => updateFormData({ description: e.target.value })}
-                        className={`w-full p-6 rounded-2xl bg-background border ${errors.description ? 'border-red-500' : 'border-border-subtle'} font-bold focus:border-primary transition-all text-sm outline-none resize-none`}
+                        placeholder="اكتب كل تفاصيل المنتج، حالته، مميزاته، وأي عيوب لو موجودة..."
+                        className={`w-full h-40 px-6 py-4 rounded-2xl bg-surface border-2 transition-all font-bold placeholder:text-text-muted/40 focus:outline-none resize-none ${
+                            errors.description ? 'border-red-500 bg-red-500/5' : 'border-border-subtle focus:border-primary/50 focus:ring-4 focus:ring-primary/5'
+                        }`}
                     />
-                    {errors.description && <p className="text-red-500 text-[10px] font-bold mt-1 mr-2">{errors.description}</p>}
+                    {errors.description && <p className="text-red-500 text-xs font-bold mt-1 pr-1">{errors.description}</p>}
+                    <p className="text-[10px] text-text-muted font-bold text-left px-1">
+                        حاول يكون الوصف مفصل عشان تزود فرص البيع.
+                    </p>
                 </div>
             </div>
 
