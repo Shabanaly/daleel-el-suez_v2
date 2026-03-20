@@ -58,13 +58,12 @@ export default function SuezGallery({ initialImages = [] }: SuezGalleryProps) {
                     viewAllText="الجلاري بالكامل"
                 />
             </div>
-
-            <div className={`grid gap-4 ${
+<div className={`grid gap-4 ${
                 displayItems.length === 1 ? 'grid-cols-1' :
                 displayItems.length === 2 ? 'grid-cols-1 md:grid-cols-2' :
                 displayItems.length === 3 ? 'grid-cols-1 md:grid-cols-3' :
                 'grid-cols-1 md:grid-cols-4'
-            } ${displayItems.length > 3 ? 'auto-rows-[200px]' : ''}`}>
+            } ${displayItems.length > 3 ? 'auto-rows-[200px]' : 'auto-rows-[300px] md:auto-rows-[400px]'}`}>
                 {displayItems.length === 0 ? (
                    <div className="col-span-full h-80 flex flex-col items-center justify-center bg-surface-variant/30 rounded-3xl border-2 border-dashed border-border-subtle text-text-muted">
                         <ImageIcon className="w-12 h-12 mb-4 opacity-20" />
@@ -81,16 +80,15 @@ export default function SuezGallery({ initialImages = [] }: SuezGalleryProps) {
                             onClick={() => openLightbox(idx)}
                             className={`relative rounded-3xl overflow-hidden group cursor-pointer ${item.span}`}
                         >
+                            {/* التعديل هنا فقط لضبط مقاس الصورة */}
                             <SafeImage
                                 src={item.url}
                                 alt={item.title}
-                                fill={displayItems.length > 3}
-                                width={displayItems.length <= 3 ? 1200 : undefined}
-                                height={displayItems.length <= 3 ? 800 : undefined}
+                                fill
                                 unoptimized
-                                className={`${displayItems.length > 3 ? 'object-cover' : 'w-full h-auto'} transition-transform duration-700 group-hover:scale-110`}
+                                className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
                             />
-                            {/* Overlay */}
+                            {/* باقي الكود بتاعك الأصلي زي ما هو بالظبط */}
                             <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
 
                             <div className="absolute bottom-6 right-6 left-6 text-white translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
@@ -112,7 +110,6 @@ export default function SuezGallery({ initialImages = [] }: SuezGalleryProps) {
                                 )}
                             </div>
 
-                            {/* Interactive indicator */}
                             <div className="absolute top-6 left-6 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                                 <ArrowUpRight className="w-5 h-5 text-white" />
                             </div>
