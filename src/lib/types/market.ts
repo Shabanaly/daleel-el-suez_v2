@@ -45,6 +45,7 @@ export interface RawMarketAd {
     condition?: string;
     images?: string[];
     category_id?: string | number;
+    area_id?: string | number;
     categories?: { name: string; slug: string } | { name: string; slug: string }[];
     seller_id: string;
     profiles?: { full_name: string | null };

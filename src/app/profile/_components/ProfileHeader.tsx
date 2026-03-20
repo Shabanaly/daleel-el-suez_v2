@@ -2,9 +2,10 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Camera, MapPin, CalendarDays, Edit3, Settings } from 'lucide-react';
+import { Camera, MapPin, CalendarDays, Edit3, Settings, ChevronRight } from 'lucide-react';
 import { User } from '@supabase/supabase-js';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface ProfileHeaderProps {
     user: User | null;
@@ -12,6 +13,7 @@ interface ProfileHeaderProps {
 }
 
 export function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
+    const router = useRouter();
     if (!user) return null;
 
     const profileData = user.user_metadata || {};
@@ -23,6 +25,7 @@ export function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
 
     return (
         <div className="relative pt-24 pb-8 px-6 md:px-12 flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8 max-w-7xl mx-auto">
+
 
             {/* Cover Photo Area - Visual only for now */}
             <div className="absolute inset-x-0 top-0 h-40 bg-linear-to-b from-primary/20 via-primary/5 to-transparent z-0 overflow-hidden">
@@ -85,22 +88,7 @@ export function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
                 </div>
             </motion.div>
 
-            {/* Action Buttons */}
-            {isOwnProfile && (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="relative z-10 flex items-center gap-3 shrink-0 mt-4 md:mt-0"
-                >
-                    <Link href="/settings?tab=profile" className="flex items-center justify-center w-12 h-12 rounded-2xl bg-surface border border-border-subtle text-text-muted hover:text-text-primary hover:bg-elevated transition-colors shadow-sm cursor-pointer" title="تعديل البروفايل">
-                        <Edit3 className="w-5 h-5" />
-                    </Link>
-                    <Link href="/settings" className="flex items-center justify-center w-12 h-12 rounded-2xl bg-surface border border-border-subtle text-text-muted hover:text-text-primary hover:bg-elevated transition-colors shadow-sm cursor-pointer" title="الإعدادات">
-                        <Settings className="w-5 h-5" />
-                    </Link>
-                </motion.div>
-            )}
+            {/* Action Buttons Removed per user request */}
 
         </div>
     );

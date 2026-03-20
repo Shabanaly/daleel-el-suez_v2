@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { NativeBackButton } from "@/components/ui/NativeBackButton";
 
 export const metadata = {
     title: 'إعلاناتي | سوق السويس',
@@ -21,18 +22,10 @@ export default async function MyAdsPage() {
     const ads = await getUserMarketAds();
 
     return (
-        <div className="min-h-screen bg-background pb-20 pt-24 overflow-x-hidden">
+        <div className="min-h-screen bg-background pb-10 pt-20 overflow-x-hidden">
             <div className="max-w-4xl mx-auto px-4">
                 {/* ─── Breadcrumbs ─── */}
-                <div className="flex items-center justify-between mb-8">
-                    <Link 
-                        href="/market"
-                        className="inline-flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors group"
-                    >
-                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                        <span className="text-xs font-bold">الرجوع للسوق</span>
-                    </Link>
-                </div>
+                <NativeBackButton className='lg:hidden mr-2' />
 
                 <MyAdsClient initialAds={ads} />
             </div>

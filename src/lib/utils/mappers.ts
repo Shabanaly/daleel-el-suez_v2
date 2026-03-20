@@ -118,6 +118,7 @@ export function mapMarketAd(p: RawMarketAd): MarketAd {
         condition: p.condition as AdCondition,
         images: Array.isArray(p.images) ? p.images : [],
         category_id: String(p.category_id),
+        area_id: p.area_id ? Number(p.area_id) : undefined,
         category_name: categoryName,
         category_slug: categorySlug,
         seller_id: p.seller_id,

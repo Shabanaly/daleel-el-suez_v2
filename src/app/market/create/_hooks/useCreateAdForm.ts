@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { useImageUpload } from '@/lib/hooks/useImageUpload';
-import { createMarketAd } from '@/lib/actions/market';
+import { createMarketAd, updateMarketAd } from '@/lib/actions/market';
 import { useRouter } from 'next/navigation';
+import { MarketAd } from '@/lib/types/market';
 
-export function useCreateAdForm() {
+export function useCreateAdForm(initialAd?: MarketAd) {
     const router = useRouter();
     const {
         images,
@@ -14,7 +15,11 @@ export function useCreateAdForm() {
         uploadFiles,
         startUpload,
         deleteImage
-    } = useImageUpload({ folder: 'market', maxImages: 5 });
+    } = useImageUpload({ 
+        folder: 'market', 
+        maxImages: 5,
+        initialImages: initialAd?.images || []
+    });
 
     const [step, setStep] = useState(1);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -23,14 +28,14 @@ export function useCreateAdForm() {
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const [formData, setFormData] = useState({
-        title: '',
-        description: '',
-        price: '',
-        categoryId: '',
-        areaId: '',
-        phone: '',
-        condition: 'used' as 'new' | 'used' | 'na',
-        isNegotiable: false,
+        title: initialAd?.title || '',
+        description: initialAd?.description || '',
+        price: initialAd?.price?.toString() || '',
+        categoryId: initialAd?.category_id || '',
+        areaId: initialAd?.area_id?.toString() || '',
+        phone: initialAd?.seller_phone || '',
+        condition: (initialAd?.condition as 'new' | 'used' | 'na') || 'used',
+        isNegotiable: initialAd?.is_negotiable || false,
     });
 
     const updateFormData = (data: Partial<typeof formData>) => {
@@ -111,11 +116,10 @@ export function useCreateAdForm() {
         setError(null);
 
         try {
-            // 1. Upload images first
+            // startUpload returns ALL images (existing + newly uploaded)
             const uploadResult = await startUpload();
 
-            // 2. Create the ad
-            await createMarketAd({
+            const currentAdData = {
                 title: formData.title,
                 description: formData.description,
                 price: Number(formData.price),
@@ -125,14 +129,19 @@ export function useCreateAdForm() {
                 area_id: Number(formData.areaId),
                 condition: formData.condition,
                 images: uploadResult.urls,
-                status: 'active',
+                status: 'active' as const,
                 seller_phone: formData.phone,
-                // seller_id will be handled by the server action from the session
-            });
+            };
+
+            if (initialAd) {
+                await updateMarketAd(initialAd.id, currentAdData);
+            } else {
+                await createMarketAd(currentAdData);
+            }
 
             setIsSubmitted(true);
             setTimeout(() => {
-                router.push('/market');
+                router.push(initialAd ? '/market/my-ads' : '/market');
                 router.refresh();
             }, 2000);
         } catch (err: unknown) {

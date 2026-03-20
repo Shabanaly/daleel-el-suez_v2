@@ -328,6 +328,64 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
     return { success: true, data: data };
 }
 
+export async function updateMarketAd(id: string, adData: Partial<MarketAd>) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { success: false, error: 'Unauthorized' };
+    }
+
+    const serviceSupabase = createServiceClient();
+
+    // Verify ownership
+    const { data: existingAd } = await serviceSupabase
+        .from('listings')
+        .select('seller_id')
+        .eq('id', id)
+        .single();
+
+    if (!existingAd || existingAd.seller_id !== user.id) {
+        return { success: false, error: 'Permission denied' };
+    }
+
+    const { data, error } = await serviceSupabase
+        .from('listings')
+        .update({
+            title: adData.title,
+            description: adData.description,
+            price: Number(adData.price),
+            is_negotiable: adData.is_negotiable,
+            condition: adData.condition,
+            images: adData.images, // Note: Expecting full array of URLs
+            category_id: adData.category_id,
+            area_id: adData.area_id,
+            contact_phone: adData.seller_phone,
+            public_ids: adData.images
+        })
+        .eq('id', id)
+        .select(`*, categories(slug)`)
+        .single();
+
+    if (error) {
+        console.error('Error updating ad:', error);
+        return { success: false, error: error.message };
+    }
+
+    // Revalidate relevant tags
+    revalidateTag(tags.allAds(), 'max');
+    revalidateTag(tags.ad(id), 'max');
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const categories: any = (data as any).categories;
+    const catSlug = Array.isArray(categories) ? categories[0]?.slug : categories?.slug;
+    if (catSlug) {
+        revalidateTag(tags.adsByCategory(catSlug), 'max');
+    }
+
+    return { success: true, data: data };
+}
+
 export async function incrementMarketAdView(id: string) {
     const supabase = createServiceClient();
 

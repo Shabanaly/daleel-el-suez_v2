@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { MarketAd } from '@/lib/types/market';
 import { deleteMarketAd } from '@/lib/actions/market';
-import { 
-    Trash2, 
-    ExternalLink, 
+import {
+    Trash2,
     Loader2,
     Plus,
-    ShoppingBag
+    ShoppingBag,
+    MoreVertical,
+    Pencil
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -22,11 +23,24 @@ interface MyAdsClientProps {
 export default function MyAdsClient({ initialAds }: MyAdsClientProps) {
     const [ads, setAds] = useState(initialAds);
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
+    const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                setOpenMenuId(null);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
 
     const handleDelete = async (id: string) => {
         if (!confirm('هل أنت متأكد من حذف هذا الإعلان؟')) return;
-
+        setOpenMenuId(null);
         setIsDeleting(id);
         const result = await deleteMarketAd(id);
         setIsDeleting(null);
@@ -53,7 +67,7 @@ export default function MyAdsClient({ initialAds }: MyAdsClientProps) {
                     <h2 className="text-xl font-black text-text-primary">مفيش إعلانات حالياً</h2>
                     <p className="text-text-muted text-sm px-10">إنت لسه منشرتش أي حاجة في السوق، ابدأ دلوقتي وبيع حاجتك!</p>
                 </div>
-                <Link 
+                <Link
                     href="/market/create"
                     className="bg-primary text-white px-8 h-14 rounded-2xl flex items-center gap-3 font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
                 >
@@ -66,9 +80,9 @@ export default function MyAdsClient({ initialAds }: MyAdsClientProps) {
 
     return (
         <div className="space-y-8">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-2">
                 <h1 className="text-2xl font-black text-text-primary">إعلاناتي ({ads.length})</h1>
-                <Link 
+                <Link
                     href="/market/create"
                     className="p-3 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all"
                 >
@@ -76,73 +90,103 @@ export default function MyAdsClient({ initialAds }: MyAdsClientProps) {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-2 gap-3 md:gap-5">
                 <AnimatePresence mode='popLayout'>
                     {ads.map((ad, index) => (
                         <motion.div
                             key={ad.id}
                             layout
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
                             transition={{ delay: index * 0.05 }}
-                            className="glass-panel p-4 md:p-6 rounded-3xl border border-border-subtle/50 flex flex-col md:flex-row gap-6 group hover:border-primary/30 transition-all"
+                            className="glass-panel rounded-3xl border border-border-subtle/50 flex flex-col group hover:border-primary/30 transition-all"
                         >
-                            {/* Image Container */}
-                            <div className="w-full md:w-48 aspect-video md:aspect-square rounded-2xl overflow-hidden bg-surface shrink-0 relative">
-                                <SafeImage 
-                                    src={ad.images[0]} 
-                                    alt={ad.title} 
+                            {/* Image → links to public ad page */}
+                            <Link href={`/market/${ad.slug}`} className="block w-full aspect-square relative overflow-hidden bg-surface rounded-t-3xl">
+                                <SafeImage
+                                    src={ad.images[0]}
+                                    alt={ad.title}
                                     fill
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
-                                <div className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-black/40 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-tight">
+                                <div className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-black/40 backdrop-blur-md text-white text-[9px] font-black uppercase tracking-tight z-10">
                                     {ad.status === 'active' ? 'نشط' : 'غير نشط'}
                                 </div>
-                            </div>
+                            </Link>
 
                             {/* Content */}
-                            <div className="flex-1 flex flex-col justify-between py-1">
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest">
-                                        <span>{ad.category_name}</span>
-                                        <span className="w-1 h-1 rounded-full bg-border-subtle" />
-                                        <span className="text-text-muted">{ad.location}</span>
+                            <div className="p-3 flex flex-col gap-2 overflow-visible">
+                                <div className="flex items-start justify-between gap-1">
+                                    {/* Info */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-[9px] font-black text-primary uppercase tracking-wider truncate">
+                                            {ad.category_name} · {ad.location}
+                                        </div>
+                                        <h3 className="text-sm font-black text-text-primary line-clamp-1 group-hover:text-primary transition-colors">
+                                            {ad.title}
+                                        </h3>
                                     </div>
-                                    <h3 className="text-lg font-black text-text-primary line-clamp-1 group-hover:text-primary transition-colors">
-                                        {ad.title}
-                                    </h3>
-                                    <p className="text-xs text-text-muted line-clamp-2 md:line-clamp-1 leading-relaxed">
-                                        {ad.description}
-                                    </p>
-                                </div>
 
-                                <div className="mt-4 flex items-center justify-between border-t border-border-subtle/30 pt-4">
-                                    <div className="text-xl font-black text-primary">
-                                        {formatPrice(ad.price)} <span className="text-xs font-bold text-primary/60">ج.م</span>
-                                    </div>
+
+                                </div>
+                                <div className='flex justify-between'>
                                     
-                                    <div className="flex items-center gap-2">
-                                        <Link 
-                                            href={`/market/${ad.slug}`}
-                                            className="w-10 h-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-text-muted hover:text-primary transition-colors"
-                                            title="عرض"
-                                        >
-                                            <ExternalLink className="w-4 h-4" />
-                                        </Link>
-                                        <button 
-                                            onClick={() => handleDelete(ad.id)}
-                                            disabled={isDeleting === ad.id}
-                                            className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
-                                            title="حذف"
-                                        >
-                                            {isDeleting === ad.id ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
-                                            ) : (
-                                                <Trash2 className="w-4 h-4" />
-                                            )}
-                                        </button>
+                                    {/* Price */}
+                                    <div className="text-base font-black text-primary">
+                                        {formatPrice(ad.price)} <span className="text-[10px] font-bold text-primary/60">ج.م</span>
                                     </div>
+
+
+                                    {/* ⋮ Menu */}
+                                    <div
+                                        className="relative shrink-0"
+                                        ref={openMenuId === ad.id ? menuRef : null}
+                                    >
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setOpenMenuId(prev => prev === ad.id ? null : ad.id);
+                                            }}
+                                            className="w-7 h-7 rounded-lg flex items-center justify-center text-text-muted hover:bg-surface hover:text-text-primary transition-all"
+                                        >
+                                            <MoreVertical className="w-6 h-6" />
+                                        </button>
+
+                                        <AnimatePresence>
+                                            {openMenuId === ad.id && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                    exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                                                    transition={{ duration: 0.15 }}
+                                                    className="absolute left-0 top-9 z-50 w-36 glass-panel rounded-2xl border border-border-subtle shadow-2xl overflow-hidden"
+                                                >
+                                                    <Link
+                                                        href={`/market/edit/${ad.id}`}
+                                                        className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-text-primary hover:bg-primary/10 hover:text-primary transition-colors"
+                                                        onClick={() => setOpenMenuId(null)}
+                                                    >
+                                                        <Pencil className="w-3.5 h-3.5" />
+                                                        تعديل الإعلان
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => handleDelete(ad.id)}
+                                                        disabled={isDeleting === ad.id}
+                                                        className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-red-500 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                                                    >
+                                                        {isDeleting === ad.id ? (
+                                                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                        ) : (
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        )}
+                                                        حذف الإعلان
+                                                    </button>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+
                                 </div>
                             </div>
                         </motion.div>

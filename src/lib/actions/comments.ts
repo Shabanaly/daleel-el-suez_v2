@@ -87,8 +87,7 @@ export async function addComment(postId: string, content: string, parentId?: str
             }
         }
     }
-
-    cacheManager.invalidateComment(postId);
+    cacheManager.invalidateComment(postId, user.id);
 
     return { success: true, comment: data };
 }
@@ -112,8 +111,7 @@ export async function deleteComment(commentId: string, postId: string) {
         console.error('Error deleting comment:', error);
         return { error: 'حدث خطأ أثناء حذف التعليق' };
     }
-
-    cacheManager.invalidateComment(postId);
+    cacheManager.invalidateComment(postId, user.id);
 
     return { success: true };
 }

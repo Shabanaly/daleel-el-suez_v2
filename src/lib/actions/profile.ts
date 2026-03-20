@@ -44,57 +44,64 @@ export async function getUserActivities(userId: string, limit = 10) {
             const supabase = createServiceClient();
 
             try {
-                // Fetch recent reviews
-                const { data: reviews, error: reviewsError } = await supabase
-                    .from('reviews')
-                    .select(`
-                        id,
-                        rating,
-                        comment,
-                        created_at,
-                        place_id,
-                        places (
-                            id,
-                            name,
-                            slug,
-                            images
-                        )
-                    `)
-                    .eq('user_id', uid)
-                    .order('created_at', { ascending: false })
-                    .limit(cacheLimit);
+                // Fetch recent reviews, places, posts, and comments concurrently
+                const [reviewsRes, placesRes, postsRes, commentsRes, ownerRepliesRes] = await Promise.all([
+                    supabase
+                        .from('reviews')
+                        .select(`
+                            id, rating, comment, created_at, place_id,
+                            places (id, name, slug, images)
+                        `)
+                        .eq('user_id', uid)
+                        .order('created_at', { ascending: false })
+                        .limit(cacheLimit),
+                    supabase
+                        .from('places')
+                        .select(`
+                            id, name, slug, images, category_id, created_at,
+                            categories (name, icon)
+                        `)
+                        .eq('added_by', uid)
+                        .eq('status', 'approved')
+                        .order('created_at', { ascending: false })
+                        .limit(cacheLimit),
+                    supabase
+                        .from('posts')
+                        .select(`
+                            id, title, content, created_at,
+                            categories (name)
+                        `)
+                        .eq('author_id', uid)
+                        .order('created_at', { ascending: false })
+                        .limit(cacheLimit),
+                    supabase
+                        .from('comments')
+                        .select(`
+                            id, content, created_at, post_id, parent_id,
+                            posts (id, title, content)
+                        `)
+                        .eq('author_id', uid)
+                        .order('created_at', { ascending: false })
+                        .limit(cacheLimit),
+                    supabase
+                        .from('reviews')
+                        .select(`
+                            id, reply_text, replied_at, place_id,
+                            places!inner(id, name, slug, images)
+                        `)
+                        .eq('places.added_by', uid)
+                        .not('reply_text', 'is', 'null')
+                        .order('replied_at', { ascending: false })
+                        .limit(cacheLimit)
+                ]);
 
-                if (reviewsError) console.error('Error fetching reviews:', reviewsError);
-
-                // Fetch recent places added
-                const { data: places, error: placesError } = await supabase
-                    .from('places')
-                    .select(`
-                        id,
-                        name,
-                        slug,
-                        images,
-                        category_id,
-                        created_at,
-                        categories (
-                            name,
-                            icon
-                        )
-                    `)
-                    .eq('added_by', uid)
-                    .eq('status', 'approved')
-                    .order('created_at', { ascending: false })
-                    .limit(cacheLimit);
-
-                if (placesError) console.error('Error fetching user places:', placesError);
-
-                // Format activities
-                const formattedReviews = (reviews || []).map((review) => {
+                // Format Activities
+                const formattedReviews = (reviewsRes.data || []).map((review) => {
                     const place = Array.isArray(review.places) ? review.places[0] : review.places;
                     return {
                         id: `review-${review.id}`,
                         type: 'review' as const,
-                        title: `قيمت المراجعة ${place?.name || 'مكان'} بـ ${review.rating} نجوم`,
+                        title: `قيمت ${place?.name || 'مكان'} بـ ${review.rating} نجوم`,
                         description: review.comment || 'بدون تعليق',
                         date: review.created_at,
                         link: `/places/${place?.slug || review.place_id}`,
@@ -103,7 +110,20 @@ export async function getUserActivities(userId: string, limit = 10) {
                     };
                 });
 
-                const formattedPlaces = (places || []).map((place) => {
+                const formattedOwnerReplies = (ownerRepliesRes.data || []).map((review) => {
+                    const place = Array.isArray(review.places) ? review.places[0] : review.places;
+                    return {
+                        id: `owner-reply-${review.id}`,
+                        type: 'comment' as const, // Use comment type for similar styling
+                        title: `رددت على تقييم في ${place?.name || 'مكانك'}`,
+                        description: review.reply_text,
+                        date: review.replied_at,
+                        link: `/places/${place?.slug || review.place_id}`,
+                        image: Array.isArray(place?.images) ? place.images[0] : null,
+                    };
+                });
+
+                const formattedPlaces = (placesRes.data || []).map((place) => {
                     const category = Array.isArray(place.categories) ? place.categories[0] : place.categories;
                     return {
                         id: `place-${place.id}`,
@@ -117,8 +137,43 @@ export async function getUserActivities(userId: string, limit = 10) {
                     };
                 });
 
+                const formattedPosts = (postsRes.data || []).map((post) => {
+                    return {
+                        id: `post-${post.id}`,
+                        type: 'post' as const,
+                        title: `نشرت منشوراً جديداً`,
+                        description: post.title || post.content.substring(0, 100),
+                        date: post.created_at,
+                        link: `/community/post/${post.id}`,
+                    };
+                });
+
+                const formattedComments = (commentsRes.data || []).map((comment) => {
+                    const post = Array.isArray(comment.posts) ? comment.posts[0] : comment.posts;
+                    const isReply = !!comment.parent_id;
+                    
+                    // Use title if available, otherwise use excerpt of content
+                    const postDisplayName = post?.title || 
+                        (post?.content ? `${post.content.substring(0, 30)}...` : 'منشور');
+
+                    return {
+                        id: `comment-${comment.id}`,
+                        type: 'comment' as const,
+                        title: isReply ? `رددت على تعليق في: ${postDisplayName}` : `علقت على: ${postDisplayName}`,
+                        description: comment.content,
+                        date: comment.created_at,
+                        link: `/community/post/${comment.post_id}`,
+                    };
+                });
+
                 // Sort combined activities by date descending
-                const allActivities = [...formattedReviews, ...formattedPlaces].sort(
+                const allActivities = [
+                    ...formattedReviews, 
+                    ...formattedOwnerReplies,
+                    ...formattedPlaces, 
+                    ...formattedPosts, 
+                    ...formattedComments
+                ].sort(
                     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
                 );
 
@@ -126,12 +181,14 @@ export async function getUserActivities(userId: string, limit = 10) {
                     activities: allActivities.slice(0, cacheLimit),
                     reviews: formattedReviews,
                     places: formattedPlaces,
+                    posts: formattedPosts,
+                    comments: formattedComments,
                     success: true
                 };
 
             } catch (error) {
                 console.error('Error fetching user activities:', error);
-                return { activities: [], reviews: [], places: [], success: false, error: 'حدث خطأ غير متوقع' };
+                return { activities: [], reviews: [], places: [], posts: [], comments: [], success: false, error: 'حدث خطأ غير متوقع' };
             }
         },
         [`user-activities-${userId}-${limit}`],

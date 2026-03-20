@@ -1,9 +1,10 @@
 import { ProfileHeader } from './_components/ProfileHeader';
 import { ProfileStats } from './_components/ProfileStats';
-import { ProfileTabs } from './_components/ProfileTabs';
+import { ProfileNavigation } from './_components/ProfileNavigation';
 import { createClient } from '@/lib/supabase/server';
-import { getUserProfileStats, getUserActivities } from '@/lib/actions/profile';
+import { getUserProfileStats } from '@/lib/actions/profile';
 import { redirect } from 'next/navigation';
+import { NativeBackButton } from '../../components/ui/NativeBackButton';
 
 export const metadata = {
     title: 'البروفايل - دليل السويس',
@@ -18,26 +19,34 @@ export default async function ProfilePage() {
         redirect('/login');
     }
 
-    // Fetch user stats & activities concurrently
-    const [stats, activitiesResult] = await Promise.all([
-        getUserProfileStats(user.id),
-        getUserActivities(user.id)
-    ]);
+    // Fetch user stats
+    const stats = await getUserProfileStats(user.id);
 
     return (
-        <div className="min-h-screen bg-background pb-20 md:pb-0">
+        <div className="min-h-screen bg-background pb-20 md:pb-12">
+            <div className="max-w-7xl mx-auto px-6 md:px-12 pt-16 -mb-24 relative z-10 flex justify-start">
+                <NativeBackButton className="lg:hidden -mr-2" />
+            </div>
             {/* Header section includes cover, avatar, and core info */}
             <ProfileHeader user={user} isOwnProfile={true} />
 
-            {/* Quick Stats overview */}
-            <ProfileStats stats={stats} />
+            <div className="max-w-7xl mx-auto px-4 md:px-12 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
 
-            {/* Detailed Activities Tabs */}
-            <ProfileTabs
-                activities={activitiesResult.activities}
-                reviews={activitiesResult.reviews}
-                places={activitiesResult.places}
-            />
+                    {/* Left Sidebar (Desktop): Stats */}
+                    <aside className="md:col-span-4 lg:col-span-3 space-y-6 md:sticky md:top-24">
+                        <div className="p-1">
+                            <ProfileStats stats={stats} />
+                        </div>
+                    </aside>
+
+                    {/* Main Content (Desktop): Navigation List Tiles */}
+                    <main className="md:col-span-8 lg:col-span-9">
+                        <ProfileNavigation />
+                    </main>
+
+                </div>
+            </div>
         </div>
     );
 }

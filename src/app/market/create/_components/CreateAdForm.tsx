@@ -1,7 +1,7 @@
 'use client';
 
 import { useCreateAdForm } from '../_hooks/useCreateAdForm';
-import { MarketCategory } from '@/lib/types/market';
+import { MarketAd, MarketCategory } from '@/lib/types/market';
 import { CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -15,9 +15,10 @@ import { MarketStep3Media } from './MarketStep3Media';
 interface CreateAdFormProps {
     categories: MarketCategory[];
     areas: { id: number; name: string }[];
+    initialAd?: MarketAd;
 }
 
-export function CreateAdForm({ categories, areas }: CreateAdFormProps) {
+export function CreateAdForm({ categories, areas, initialAd }: CreateAdFormProps) {
     const {
         step,
         formData,
@@ -33,7 +34,7 @@ export function CreateAdForm({ categories, areas }: CreateAdFormProps) {
         nextStep,
         prevStep,
         handleSubmit
-    } = useCreateAdForm();
+    } = useCreateAdForm(initialAd);
 
     if (isSubmitted) {
         return (
@@ -47,14 +48,16 @@ export function CreateAdForm({ categories, areas }: CreateAdFormProps) {
                 </motion.div>
                 <div className="space-y-2">
                     <h2 className="text-2xl font-black text-text-primary">تم بنجاح!</h2>
-                    <p className="text-text-muted">إعلانك بقى جاهز وهينزل على السوق دلوقتي.</p>
+                    <p className="text-text-muted">
+                        {initialAd ? 'تم تحديث إعلانك بنجاح.' : 'إعلانك بقى جاهز وهينزل على السوق دلوقتي.'}
+                    </p>
                 </div>
                 <div className="flex gap-4">
                     <Link 
-                        href="/market"
+                        href="/market/my-ads"
                         className="px-8 h-14 rounded-2xl bg-primary text-white font-bold flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
                     >
-                        روح للسوق
+                        إعلاناتي
                     </Link>
                 </div>
             </div>

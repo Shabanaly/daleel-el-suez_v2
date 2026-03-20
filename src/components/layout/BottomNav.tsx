@@ -20,7 +20,7 @@ export default function BottomNav() {
     const isPostDetailsPage = pathname?.startsWith('/community/posts/');
     const isMarketHiddenPage = pathname === '/market/create' || (pathname?.startsWith('/market/') && pathname.split('/').length === 3 && pathname !== '/market/my-ads');
 
-    if (isAuthPage || isAdminPage || isPlaceDetailsPage || isPostDetailsPage || isMarketHiddenPage) return null;
+    if (isAuthPage || isAdminPage || isPlaceDetailsPage || isPostDetailsPage || isMarketHiddenPage || pathname?.startsWith('/profile')) return null;
 
     return (
         <>

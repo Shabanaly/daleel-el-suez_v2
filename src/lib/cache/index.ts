@@ -56,9 +56,10 @@ export const cacheManager = {
         if (userId) cacheManager.invalidateUserStats(userId);
     },
 
-    invalidateComment: (postId: string) => {
+    invalidateComment: (postId: string, userId?: string) => {
         revalidateTag(tags.postComments(postId), 'max');
         revalidateTag(tags.post(postId), 'max'); // Comment count changed
+        if (userId) cacheManager.invalidateUserStats(userId);
     },
 
     invalidateUserStats: (userId: string) => {
