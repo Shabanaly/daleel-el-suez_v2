@@ -4,7 +4,7 @@ import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Notification } from '@/lib/notifications/types';
-import { Bell, Heart, MessageCircle, Star, CheckCircle, XCircle } from 'lucide-react';
+import { Bell, Heart, MessageCircle, Star, CheckCircle, XCircle, Trophy, BarChart3, Ghost, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 interface NotificationListProps {
@@ -23,6 +23,11 @@ const getNotificationIcon = (title: string, type: string) => {
   // Fallbacks based on type
   if (type === 'MARKET') return <Bell className="w-5 h-5 text-orange-600" />;
   if (type === 'COMMUNITY') return <Bell className="w-5 h-5 text-blue-600" />;
+  if (type === 'MILESTONE') return <Trophy className="w-5 h-5 text-yellow-600" />;
+  if (type === 'RECAP') return <BarChart3 className="w-5 h-5 text-purple-600" />;
+  if (type === 'RETENTION') return <Ghost className="w-5 h-5 text-indigo-600" />;
+  if (type === 'BLESSING') return <Sparkles className="w-5 h-5 text-amber-500 fill-amber-500" />;
+
   return <Bell className="w-5 h-5 text-primary" />;
 };
 
@@ -35,6 +40,11 @@ const getNotificationBg = (title: string, type: string) => {
   
   if (type === 'MARKET') return 'bg-orange-100';
   if (type === 'COMMUNITY') return 'bg-blue-100';
+  if (type === 'MILESTONE') return 'bg-yellow-50';
+  if (type === 'RECAP') return 'bg-purple-50';
+  if (type === 'RETENTION') return 'bg-indigo-50';
+  if (type === 'BLESSING') return 'bg-amber-50';
+
   return 'bg-primary/10';
 };
 

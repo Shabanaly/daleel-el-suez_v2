@@ -134,7 +134,7 @@ export default function SuezGallery({ initialImages = [] }: SuezGalleryProps) {
                 >
                     <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                     <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-500 relative z-10" />
-                    <span className="relative z-10">شاركنا بورتريتك للسويس</span>
+                    <span className="relative z-10">أنشر صور بلدنا</span>
                 </Link>
             </motion.div>
 

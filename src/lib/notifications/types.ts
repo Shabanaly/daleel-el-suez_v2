@@ -9,9 +9,13 @@ export enum NotificationEvent {
   APP_SHARE_REMINDER = 'APP_SHARE_REMINDER',
   GENERAL_RETENTION = 'GENERAL_RETENTION',
   SYSTEM_BROADCAST = 'SYSTEM_BROADCAST',
+  MILESTONE_REACHED = 'MILESTONE_REACHED',
+  DAILY_RECAP = 'DAILY_RECAP',
+  CONTENT_RETENTION = 'CONTENT_RETENTION',
+  FRIDAY_BLESSING = 'FRIDAY_BLESSING',
 }
 
-export type NotificationType = 'SYSTEM' | 'COMMUNITY' | 'MARKET' | 'DIRECTORY';
+export type NotificationType = 'SYSTEM' | 'COMMUNITY' | 'MARKET' | 'DIRECTORY' | 'MILESTONE' | 'RECAP' | 'RETENTION' | 'BLESSING';
 export type NotificationStatus = 'READ' | 'UNREAD';
 
 export interface Notification {
@@ -93,5 +97,24 @@ export interface EventData {
     title: string;
     message: string;
     link?: string;
+  };
+  [NotificationEvent.MILESTONE_REACHED]: {
+    recipientId: string;
+    contentName: string;
+    milestone: number;
+    link: string;
+  };
+  [NotificationEvent.DAILY_RECAP]: {
+    recipientId: string;
+    newViews: number;
+    newLikes: number;
+  };
+  [NotificationEvent.CONTENT_RETENTION]: {
+    recipientId: string;
+    trendingTitle: string;
+    trendingLink: string;
+  };
+  [NotificationEvent.FRIDAY_BLESSING]: {
+    recipientId: string | 'all';
   };
 }
