@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ShoppingBag, Search, Plus, SlidersHorizontal } from "lucide-react";
+import { ShoppingBag, Search, Plus, SlidersHorizontal, ChevronLeft } from "lucide-react";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { MarketAd, MarketCategory } from "@/lib/types/market";
 import AdCard from "@/components/market/cards/AdCard";
@@ -43,9 +44,9 @@ export function MarketClient({
     // Use ref to track the last synced parameters to prevent loops
     const lastSyncKey = useRef(`${initialCategory}-${initialQuery}`);
 
-    const categories = [
+    const filteredCategories = [
         { id: 'all', name: 'الكل', slug: 'all', icon: 'LayoutGrid', adCount: 0 },
-        ...initialCategories
+        ...initialCategories.filter(c => c.adCount > 0)
     ];
 
     // Sync State with URL logic
@@ -173,16 +174,20 @@ export function MarketClient({
             <main className="max-w-7xl mx-auto px-4 py-8">
                 {/* ─── Categories Section ─── */}
                 <section className="mb-10 overflow-hidden">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-black text-text-primary">التصنيفات</h2>
-                        <button className="text-primary text-xs font-bold flex items-center gap-1">
-                            <SlidersHorizontal className="w-3 h-3" />
-                            تصفية دقيقة
-                        </button>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-black text-text-primary min-w-fit">التصنيفات</h2>
+                        <Link 
+                            href="/market/category"
+                            className="bg-primary/10 hover:bg-primary/10 text-primary px-4 py-2 rounded-xl text-xs font-black transition-all active:scale-95 flex items-center gap-2"
+                        >
+                            عرض الكل
+                            <ChevronLeft className="w-4 h-4" />
+                        </Link>
                     </div>
                     
-                    <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mask-fade-edges">
-                        {categories.map((cat) => {
+                    <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mask-fade-edges">
+                        {filteredCategories.map((cat) => {
+
                             const isActive = selectedCategory === cat.slug;
                             const content = (
                                 <>
@@ -245,13 +250,13 @@ export function MarketClient({
                     </div>
 
                     {loading ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
                             {Array.from({ length: 8 }).map((_, i) => (
                                 <div key={i} className="aspect-4/5 bg-surface border border-border-subtle rounded-3xl animate-pulse" />
                             ))}
                         </div>
                     ) : ads.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
                             <AnimatePresence mode="popLayout">
                                 {ads.map((ad, index) => (
                                     <motion.div

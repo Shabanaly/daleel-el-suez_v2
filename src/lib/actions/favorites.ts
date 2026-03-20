@@ -3,10 +3,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/client-service';
 import { unstable_cache, revalidateTag } from 'next/cache';
-import { mapPlace } from '../utils/mappers';
+import { mapPlace, mapMarketAd } from '../utils/mappers';
 import { tags, keys, cacheManager } from '@/lib/cache';
 import { NotificationService } from '@/lib/notifications/service';
 import { NotificationEvent } from '@/lib/notifications/types';
+import { MarketAd } from '../types/market';
 
 /**
  * Toggles a favorite item for the current user.
@@ -189,11 +190,15 @@ export async function getFavoriteAds(userId: string) {
                 .from('listings')
                 .select(`
                     *,
-                    categories (name, icon),
-                    areas (name)
+                    categories(name, slug),
+                    areas(name),
+                    profiles(full_name),
+                    listing_daily_views(count, view_date)
                 `)
                 .eq('status', 'active')
-                .in('id', adIds);
+                .in('id', adIds)
+                .order('view_date', { foreignTable: 'listing_daily_views', ascending: false })
+                .limit(1, { foreignTable: 'listing_daily_views' });
 
             if (adsError) {
                 console.error('Error fetching favorite ads details:', adsError);
@@ -201,29 +206,7 @@ export async function getFavoriteAds(userId: string) {
             }
 
             // Map to MarketAd type
-            return (ads || []).map(ad => ({
-                id: ad.id,
-                title: ad.title,
-                description: ad.description,
-                price: ad.price,
-                currency: 'ج.م',
-                images: ad.images,
-                category_id: ad.category_id,
-                category_name: ad.categories?.name,
-                location: ad.areas?.name,
-                area_id: ad.area_id,
-                area_name: ad.areas?.name,
-                condition: ad.condition,
-                status: ad.status,
-                phone: ad.phone,
-                whatsapp: ad.whatsapp,
-                user_id: ad.user_id,
-                seller_id: ad.seller_id,
-                seller_name: ad.seller_name,
-                seller_phone: ad.seller_phone,
-                views_count: ad.views_count || 0,
-                created_at: ad.created_at
-            }));
+            return (ads || []).map(mapMarketAd);
         },
         [`user-${userId}-favorite-ads`],
         { tags: [`user-${userId}-favorites`], revalidate: false }

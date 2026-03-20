@@ -11,8 +11,7 @@ import {
     Info,
     ArrowRight,
     Tag,
-    Clock,
-    TrendingUp
+    Clock
 } from 'lucide-react';
 import FavoriteButton from '@/components/market/ui/FavoriteButton';
 import ShareButton from '@/components/ui/ShareButton';
@@ -137,12 +136,8 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                             <Eye className="w-3 h-3" />
                             <span>{ad.views_count} مشاهدة</span>
                         </div>
-                        <span className="text-text-muted text-[10px] font-black opacity-30">•</span>
-                        <div className="flex items-center gap-1.5 bg-primary/5 px-3 py-1.5 rounded-full text-[10px] font-black border border-primary/10 text-primary">
-                            <TrendingUp className="w-3 h-3" />
-                            <span>{ad.daily_views || 0} النهاردة</span>
-                        </div>
                     </div>
+
 
                     <div className="flex items-start justify-between gap-4 mb-4">
                         {/* Favorite Button (Left side in RTL) */}
