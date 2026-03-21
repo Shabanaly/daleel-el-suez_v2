@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import LightboxComponent from 'yet-another-react-lightbox';
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
@@ -11,17 +11,11 @@ import 'yet-another-react-lightbox/plugins/thumbnails.css';
 
 interface LightboxProps {
     images: string[];
-    index: number;
     isOpen: boolean;
     onClose: () => void;
 }
 
-export function Lightbox({ images, index: initialIndex, isOpen, onClose }: LightboxProps) {
-    const [currentIndex, setCurrentIndex] = useState(initialIndex);
-
-    useEffect(() => {
-        setCurrentIndex(initialIndex);
-    }, [initialIndex]);
+export function Lightbox({ images,  isOpen, onClose }: LightboxProps) {
 
     // Handle browser back button to close lightbox instead of leaving page
     useEffect(() => {
@@ -45,8 +39,13 @@ export function Lightbox({ images, index: initialIndex, isOpen, onClose }: Light
         };
     }, [isOpen, onClose]);
 
-    // Format images for the lightbox
-    const slides = images.map((src) => ({ src }));
+    // ✅ FIX: تثبيت slides
+    const slides = useMemo(() => {
+        return images.map((src) => ({ src }));
+    }, [images]);
+
+    // ✅ FIX: تثبيت plugins (اختياري بس مفيد)
+    const plugins = useMemo(() => [Zoom, Thumbnails], []);
 
     if (images.length === 0) return null;
 
@@ -54,12 +53,8 @@ export function Lightbox({ images, index: initialIndex, isOpen, onClose }: Light
         <LightboxComponent
             open={isOpen}
             close={onClose}
-            index={currentIndex}
             slides={slides}
-            plugins={[Zoom, Thumbnails]}
-            on={{
-                view: ({ index }) => setCurrentIndex(index),
-            }}
+            plugins={plugins}
             render={{
                 buttonPrev: images.length <= 1 ? () => null : undefined,
                 buttonNext: images.length <= 1 ? () => null : undefined,
@@ -97,7 +92,6 @@ export function Lightbox({ images, index: initialIndex, isOpen, onClose }: Light
                     "--yarl__thumbnails_thumbnail_background": "rgba(255, 255, 255, 0.1)",
                     "--yarl__thumbnails_thumbnail_active_border_color": "var(--primary)",
                 },
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any}
         />
     );

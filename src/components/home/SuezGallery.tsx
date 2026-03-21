@@ -17,7 +17,6 @@ interface SuezGalleryProps {
 
 export default function SuezGallery({ initialImages = [] }: SuezGalleryProps) {
     const [lightboxOpen, setLightboxOpen] = useState(false);
-    const [photoIndex, setPhotoIndex] = useState(0);
 
     const displayItems = initialImages.slice(0, 5).map((img, idx) => {
         let span = 'md:col-span-1 md:row-span-1';
@@ -28,7 +27,6 @@ export default function SuezGallery({ initialImages = [] }: SuezGalleryProps) {
     });
 
     const openLightbox = (index: number) => {
-        setPhotoIndex(index);
         setLightboxOpen(true);
         
         // Track view if it's a dynamic image and not viewed today
@@ -137,7 +135,7 @@ export default function SuezGallery({ initialImages = [] }: SuezGalleryProps) {
 
             <Lightbox 
                 images={imagesToDisplay}
-                index={photoIndex}
+                // index={photoIndex}
                 isOpen={lightboxOpen}
                 onClose={() => setLightboxOpen(false)}
             />
