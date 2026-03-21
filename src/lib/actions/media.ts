@@ -41,7 +41,7 @@ export async function getCloudinarySignature(folder?: string) {
 /**
  * Server Action to delete an image from Cloudinary.
  */
-export async function deleteCloudinaryImage(publicId: string) {
+export async function deleteCloudinaryImage(publicId?: string | null) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -49,11 +49,17 @@ export async function deleteCloudinaryImage(publicId: string) {
         throw new Error('Unauthorized');
     }
 
+    if (!publicId) {
+        return { success: true, message: 'No public ID provided, skipping Cloudinary deletion' };
+    }
+
     try {
         const result = await cloudinary.uploader.destroy(publicId);
-        return result;
+        return { success: true, result };
     } catch (error) {
+        // Log the error but don't throw, so we don't break the database update process
+        // particularly for external links that don't have public_ids.
         console.error('Error deleting image from Cloudinary:', error);
-        throw new Error('Failed to delete image');
+        return { success: false, error: 'Could not delete from Cloudinary' };
     }
 }

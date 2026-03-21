@@ -123,12 +123,17 @@ export function useImageUpload({
         if (index < images.length) {
             const publicId = publicIds[index];
             try {
+                // If publicId is missing (external link), the server action will handle it gracefully
                 await deleteCloudinaryImage(publicId);
+                
                 setImages(prev => prev.filter((_, i) => i !== index));
                 setPublicIds(prev => prev.filter((_, i) => i !== index));
             } catch (err) {
-                setError('فشل حذف الصورة');
-                throw err;
+                console.error('Failed to delete image:', err);
+                setError('فشل حذف الصورة من السيرفر، لكن سيتم حذفها من القائمة');
+                // Still remove from local state to allow DB update to proceed
+                setImages(prev => prev.filter((_, i) => i !== index));
+                setPublicIds(prev => prev.filter((_, i) => i !== index));
             }
         } else {
             // If it's a pending file

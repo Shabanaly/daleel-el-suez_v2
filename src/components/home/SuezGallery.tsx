@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Lightbox } from '@/app/places/_components/Lightbox';
+import { Lightbox } from '@/components/common/Lightbox';
 import { motion } from 'framer-motion';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Camera, ArrowUpRight, Plus, Image as ImageIcon } from 'lucide-react';

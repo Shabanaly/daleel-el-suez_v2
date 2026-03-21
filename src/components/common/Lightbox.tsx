@@ -48,6 +48,8 @@ export function Lightbox({ images, index: initialIndex, isOpen, onClose }: Light
     // Format images for the lightbox
     const slides = images.map((src) => ({ src }));
 
+    if (images.length === 0) return null;
+
     return (
         <LightboxComponent
             open={isOpen}
@@ -57,6 +59,10 @@ export function Lightbox({ images, index: initialIndex, isOpen, onClose }: Light
             plugins={[Zoom, Thumbnails]}
             on={{
                 view: ({ index }) => setCurrentIndex(index),
+            }}
+            render={{
+                buttonPrev: images.length <= 1 ? () => null : undefined,
+                buttonNext: images.length <= 1 ? () => null : undefined,
             }}
             zoom={{
                 maxZoomPixelRatio: 3,

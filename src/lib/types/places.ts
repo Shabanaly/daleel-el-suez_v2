@@ -31,6 +31,7 @@ export interface Place {
         platform: string;
         url: string;
     }[];
+    favoritesCount: number;
 }
 
 export type SortOption = 'name' | 'newest' | 'trending';
@@ -82,4 +83,5 @@ export interface RawPlace {
     created_at?: string;
     public_ids?: string[];
     social_links?: unknown;
+    favorites_count?: number | { count: number }[];
 }

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Grid3X3, Image as ImageIcon, Plus, ArrowUpRight } from 'lucide-react';
 import { SafeImage } from '@/components/common/SafeImage';
 import Image from 'next/image';
-import { Lightbox } from '@/app/places/_components/Lightbox';
+import { Lightbox } from '@/components/common/Lightbox';
 import { GalleryImage, incrementImageViews } from '@/lib/actions/gallery';
 import UploadPhotoModal from '@/components/gallery/UploadPhotoModal';
 

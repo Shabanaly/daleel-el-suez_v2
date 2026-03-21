@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { MarketAd } from '@/lib/types/market';
-import { 
-    ChevronLeft, 
-    MapPin, 
-    Eye, 
-    Share2, 
+import {
+    ChevronLeft,
+    MapPin,
+    Eye,
+    Share2,
     ShieldCheck,
     Info,
     ArrowRight,
@@ -17,8 +17,8 @@ import FavoriteButton from '@/components/market/ui/FavoriteButton';
 import ShareButton from '@/components/ui/ShareButton';
 import { useDialog } from "@/components/providers/DialogProvider";
 import Link from 'next/link';
-import { PlaceGallery } from '@/app/places/_components/PlaceGallery';
-import { Lightbox } from '@/app/places/_components/Lightbox';
+import { ImageGallery } from '@/components/common/ImageGallery';
+import { Lightbox } from '@/components/common/Lightbox';
 import { AdStickyActionsBar } from './AdStickyActionsBar';
 import { useEffect } from 'react';
 import { incrementMarketAdView } from '@/lib/actions/market';
@@ -44,7 +44,7 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                 localStorage.setItem(lastViewKey, now.toString());
             }
         };
-        
+
         checkAndView();
     }, [ad.id]);
 
@@ -54,10 +54,10 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
 
     const formatDate = (dateStr: string) => {
         const date = new Date(dateStr);
-        return new Intl.DateTimeFormat('ar-EG', { 
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric' 
+        return new Intl.DateTimeFormat('ar-EG', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
         }).format(date);
     };
 
@@ -73,7 +73,7 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
     return (
         <div className="w-full min-h-screen bg-background pb-24 md:pb-32 text-right" dir="rtl">
             {/* ── Top Navigation Bar (Mobile Only) ────────────────────────── */}
-            <AppBar 
+            <AppBar
                 title={ad.title}
                 transparent={false}
                 backHref={`/market?category=${encodeURIComponent(ad.category_slug || 'all')}`}
@@ -109,7 +109,7 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                 {/* ── 1. Image Gallery (Full width on mobile) ────────────────────────── */}
                 {galleryImages.length > 0 && (
                     <div className="-mx-4 md:mx-0 mb-8 md:mb-12">
-                        <PlaceGallery
+                        <ImageGallery
                             images={galleryImages}
                             placeName={ad.title}
                             onImageClick={handleImageClick}
@@ -199,7 +199,7 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                 {/* ── 4. Seller Card ─────────────────────────────────────── */}
                 <section className="border-t border-border-subtle pt-10 space-y-6">
                     <h3 className="text-xl font-black text-text-primary text-right">معلومات البائع</h3>
-                    
+
                     <div className="glass-panel p-6 rounded-[32px] border border-border-subtle/50 space-y-6">
                         <div className="flex items-center gap-4">
                             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl border border-primary/20">
@@ -210,7 +210,7 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                                 <p className="text-text-muted text-xs font-bold italic mt-1">عضو في سوق السويس</p>
                             </div>
                         </div>
-                        
+
                         <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/5 border border-green-500/10">
                             <ShieldCheck className="w-5 h-5 shrink-0 text-green-500" />
                             <p className="text-[11px] font-bold text-text-muted leading-relaxed">

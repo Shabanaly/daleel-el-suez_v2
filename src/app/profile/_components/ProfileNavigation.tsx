@@ -33,7 +33,7 @@ export function ProfileNavigation() {
         {
             label: 'إدارة أعمالي',
             description: 'تحديث بيانات أماكنك والرد على المراجعات',
-            href: '/profile/manage',
+            href: '/manage',
             icon: <LayoutDashboard className="w-6 h-6 text-primary" />,
             bgColor: 'bg-primary/10'
         },

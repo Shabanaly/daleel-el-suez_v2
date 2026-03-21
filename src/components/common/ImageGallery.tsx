@@ -11,7 +11,7 @@ interface PlaceGalleryProps {
     onImageClick: (index: number) => void;
 }
 
-export function PlaceGallery({ images, placeName, onImageClick }: PlaceGalleryProps) {
+export function ImageGallery({ images, placeName, onImageClick }: PlaceGalleryProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     if (!images || images.length === 0) return null;

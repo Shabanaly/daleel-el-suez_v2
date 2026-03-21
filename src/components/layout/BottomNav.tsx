@@ -22,6 +22,7 @@ export default function BottomNav() {
     const isProfileSection = pathname?.startsWith('/profile');
     const isSettings = pathname?.startsWith('/settings');
     const isFavorites = pathname?.startsWith('/favorites');
+    const isManage = pathname?.startsWith('/manage');
 
     if (
         isAuthPage || 
@@ -31,7 +32,8 @@ export default function BottomNav() {
         isMarketInside || 
         isProfileSection || 
         isSettings || 
-        isFavorites
+        isFavorites ||
+        isManage
     ) return null;
 
     return (

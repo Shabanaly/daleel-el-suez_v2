@@ -8,8 +8,8 @@ import { Share2, MapPin, Star, ChevronLeft, ArrowRight, CheckCircle2, Eye } from
 import { Review } from '@/lib/types/reviews';
 import { Place } from '@/lib/types/places';
 import { PlaceCard } from './PlaceCard';
-import { Lightbox } from './Lightbox';
-import { PlaceGallery } from './PlaceGallery';
+import { Lightbox } from '@/components/common/Lightbox';
+import { ImageGallery } from '@/components/common/ImageGallery';
 import { PlaceInfoTabs } from './PlaceInfoTabs';
 import { StickyActionsBar } from './StickyActionsBar';
 import { ReviewsSection } from './reviews/ReviewsSection';
@@ -17,7 +17,7 @@ import { getPlaceViews } from '@/lib/actions/places';
 
 
 import { FavoriteButton } from '@/components/common/FavoriteButton';
-import { AppBar } from '@/components/ui/AppBar';interface PlaceDetailsClientProps {
+import { AppBar } from '@/components/ui/AppBar'; interface PlaceDetailsClientProps {
     place: Place;
     relatedPlaces: Place[];
     initialReviews?: Review[];
@@ -67,7 +67,7 @@ export function PlaceDetailsClient({
     return (
         <div className="w-full min-h-screen bg-background pb-24 md:pb-32 text-right" dir="rtl">
             {/* ── Top Navigation Bar (Mobile Only) ────────────────────────── */}
-            <AppBar 
+            <AppBar
                 title={place.name}
                 transparent={false}
                 backHref={place.categorySlug ? `/categories/${place.categorySlug}` : "/places"}
@@ -109,7 +109,7 @@ export function PlaceDetailsClient({
 
                 {/* ── 1. Image Gallery (Full width on mobile) ────────────────────────── */}
                 <div className="-mx-4 md:mx-0 mb-8 md:mb-12">
-                    <PlaceGallery
+                    <ImageGallery
                         images={galleryImages}
                         placeName={place.name}
                         onImageClick={handleImageClick}

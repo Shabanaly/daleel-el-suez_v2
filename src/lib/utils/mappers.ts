@@ -88,7 +88,8 @@ export function mapPlace(p: RawPlace): Place {
         socialLinks: Array.isArray(p.social_links) ? p.social_links :
             (typeof p.social_links === 'object' && p.social_links !== null ?
                 Object.entries(p.social_links as Record<string, string>).map(([k, v]) => ({ platform: k, url: v })).filter(link => link.url)
-                : [])
+                : []),
+        favoritesCount: typeof p.favorites_count === 'number' ? p.favorites_count : (Array.isArray(p.favorites_count) ? p.favorites_count[0]?.count || 0 : 0)
     };
 }
 
