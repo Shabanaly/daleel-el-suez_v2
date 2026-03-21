@@ -279,7 +279,6 @@ export function GalleryManager({ place }: GalleryManagerProps) {
             {/* Gallery Lightbox */}
             <Lightbox
                 images={place.images || []}
-                index={activeImageIndex}
                 isOpen={isLightboxOpen}
                 onClose={() => setIsLightboxOpen(false)}
             />

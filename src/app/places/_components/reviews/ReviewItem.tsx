@@ -79,16 +79,17 @@ export function ReviewItem({ review, currentUserId, onEdit, onDelete }: ReviewIt
 
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden shrink-0">
+                    <div className="w-15 h-15 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden shrink-0">
                         {review.user?.avatar_url ? (
                             <SafeImage
                                 src={review.user.avatar_url}
                                 alt={displayName}
-                                fill
-                                className="w-full h-full object-cover"
+                                width={60}
+                                height={60}
+                                className="object-cover"
                             />
                         ) : (
-                            <User className="w-5 h-5 text-primary" />
+                            <User className="w-10 h-10 text-primary" />
                         )}
                     </div>
                     <div>

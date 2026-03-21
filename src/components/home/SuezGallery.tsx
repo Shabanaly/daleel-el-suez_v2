@@ -135,7 +135,6 @@ export default function SuezGallery({ initialImages = [] }: SuezGalleryProps) {
 
             <Lightbox 
                 images={imagesToDisplay}
-                // index={photoIndex}
                 isOpen={lightboxOpen}
                 onClose={() => setLightboxOpen(false)}
             />

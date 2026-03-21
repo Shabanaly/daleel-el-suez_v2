@@ -177,7 +177,6 @@ export default function GalleryClient({ initialImages, categories }: GalleryClie
             {/* Modals */}
             <Lightbox 
                 images={imagesToDisplay}
-                index={photoIndex}
                 isOpen={lightboxOpen}
                 onClose={() => setLightboxOpen(false)}
             />

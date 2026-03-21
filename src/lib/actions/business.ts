@@ -29,9 +29,9 @@ export async function getOwnedPlaces() {
 
         if (error) throw error;
 
-        return { 
-            success: true, 
-            places: (data || []).map(mapPlace) 
+        return {
+            success: true,
+            places: (data || []).map(mapPlace)
         };
     } catch (error) {
         console.error('Error fetching owned places:', error);
@@ -86,8 +86,8 @@ export async function getOwnedPlaceDetails(placeId: string) {
             favorites_count: [{ count: favoritesCount || 0 }]
         };
 
-        return { 
-            success: true, 
+        return {
+            success: true,
             place: mapPlace(rawData as any)
         };
     } catch (error) {
@@ -131,6 +131,9 @@ export async function getOwnedPlacesReviews() {
 
         if (error) throw error;
 
+        if (!placeIds || placeIds.length === 0) {
+            return { success: true, reviews: [] };
+        }
         return { success: true, reviews: data || [] };
     } catch (error) {
         console.error('Error fetching reviews for owned places:', error);
@@ -261,7 +264,7 @@ export async function setPlaceMainImage(placeId: string, imageUrl: string) {
         if (imgIndex === -1) throw new Error('الصورة غير موجودة');
 
         const newImages = [imageUrl, ...currentImages.filter((img: string) => img !== imageUrl)];
-        
+
         let newPublicIds = currentPublicIds;
         if (currentPublicIds[imgIndex]) {
             const targetPid = currentPublicIds[imgIndex];
