@@ -6,6 +6,7 @@ import { MapPin, Phone, Star, User, Trash2, CheckCircle, XCircle } from 'lucide-
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useState } from 'react';
+import { useDialog } from '@/components/providers/DialogProvider';
 
 // Define a safe type instead of any
 type PlaceData = Record<string, unknown> & {
@@ -34,6 +35,7 @@ interface PlacesDataTableProps {
 
 export function PlacesDataTable({ places, isLoading, onUpdateStatus, onDelete, page, totalPages, onPageChange }: PlacesDataTableProps) {
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const { showConfirm } = useDialog();
 
     const handleStatusChange = async (placeId: string, status: PlaceStatus) => {
         setActionLoading(placeId);
@@ -41,12 +43,19 @@ export function PlacesDataTable({ places, isLoading, onUpdateStatus, onDelete, p
         setActionLoading(null);
     };
 
-    const handleDelete = async (placeId: string) => {
-        if (confirm('هل أنت متأكد من حذف هذا المكان نهائياً؟')) {
-            setActionLoading(placeId);
-            await onDelete(placeId);
-            setActionLoading(null);
-        }
+    const handleDelete = (placeId: string) => {
+        showConfirm({
+            title: 'حذف المكان',
+            message: 'هل أنت متأكد من حذف هذا المكان نهائياً؟',
+            type: 'confirm',
+            confirmLabel: 'حذف',
+            cancelLabel: 'إلغاء',
+            onConfirm: async () => {
+                setActionLoading(placeId);
+                await onDelete(placeId);
+                setActionLoading(null);
+            }
+        });
     };
 
     if (isLoading) {

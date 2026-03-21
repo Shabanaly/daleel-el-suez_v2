@@ -4,8 +4,7 @@ import { ProfileNavigation } from './_components/ProfileNavigation';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfileStats } from '@/lib/actions/profile';
 import { redirect } from 'next/navigation';
-import { NativeBackButton } from '../../components/ui/NativeBackButton';
-
+import { AppBar } from '@/components/ui/AppBar';
 export const metadata = {
     title: 'البروفايل - دليل السويس',
     description: 'الصفحة الشخصية للمستخدم في دليل السويس',
@@ -24,8 +23,8 @@ export default async function ProfilePage() {
 
     return (
         <div className="min-h-screen bg-background pb-20 md:pb-12">
+            <AppBar title="البروفايل" backHref="/" transparent={true} titleBehavior="scroll-reveal" />
             <div className="max-w-7xl mx-auto px-6 md:px-12 pt-16 -mb-24 relative z-10 flex justify-start">
-                <NativeBackButton className="lg:hidden -mr-2" />
             </div>
             {/* Header section includes cover, avatar, and core info */}
             <ProfileHeader user={user} isOwnProfile={true} />

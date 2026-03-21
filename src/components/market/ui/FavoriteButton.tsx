@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toggleFavorite, isItemFavorite } from '@/lib/actions/favorites';
+import { useDialog } from '@/components/providers/DialogProvider';
 
 interface FavoriteButtonProps {
     adId: string;
@@ -13,6 +14,7 @@ interface FavoriteButtonProps {
 export default function FavoriteButton({ adId, className = "" }: FavoriteButtonProps) {
     const [isFavorited, setIsFavorited] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const { showAlert } = useDialog();
 
     useEffect(() => {
         const checkStatus = async () => {
@@ -34,7 +36,11 @@ export default function FavoriteButton({ adId, className = "" }: FavoriteButtonP
         if (result.error) {
             // Revert on failure
             setIsFavorited(isFavorited);
-            alert(result.error);
+            showAlert({
+                title: 'خطأ',
+                message: String(result.error),
+                type: 'error'
+            });
         }
     };
 

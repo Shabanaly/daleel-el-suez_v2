@@ -44,7 +44,7 @@ function SettingsContent() {
         <div className="max-w-4xl mx-auto">
 
             {/* Header */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="hidden md:flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
                     {/* Native Back Button Handled by Layout */}
                     <div>
@@ -120,14 +120,12 @@ function SettingsContent() {
     )
 }
 
-import { NativeBackButton } from '../../components/ui/NativeBackButton';
+import { AppBar } from '@/components/ui/AppBar';
 
 export default function SettingsPage() {
     return (
-        <div className="min-h-screen bg-background pb-20 pt-12 md:pt-24 px-4 md:px-8">
-            <div className="max-w-4xl mx-auto mb-1 flex justify-start lg:hidden">
-                <NativeBackButton className="-mr-2" />
-            </div>
+        <div className="min-h-screen bg-background pb-20 pt-14 md:pt-24 px-4 md:px-8">
+            <AppBar title="الإعدادات" backHref="/profile" />
             <Suspense fallback={
                 <div className="min-h-screen flex items-center justify-center">
                     <Loader2 className="w-8 h-8 animate-spin text-primary" />

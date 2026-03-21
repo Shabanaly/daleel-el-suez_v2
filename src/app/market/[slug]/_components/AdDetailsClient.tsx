@@ -22,7 +22,7 @@ import { Lightbox } from '@/app/places/_components/Lightbox';
 import { AdStickyActionsBar } from './AdStickyActionsBar';
 import { useEffect } from 'react';
 import { incrementMarketAdView } from '@/lib/actions/market';
-
+import { AppBar } from '@/components/ui/AppBar';
 interface AdDetailsClientProps {
     ad: MarketAd;
 }
@@ -73,15 +73,11 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
     return (
         <div className="w-full min-h-screen bg-background pb-24 md:pb-32 text-right" dir="rtl">
             {/* ── Top Navigation Bar (Mobile Only) ────────────────────────── */}
-            <header className="fixed top-0 w-full z-50 px-4 py-4 flex justify-between items-center bg-background/60 backdrop-blur-xl border-b border-border-subtle/50 md:hidden">
-                <Link
-                    href={`/market?category=${encodeURIComponent(ad.category_slug || 'all')}`}
-                    className="w-10 h-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-text-primary hover:bg-elevated transition-colors"
-                >
-                    <ArrowRight className="w-6 h-6" />
-                </Link>
-                <h2 className="text-lg font-bold text-text-primary truncate px-4">{ad.title}</h2>
-                <div className="flex gap-2">
+            <AppBar 
+                title={ad.title}
+                transparent={false}
+                backHref={`/market?category=${encodeURIComponent(ad.category_slug || 'all')}`}
+                actions={
                     <ShareButton
                         title={ad.title}
                         text={`شوف الإعلان ده في سوق السويس: ${ad.title}`}
@@ -95,10 +91,10 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                     >
                         <Share2 className="w-5 h-5" />
                     </ShareButton>
-                </div>
-            </header>
+                }
+            />
 
-            <main className="pt-24 md:pt-32 max-w-4xl mx-auto px-4">
+            <main className="pt-14 md:pt-32 max-w-4xl mx-auto px-4">
                 {/* ── Desktop Breadcrumbs ───────────────────────────────────── */}
                 <nav className="hidden md:flex items-center gap-2 mb-10 text-sm font-bold whitespace-nowrap overflow-hidden">
                     <Link href="/market" className="text-text-muted hover:text-primary transition-colors">السوق</Link>

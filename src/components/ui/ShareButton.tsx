@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useDialog } from '@/components/providers/DialogProvider';
 
 /**
  * ShareButton Component
@@ -33,6 +34,7 @@ export default function ShareButton({
     children,
     onSuccess
 }: ShareButtonProps) {
+    const { showAlert } = useDialog();
 
     const handleShare = async (e: React.MouseEvent<HTMLButtonElement>) => {
         // Only triggers on user interaction (click) - e.preventDefault() if used in <a> or <form>
@@ -73,7 +75,11 @@ export default function ShareButton({
                     onSuccess();
                 } else {
                     // Default browser feedback if no success callback provided
-                    alert('تم نسخ الرابط للحافظة بنجاح! ✨');
+                    showAlert({
+                        title: 'نجاح',
+                        message: 'تم نسخ الرابط للحافظة بنجاح! ✨',
+                        type: 'success'
+                    });
                 }
             } else {
                 // Final fallback using a hidden input for legacy/non-secure environments
@@ -87,7 +93,11 @@ export default function ShareButton({
                 if (onSuccess) {
                     onSuccess();
                 } else {
-                    alert('تم نسخ الرابط بنجاح! ✨');
+                    showAlert({
+                        title: 'نجاح',
+                        message: 'تم نسخ الرابط بنجاح! ✨',
+                        type: 'success'
+                    });
                 }
             }
         } catch (err) {

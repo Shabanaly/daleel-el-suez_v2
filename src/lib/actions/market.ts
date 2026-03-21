@@ -386,6 +386,55 @@ export async function updateMarketAd(id: string, adData: Partial<MarketAd>) {
     return { success: true, data: data };
 }
 
+export async function updateMarketAdStatus(id: string, newStatus: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { success: false, error: 'Unauthorized' };
+    }
+
+    const serviceSupabase = createServiceClient();
+
+    // Verify ownership
+    const { data: existingAd } = await serviceSupabase
+        .from('listings')
+        .select('seller_id, categories(slug)')
+        .eq('id', id)
+        .single();
+
+    if (!existingAd || existingAd.seller_id !== user.id) {
+        return { success: false, error: 'Permission denied' };
+    }
+
+    const { data, error } = await serviceSupabase
+        .from('listings')
+        .update({
+            status: newStatus
+        })
+        .eq('id', id)
+        .select(`*, categories(slug)`)
+        .single();
+
+    if (error) {
+        console.error('Error updating ad status:', error);
+        return { success: false, error: error.message };
+    }
+
+    // Revalidate relevant tags
+    revalidateTag(tags.allAds(), 'max');
+    revalidateTag(tags.ad(id), 'max');
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const categories: any = (data as any).categories;
+    const catSlug = Array.isArray(categories) ? categories[0]?.slug : categories?.slug;
+    if (catSlug) {
+        revalidateTag(tags.adsByCategory(catSlug), 'max');
+    }
+
+    return { success: true, data: data };
+}
+
 export async function incrementMarketAdView(id: string) {
     const supabase = createServiceClient();
 

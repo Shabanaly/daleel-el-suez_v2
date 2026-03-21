@@ -5,8 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { NativeBackButton } from "@/components/ui/NativeBackButton";
-
+import { ReactNode } from 'react';
+import { AppBar } from '@/components/ui/AppBar';
 interface EditAdPageProps {
     params: Promise<{ id: string }>;
 }
@@ -36,9 +36,9 @@ export default async function EditAdPage({ params }: EditAdPageProps) {
     }
 
     return (
-        <div className="min-h-screen bg-background pb-20 pt-24 overflow-x-hidden">
-            <div className="max-w-4xl mx-auto px-4 mb-10">
-                <NativeBackButton className="mb-6 lg:hidden" />
+        <div className="min-h-screen bg-background pb-20 pt-14 md:pt-24 overflow-x-hidden">
+            <AppBar title="تعديل الإعلان" backHref="/market/my-ads" />
+            <div className="max-w-4xl mx-auto px-4 mb-10 mt-4 md:mt-0">
                 
                 <Link 
                     href="/market/my-ads"

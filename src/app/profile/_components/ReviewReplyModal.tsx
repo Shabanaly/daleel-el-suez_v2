@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, User, Star, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 import { replyToReview } from '@/lib/actions/business';
+import { useDialog } from '@/components/providers/DialogProvider';
 
 interface ReviewReplyModalProps {
     isOpen: boolean;
@@ -17,6 +18,7 @@ export function ReviewReplyModal({ isOpen, onClose, reviews, placeName }: Review
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [replyText, setReplyText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { showAlert } = useDialog();
 
     const handleReply = async (reviewId: string) => {
         if (!replyText.trim()) return;
@@ -25,13 +27,21 @@ export function ReviewReplyModal({ isOpen, onClose, reviews, placeName }: Review
         const result = await replyToReview(reviewId, replyText);
         
         if (result.success) {
-            alert('تم إرسال ردك بنجاح');
+            showAlert({
+                title: 'تم الإرسال',
+                message: 'تم إرسال ردك بنجاح',
+                type: 'success'
+            });
             setReplyText('');
             setReplyingTo(null);
             // In a real app, you'd want to refresh the local state or the page
             onClose(); 
         } else {
-            alert(result.error || 'فشل إرسال الرد');
+            showAlert({
+                title: 'خطأ',
+                message: result.error || 'فشل إرسال الرد',
+                type: 'error'
+            });
         }
         setIsSubmitting(false);
     };

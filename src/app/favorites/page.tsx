@@ -3,8 +3,9 @@ import { getFavoritePlaces, getFavoriteAds } from '@/lib/actions/favorites';
 import { redirect } from 'next/navigation';
 import { PlaceCard } from '@/app/places/_components/PlaceCard';
 import AdCard from '@/components/market/cards/AdCard';
-import { Heart, MapPin, ArrowRight, Store, Map as MapIcon } from 'lucide-react';
+import { Heart, MapPin, Store, Map as MapIcon } from 'lucide-react';
 import Link from 'next/link';
+import { AppBar } from '@/components/ui/AppBar';
 
 export const metadata = {
     title: 'المفضلة - دليل السويس',
@@ -30,21 +31,9 @@ export default async function FavoritesPage({
 
     return (
         <div className="min-h-screen bg-background pb-20 md:pb-32 text-right" dir="rtl">
-            {/* Header */}
-            <header className="fixed top-0 w-full z-50 px-4 py-6 bg-background/60 backdrop-blur-xl border-b border-border-subtle/50">
-                <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <Link
-                        href="/profile"
-                        className="w-10 h-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-text-primary hover:bg-elevated transition-colors"
-                    >
-                        <ArrowRight className="w-6 h-6" />
-                    </Link>
-                    <h1 className="text-xl font-black text-text-primary">المفضلة</h1>
-                    <div className="w-10 h-10 invisible" /> {/* Spacer */}
-                </div>
-            </header>
+            <AppBar title="المفضلة" backHref="/profile" />
 
-            <main className="pt-32 max-w-7xl mx-auto px-4">
+            <main className="pt-14 md:pt-24 max-w-7xl mx-auto px-4 mt-4">
                 <div className="flex items-center gap-4 mb-10">
                     <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
                         <Heart className="w-8 h-8 fill-current" />

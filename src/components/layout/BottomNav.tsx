@@ -18,9 +18,21 @@ export default function BottomNav() {
     const isAdminPage = pathname?.startsWith('/admin');
     const isPlaceDetailsPage = pathname?.startsWith('/places/') && pathname.split('/').length === 3;
     const isPostDetailsPage = pathname?.startsWith('/community/posts/');
-    const isMarketHiddenPage = pathname === '/market/create' || (pathname?.startsWith('/market/') && pathname.split('/').length === 3 && pathname !== '/market/my-ads');
+    const isMarketInside = pathname !== '/market' && pathname?.startsWith('/market');
+    const isProfileSection = pathname?.startsWith('/profile');
+    const isSettings = pathname?.startsWith('/settings');
+    const isFavorites = pathname?.startsWith('/favorites');
 
-    if (isAuthPage || isAdminPage || isPlaceDetailsPage || isPostDetailsPage || isMarketHiddenPage || pathname?.startsWith('/profile')) return null;
+    if (
+        isAuthPage || 
+        isAdminPage || 
+        isPlaceDetailsPage || 
+        isPostDetailsPage || 
+        isMarketInside || 
+        isProfileSection || 
+        isSettings || 
+        isFavorites
+    ) return null;
 
     return (
         <>
