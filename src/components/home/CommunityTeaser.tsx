@@ -12,7 +12,7 @@ import SectionHeader from '@/components/ui/SectionHeader';
 import { CommunityPost } from '@/lib/types/community';
 import { SafeImage } from '@/components/common/SafeImage';
 import ShareButton from '@/components/ui/ShareButton';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
 interface CommunityTeaserProps {
     posts: CommunityPost[];
@@ -23,6 +23,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({});
     const [origin, setOrigin] = useState('');
+    const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
         setTimeout(() => setOrigin(window.location.origin), 0);
@@ -42,11 +43,13 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
         const currentIsLiked = likedPosts[postId] !== undefined ? likedPosts[postId] : initialIsLiked;
         setLikedPosts(prev => ({ ...prev, [postId]: !currentIsLiked }));
 
-        try {
-            await toggleLikePost(postId);
-        } catch {
-            setLikedPosts(prev => ({ ...prev, [postId]: currentIsLiked }));
-        }
+        startTransition(async () => {
+            try {
+                await toggleLikePost(postId);
+            } catch {
+                setLikedPosts(prev => ({ ...prev, [postId]: currentIsLiked }));
+            }
+        });
     };
 
     const handleInteraction = (e: React.MouseEvent) => {

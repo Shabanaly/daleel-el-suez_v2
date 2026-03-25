@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
 import { useDialog } from '@/components/providers/DialogProvider';
 // import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useTransition } from 'react';
 
 interface FavoriteButtonProps {
     itemId: string;
@@ -30,6 +30,7 @@ export function FavoriteButton({
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const { user } = useAuth();
     const { showAlert } = useDialog();
+    const [isPending, startTransition] = useTransition();
     // const router = useRouter();
 
     // Fetch actual status on mount to ensure persistence
@@ -62,24 +63,26 @@ export function FavoriteButton({
         setIsFavorite(!isFavorite);
         setIsLoading(true);
 
-        try {
-            const result = await toggleFavorite(itemId, itemType);
-            if (result.error) {
-                // Rollback if error
+        startTransition(async () => {
+            try {
+                const result = await toggleFavorite(itemId, itemType);
+                if (result.error) {
+                    // Rollback if error
+                    setIsFavorite(isFavorite);
+                    showAlert({
+                        title: 'خطأ',
+                        message: result.error,
+                        type: 'error'
+                    });
+                } else if (result.success) {
+                    setIsFavorite(result.isFavorite!);
+                }
+            } catch {
                 setIsFavorite(isFavorite);
-                showAlert({
-                    title: 'خطأ',
-                    message: result.error,
-                    type: 'error'
-                });
-            } else if (result.success) {
-                setIsFavorite(result.isFavorite!);
+            } finally {
+                setIsLoading(false);
             }
-        } catch {
-            setIsFavorite(isFavorite);
-        } finally {
-            setIsLoading(false);
-        }
+        });
     };
 
     const getSizeClasses = () => {
