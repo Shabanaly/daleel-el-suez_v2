@@ -7,9 +7,7 @@ interface ConditionBadgeProps {
 }
 
 export default function ConditionBadge({ condition, className = '' }: ConditionBadgeProps) {
-    if (condition === 'na') return null;
-
-    const config = {
+    const config: Record<string, { label: string; classes: string }> = {
         new: {
             label: 'جديد',
             classes: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -18,13 +16,15 @@ export default function ConditionBadge({ condition, className = '' }: ConditionB
             label: 'مستعمل',
             classes: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
         },
+        // 'na' = أخرى — no badge shown intentionally
     };
 
-    const { label, classes } = config[condition] || { label: '', classes: '' };
+    const item = config[condition];
+    if (!item) return null;
 
     return (
-        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${classes} ${className}`}>
-            {label}
+        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${item.classes} ${className}`}>
+            {item.label}
         </span>
     );
 }

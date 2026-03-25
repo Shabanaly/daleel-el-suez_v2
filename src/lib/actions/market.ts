@@ -160,20 +160,19 @@ async function baseMarketAdsQuery(orderBy: string, ascending = false, limit = 15
 
 export const getMarketHomePageData = unstable_cache(
     async () => {
-        // Fetch 30 of each to allow for de-duplication and still have up to 15
         const [trendingPotential, latestPotential] = await Promise.all([
-            baseMarketAdsQuery('views_count', false, 30),
-            baseMarketAdsQuery('created_at', false, 30)
+            baseMarketAdsQuery('views_count', false, 8),
+            baseMarketAdsQuery('created_at', false, 8)
         ]);
 
-        // 1. Take top 15 trending
-        const trendingAds = trendingPotential.slice(0, 15);
+        // 1. Take top 4 trending (most viewed)
+        const trendingAds = trendingPotential.slice(0, 4);
         const trendingIds = new Set(trendingAds.map(ad => ad.id));
 
-        // 2. Take top 15 latest that are NOT in trending
+        // 2. Take top 4 latest — strictly no duplicates with trending
         const latestAds = latestPotential
             .filter(ad => !trendingIds.has(ad.id))
-            .slice(0, 15);
+            .slice(0, 4);
 
         return { trendingAds, latestAds };
     },
@@ -205,7 +204,7 @@ export async function getMarketAdBySlug(slug: string): Promise<MarketAd | null> 
             if (error || !data) {
                 // Fallback: Check if it's an ID
                 const { data: byId } = await supabase.from('listings').select('slug').eq('id', decodedSlug).maybeSingle();
-                if (byId) return getMarketAdBySlug(byId.slug); 
+                if (byId) return getMarketAdBySlug(byId.slug);
                 return null;
             }
             return mapMarketAd(data);
@@ -323,7 +322,10 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
     const catSlug = Array.isArray(categories) ? categories[0]?.slug : categories?.slug;
     if (catSlug) {
         revalidateTag(tags.adsByCategory(catSlug), 'max');
+        revalidateTag(tags.marketCategory(catSlug), 'max');
     }
+    // Refresh the categories list so adCount is updated immediately
+    revalidateTag(tags.marketCategories(), 'max');
 
     return { success: true, data: data };
 }
@@ -361,7 +363,7 @@ export async function updateMarketAd(id: string, adData: Partial<MarketAd>) {
             category_id: adData.category_id,
             area_id: adData.area_id,
             contact_phone: adData.seller_phone,
-            public_ids: adData.images
+            public_ids: adData.public_ids
         })
         .eq('id', id)
         .select(`*, categories(slug)`)
@@ -371,17 +373,22 @@ export async function updateMarketAd(id: string, adData: Partial<MarketAd>) {
         console.error('Error updating ad:', error);
         return { success: false, error: error.message };
     }
-
     // Revalidate relevant tags
     revalidateTag(tags.allAds(), 'max');
     revalidateTag(tags.ad(id), 'max');
-    
+    if (data?.slug) {
+        revalidateTag(`ad-v5-${data.slug}`, 'max');
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const categories: any = (data as any).categories;
     const catSlug = Array.isArray(categories) ? categories[0]?.slug : categories?.slug;
     if (catSlug) {
         revalidateTag(tags.adsByCategory(catSlug), 'max');
+        revalidateTag(tags.marketCategory(catSlug), 'max');
     }
+    // Refresh the categories list so adCount is updated immediately
+    revalidateTag(tags.marketCategories(), 'max');
 
     return { success: true, data: data };
 }
@@ -424,7 +431,7 @@ export async function updateMarketAdStatus(id: string, newStatus: string) {
     // Revalidate relevant tags
     revalidateTag(tags.allAds(), 'max');
     revalidateTag(tags.ad(id), 'max');
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const categories: any = (data as any).categories;
     const catSlug = Array.isArray(categories) ? categories[0]?.slug : categories?.slug;
@@ -484,7 +491,10 @@ export async function deleteMarketAd(id: string) {
     const catSlug = Array.isArray(categories) ? categories[0]?.slug : categories?.slug;
     if (catSlug) {
         revalidateTag(tags.adsByCategory(catSlug), 'max');
+        revalidateTag(tags.marketCategory(catSlug), 'max');
     }
+    // Refresh the categories list so adCount is updated immediately
+    revalidateTag(tags.marketCategories(), 'max');
 
     return { success: true };
 }

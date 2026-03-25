@@ -33,6 +33,7 @@ export const tags = {
     ad: (id: string) => `${CACHE_TAGS.market}-id:${id}`,
     adsByCategory: (slug: string) => `${CACHE_TAGS.market}-cat:${slug}`,
     marketCategories: () => `${CACHE_TAGS.market}-categories`,
+    marketCategory: (slug: string) => `${CACHE_TAGS.market}-category:${slug}`,
 
     // User specific
     userFavorites: (userId: string) => `user-${userId}-${CACHE_TAGS.favorites}`,

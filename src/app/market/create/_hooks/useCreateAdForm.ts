@@ -10,6 +10,7 @@ export function useCreateAdForm(initialAd?: MarketAd) {
     const router = useRouter();
     const {
         images,
+        publicIds,
         isBusy: isMediaBusy,
         error: mediaError,
         uploadFiles,
@@ -18,7 +19,8 @@ export function useCreateAdForm(initialAd?: MarketAd) {
     } = useImageUpload({ 
         folder: 'market', 
         maxImages: 5,
-        initialImages: initialAd?.images || []
+        initialImages: initialAd?.images || [],
+        initialPublicIds: initialAd?.public_ids || initialAd?.images || []
     });
 
     const [step, setStep] = useState(1);
@@ -119,7 +121,7 @@ export function useCreateAdForm(initialAd?: MarketAd) {
             // startUpload returns ALL images (existing + newly uploaded)
             const uploadResult = await startUpload();
 
-            const currentAdData = {
+            const currentAdData: Partial<MarketAd> = {
                 title: formData.title,
                 description: formData.description,
                 price: Number(formData.price),
@@ -129,6 +131,7 @@ export function useCreateAdForm(initialAd?: MarketAd) {
                 area_id: Number(formData.areaId),
                 condition: formData.condition,
                 images: uploadResult.urls,
+                public_ids: uploadResult.publicIds,
                 status: 'active' as const,
                 seller_phone: formData.phone,
             };

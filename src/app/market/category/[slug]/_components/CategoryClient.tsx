@@ -12,6 +12,7 @@ import SearchAutocomplete, { Suggestion } from '@/components/common/SearchAutoco
 import { createClient } from '@/lib/supabase/client';
 import AuthRequiredModal from '@/components/auth/AuthRequiredModal';
 import { useRouter } from 'next/navigation';
+import { AppBar } from '@/components/ui/AppBar';
 
 interface CategoryClientProps {
     category: MarketCategory;
@@ -128,7 +129,7 @@ export function CategoryClient({
             <div className="max-w-7xl mx-auto px-4">
                 {/* ─── Breadcrumbs ─── */}
                 {/* Breadcrumbs removed as requested */}
-
+                <AppBar title={category.name} />
                 {/* ─── Hero Header ─── */}
                 <div className="w-full p-6 md:p-10 rounded-3xl bg-surface border border-border-subtle mb-10 shadow-sm flex flex-col md:flex-row items-center gap-6">
                     <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">

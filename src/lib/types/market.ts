@@ -10,6 +10,7 @@ export interface MarketAd {
     currency: string;
     condition: AdCondition;
     images: string[];
+    public_ids?: string[];
     category_id: string; // UUID
     category_name?: string;
     category_slug?: string;

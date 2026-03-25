@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { MarketCategory } from '@/lib/types/market';
 import DynamicIcon from '@/components/common/DynamicIcon';
 import { ShoppingBag, ChevronLeft } from 'lucide-react';
+import { AppBar } from '@/components/ui/AppBar';
 
 interface CategoriesGridProps {
     categories: MarketCategory[];
@@ -30,6 +31,7 @@ export default function CategoriesGrid({ categories }: CategoriesGridProps) {
 
     return (
         <div className="min-h-screen bg-background pb-28 pt-24" dir="rtl">
+            <AppBar title="جميع الأقسام" />
             <div className="max-w-7xl mx-auto px-4">
                 {/* ─── Header ─── */}
                 <div className="mb-12 text-center md:text-start">
