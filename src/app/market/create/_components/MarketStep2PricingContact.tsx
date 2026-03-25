@@ -62,8 +62,8 @@ export function MarketStep2PricingContact({
                                 className={`w-12 h-6 rounded-full transition-all relative ${formData.isNegotiable ? 'bg-primary' : 'bg-border-subtle'}`}
                             >
                                 <motion.div 
-                                    animate={{ x: formData.isNegotiable ? 24 : 4 }}
-                                    className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"
+                                    animate={{ x: formData.isNegotiable ? -24 : 0 }}
+                                    className="absolute top-1 right-1 w-4 h-4 rounded-full bg-white shadow-sm"
                                 />
                             </button>
                             <span className="text-xs font-bold text-text-primary">السعر قابل للتفاوض</span>
