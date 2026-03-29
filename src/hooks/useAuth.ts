@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { login, signup } from '@/lib/actions/auth';
+import { useRouter } from 'next/navigation';
+import { login, signup, logout as logoutAction } from '@/lib/actions/auth';
 import { useAuth as useAuthProvider } from '@/components/providers/AuthProvider';
-// Removed unused useRouter import
 
 export function useAuth() {
+    const router = useRouter();
     const { user, isLoading: authLoading } = useAuthProvider();
     const [actionLoading, setActionLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -23,6 +24,9 @@ export function useAuth() {
                 setActionLoading(false);
                 return { error: result.error };
             }
+            
+            router.refresh();
+            router.push('/');
             return { success: true };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
@@ -44,6 +48,9 @@ export function useAuth() {
                 setActionLoading(false);
                 return { error: result.error };
             }
+
+            router.refresh();
+            router.push('/');
             return { success: true };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
@@ -76,6 +83,20 @@ export function useAuth() {
         }
     };
 
+    const handleLogout = async () => {
+        setActionLoading(true);
+        try {
+            await logoutAction();
+            // Force a full page reload to clear all states and cache
+            window.location.href = '/login?t=' + Date.now();
+        } catch (err) {
+            console.error('Logout error:', err);
+            window.location.href = '/login';
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     return {
         user,
         loading: authLoading || actionLoading,
@@ -84,6 +105,7 @@ export function useAuth() {
         handleLogin,
         handleSignup,
         handleSocialLogin,
+        handleLogout,
         setError
     };
 }

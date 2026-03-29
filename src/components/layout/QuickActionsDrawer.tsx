@@ -5,9 +5,8 @@ import { X, Plus, MapPin, Store, Users, Settings, LogOut, Info, Heart, Share2, U
 import ShareButton from '@/components/ui/ShareButton';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { useAuth } from '@/components/providers/AuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthModal } from '@/hooks/useAuthModal';
-import { logout } from '@/lib/actions/auth';
 
 interface QuickActionsDrawerProps {
     isOpen: boolean;
@@ -16,7 +15,7 @@ interface QuickActionsDrawerProps {
 
 export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDrawerProps) {
     // const pathname = usePathname();
-    const { user, logout: authLogout } = useAuth();
+    const { user, handleLogout } = useAuth();
     const { openModal } = useAuthModal();
 
     useEffect(() => {
@@ -155,8 +154,7 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                     {user && (
                                         <button
                                             onClick={async () => {
-                                                await authLogout();
-                                                await logout();
+                                                await handleLogout();
                                                 onClose();
                                             }}
                                             className="w-full flex items-center justify-between p-4 rounded-2xl bg-accent/5 hover:bg-accent/10 border border-accent/10 text-accent transition-all font-bold group cursor-pointer mt-4"

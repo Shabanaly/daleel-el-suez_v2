@@ -4,13 +4,12 @@ import { motion } from 'framer-motion';
 import { Plus, MapPin, Store, Heart, Info, User, LogOut, Loader2, FileText, ShieldCheck, ShoppingBag, Copyright as CopyIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/components/providers/AuthProvider';
-import { logout as serverLogout } from '@/lib/actions/auth';
+import { useAuth } from '@/hooks/useAuth';
 import Image from 'next/image';
 
 export default function DesktopSidebar() {
     const pathname = usePathname();
-    const { user, isLoading: loading, logout: supabaseLogout } = useAuth();
+    const { user, loading, handleLogout } = useAuth();
 
 
 
@@ -33,10 +32,6 @@ export default function DesktopSidebar() {
     const isAdminPage = pathname?.startsWith('/admin');
     if (isAuthPage || isAdminPage) return null;
 
-    const handleLogout = async () => {
-        await supabaseLogout();
-        await serverLogout();
-    };
 
     return (
 

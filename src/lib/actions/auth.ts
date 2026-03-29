@@ -40,7 +40,7 @@ export async function login(formData: FormData) {
     }
 
     revalidatePath('/', 'layout')
-    redirect('/')
+    return { success: true }
 }
 
 
@@ -96,18 +96,15 @@ export async function signup(formData: FormData) {
     }
 
     revalidatePath('/', 'layout')
-    redirect('/')
+    return { success: true }
 }
 
 export async function logout() {
     const supabase = await createClient()
     await supabase.auth.signOut()
 
-    // Explicitly revalidate everything to clear user state from the UI
     revalidatePath('/', 'layout')
-
-    // Redirect to login with a cache-buster just in case
-    redirect(`/login?t=${Date.now()}`)
+    return { success: true }
 }
 
 
@@ -185,7 +182,7 @@ export async function loginWithIdToken(idToken: string) {
         }
 
         revalidatePath('/', 'layout')
-        redirect(`/?t=${Date.now()}`)
+        return { success: true }
     }
 
 

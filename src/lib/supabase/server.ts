@@ -6,8 +6,8 @@ export async function createClient() {
     const headerList = await headers()
 
     // Check if we are on a secure connection
-    const isSecure = headerList.get('x-forwarded-proto') === 'https' ||
-        headerList.get('referer')?.startsWith('https://')
+    const isSecure = headerList.get('x-forwarded-proto') === 'https' || 
+                    process.env.NODE_ENV === 'production'
 
     return createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,

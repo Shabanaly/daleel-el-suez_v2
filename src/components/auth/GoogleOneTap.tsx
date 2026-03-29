@@ -45,7 +45,6 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
                     callback: async (response) => {
                         try {
                             const result = await loginWithIdToken(response.credential);
-                            // @ts-expect-error - Handle possible result variations
                             if (result?.success || !result?.error) {
                                 await refreshSession();
                                 router.refresh();
@@ -54,12 +53,6 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
                                 console.error('One Tap Error:', result.error);
                             }
                         } catch (err: unknown) {
-                            if (err instanceof Error) {
-                                // NEXT_REDIRECT is the expected behavior for server actions that redirect
-                                if (err.message === 'NEXT_REDIRECT' || (err as { digest?: string }).digest?.includes('NEXT_REDIRECT')) {
-                                    return;
-                                }
-                            }
                             console.error('One Tap Login Failed:', err);
                         }
                     },

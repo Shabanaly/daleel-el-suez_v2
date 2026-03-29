@@ -130,6 +130,7 @@ export default function LoadingScreen() {
                                         src="/favicon-circular.ico"
                                         alt="Suez Guide Logo"
                                         fill
+                                        sizes="(max-width: 768px) 128px, 176px"
                                         className="object-contain p-5 drop-shadow-[0_10px_20px_rgba(0,0,0,0.2)]"
                                         priority
                                     />
