@@ -372,31 +372,6 @@ export async function getTopPlacesByCategory(categoryId?: string | number, limit
    Global Stats for "Best of" Section
 ========================================================= */
 
-export async function getOverallStats() {
-    return unstable_cache(
-        async () => {
-            const supabase = createServiceClient();
-            
-            const [verifiedRes, reviewsRes, viewsRes] = await Promise.all([
-                supabase.from('places').select('id', { count: 'exact', head: true }).eq('status', 'approved').eq('is_verified', true),
-                supabase.from('reviews').select('id', { count: 'exact', head: true }),
-                supabase.from('places').select('views_count').eq('status', 'approved')
-            ]);
-
-            const verifiedCount = verifiedRes.count || 450;
-            const reviewsCount = reviewsRes.count || 2800;
-            const totalViews = (viewsRes.data || []).reduce((acc, p) => acc + (p.views_count || 0), 0);
-
-            return {
-                verifiedCount,
-                reviewsCount,
-                totalViews: totalViews > 1000 ? `${(totalViews / 1000).toFixed(1)}k+` : totalViews
-            };
-        },
-        ['overall-best-stats'],
-        { tags: [tags.allPlaces(), tags.trendingPlaces()], revalidate: 86400 }
-    )();
-}
 
 /* =========================================================
    Single Place By Slug (Cached)

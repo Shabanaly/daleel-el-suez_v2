@@ -33,20 +33,8 @@ export function FavoriteButton({
     const [isPending, startTransition] = useTransition();
     // const router = useRouter();
 
-    // Fetch actual status on mount to ensure persistence
-    useEffect(() => {
-        if (user && itemId) {
-            const checkStatus = async () => {
-                try {
-                    const status = await isItemFavorite(itemId, itemType);
-                    setIsFavorite(status);
-                } catch (error) {
-                    console.error('Error checking favorite status:', error);
-                }
-            };
-            checkStatus();
-        }
-    }, [user, itemId, itemType]);
+    // The checkStatus useEffect was removed here to prevent a request loop on initial load.
+    // initialIsFavorite should be fully relied on for initial state.
 
     const handleToggle = async (e: React.MouseEvent) => {
         e.preventDefault();

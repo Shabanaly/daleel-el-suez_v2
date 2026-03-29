@@ -52,6 +52,12 @@ export default function LoadingScreen() {
     useEffect(() => {
         const handleAnchorClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
+            
+            // Ignore clicks inside buttons, inputs, or elements explicitly marked with data-no-loader
+            if (target.closest('button') || target.closest('input') || target.closest('[data-no-loader]')) {
+                return;
+            }
+
             const anchor = target.closest('a');
 
             if (anchor && 

@@ -8,9 +8,20 @@ import { motion } from 'framer-motion';
 import { useDialog } from '@/components/providers/DialogProvider';
 import { useRouter } from 'next/navigation';
 
+interface Review {
+    id: string;
+    place_id: string;
+    rating: number;
+    comment: string;
+    created_at: string;
+    reply_text?: string | null;
+    replied_at?: string | null;
+    user?: { id?: string; username?: string; full_name?: string; avatar_url?: string } | null;
+}
+
 interface ReviewsManagerProps {
     place: Place;
-    reviews: any[];
+    reviews: Review[];
 }
 
 export function ReviewsManager({ place, reviews }: ReviewsManagerProps) {
@@ -104,7 +115,7 @@ export function ReviewsManager({ place, reviews }: ReviewsManagerProps) {
                                         {review.reply_text}
                                     </p>
                                     <div className="text-[9px] font-bold text-primary/60 mt-2">
-                                        تم الرد في {new Date(review.replied_at).toLocaleDateString('ar-EG')}
+                                        تم الرد في {review.replied_at ? new Date(review.replied_at).toLocaleDateString('ar-EG') : ''}
                                     </div>
                                 </div>
                             ) : replyingTo === review.id ? (

@@ -16,13 +16,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const title = `${place.name} | ${place.category} في ${place.area}`;
     const description = `تعرف على ${place.name} في ${place.area}، السويس. ${place.description?.slice(0, 150)}...`;
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
+    const url = `${baseUrl}/places/${encodeURIComponent(place.slug)}`;
+
     return {
         title,
         description,
         keywords: [place.name, place.category, place.area, "السويس", "دليل السويس", "اماكن السويس"],
+        alternates: {
+            canonical: url,
+        },
+        robots: {
+            index: true,
+            follow: true,
+        },
         openGraph: {
             title,
             description,
+            url,
             images: place.imageUrl ? [place.imageUrl] : [],
         },
         twitter: {

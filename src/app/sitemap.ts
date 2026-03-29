@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const placeUrls = places.map((place) => ({
         url: `${baseUrl}/places/${encodeURIComponent(place.slug)}`,
-        lastModified: new Date(),
+        lastModified: new Date(place.created_at || new Date()),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
     }));

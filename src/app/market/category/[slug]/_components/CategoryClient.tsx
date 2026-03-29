@@ -81,11 +81,13 @@ export function CategoryClient({
         : ads.filter(ad => ad.condition === conditionFilter);
 
     const handleCreateAdClick = async (e: React.MouseEvent) => {
+        e.preventDefault();
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-            e.preventDefault();
             setIsAuthModalOpen(true);
+        } else {
+            router.push('/market/create');
         }
     };
 
@@ -150,14 +152,14 @@ export function CategoryClient({
                         </p>
                     </div>
 
-                    <Link
-                        href="/market/create"
+                    <button
+                        type="button"
                         onClick={handleCreateAdClick}
                         className="bg-primary hover:bg-primary-hover text-white px-8 h-12 rounded-2xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
                     >
                         <Plus className="w-5 h-5" />
                         أضف إعلانك
-                    </Link>
+                    </button>
                 </div>
 
                 {/* ─── Search & Filters ─── */}
@@ -244,13 +246,14 @@ export function CategoryClient({
                                     {searchQuery ? 'جرب البحث بكلمات أبسط أو تصفح الأقسام الأخرى.' : 'لم يتم إضافة إعلانات في هذا القسم حتى الآن.'}
                                 </p>
                             </div>
-                            <Link 
-                                href="/market/create" 
+                            <button
+                                type="button" 
+                                onClick={handleCreateAdClick}
                                 className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl bg-primary text-white font-black hover:bg-primary-hover shadow-xl shadow-primary/20 transition-all active:scale-95"
                             >
                                 <Plus className="w-5 h-5" />
                                 أضف إعلانك الأول
-                            </Link>
+                            </button>
                         </div>
                     )}
                 </section>

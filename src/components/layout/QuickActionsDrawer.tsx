@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, MapPin, Store, Users, Settings, LogOut, Info, Heart, Share2, User, FileText, ShieldCheck, ShoppingBag, Copyright as CopyIcon } from 'lucide-react';
 import ShareButton from '@/components/ui/ShareButton';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthModal } from '@/hooks/useAuthModal';
@@ -26,13 +27,15 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
         }
     }, [isOpen]);
 
-    const handleProtectedAction = (e: React.MouseEvent) => {
+    const router = useRouter();
+
+    const handleProtectedAction = (href: string) => {
         if (!user) {
-            e.preventDefault();
             onClose();
             openModal();
         } else {
             onClose();
+            router.push(href);
         }
     };
 
@@ -83,7 +86,8 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                         icon={<Plus className="w-6 h-6" />}
                                         label="أضف مكان"
                                         color="bg-primary"
-                                        onClick={(e) => handleProtectedAction(e)}
+                                        onClick={() => handleProtectedAction('/places/add')}
+                                        isButton
                                     />
                                     <ActionItem
                                         href="/places"
@@ -97,14 +101,16 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                         icon={<Heart className="w-6 h-6" />}
                                         label="المفضلة"
                                         color="bg-accent"
-                                        onClick={(e) => handleProtectedAction(e)}
+                                        onClick={() => handleProtectedAction('/favorites')}
+                                        isButton
                                     />
                                     <ActionItem
                                         href="/market/create"
                                         icon={<Plus className="w-6 h-6" />}
                                         label="أضف إعلان"
                                         color="bg-primary"
-                                        onClick={(e) => handleProtectedAction(e)}
+                                        onClick={() => handleProtectedAction('/market/create')}
+                                        isButton
                                     />
                                     <ActionItem
                                         href="/market"
@@ -118,7 +124,8 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
                                         icon={<ShoppingBag className="w-6 h-6" />}
                                         label="إعلاناتي"
                                         color="bg-primary"
-                                        onClick={(e) => handleProtectedAction(e)}
+                                        onClick={() => handleProtectedAction('/market/my-ads')}
+                                        isButton
                                     />
                                     <ActionItem
                                         href="/community"
@@ -142,8 +149,8 @@ export default function QuickActionsDrawer({ isOpen, onClose }: QuickActionsDraw
 
                                 {/* Bottom Links List */}
                                 <div className="px-6 pt-2 space-y-2">
-                                    <ListLink icon={<User className="w-5 h-5" />} label="البروفايل" href="/profile" onClick={(e) => handleProtectedAction(e)} />
-                                    <ListLink icon={<Settings className="w-5 h-5" />} label="الإعدادات" href="/settings" onClick={(e) => handleProtectedAction(e)} />
+                                    <ListLink icon={<User className="w-5 h-5" />} label="البروفايل" href="/profile" onClick={() => handleProtectedAction('/profile')} isButton />
+                                    <ListLink icon={<Settings className="w-5 h-5" />} label="الإعدادات" href="/settings" onClick={() => handleProtectedAction('/settings')} isButton />
 
                                     <div className="h-px bg-border-subtle/50 my-2" />
 
@@ -180,14 +187,31 @@ function ActionItem({
     icon,
     label,
     color,
-    onClick
+    onClick,
+    isButton
 }: {
     href: string;
     icon: React.ReactNode;
     label: string;
     color: string;
-    onClick: (e: React.MouseEvent) => void
+    onClick: (e: React.MouseEvent) => void;
+    isButton?: boolean;
 }) {
+    if (isButton) {
+        return (
+            <button
+                type="button"
+                onClick={onClick}
+                className="flex flex-col items-center gap-2 group w-full appearance-none outline-none bg-transparent"
+            >
+                <div className={`w-16 h-16 rounded-2xl ${color} flex items-center justify-center text-white border border-white/20 shadow-lg shadow-black/5 group-hover:scale-110 active:scale-95 transition-all duration-300`}>
+                    {icon}
+                </div>
+                <span className="text-[11px] font-black text-text-primary tracking-tight">{label}</span>
+            </button>
+        );
+    }
+
     return (
         <Link
             href={href}
@@ -206,13 +230,33 @@ function ListLink({
     icon,
     label,
     href,
-    onClick
+    onClick,
+    isButton
 }: {
     icon: React.ReactNode;
     label: string;
     href: string;
     onClick: (e: React.MouseEvent) => void;
+    isButton?: boolean;
 }) {
+    if (isButton) {
+        return (
+            <button
+                type="button"
+                onClick={onClick}
+                className="w-full flex items-center justify-between p-4 rounded-2xl bg-elevated hover:bg-elevated/80 border border-border-subtle text-text-primary hover:shadow-lg transition-all font-bold group appearance-none outline-none"
+            >
+                <div className="flex items-center gap-3">
+                    <span className="text-primary">{icon}</span>
+                    <span>{label}</span>
+                </div>
+                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-background border border-border-subtle group-hover:bg-primary group-hover:text-white transition-all">
+                    <Plus className="w-4 h-4 rotate-45" />
+                </div>
+            </button>
+        );
+    }
+
     return (
         <Link
             href={href}

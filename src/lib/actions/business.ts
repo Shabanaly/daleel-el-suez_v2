@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { cacheManager, tags } from '../cache';
 import { mapPlace } from '../utils/mappers';
 import { revalidateTag, revalidatePath } from 'next/cache';
@@ -44,6 +45,7 @@ export async function getOwnedPlaces() {
  */
 export async function getOwnedPlaceDetails(placeId: string) {
     const supabase = await createClient();
+    const supabaseAdmin = createAdminClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return { success: false, error: 'غير مصرح به' };
@@ -62,8 +64,8 @@ export async function getOwnedPlaceDetails(placeId: string) {
                 .eq('id', placeId)
                 .eq('added_by', user.id)
                 .single(),
-            // Fetch favorites count separately as there's no direct FK (polymorphic item_id)
-            supabase
+            // Fetch favorites count separately using Admin Client to bypass RLS (so owners can see everyone's favorites)
+            supabaseAdmin
                 .from('favorites')
                 .select('*', { count: 'exact', head: true })
                 .eq('item_id', placeId)
@@ -317,7 +319,8 @@ export async function updatePlaceBasicInfo(placeId: string, field: string, value
         // 2. Prepare data with business logic
         let dataToUpdate: any = { [field]: value };
 
-        if (field === 'phone') {
+        if (field === 'phone' && typeof value === 'string') {
+            // Backward compatibility for basic string phone updates
             const currentPhone = place.phone || { primary: '', others: [], whatsapp: '' };
             dataToUpdate = {
                 phone: {
@@ -325,8 +328,14 @@ export async function updatePlaceBasicInfo(placeId: string, field: string, value
                     primary: value
                 }
             };
-        } else if (field === 'working_hours') {
-            dataToUpdate = { working_hours: value };
+        } else if (
+            field === 'phone' ||
+            field === 'working_hours' ||
+            field === 'tags' ||
+            field === 'social_links'
+        ) {
+            // Explicit override to accept structured JSON (objects/arrays) directly
+            dataToUpdate = { [field]: value };
         }
 
         // 3. Perform update
@@ -347,3 +356,82 @@ export async function updatePlaceBasicInfo(placeId: string, field: string, value
     }
 }
 
+/**
+ * Append newly uploaded images to a place (called after Cloudinary upload)
+ */
+export async function addPlaceImages(placeId: string, newUrls: string[], newPublicIds: string[]) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { success: false, error: 'غير مصرح به' };
+
+    try {
+        // 1. Fetch current arrays + verify ownership
+        const { data: place, error: fetchError } = await supabase
+            .from('places')
+            .select('added_by, images, public_ids, slug')
+            .eq('id', placeId)
+            .single();
+
+        if (fetchError || !place) throw new Error('المكان غير موجود');
+        if (place.added_by !== user.id) return { success: false, error: 'ليس لديك صلاحية التعديل' };
+
+        const existingImages: string[] = place.images || [];
+        const existingPublicIds: string[] = place.public_ids || [];
+
+        // 2. Merge — cap at 5 total
+        const merged = [...existingImages, ...newUrls].slice(0, 5);
+        const mergedIds = [...existingPublicIds, ...newPublicIds].slice(0, 5);
+
+        const { error: updateError } = await supabase
+            .from('places')
+            .update({ images: merged, public_ids: mergedIds })
+            .eq('id', placeId);
+
+        if (updateError) throw updateError;
+
+        cacheManager.invalidatePlace(place.slug, placeId);
+        revalidatePath(`/manage/${placeId}`);
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error in addPlaceImages:', error);
+        return { success: false, error: 'حدث خطأ أثناء حفظ الصور' };
+    }
+}
+
+/**
+ * Save the weekly working-hours schedule (JSON) for a place
+ */
+export async function updateWorkingHours(placeId: string, schedule: Record<string, unknown>) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { success: false, error: 'غير مصرح به' };
+
+    try {
+        const { data: place, error: fetchError } = await supabase
+            .from('places')
+            .select('added_by, slug')
+            .eq('id', placeId)
+            .single();
+
+        if (fetchError || !place) throw new Error('المكان غير موجود');
+        if (place.added_by !== user.id) return { success: false, error: 'ليس لديك صلاحية التعديل' };
+
+        const { error: updateError } = await supabase
+            .from('places')
+            .update({ working_hours: schedule })
+            .eq('id', placeId);
+
+        if (updateError) throw updateError;
+
+        cacheManager.invalidatePlace(place.slug, placeId);
+        revalidatePath(`/manage/${placeId}`);
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error in updateWorkingHours:', error);
+        return { success: false, error: 'حدث خطأ أثناء حفظ أوقات العمل' };
+    }
+}

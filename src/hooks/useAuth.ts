@@ -25,8 +25,7 @@ export function useAuth() {
                 return { error: result.error };
             }
             
-            router.refresh();
-            router.push('/');
+            window.location.href = '/';
             return { success: true };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
@@ -49,8 +48,7 @@ export function useAuth() {
                 return { error: result.error };
             }
 
-            router.refresh();
-            router.push('/');
+            window.location.href = '/';
             return { success: true };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {

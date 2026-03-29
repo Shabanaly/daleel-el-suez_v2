@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Place } from '@/lib/types/places';
 import { useImageUpload } from '@/lib/hooks/useImageUpload';
-import { removePlaceImage, setPlaceMainImage } from '@/lib/actions/business';
+import { removePlaceImage, setPlaceMainImage, addPlaceImages } from '@/lib/actions/business';
 import { useRouter } from 'next/navigation';
 import { Image as ImageIcon, X, Plus, CheckCircle2, Loader2, Trash2, Star, UploadCloud } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,13 +28,13 @@ export function GalleryManager({ place }: GalleryManagerProps) {
         isUploading, 
         uploadFiles, 
         startUpload, 
-        clearImages, 
+        clearPending,
         deleteImage: deleteFromHook 
     } = useImageUpload({
         folder: 'places',
         initialImages: place.images || [],
         initialPublicIds: place.publicIds || [],
-        maxImages: 5 // Refined limit
+        maxImages: 5
     });
 
     const initialCount = (place.images || []).length;
@@ -49,20 +49,39 @@ export function GalleryManager({ place }: GalleryManagerProps) {
     };
 
     const handleConfirmUpload = async () => {
+        const initialCount = (place.images || []).length;
         try {
             const result = await startUpload();
             if (result && result.urls) {
+                // Extract only the newly uploaded URLs/publicIds (after the pre-existing ones)
+                const newUrls = result.urls.slice(initialCount);
+                const newPublicIds = (result.publicIds || []).slice(initialCount);
+
+                if (newUrls.length === 0) return;
+
+                // Persist to DB
+                const saveResult = await addPlaceImages(place.id, newUrls, newPublicIds);
+                if (!saveResult.success) {
+                    showAlert({
+                        title: 'خطأ في الحفظ',
+                        message: saveResult.error || 'تم الرفع لكن فشل الحفظ في قاعدة البيانات.',
+                        type: 'error'
+                    });
+                    return;
+                }
+
                 showAlert({
                     title: 'تم الرفع بنجاح',
-                    message: 'تم إضافة الصور الجديدة لمعرض الصور بنجاح.',
+                    message: `تم إضافة ${newUrls.length} صورة للمعرض بنجاح.`,
                     type: 'success'
                 });
                 router.refresh();
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : 'حدث خطأ غير متوقع أثناء عملية الرفع.';
             showAlert({
                 title: 'فشل الرفع',
-                message: error.message || 'حدث خطأ غير متوقع أثناء عملية الرفع.',
+                message: msg,
                 type: 'error'
             });
         }
@@ -143,7 +162,7 @@ export function GalleryManager({ place }: GalleryManagerProps) {
                                 تأكيد الرفع
                             </button>
                             <button
-                                onClick={clearImages}
+                                onClick={clearPending}
                                 disabled={isUploading}
                                 className="px-5 py-2.5 bg-white text-emerald-500 rounded-xl text-xs font-black border border-emerald-500/20 hover:bg-emerald-50 transition-all"
                             >

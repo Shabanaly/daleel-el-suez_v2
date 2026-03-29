@@ -32,13 +32,20 @@ const daysMapping: { key: DayKey; label: string }[] = [
 ];
 
 export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, errors }: Step2Props) {
-    const updateDay = (day: DayKey, updates: Partial<{ isOpen: boolean; from: string | null; to: string | null }>) => {
-        updateFormData({
-            openHours: {
-                ...formData.openHours,
-                [day]: { ...formData.openHours[day], ...updates }
-            }
-        });
+    const is24Hours = (formData.openHours?.saturday?.isOpen && formData.openHours?.saturday?.from === '00:00' && formData.openHours?.saturday?.to === '23:59') || false;
+    const fromTime = (!formData.openHours?.saturday?.isOpen || formData.openHours.saturday.from === '00:00') ? '09:00' : formData.openHours.saturday.from;
+    const toTime = (!formData.openHours?.saturday?.isOpen || formData.openHours.saturday.to === '23:59') ? '22:00' : formData.openHours.saturday.to;
+
+    const updateWorkingHours = (updates: { is24: boolean; from: string; to: string }) => {
+        const payload = daysMapping.reduce((acc, { key }) => {
+            acc[key] = {
+                isOpen: true,
+                from: updates.is24 ? '00:00' : updates.from,
+                to: updates.is24 ? '23:59' : updates.to
+            };
+            return acc;
+        }, {} as WeeklySchedule);
+        updateFormData({ openHours: payload });
     };
 
     return (
@@ -245,82 +252,52 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                     </div>
 
                     <div className="grid gap-3">
-                        {daysMapping.map(({ key, label }) => {
-                            const dayData = formData.openHours[key];
-                            return (
-                                <div
-                                    key={key}
-                                    className={`relative rounded-[28px] border transition-all duration-300 overflow-hidden ${dayData.isOpen
-                                        ? 'bg-primary/5 border-primary/20 shadow-sm'
-                                        : 'bg-background/20 border-border-subtle/30 opacity-70'
-                                        }`}
-                                >
-                                    <div className="p-5">
-                                        {/* Day & Toggle Row */}
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${dayData.isOpen ? 'bg-primary/20 text-primary' : 'bg-elevated text-text-muted/40'}`}>
-                                                    <span className="text-[10px] font-black uppercase">{key.substring(0, 2)}</span>
-                                                </div>
-                                                <div>
-                                                    <div className="font-black text-sm text-text-primary leading-none mb-1">{label}</div>
-                                                    <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
-                                                        {dayData.isOpen ? 'مفتوح للعملاء' : 'مغلق'}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <button
-                                                type="button"
-                                                onClick={() => updateDay(key, { isOpen: !dayData.isOpen })}
-                                                className={`w-14 h-8 rounded-full relative transition-all duration-300 active:scale-95 ${dayData.isOpen ? 'bg-primary' : 'bg-text-muted/20'
-                                                    }`}
-                                            >
-                                                <div className={`absolute top-1.5 w-5 h-5 rounded-full bg-white shadow-md transition-all duration-300 ${dayData.isOpen ? 'right-7.5' : 'right-1.5'
-                                                    }`} />
-                                            </button>
-                                        </div>
-
-                                        {/* Expandable Time Section */}
-                                        <AnimatePresence initial={false}>
-                                            {dayData.isOpen && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1, marginTop: 20 }}
-                                                    exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                                                    className="overflow-hidden"
-                                                >
-                                                    <div className="grid grid-cols-2 gap-4 pt-5 border-t border-primary/10">
-                                                        <div className="space-y-2">
-                                                            <span className="text-[10px] font-black text-text-muted uppercase tracking-widest mr-2 block">يبدأ من</span>
-                                                            <div className="relative group">
-                                                                <input
-                                                                    type="time"
-                                                                    value={dayData.from || ''}
-                                                                    onChange={e => updateDay(key, { from: e.target.value })}
-                                                                    className="w-full h-12 px-4 rounded-xl bg-background border border-border-subtle text-xs font-black focus:border-primary transition-all outline-hidden group-hover:border-primary/50"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <span className="text-[10px] font-black text-text-muted uppercase tracking-widest mr-2 block">ينتهي في</span>
-                                                            <div className="relative group">
-                                                                <input
-                                                                    type="time"
-                                                                    value={dayData.to || ''}
-                                                                    onChange={e => updateDay(key, { to: e.target.value })}
-                                                                    className="w-full h-12 px-4 rounded-xl bg-background border border-border-subtle text-xs font-black focus:border-primary transition-all outline-hidden group-hover:border-primary/50"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
+                        <div className="bg-surface-elevated/50 border border-border-subtle/50 rounded-[28px] overflow-hidden">
+                            <label 
+                                onClick={(e) => { e.preventDefault(); updateWorkingHours({ is24: !is24Hours, from: fromTime as string, to: toTime as string }); }}
+                                className="flex items-center justify-between p-5 cursor-pointer hover:bg-surface-elevated transition-colors"
+                            >
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-black text-text-primary">مفتوح 24 ساعة</span>
+                                    <span className="text-[10px] font-bold text-text-muted mt-0.5">المكان يعمل طوال اليوم بدون إغلاق</span>
                                 </div>
-                            );
-                        })}
+                                <div className={`relative w-12 h-7 rounded-full transition-colors duration-300 ${is24Hours ? 'bg-primary' : 'bg-text-muted/20'}`}>
+                                    <div className={`absolute top-1.5 w-4 h-4 rounded-full bg-white shadow-md transition-all duration-300 ${is24Hours ? 'right-6' : 'right-1.5'}`} />
+                                </div>
+                            </label>
+                            
+                            <AnimatePresence>
+                                {!is24Hours && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden"
+                                    >
+                                        <div className="flex gap-4 p-5 pt-0 border-t border-border-subtle/20 mt-2">
+                                            <div className="flex-1 space-y-2">
+                                                <span className="text-[10px] font-black text-text-muted uppercase tracking-widest mr-2 block">وقت الفتح</span>
+                                                <input
+                                                    type="time"
+                                                    value={fromTime || ''}
+                                                    onChange={e => updateWorkingHours({ is24: false, from: e.target.value, to: toTime as string })}
+                                                    className="w-full h-12 px-4 rounded-xl bg-background border border-border-subtle text-sm font-black focus:border-primary transition-all outline-none"
+                                                />
+                                            </div>
+                                            <div className="flex-1 space-y-2">
+                                                <span className="text-[10px] font-black text-text-muted uppercase tracking-widest mr-2 block">وقت الإغلاق</span>
+                                                <input
+                                                    type="time"
+                                                    value={toTime || ''}
+                                                    onChange={e => updateWorkingHours({ is24: false, from: fromTime as string, to: e.target.value })}
+                                                    className="w-full h-12 px-4 rounded-xl bg-background border border-border-subtle text-sm font-black focus:border-primary transition-all outline-none"
+                                                />
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
                 </div>
             </div>

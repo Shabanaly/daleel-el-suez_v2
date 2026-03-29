@@ -45,10 +45,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       try {
         // 1. Get current FCM token
         const newToken = await requestForToken();
-        if (!newToken) {
-            console.debug('[Notifications] No token received');
-            return;
-        }
+        if (!newToken) return;
 
         setFcmToken(newToken);
 
@@ -66,7 +63,6 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         const needsScheduledSync = (now - lastSync) > sevenDays;
 
         if (tokenChanged || userChanged || needsScheduledSync) {
-          console.log(`[Notifications] Syncing token (${user?.id ? 'User: ' + user.id : 'Guest'}) - Reason: ${tokenChanged? 'Token' : userChanged? 'User' : 'Time'}`);
           
           const { error } = await supabase
             .from('user_fcm_tokens')
@@ -88,13 +84,10 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
             localStorage.setItem(FCM_TOKEN_KEY, newToken);
             localStorage.setItem('fcm_last_sync', now.toString());
             localStorage.setItem('fcm_user_id', user?.id || 'guest');
-            console.log('[Notifications] Token synced successfully');
           } else {
             console.error('[Notifications] Sync failed:', error.message);
           }
         } else {
-          console.debug('[Notifications] Token sync skipped (already up to date)');
-          
           // Optionally update last_seen_at silently if it's been a while (e.g. > 1 day)
           const lastSeenSync = (now - lastSync) > (24 * 60 * 60 * 1000);
           if (lastSeenSync) {
@@ -117,7 +110,6 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
 
   // Listen for foreground messages
   useEffect(() => {
-    console.log('[Notifications] Initializing foreground message listener');
     const unsubscribe = onMessageListener((payload) => {
       console.log('[Notifications] Foreground message event triggered:', payload);
       

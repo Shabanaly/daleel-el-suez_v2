@@ -12,7 +12,8 @@
 
 # testing
 /coverage
-
+# Vscode
+/.vscode/
 # next.js
 /.next/
 /out/

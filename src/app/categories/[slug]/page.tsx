@@ -27,12 +27,23 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const title = `أفضل ${category.name} في السويس (دليل 2024) - دليل السويس`;
     const description = `تصفح قائمة ${category.name} في محافظة السويس. نوفر لك معلومات التواصل والتقييمات لأكثر من ${category.totalPlaces} مكان في هذا القسم.`;
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
+    const url = `${baseUrl}/categories/${encodeURIComponent(resolvedParams.slug)}`;
+
     return {
         title,
         description,
+        alternates: {
+            canonical: url,
+        },
+        robots: {
+            index: true,
+            follow: true,
+        },
         openGraph: {
             title,
             description,
+            url,
             type: 'website',
         },
         twitter: {

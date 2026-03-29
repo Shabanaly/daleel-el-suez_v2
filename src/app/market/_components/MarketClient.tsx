@@ -85,12 +85,14 @@ export function MarketClient({
     }, [searchQuery, router, excludeIds]);
 
     const handleCreateAdClick = async (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevent default button behavior
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
-            e.preventDefault();
             setIsAuthModalOpen(true);
+        } else {
+            router.push('/market/create');
         }
     };
 

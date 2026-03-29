@@ -19,18 +19,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = `أفضل ${addArabicArticle(category.name)} في السويس لعام 2024 | القائمة الكاملة`;
     const description = `اكتشف أفضل ${addArabicArticle(category.name)} في السويس بناءً على تقييمات حقيقية. قائمة محدثة تشمل رقم التواصل، الموقع، والخدمات المتاحة.`;
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
+    const url = `${baseUrl}/best/${slug}`;
+
     return {
         title,
         description,
         keywords: [category.name, `افضل ${category.name}`, `احسن ${category.name}`, "السويس", "دليل السويس"],
+        alternates: {
+            canonical: url,
+        },
+        robots: {
+            index: true,
+            follow: true,
+        },
         openGraph: {
             title,
             description,
+            url,
             type: 'website',
         },
-        alternates: {
-            canonical: `https://daleel-al-suez.com/best/${slug}`,
-        }
     };
 }
 

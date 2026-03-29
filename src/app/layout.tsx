@@ -81,6 +81,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  userScalable: false, // Prevents auto-zooming or accidental desktop-view scaling on iOS/Android
   themeColor: "#0066FF",
   interactiveWidget: "resizes-content",
 };

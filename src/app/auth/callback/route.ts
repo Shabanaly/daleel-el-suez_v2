@@ -5,7 +5,12 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function GET(request: Request) {
-    const { searchParams, origin } = new URL(request.url)
+    const url = new URL(request.url)
+    const host = request.headers.get('host') ?? url.host
+    const protocol = request.headers.get('x-forwarded-proto') === 'https' ? 'https' : (url.protocol.replace(':', '') || 'http')
+    const origin = `${protocol}://${host}`
+    
+    const { searchParams } = url
     const code = searchParams.get('code')
     let next = searchParams.get('next') ?? '/'
 

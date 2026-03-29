@@ -1,13 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Pencil, Check, X, Phone, MapPin, Clock, Type, AlignLeft } from 'lucide-react';
+import { Pencil, Check, X, Phone, MapPin, Type, AlignLeft } from 'lucide-react';
 import { Place } from '@/lib/types/places';
 import { updatePlaceBasicInfo } from '@/lib/actions/business';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useDialog } from '@/components/providers/DialogProvider';
-
+import { WorkingHoursManager } from './WorkingHoursManager';
+import { ContactManager } from './ContactManager';
+import { TagsManager } from './TagsManager';
+import { SocialLinksManager } from './SocialLinksManager';
 interface InlineEditFormProps {
     place: Place;
 }
@@ -152,27 +155,15 @@ export function InlineEditForm({ place }: InlineEditFormProps) {
                 onSave={handleFieldSave}
             />
             <EditableField
-                label="رقم الهاتف"
-                value={place.phoneNumber.primary || ''}
-                fieldName="phone"
-                type="tel"
-                icon={<Phone className="w-3.5 h-3.5" />}
-                onSave={handleFieldSave}
-            />
-            <EditableField
-                label="ساعات العمل"
-                value={place.openHours || ''}
-                fieldName="working_hours"
-                icon={<Clock className="w-3.5 h-3.5" />}
-                onSave={handleFieldSave}
-            />
-            <EditableField
                 label="العنوان بالتفصيل"
                 value={place.address || ''}
                 fieldName="address"
                 icon={<MapPin className="w-3.5 h-3.5" />}
                 onSave={handleFieldSave}
             />
+            <ContactManager place={place} />
+            <WorkingHoursManager place={place} />
+            <SocialLinksManager place={place} />
         </div>
     );
 }

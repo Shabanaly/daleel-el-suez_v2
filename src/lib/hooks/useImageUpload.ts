@@ -24,6 +24,12 @@ export function useImageUpload({
     const [publicIds, setPublicIds] = useState<string[]>(initialPublicIds);
     const [pendingFiles, setPendingFiles] = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
+    
+    // Sync state with props if they change externally (e.g. after a server action + router.refresh)
+    useEffect(() => {
+        setImages(prev => JSON.stringify(prev) !== JSON.stringify(initialImages) ? initialImages : prev);
+        setPublicIds(prev => JSON.stringify(prev) !== JSON.stringify(initialPublicIds) ? initialPublicIds : prev);
+    }, [JSON.stringify(initialImages), JSON.stringify(initialPublicIds)]);
     const [isCompressing, setIsCompressing] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -152,6 +158,13 @@ export function useImageUpload({
         setPreviews([]);
     };
 
+    // Only clears the pending previews — does NOT touch existing uploaded images
+    const clearPending = () => {
+        previews.forEach(url => URL.revokeObjectURL(url));
+        setPendingFiles([]);
+        setPreviews([]);
+    };
+
     return {
         images: [...images, ...previews],
         publicIds,
@@ -163,6 +176,7 @@ export function useImageUpload({
         startUpload,
         deleteImage,
         clearImages,
+        clearPending,
         setError,
     };
 }

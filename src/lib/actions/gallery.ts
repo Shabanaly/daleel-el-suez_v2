@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '../supabase/client-service';
 import { revalidatePath } from 'next/cache';
 
 export type GalleryImage = {
@@ -62,33 +63,45 @@ export async function getGalleryImages(
     return data as GalleryImage[];
 }
 
+import { unstable_cache } from 'next/cache';
+
 /**
  * Fetch the top 5 most viewed approved images.
+ * Cached for 2 hours as these don't change very frequently.
  */
 export async function getTopGalleryImages(limit: number = 5) {
-    const supabase = await createClient();
-    
-    const { data, error } = await supabase
-        .from('gallery_images')
-        .select(`
-            *,
-            profiles:user_id (
-                full_name,
-                avatar_url,
-                username
-            )
-        `)
-        .eq('is_approved', true)
-        .order('views_count', { ascending: false })
-        .order('created_at', { ascending: false })
-        .limit(limit);
+    return unstable_cache(
+        async (l: number) => {
+            const supabase = createServiceClient();
+            
+            const { data, error } = await supabase
+                .from('gallery_images')
+                .select(`
+                    *,
+                    profiles:user_id (
+                        full_name,
+                        avatar_url,
+                        username
+                    )
+                `)
+                .eq('is_approved', true)
+                .order('views_count', { ascending: false })
+                .order('created_at', { ascending: false })
+                .limit(l);
 
-    if (error) {
-        console.error('Error fetching top gallery images:', error);
-        return [];
-    }
+            if (error) {
+                console.error('Error fetching top gallery images:', error);
+                return [];
+            }
 
-    return data as GalleryImage[];
+            return data as GalleryImage[];
+        },
+        [`top-gallery-images-${limit}`],
+        { 
+            tags: ['gallery-top', 'gallery'],
+            revalidate: 7200 // 2 hours
+        }
+    )(limit);
 }
 
 /**

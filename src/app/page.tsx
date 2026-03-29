@@ -1,7 +1,7 @@
-import { getHomePageData, getOverallStats } from '@/lib/actions/places';
-import { getHomeCategories } from '@/lib/actions/categories';
+import { getHomePageData } from '@/lib/actions/places';
+import { getHomeCategories, getRandomCategoryHighlights } from '@/lib/actions/categories';
 import { getHomeDistricts } from '@/lib/actions/areas';
-import { getSuezStats } from '@/lib/actions/stats';
+import { getHomeUnifiedStats } from '@/lib/actions/stats';
 import Hero from '@/components/home/Hero';
 import TrendingPlaces from '@/components/home/TrendingPlaces';
 import DistrictsExplorer from '@/components/home/DistrictsExplorer';
@@ -29,20 +29,32 @@ export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser();
 
   // 🧠 Fetch data using the centralized home page action (logic moved to server)
-  const [categories, districts, homeData, communityPosts, randomCategoryData, suezStats, marketData, statsData, topGalleryImages] = await Promise.all([
+  const [categories, districts, homeData, communityPosts, randomCategoryData, unifiedStats, marketData, topGalleryImages] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
     getHomePageData(),
     getCommunityPosts(undefined, undefined, 1, 2, user?.id),
-    import('@/lib/actions/categories').then(m => m.getRandomCategoryHighlights()),
-    getSuezStats(),
+    getRandomCategoryHighlights(),
+    getHomeUnifiedStats(),
     getMarketHomePageData(),
-    getOverallStats(),
     getTopGalleryImages(5)
   ]);
 
   const { trending, newPlaces } = homeData;
   const homeMarketAds = [...marketData.trendingAds, ...marketData.latestAds].slice(0, 8); // Top 8 combined
+
+  // Map unified stats to specific component needs
+  const bestOfStats = {
+      verifiedCount: unifiedStats.verifiedCount,
+      reviewsCount: unifiedStats.reviewsCount,
+      totalViews: unifiedStats.formattedReach
+  };
+
+  const suezStats = {
+      places: unifiedStats.places,
+      areas: unifiedStats.areas,
+      reach: unifiedStats.totalReachRaw
+  };
 
   return (
     <div className="w-full flex flex-col items-center overflow-hidden">
@@ -51,19 +63,16 @@ export default async function Home() {
       <TrendingPlaces places={trending} />
       <NewPlaces places={newPlaces} />
       <HomeMarketSection ads={homeMarketAds} />
-      <BestOfSuezHome stats={statsData} />
+      <BestOfSuezHome stats={bestOfStats} />
       {randomCategoryData && <CategoryHighlight data={randomCategoryData} />}
       <SuezGallery initialImages={topGalleryImages} />
       <DistrictsExplorer districts={districts} />
       <CommunityTeaser posts={communityPosts} />
 
-
       {/* Call to action banner at the end */}
       <section className="w-full max-w-7xl mx-auto px-4 pb-6 md:pb-12">
         <div className="w-full rounded-[32px] md:rounded-[48px] bg-linear-to-br from-surface via-surface to-primary/5 border border-primary/15 p-8 md:p-16 text-center flex flex-col items-center shadow-2xl shadow-primary/5 relative overflow-hidden group">
-          {/* Canal teal orb top-right */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full mix-blend-screen filter blur-[100px] opacity-40 pointer-events-none group-hover:opacity-60 transition-opacity duration-1000" />
-          {/* Desert amber orb bottom-left */}
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full mix-blend-screen filter blur-[80px] opacity-30 pointer-events-none group-hover:opacity-50 transition-opacity duration-1000" />
 
           <h2 className="text-3xl md:text-5xl font-black text-text-primary mb-4 relative z-10">
@@ -80,6 +89,7 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+
       <SuezStats stats={suezStats} />
     </div>
   );

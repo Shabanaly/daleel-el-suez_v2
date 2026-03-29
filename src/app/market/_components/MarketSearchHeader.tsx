@@ -34,15 +34,15 @@ export default function MarketSearchHeader({
                </div>
 
                {/* Add Ad Button */}
-               <Link 
-                    href="/market/create"
+               <button 
+                    type="button"
                     onClick={handleCreateAdClick}
                     className="bg-primary hover:bg-primary-hover text-white px-5 md:px-10 h-14 md:h-18 rounded-2xl md:rounded-3xl flex items-center gap-2 text-sm md:text-lg font-black shadow-lg shadow-primary/20 transition-all active:scale-95 shrink-0"
                 >
                     <Plus className="w-5 h-5 md:w-6 md:h-6 shrink-0" />
                     <span className="hidden sm:inline">أضف إعلانك</span>
                     <span className="sm:hidden">أضف</span>
-                </Link>
+                </button>
             </div>
         </header>
     );

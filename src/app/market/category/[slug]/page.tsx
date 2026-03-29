@@ -16,13 +16,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = `${category.name} في السويس | بيع وشراء ${category.name}`;
     const description = `تصفح أفضل العروض والأسعار لقسم ${category.name} في سوق السويس المحلي. أعلن عن ${category.name} الخاصة بك مجاناً الآن.`;
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
+    const url = `${baseUrl}/market/category/${encodeURIComponent(slug)}`;
+
     return {
         title,
         description,
         keywords: [category.name, `بيع وشراء ${category.name}`, "سوق السويس", "عروض السويس"],
+        alternates: {
+            canonical: url,
+        },
+        robots: {
+            index: true,
+            follow: true,
+        },
         openGraph: {
             title,
             description,
+            url,
             type: 'website',
         }
     };

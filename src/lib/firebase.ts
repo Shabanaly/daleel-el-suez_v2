@@ -27,17 +27,13 @@ export const requestForToken = async (): Promise<string | null> => {
   try {
     // 1. Check browser support
     if (typeof window === "undefined" || !("Notification" in window)) {
-      console.log("Browser does not support notifications");
       return null;
     }
 
     // 2. Request permission explicitly
-    console.log("[FCM] Current permission:", Notification.permission);
     const permission = await Notification.requestPermission();
-    console.log("[FCM] Permission status after request:", permission);
     
     if (permission !== "granted") {
-      console.warn("[FCM] Notification permission denied by user or browser");
       return null;
     }
 
@@ -54,18 +50,21 @@ export const requestForToken = async (): Promise<string | null> => {
     const messaging = getMessagingInstance();
     if (!messaging) return null;
 
-    // 5. Get token
-    console.log("[FCM] Fetching token with VAPID Key:", process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY ? "Present" : "MISSING");
+    // 5. Ensure registration is valid for getToken
+    if (!swRegistration) {
+      console.warn("[FCM] Service Worker registration missing or failed");
+      return null;
+    }
+
+    // 6. Get token
     const currentToken = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
       serviceWorkerRegistration: swRegistration,
     });
 
     if (currentToken) {
-      console.log("[FCM] Token obtained successfully");
       return currentToken;
     } else {
-      console.warn("[FCM] No registration token available. Check Firebase console for VAPID configuration.");
       return null;
     }
   } catch (err) {

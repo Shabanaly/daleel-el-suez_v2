@@ -1,5 +1,6 @@
 import { getAllCategories } from "@/lib/actions/categories";
-import { getTopPlacesByCategory, getOverallStats } from "@/lib/actions/places";
+import { getTopPlacesByCategory } from "@/lib/actions/places";
+import { getHomeUnifiedStats } from "@/lib/actions/stats";
 import BestOfHero from "./_components/BestOfHero";
 import TopPlaceCard from "./_components/TopPlaceCard";
 import Link from "next/link";
@@ -8,19 +9,26 @@ import { addArabicArticle } from "@/lib/utils";
 
 const currentYear = new Date().getFullYear();
 
-export const metadata: Metadata = {
-    title: `أفضل الأماكن في السويس | القائمة الذهبية لعام ${currentYear}`,
-    description: "اكتشف القائمة الذهبية لأفضل المطاعم، العيادات، والخدمات في السويس بناءً على تقييمات المستخدمين الحقيقية.",
-    keywords: ["افضل اماكن السويس", "احسن خدمات السويس", "ترشيحات السويس", "دليل السويس"],
-    alternates: {
-        canonical: 'https://daleel-al-suez.com/best',
-    },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
+    return {
+        title: `أفضل الأماكن في السويس | القائمة الذهبية لعام ${currentYear}`,
+        description: "اكتشف القائمة الذهبية لأفضل المطاعم، العيادات، والخدمات في السويس بناءً على تقييمات المستخدمين الحقيقية.",
+        keywords: ["افضل اماكن السويس", "احسن خدمات السويس", "ترشيحات السويس", "دليل السويس"],
+        alternates: {
+            canonical: `${baseUrl}/best`,
+        },
+        robots: {
+            index: true,
+            follow: true,
+        }
+    };
+}
 
 export default async function BestOfIndex() {
     const [categories, statsData] = await Promise.all([
         getAllCategories(),
-        getOverallStats()
+        getHomeUnifiedStats()
     ]);
     
     // Fetch top place for top 12 categories (expanded)
@@ -43,7 +51,7 @@ export default async function BestOfIndex() {
     const stats: BestStat[] = [
         { label: "مكان موثق", value: `${statsData.verifiedCount}+`, iconName: "award" },
         { label: "تقييم حقيقي", value: `${statsData.reviewsCount}+`, iconName: "star" },
-        { label: "مشاهدة شهرياً", value: statsData.totalViews, iconName: "trending" },
+        { label: "مشاهدة شهرياً", value: statsData.formattedReach, iconName: "trending" },
     ];
 
     return (

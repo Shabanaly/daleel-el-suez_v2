@@ -26,13 +26,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = `${ad.title} | سوق السويس`;
     const description = ad.description ? ad.description.substring(0, 160) : `إعلان ${ad.title} في سوق السويس. السعر: ${ad.price} ج.م.`;
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
+    const url = `${baseUrl}/market/${encodeURIComponent(ad.slug)}`;
+
     return {
         title,
         description,
         keywords: [ad.title, ad.category_name || '', ad.location, "سوق السويس", "بيع وشراء", "مستعمل"].filter(Boolean),
+        alternates: {
+            canonical: url,
+        },
+        robots: {
+            index: true,
+            follow: true,
+        },
         openGraph: {
             title,
             description,
+            url,
             images: ad.images[0] ? [{ url: ad.images[0] }] : [],
             type: 'article',
         },

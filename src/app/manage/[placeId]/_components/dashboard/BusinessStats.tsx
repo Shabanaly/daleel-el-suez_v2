@@ -21,7 +21,7 @@ export function BusinessStats({ place }: BusinessStatsProps) {
         {
             id: 'favorites',
             label: 'الإضافات للمفضلة',
-            value: (place as any).favorites_count?.[0]?.count || 0, // Handle count array from Supabase
+            value: place.favoritesCount || 0,
             icon: <Heart className="w-6 h-6 text-rose-500" />,
             bg: 'bg-rose-500/10',
             border: 'border-rose-500/20'
@@ -37,7 +37,7 @@ export function BusinessStats({ place }: BusinessStatsProps) {
         {
             id: 'reviews',
             label: 'عدد المراجعات',
-            value: (place as any).reviews_count?.[0]?.count || 0, // Handle count array from Supabase
+            value: place.reviews || 0,
             icon: <MessageSquare className="w-6 h-6 text-emerald-500" />,
             bg: 'bg-emerald-500/10',
             border: 'border-emerald-500/20'

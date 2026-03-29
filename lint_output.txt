@@ -1,0 +1,248 @@
+
+> daleel-el-suez_v2@0.1.0 lint
+> eslint
+
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/gallery/_components/GalleryClient.tsx
+  20:12  warning  'photoIndex' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/manage/[placeId]/_components/BusinessDashboardClient.tsx
+  12:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/manage/[placeId]/_components/dashboard/GalleryManager.tsx
+   24:12  warning  'activeImageIndex' is assigned a value but never used                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  187:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  243:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/manage/[placeId]/_components/dashboard/InlineEditForm.tsx
+   4:28  warning  'Phone' is defined but never used        @typescript-eslint/no-unused-vars
+  12:10  warning  'TagsManager' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/manage/[placeId]/_components/dashboard/ReviewsManager.tsx
+  27:34  warning  'place' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  82:41  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/manage/[placeId]/_components/dashboard/WorkingHoursManager.tsx
+   5:25  warning  'DaySchedule' is defined but never used                @typescript-eslint/no-unused-vars
+  15:7   warning  'DAY_LABELS' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  29:7   warning  'DEFAULT_SCHEDULE' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/manage/page.tsx
+  4:10  warning  'LayoutDashboard' is defined but never used  @typescript-eslint/no-unused-vars
+  5:8   warning  'Link' is defined but never used             @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/market/[slug]/_components/AdDetailsClient.tsx
+  12:5   warning  'ArrowRight' is defined but never used                 @typescript-eslint/no-unused-vars
+  32:12  warning  'activeImageIndex' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/market/_components/MarketSearchHeader.tsx
+  2:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/market/category/[slug]/_components/CategoryClient.tsx
+  4:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/market/create/_hooks/useCreateAdForm.ts
+  13:9  warning  'publicIds' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/market/edit/[id]/page.tsx
+  8:10  warning  'ReactNode' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/market/my-ads/_components/MyAdsClient.tsx
+    7:5   warning  'Trash2' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+    8:5   warning  'Loader2' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   11:5   warning  'MoreVertical' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+   12:5   warning  'Pencil' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+   14:5   warning  'CheckCircle2' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+   15:5   warning  'AlertCircle' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+   17:5   warning  'Tag' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   22:10  warning  'SafeImage' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+   76:88  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+  121:35  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/market/my-ads/_components/MyAdsClient.tsx:121:35
+  119 |                 actions={
+  120 |                     <ContextMenu 
+> 121 |                         trigger={<FilterTrigger isMobile />} 
+      |                                   ^^^^^^^^^^^^^ This component is created during render
+  122 |                         items={filterItems} 
+  123 |                         align="left"
+  124 |                     />
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/market/my-ads/_components/MyAdsClient.tsx:104:27
+  102 |     }));
+  103 |
+> 104 |     const FilterTrigger = ({ isMobile = false }) => (
+      |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 105 |         <button
+      | ^^^^^^^^^^^^^^^
+> 106 |             className={`flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all ${isMobile ? 'border-border-subtle bg-surface' : 'bg-surface border-border-subtle hover:border-primary/50'
+      | ^^^^^^^^^^^^^^^
+> 107 |                 }`}
+      | ^^^^^^^^^^^^^^^
+> 108 |         >
+      | ^^^^^^^^^^^^^^^
+> 109 |             <Filter className="w-4 h-4 text-primary" />
+      | ^^^^^^^^^^^^^^^
+> 110 |             <span className="text-sm font-black">{getFilterLabel(activeFilter)}</span>
+      | ^^^^^^^^^^^^^^^
+> 111 |         </button>
+      | ^^^^^^^^^^^^^^^
+> 112 |     );
+      | ^^^^^^ The component is created during render here
+  113 |
+  114 |     return (
+  115 |         <div className="min-h-screen" dir="rtl">                                                                          react-hooks/static-components
+  138:43  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/market/my-ads/_components/MyAdsClient.tsx:138:43
+  136 |                         <div className="flex-1 md:flex-none">
+  137 |                             <ContextMenu
+> 138 |                                 trigger={<FilterTrigger />}
+      |                                           ^^^^^^^^^^^^^ This component is created during render
+  139 |                                 items={filterItems}
+  140 |                                 align="left"
+  141 |                             />
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/market/my-ads/_components/MyAdsClient.tsx:104:27
+  102 |     }));
+  103 |
+> 104 |     const FilterTrigger = ({ isMobile = false }) => (
+      |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 105 |         <button
+      | ^^^^^^^^^^^^^^^
+> 106 |             className={`flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all ${isMobile ? 'border-border-subtle bg-surface' : 'bg-surface border-border-subtle hover:border-primary/50'
+      | ^^^^^^^^^^^^^^^
+> 107 |                 }`}
+      | ^^^^^^^^^^^^^^^
+> 108 |         >
+      | ^^^^^^^^^^^^^^^
+> 109 |             <Filter className="w-4 h-4 text-primary" />
+      | ^^^^^^^^^^^^^^^
+> 110 |             <span className="text-sm font-black">{getFilterLabel(activeFilter)}</span>
+      | ^^^^^^^^^^^^^^^
+> 111 |         </button>
+      | ^^^^^^^^^^^^^^^
+> 112 |     );
+      | ^^^^^^ The component is created during render here
+  113 |
+  114 |     return (
+  115 |         <div className="min-h-screen" dir="rtl">  react-hooks/static-components
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/market/my-ads/page.tsx
+  5:8   warning  'Link' is defined but never used       @typescript-eslint/no-unused-vars
+  6:10  warning  'ArrowLeft' is defined but never used  @typescript-eslint/no-unused-vars
+  7:10  warning  'AppBar' is defined but never used     @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/places/_components/PlaceDetailsClient.tsx
+   7:45  warning  'ArrowRight' is defined but never used                 @typescript-eslint/no-unused-vars
+  34:12  warning  'activeImageIndex' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/profile/_components/ProfileHeader.tsx
+   5:40  warning  'Edit3' is defined but never used            @typescript-eslint/no-unused-vars
+   5:47  warning  'Settings' is defined but never used         @typescript-eslint/no-unused-vars
+   5:57  warning  'ChevronRight' is defined but never used     @typescript-eslint/no-unused-vars
+   7:8   warning  'Link' is defined but never used             @typescript-eslint/no-unused-vars
+  16:11  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/profile/activities/_components/ActivitiesClient.tsx
+  58:35  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/profile/activities/_components/ActivitiesClient.tsx:58:35
+  56 |                 actions={
+  57 |                     <ContextMenu 
+> 58 |                         trigger={<FilterTrigger isMobile />} 
+     |                                   ^^^^^^^^^^^^^ This component is created during render
+  59 |                         items={filterItems} 
+  60 |                         align="left"
+  61 |                     />
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/profile/activities/_components/ActivitiesClient.tsx:39:27
+  37 |     }));
+  38 |
+> 39 |     const FilterTrigger = ({ isMobile = false }) => (
+     |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |         <button
+     | ^^^^^^^^^^^^^^^
+> 41 |             className={`flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all ${isMobile ? 'border-border-subtle bg-surface' : 'bg-surface border-border-subtle hover:border-primary/50'
+     …
+     | ^^^^^^^^^^^^^^^
+> 48 |         </button>
+     | ^^^^^^^^^^^^^^^
+> 49 |     );
+     | ^^^^^^ The component is created during render here
+  50 |
+  51 |     return (
+  52 |         <div className="min-h-screen" dir="rtl">                                          react-hooks/static-components
+  75:39  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/profile/activities/_components/ActivitiesClient.tsx:75:39
+  73 |                     <div className="hidden md:block">
+  74 |                         <ContextMenu
+> 75 |                             trigger={<FilterTrigger />}
+     |                                       ^^^^^^^^^^^^^ This component is created during render
+  76 |                             items={filterItems}
+  77 |                             align="left"
+  78 |                         />
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/profile/activities/_components/ActivitiesClient.tsx:39:27
+  37 |     }));
+  38 |
+> 39 |     const FilterTrigger = ({ isMobile = false }) => (
+     |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |         <button
+     | ^^^^^^^^^^^^^^^
+> 41 |             className={`flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all ${isMobile ? 'border-border-subtle bg-surface' : 'bg-surface border-border-subtle hover:border-primary/50'
+     …
+     | ^^^^^^^^^^^^^^^
+> 48 |         </button>
+     | ^^^^^^^^^^^^^^^
+> 49 |     );
+     | ^^^^^^ The component is created during render here
+  50 |
+  51 |     return (
+  52 |         <div className="min-h-screen" dir="rtl">  react-hooks/static-components
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/app/profile/activities/page.tsx
+  20:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/components/common/FavoriteButton.tsx
+   6:26  warning  'isItemFavorite' is defined but never used      @typescript-eslint/no-unused-vars
+  11:10  warning  'useEffect' is defined but never used           @typescript-eslint/no-unused-vars
+  33:12  warning  'isPending' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/components/common/Lightbox.tsx
+   3:10  warning  'useState' is defined but never used      @typescript-eslint/no-unused-vars
+  95:18  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/components/home/CommunityTeaser.tsx
+  26:12  warning  'isPending' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/hooks/useAuth.ts
+  10:11  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/lib/actions/auth.ts
+  4:10  warning  'redirect' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/lib/actions/business.ts
+    5:24  warning  'tags' is defined but never used           @typescript-eslint/no-unused-vars
+    7:10  warning  'revalidateTag' is defined but never used  @typescript-eslint/no-unused-vars
+   93:40  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  163:42  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  302:83  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  320:27  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/Users/shaban/Documents/daleel-el-suez_v2/src/lib/hooks/useImageUpload.ts
+  32:8   warning  React Hook useEffect has missing dependencies: 'initialImages' and 'initialPublicIds'. Either include them or remove the dependency array. If 'setImages' needs the current value of 'initialImages', you can also switch to useReducer instead of useState and read 'initialImages' in the reducer  react-hooks/exhaustive-deps
+  32:9   warning  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked                                                                                                                                                             react-hooks/exhaustive-deps
+  32:40  warning  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked                                                                                                                                                             react-hooks/exhaustive-deps
+
+✖ 61 problems (12 errors, 49 warnings)
+
