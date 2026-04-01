@@ -1,9 +1,10 @@
-import { getHomePageData } from '@/lib/actions/places';
-import { getHomeCategories, getRandomCategoryHighlights } from '@/lib/actions/categories';
+import { getHomePageData, getCommunityPulsePlaces } from '@/lib/actions/places';
+import { getHomeCategories, getSmartCategoryHighlights } from '@/lib/actions/categories';
 import { getHomeDistricts } from '@/lib/actions/areas';
 import { getHomeUnifiedStats } from '@/lib/actions/stats';
 import Hero from '@/components/home/Hero';
 import TrendingPlaces from '@/components/home/TrendingPlaces';
+import CommunityPulse from '@/components/home/pulse/CommunityPulse';
 import DistrictsExplorer from '@/components/home/DistrictsExplorer';
 import SuezStats from '@/components/home/SuezStats';
 import SuezGallery from '@/components/home/SuezGallery';
@@ -29,12 +30,23 @@ export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser();
 
   // 🧠 Fetch data using the centralized home page action (logic moved to server)
-  const [categories, districts, homeData, communityPosts, randomCategoryData, unifiedStats, marketData, topGalleryImages] = await Promise.all([
+  const [
+    categories, 
+    districts, 
+    homeData, 
+    pulsePlaces,
+    communityPosts, 
+    smartCategoryData, 
+    unifiedStats, 
+    marketData, 
+    topGalleryImages
+  ] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
     getHomePageData(),
+    getCommunityPulsePlaces(14, 4), // Fetch top 4 pulse places
     getCommunityPosts(undefined, undefined, 1, 2, user?.id),
-    getRandomCategoryHighlights(),
+    getSmartCategoryHighlights(),
     getHomeUnifiedStats(),
     getMarketHomePageData(),
     getTopGalleryImages(5)
@@ -64,7 +76,8 @@ export default async function Home() {
       <NewPlaces places={newPlaces} />
       <HomeMarketSection ads={homeMarketAds} />
       <BestOfSuezHome stats={bestOfStats} />
-      {randomCategoryData && <CategoryHighlight data={randomCategoryData} />}
+      {smartCategoryData && <CategoryHighlight data={smartCategoryData} />}
+      <CommunityPulse places={pulsePlaces} />
       <SuezGallery initialImages={topGalleryImages} />
       <DistrictsExplorer districts={districts} />
       <CommunityTeaser posts={communityPosts} />

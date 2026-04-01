@@ -1,6 +1,6 @@
 'use client';
 
-import { Image as ImageIcon, Loader2, Info, Send, ArrowRight } from 'lucide-react';
+import { Image as ImageIcon, Loader2, Info, Send, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 
@@ -83,7 +83,7 @@ export function Step3MediaInfo({
                     onClick={onBack}
                     className="h-16 px-8 rounded-2xl bg-surface border border-border-subtle text-text-primary font-black flex items-center justify-center gap-2 hover:bg-elevated transition-all"
                 >
-                    <ArrowRight className="w-5 h-5" />
+                    <ChevronRight className="w-5 h-5" />
                     <span>السابق</span>
                 </button>
                 <button

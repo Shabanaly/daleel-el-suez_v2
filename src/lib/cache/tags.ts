@@ -12,6 +12,7 @@ export const CACHE_TAGS = {
     community: 'community',
     reviews: 'reviews',
     market: 'market',
+    autocomplete: 'autocomplete',
 } as const;
 
 /**
@@ -52,4 +53,5 @@ export const tags = {
     allCategories: () => CACHE_TAGS.categories,
     allDistricts: () => CACHE_TAGS.districts,
     allAreas: () => CACHE_TAGS.areas,
+    autocomplete: (type: string, q: string) => `${CACHE_TAGS.autocomplete}-${type}-${q}`,
 };

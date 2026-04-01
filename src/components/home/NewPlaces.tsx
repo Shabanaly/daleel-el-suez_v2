@@ -17,8 +17,8 @@ export default function NewPlaces({ places }: NewPlacesProps) {
             <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-accent/2 rounded-full blur-[120px] pointer-events-none" />
 
             <SectionHeader
-                title="أماكن جديدة"
-                subtitle="اكتشف أحدث الأماكن المضافة لدليل السويس"
+                title="أُضيف حديثاً"
+                subtitle="اكتشف أحدث الانضمامات لدليل السويس بمختلف التصنيفات"
                 icon={Flame}
                 href="/places?sort=newest"
             />

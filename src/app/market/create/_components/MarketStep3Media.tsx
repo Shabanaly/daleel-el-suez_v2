@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, PackageCheck, Loader2 } from 'lucide-react';
+import { ChevronRight, PackageCheck, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 
@@ -37,9 +37,9 @@ export function MarketStep3Media({
                 <h2 className="text-2xl font-black text-text-primary">صور الإعلان</h2>
                 <p className="text-text-muted text-sm font-bold">ارفع صور واضحة عشان تلفت انتباه المشترين</p>
             </div>
-            
+
             <div className="glass-panel p-6 sm:p-8 rounded-[32px] border border-border-subtle/50">
-                <ImageUploader 
+                <ImageUploader
                     images={images}
                     onFileChange={onFileChange}
                     onDeleteImage={onDeleteImage}
@@ -60,7 +60,7 @@ export function MarketStep3Media({
                     disabled={isUploading}
                     className="h-14 px-8 rounded-2xl bg-surface border border-border-subtle text-text-primary font-black text-sm flex items-center gap-3 hover:bg-elevated transition-all w-full sm:w-auto justify-center disabled:opacity-50"
                 >
-                    <ArrowRight className="w-5 h-5" />
+                    <ChevronRight className="w-5 h-5" />
                     <span>السابق</span>
                 </button>
 

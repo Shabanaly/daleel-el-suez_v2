@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User, Lock, Bell, ArrowRight, Loader2 } from 'lucide-react'
+import { User, Lock, Bell, ChevronRight, Loader2 } from 'lucide-react'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { PersonalInfoForm } from '@/app/settings/_components/PersonalInfoForm'
 import { SecuritySection } from '@/app/settings/_components/SecuritySection'
@@ -57,7 +57,7 @@ function SettingsContent() {
                     className="flex items-center gap-2 text-primary font-black text-sm hover:underline"
                 >
                     <span>الرجوع للبروفايل</span>
-                    <ArrowRight className="w-4 h-4 rotate-180" />
+                    <ChevronRight className="w-4 h-4 rotate-180" />
                 </Link>
             </div>
 

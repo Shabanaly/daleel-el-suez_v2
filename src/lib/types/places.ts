@@ -32,6 +32,10 @@ export interface Place {
         url: string;
     }[];
     favoritesCount: number;
+    pulseContext?: {
+        newReviews: number;
+        avgRating: number;
+    };
 }
 
 export type SortOption = 'name' | 'newest' | 'trending';

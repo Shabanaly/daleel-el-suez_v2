@@ -401,68 +401,165 @@ export async function getPlaceBySlug(slug: string) {
    Related Places (Same Category, excluding current)
 ========================================================= */
 
-export async function getRelatedPlaces(categoryId: number | undefined, excludeId: string, limit = 6, categoryName?: string) {
+export async function getRelatedPlaces(categoryId: number | undefined, excludeId: string, areaName: string | undefined = undefined, limit = 6, categoryName?: string) {
     return unstable_cache(
-        async (cid: number | undefined, eid: string, l: number, cname?: string) => {
+        async (cid: number | undefined, eid: string, aname: string | undefined, l: number, cname?: string) => {
             const supabase = createServiceClient();
-            let query = supabase
+            
+            // Resolve Category ID if not provided
+            let finalCatId = cid;
+            if (!finalCatId && cname) {
+                const { data: catData } = await supabase.from('categories').select('id').eq('name', cname).single();
+                finalCatId = catData?.id;
+            }
+
+            if (!finalCatId) return [];
+
+            // ── Approach: Fetch Candidates and Score them (Hyper-Local + Quality) ──
+            const { data, error } = await supabase
                 .from('places')
                 .select(`*, categories(name, icon, slug), areas(name, districts(name)), reviews_count:reviews(count)`)
+                .eq('category_id', finalCatId)
                 .neq('id', eid)
                 .eq('status', 'approved')
                 .not('images', 'is', null)
-                .order('avg_rating', { ascending: false })
-                .range(0, 49); // Fetch 50 candidates to ensure we find enough with valid images
+                .range(0, 49); // Fetch 50 candidates
 
-            if (cid) {
-                query = query.eq('category_id', cid);
-            } else if (cname) {
-                const { data: catData } = await supabase.from('categories').select('id').eq('name', cname).single();
-                if (catData?.id) {
-                    query = query.eq('category_id', catData.id);
-                }
-            }
-
-            const { data, error } = await query;
-
-            if (error) return [];
+            if (error || !data) return [];
             
-            return (data || [])
-                .map(mapPlace)
+            // ── Scoring System ──
+            const scoredCandidates = data.map(p => {
+                let score = 0;
+                
+                // 1. Proximity Bonus (Hyper-Local using area name)
+                const mappedPlace = mapPlace(p);
+                if (aname && mappedPlace.area === aname) {
+                    score += 50000; // MASSIVE boost for same area
+                }
+                
+                // 2. Quality & Popularity Bonus
+                const rating = Number(p.avg_rating) || 0;
+                let reviews = 0;
+                if (Array.isArray(p.reviews_count) && p.reviews_count.length > 0) {
+                    reviews = Number(p.reviews_count[0].count);
+                } else if (typeof p.reviews_count === 'number') {
+                    reviews = p.reviews_count;
+                }
+                const views = Number(p.views_count) || 0;
+                
+                // Score = (Rating * 100) + (Reviews * 5) + (Views * 0.1)
+                score += (rating * 100) + (reviews * 5) + (views * 0.1);
+                
+                return { place: mappedPlace, score };
+            });
+
+            // Sort by Intelligent Score
+            scoredCandidates.sort((a, b) => b.score - a.score);
+
+            // Filter out places with no images and return top Limit
+            return scoredCandidates
+                .map(item => item.place)
                 .filter(p => p.imageUrl && p.imageUrl.trim() !== '')
-                .slice(0, 24); // Return up to 24 valid candidates to the client
+                .slice(0, l); // Return exact limit
         },
-        // Cache key includes limit to distinguish different calls
-        [`related-places-to-${excludeId}-limit-${limit}`],
+        // Cache key includes area name to distinguish different contexts
+        [`related-places-to-${excludeId}-area-${areaName || 'none'}-limit-${limit}`],
         { tags: [tags.allPlaces(), tags.newestPlaces()], revalidate: 86400 }
-    )(categoryId, excludeId, limit, categoryName);
+    )(categoryId, excludeId, areaName, limit, categoryName);
 }
 
 /* =========================================================
-   Home Page Data (8 Trending, 8 New - De-duplicated)
+   Helper: Interleave Places by Category (Diversity Logic) 🧠
+   Ensures the UI shows a mix of categories instead of just one.
+========================================================= */
+
+function interleavePlacesByCategory(places: any[], limit: number): any[] {
+    if (!places.length) return [];
+    
+    // 1. Group by category
+    const buckets = new Map<number, any[]>();
+    places.forEach(p => {
+        const cid = p.categoryId || 0;
+        if (!buckets.has(cid)) buckets.set(cid, []);
+        buckets.get(cid)!.push(p);
+    });
+
+    const result: any[] = [];
+    const categoryIds = Array.from(buckets.keys());
+    
+    // 2. Round-robin picking
+    let hasMore = true;
+    let round = 0;
+    
+    while (result.length < limit && hasMore) {
+        hasMore = false;
+        categoryIds.forEach(cid => {
+            const bucket = buckets.get(cid)!;
+            if (round < bucket.length) {
+                if (result.length < limit) {
+                    result.push(bucket[round]);
+                }
+                hasMore = true;
+            }
+        });
+        round++;
+    }
+
+    return result;
+}
+
+/* =========================================================
+   Home Page Data (Trending & New - Weighted Score)
 ========================================================= */
 
 export const getHomePageData = unstable_cache(
     async () => {
-        // Fetch 40 trending and 40 recent to have enough for de-duplication and filtering
-        const [trendingPotential, recentPotential] = await Promise.all([
-            basePlacesQuery('views_count', false, 40),
-            basePlacesQuery('created_at', false, 40)
-        ]);
+        const supabase = createServiceClient();
+        
+        // 🧠 High-Intelligence Trending Algorithm: Weighted engagement score
+        // Score = (views * 1) + (calls * 5) + (whatsapp * 5) + (directions * 3)
+        const { data: trendingRaw, error: trendingError } = await supabase
+            .from('places')
+            .select(`
+                *,
+                categories(name, icon, slug),
+                areas(name, districts(name)),
+                reviews_count:reviews(count)
+            `)
+            .eq('status', 'approved')
+            .not('images', 'is', null)
+            .limit(50); // Fetch 50 candidates
 
-        // 1. Take top 20 trending
+        if (trendingError) console.error('Error fetching trending candidates:', trendingError);
+
+        // Calculate scores and sort
+        const trendingPotential = (trendingRaw || []).map(p => {
+            const views = Number(p.views_count || 0);
+            const calls = Number(p.calls_count || 0);
+            const whatsapp = Number(p.whatsapp_count || 0);
+            const directions = Number(p.directions_count || 0);
+            
+            // Formula for trending score
+            const score = (views * 1) + (calls * 5) + (whatsapp * 5) + (directions * 3);
+            return { ...mapPlace(p), trendingScore: score };
+        });
+
+        // Sort by score descending
+        trendingPotential.sort((a, b) => b.trendingScore - a.trendingScore);
         const trending = trendingPotential.slice(0, 20);
         const trendingIds = new Set(trending.map(p => p.id));
 
-        // 2. Take top 20 newest that are NOT in trending
-        const newPlaces = recentPotential
-            .filter(p => !trendingIds.has(p.id))
-            .slice(0, 20);
+        // Fetch a larger pool for newest places (Diversity Logic)
+        const recentPool = await basePlacesQuery('created_at', false, 60);
+
+        // Filter and Interleave for "Newly Added" section
+        const filteredRecent = recentPool.filter(p => !trendingIds.has(p.id));
+        const newPlaces = interleavePlacesByCategory(filteredRecent, 20);
 
         return { trending, newPlaces };
     },
     keys.homePage(),
-    { tags: [tags.trendingPlaces(), tags.newestPlaces(), tags.allPlaces()], revalidate: 172800 }
+    { tags: [tags.trendingPlaces(), tags.newestPlaces(), tags.allPlaces()], revalidate: 3600 }
 );
 
 export async function incrementPlaceViews(placeId: string) {
@@ -472,8 +569,129 @@ export async function incrementPlaceViews(placeId: string) {
     });
 
     if (!error) {
-        // Target only the views cache part
         revalidateTag(tags.placeViews(placeId), 'max');
     }
     return { success: !error };
 }
+
+export async function incrementPlaceCall(placeId: string) {
+    const supabase = createServiceClient();
+    const { error } = await supabase.rpc('increment_place_calls', {
+        target_place_id: placeId
+    });
+    return { success: !error };
+}
+
+export async function incrementPlaceWhatsapp(placeId: string) {
+    const supabase = createServiceClient();
+    const { error } = await supabase.rpc('increment_place_whatsapp', {
+        target_place_id: placeId
+    });
+    return { success: !error };
+}
+
+export async function incrementPlaceDirections(placeId: string) {
+    const supabase = createServiceClient();
+    const { error } = await supabase.rpc('increment_place_directions', {
+        target_place_id: placeId
+    });
+    return { success: !error };
+}
+
+/* =========================================================
+   Community Pulse (Trending by Recent Reviews)
+========================================================= */
+
+export const getCommunityPulsePlaces = unstable_cache(
+    async (days = 14, limit = 8) => {
+        const supabase = createServiceClient();
+        
+        // 1. حساب التاريخ المرجعي (قبل 14 يوم أو حسب المتغير)
+        const dateThreshold = new Date();
+        dateThreshold.setDate(dateThreshold.getDate() - days);
+        const isoString = dateThreshold.toISOString();
+
+        // 2. جلب المراجعات الحديثة فقط
+        const { data: recentReviews, error: reviewsError } = await supabase
+            .from('reviews')
+            .select('place_id, rating')
+            .gte('created_at', isoString); 
+
+        if (reviewsError || !recentReviews || recentReviews.length === 0) {
+            return []; // لا يوجد نبض أو تفاعل حديث البتة
+        }
+
+        // 3. التجميع (Grouping) لمعرفة الأماكن الأكثر تفاعلاً
+        const pulseMap = new Map<string, { count: number, totalRating: number }>();
+        
+        recentReviews.forEach(review => {
+            if (!review.place_id) return;
+            const current = pulseMap.get(review.place_id) || { count: 0, totalRating: 0 };
+            current.count += 1;
+            current.totalRating += review.rating || 0;
+            pulseMap.set(review.place_id, current);
+        });
+
+        // 4. تحويل الـ Map إلى Array وحساب الـ Pulse Score
+        const pulseList = Array.from(pulseMap.entries()).map(([place_id, data]) => {
+            const avgRating = data.totalRating / data.count;
+            // معادلة النبض: كمية المراجعات * الجودة + حافز إضافي إذا كان التقييم ممتاز
+            const pulseScore = data.count * (avgRating + (avgRating > 4.0 ? 2 : 0));
+            return {
+                place_id,
+                recentReviewCount: data.count,
+                recentAvgRating: avgRating,
+                pulseScore
+            };
+        });
+
+        // 5. الترتيب تنازلياً حسب النبض
+        pulseList.sort((a, b) => b.pulseScore - a.pulseScore);
+        
+        // 6. استخلاص أفضل الـ IDs لطلبها من الـ DB
+        const topPulseItems = pulseList.slice(0, limit);
+        const topPlaceIds = topPulseItems.map(item => item.place_id);
+
+        if (topPlaceIds.length === 0) return [];
+
+        // 7. جلب بيانات الأماكن بالكامل
+        const { data: rawPlaces, error: placesError } = await supabase
+            .from('places')
+            .select(`
+                *,
+                categories(name, icon, slug),
+                areas(name, districts(name)),
+                reviews_count:reviews(count)
+            `)
+            .in('id', topPlaceIds)
+            .eq('status', 'approved')
+            .not('images', 'is', null);
+
+        if (placesError || !rawPlaces) return [];
+
+        // 8. دمج بيانات المكان مع معلومات "شريط النبض"
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const finalPlaces = rawPlaces.map((p: any) => {
+            const pulseInfo = topPulseItems.find(item => item.place_id === p.id);
+            const mapped = mapPlace(p);
+            return {
+                ...mapped,
+                pulseContext: pulseInfo ? {
+                    newReviews: pulseInfo.recentReviewCount,
+                    avgRating: pulseInfo.recentAvgRating
+                } : undefined
+            };
+        });
+
+        // إعادة الترتيب مرة أخرى لأن Supabase .in() لا تضمن ترتيب الـ Array الأصلي
+        finalPlaces.sort((a, b) => {
+            const scoreA = topPulseItems.find(item => item.place_id === a.id)?.pulseScore || 0;
+            const scoreB = topPulseItems.find(item => item.place_id === b.id)?.pulseScore || 0;
+            return scoreB - scoreA;
+        });
+
+        return finalPlaces;
+    },
+    ['community-pulse'],
+    { tags: ['places', 'reviews', 'community-pulse', 'allPlaces'], revalidate: 3600 } 
+);

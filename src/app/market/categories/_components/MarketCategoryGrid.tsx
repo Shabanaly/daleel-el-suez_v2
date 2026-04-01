@@ -3,18 +3,18 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
-import type { Category } from '@/lib/types/category';
+import type { MarketCategory } from '@/lib/types/market';
+import { ShoppingBag } from 'lucide-react';
 
-interface CategoryGridProps {
-    categories: Category[];
+interface MarketCategoryGridProps {
+    categories: MarketCategory[];
 }
 
 const DynamicIcon = ({ iconName, className }: { iconName: string, className?: string }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const Icon = (LucideIcons as any)[iconName];
     if (!Icon) {
-        if (iconName && iconName.length <= 4) return <span className="text-xl md:text-3xl">{iconName}</span>;
-        return <LucideIcons.HelpCircle className={className} />;
+        return <ShoppingBag className={className} />;
     }
     return <Icon className={className} />;
 };
@@ -32,7 +32,7 @@ const itemAnim = {
     show: { opacity: 1, y: 0, scale: 1 }
 };
 
-export function CategoryGrid({ categories }: CategoryGridProps) {
+export function MarketCategoryGrid({ categories }: MarketCategoryGridProps) {
     return (
         <motion.div
             variants={container}
@@ -43,7 +43,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
             {categories.map((category) => (
                 <motion.div key={category.id} variants={itemAnim}>
                     <Link
-                        href={`/places?category=${encodeURIComponent(category.name)}`}
+                        href={`/market?category=${encodeURIComponent(category.slug)}`}
                         className="group relative flex flex-col items-center justify-between text-center p-6 md:p-8 rounded-2xl md:rounded-3xl bg-surface/30 backdrop-blur-xl border border-border-subtle hover:border-primary/40 hover:bg-surface/80 hover:translate-y-[-8px] active:scale-95 transition-all duration-500 w-full min-h-[160px] md:min-h-[200px] shadow-sm hover:shadow-2xl hover:shadow-primary/10 overflow-hidden"
                     >
                         {/* Decorative Background Orb */}
@@ -61,7 +61,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                                 {category.name}
                             </h3>
                             <p className="text-[10px] md:text-xs font-bold text-text-muted/60 group-hover:text-primary/70 transition-colors uppercase tracking-wider">
-                                {category.count || '0+ مكان'}
+                                {category.adCount || '0'} إعلان
                             </p>
                         </div>
 

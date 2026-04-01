@@ -9,7 +9,7 @@ import {
     Share2,
     ShieldCheck,
     Info,
-    ArrowRight,
+    ChevronRight,
     Tag,
     Clock
 } from 'lucide-react';

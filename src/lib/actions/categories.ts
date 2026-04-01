@@ -37,10 +37,28 @@ async function fetchRawCategories() {
 }
 
 // ── Internal Helpers (No Cache) ──────────────────────────────────
-async function getCategoriesInternal(): Promise<string[]> {
+async function getCategoriesInternal(): Promise<{ name: string; count: number; slug: string }[]> {
     const data = await fetchRawCategories();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return ['الكل', ...data.map((c: any) => c.name)];
+    
+    // 1. Calculate total for "الكل" (Total approved places)
+    const supabase = createServiceClient();
+    const { count: totalApproved } = await supabase
+        .from('places')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'approved');
+
+    // 2. Map raw data to the new structure
+    const mappedCategories = data.map((c: any) => ({
+        name: c.name,
+        count: c.places?.[0]?.count || 0,
+        slug: c.slug
+    }));
+
+    // 3. Prepend "الكل" with total count
+    return [
+        { name: 'الكل', count: totalApproved || 0, slug: 'all' },
+        ...mappedCategories
+    ];
 }
 
 async function getHomeCategoriesInternal() {
@@ -259,32 +277,69 @@ export const getCommunityCategories = unstable_cache(
     { tags: ['categories'], revalidate: 86400 }
 );
 
-export const getRandomCategoryHighlights = unstable_cache(
+/* =========================================================
+   Smart Category Highlights (Time & Trend Aware for Home Page)
+========================================================= */
+
+/**
+ * دالة مساعدة لتحديد التصنيفات الأنسب للوقت الحالي 
+ * تعتمد على التوقيت المحلي (بتوقيت القاهرة) لتوقع النشاط الأنسب
+ */
+function getTimeAppropriateCategories(): string[] {
+    const utcHour = new Date().getUTCHours();
+    const egyptHour = (utcHour + 2) % 24; 
+
+    // الصباح (6 ص إلى 1 م)
+    if (egyptHour >= 6 && egyptHour < 13) {
+        return ['كافيهات', 'بنوك', 'مدارس', 'سوبرماركت', 'صحة وطب'];
+    }
+    // بعد الظهر والمساء (1 م إلى 8 م)
+    if (egyptHour >= 13 && egyptHour < 20) {
+        return ['عيادات', 'أثاث', 'ملابس وأزياء', 'إلكترونيات', 'سيارات وصيانة'];
+    }
+    // السهرة (8 م إلى 1 ص)
+    if ((egyptHour >= 20 && egyptHour <= 23) || egyptHour === 0) {
+        return ['مطاعم', 'ترفيه ورياضة', 'سياحة ورحلات', 'هدايا ولعب', 'كافيهات'];
+    }
+    // آخر الليل والفجر (1 ص إلى 6 ص)
+    return ['صيدليات', 'عقارات', 'أخرى', 'خدمات منزلية', 'بناء وتجهيزات'];
+}
+
+export const getSmartCategoryHighlights = unstable_cache(
     async () => {
         const supabase = createServiceClient();
+        
+        // 1. تحديد قائمة الأسماء المرشحة حسب الوقت
+        const candidateNames = getTimeAppropriateCategories();
 
-        // 1. Get all categories that have at least one place
-        const { data: categories, error: catError } = await supabase
+        // 2. العشوائية الموجهة: لا نكرر نفس التصنيف في نفس الوقت كل يوم
+        const dateSeed = new Date().getDate() + new Date().getHours();
+        const selectedIndex = dateSeed % candidateNames.length;
+        let targetCategoryName = candidateNames[selectedIndex];
+
+        // 3. سحب الفئة المستهدفة
+        const { data: categoryData, error: catError } = await supabase
             .from('categories')
-            .select(`
-                id,
-                name,
-                slug,
-                icon,
-                places!inner(id)
-            `)
-            .eq('type', 'place');
+            .select('id, name, slug, icon')
+            .eq('type', 'place')
+            .eq('name', targetCategoryName)
+            .single();
 
-        if (catError || !categories || categories.length === 0) {
-            return null;
+        let categoryToUse = categoryData;
+
+        // التراجع الآمن في حال عدم وجود التصنيف في قاعدة البيانات (Fallback)
+        if (catError || !categoryToUse) {
+            const { data: fallbackCats } = await supabase
+                .from('categories')
+                .select('id, name, slug, icon')
+                .eq('type', 'place')
+                .limit(1);
+            if (!fallbackCats || fallbackCats.length === 0) return null;
+            categoryToUse = fallbackCats[0];
         }
 
-        // 2. Select a random category
-        const randomIndex = Math.floor(Math.random() * categories.length);
-        const randomCategory = categories[randomIndex];
-
-        // 3. Fetch up to 8 places for this category (ordered by views to show popular ones)
-        const { data: places, error: placesError } = await supabase
+        // 4. جلب شريحة كبيرة من الأماكن داخل هذا التصنيف بغرض فلترتها
+        const { data: rawPlaces, error: placesError } = await supabase
             .from('places')
             .select(`
                 *,
@@ -292,29 +347,46 @@ export const getRandomCategoryHighlights = unstable_cache(
                 areas(name, districts(name)),
                 reviews_count:reviews(count)
             `)
-            .eq('category_id', randomCategory.id)
+            .eq('category_id', categoryToUse.id)
             .eq('status', 'approved')
-            .order('views_count', { ascending: false })
-            .limit(30);
+            .not('images', 'is', null)
+            .limit(60); 
 
-        if (placesError || !places || places.length === 0) {
-            return null;
+        if (placesError || !rawPlaces || rawPlaces.length === 0) {
+            return null; // التصنيف فارغ
         }
+
+        // 5. حساب معيار الجودة المركب (التقييمات أكثر أهمية من المشاهدات البسيطة)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const scoredPlaces = rawPlaces.map((p: any) => {
+            const views = p.views_count || 0;
+            const reviews = p.reviews_count?.[0]?.count || 0;
+            const avgRating = p.avg_rating || 0;
+            const qualityScore = views + (reviews * 50) + (avgRating * 200);
+            return { ...p, qualityScore };
+        });
+
+        // 6. ترتيب النتائج وإرجاع أنقاها وأفضلها للزائر
+        scoredPlaces.sort((a, b) => b.qualityScore - a.qualityScore);
+        
+        const bestPlaces = scoredPlaces
+            .map(mapPlace)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .filter((p: any) => p.imageUrl && p.imageUrl.trim() !== '')
+            .slice(0, 8); // السلايدر يكفي ليتسع 8 أماكن بطريقة ممتازة
+
+        if (bestPlaces.length === 0) return null;
 
         return {
             category: {
-                id: randomCategory.id,
-                name: randomCategory.name,
-                slug: randomCategory.slug,
-                icon: randomCategory.icon
+                id: categoryToUse.id,
+                name: categoryToUse.name,
+                slug: categoryToUse.slug,
+                icon: categoryToUse.icon
             },
-            places: (places || [])
-                .map(mapPlace)
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                .filter((p: any) => p.imageUrl && p.imageUrl.trim() !== '')
-                .slice(0, 20)
+            places: bestPlaces
         };
     },
-    ['random-category-highlights'],
-    { tags: ['categories', 'places'], revalidate: 172800 } // 48 hours ISR
+    ['smart-category-highlights-v1'],
+    { tags: ['categories', 'places'], revalidate: 3600 } // الكاش يستمر لمدة ساعة ليسمح بالتحديث مع التوقيتات الجديدة
 );

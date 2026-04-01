@@ -1,6 +1,6 @@
 'use client';
 
-import { Phone, MapPin, Clock, ArrowRight, X, Facebook, Instagram, Globe, MessageCircle, Plus, Trash2 } from 'lucide-react';
+import { Phone, MapPin, Clock, ChevronRight, X, Facebook, Instagram, Globe, MessageCircle, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DayKey, WeeklySchedule } from '@/lib/types/places';
 
@@ -253,7 +253,7 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
 
                     <div className="grid gap-3">
                         <div className="bg-surface-elevated/50 border border-border-subtle/50 rounded-[28px] overflow-hidden">
-                            <label 
+                            <label
                                 onClick={(e) => { e.preventDefault(); updateWorkingHours({ is24: !is24Hours, from: fromTime as string, to: toTime as string }); }}
                                 className="flex items-center justify-between p-5 cursor-pointer hover:bg-surface-elevated transition-colors"
                             >
@@ -265,7 +265,7 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                                     <div className={`absolute top-1.5 w-4 h-4 rounded-full bg-white shadow-md transition-all duration-300 ${is24Hours ? 'right-6' : 'right-1.5'}`} />
                                 </div>
                             </label>
-                            
+
                             <AnimatePresence>
                                 {!is24Hours && (
                                     <motion.div
@@ -308,7 +308,7 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                     onClick={onBack}
                     className="h-16 px-8 rounded-2xl bg-surface border border-border-subtle text-text-primary font-black flex items-center justify-center gap-2 hover:bg-elevated transition-all"
                 >
-                    <ArrowRight className="w-5 h-5" />
+                    <ChevronRight className="w-5 h-5" />
                     <span>السابق</span>
                 </button>
                 <button
@@ -317,7 +317,7 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                     className="flex-1 h-16 rounded-2xl bg-primary text-white font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-primary/25 hover:bg-primary-hover transition-all active:scale-[0.98]"
                 >
                     <span>التالي</span>
-                    <ArrowRight className="w-6 h-6 rotate-180" />
+                    <ChevronRight className="w-6 h-6 rotate-180" />
                 </button>
             </div>
         </motion.div>

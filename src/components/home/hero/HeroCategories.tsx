@@ -45,7 +45,7 @@ export default function HeroCategories({ categories }: HeroCategoriesProps) {
                     {displayCategories.map((cat, idx) => (
                         <Link
                             key={idx}
-                            href={`/categories/${cat.slug}`}
+                            href={`/places?category=${encodeURIComponent(cat.name)}`}
                             className="flex items-center gap-2 px-5 py-3 rounded-xl bg-surface/70 backdrop-blur-xl border border-border-subtle hover:border-primary/40 active:scale-95 transition-all duration-300 whitespace-nowrap group shadow-sm"
                         >
                             <IconRenderer iconName={cat.icon} className="w-4 h-4 text-primary/80 group-hover:text-primary transition-colors" />
@@ -71,7 +71,7 @@ export default function HeroCategories({ categories }: HeroCategoriesProps) {
                 {displayCategories.map((cat, idx) => (
                     <Link
                         key={idx}
-                        href={`/categories/${cat.slug}`}
+                        href={`/places?category=${encodeURIComponent(cat.name)}`}
                         className="flex flex-col items-center justify-between p-5 md:p-6 rounded-2xl bg-surface/30 backdrop-blur-md border border-border-subtle hover:border-primary/30 hover:bg-surface/60 hover:translate-y-[-4px] transition-all duration-500 group relative overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5 min-h-[140px] md:min-h-[160px]"
                     >
                         {/* Background Decoration */}

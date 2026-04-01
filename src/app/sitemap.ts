@@ -31,18 +31,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     const categoryUrls = categories.map((category) => ({
-        url: `${baseUrl}/categories/${encodeURIComponent(category.slug)}`,
+        url: `${baseUrl}/places?category=${encodeURIComponent(category.name)}`,
         lastModified: new Date(),
-        changeFrequency: 'monthly' as const,
-        priority: 0.6,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
     }));
 
     // Market URLs
     const marketCategoryUrls = marketCategories.map((category) => ({
-        url: `${baseUrl}/market/category/${encodeURIComponent(category.slug)}`,
+        url: `${baseUrl}/market?category=${encodeURIComponent(category.slug)}`,
         lastModified: new Date(),
-        changeFrequency: 'monthly' as const,
-        priority: 0.6,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
     }));
 
     const marketAdUrls = marketAds.map((ad) => ({
@@ -92,6 +92,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.8,
         },
         {
+            url: `${baseUrl}/market/categories`,
+            lastModified: new Date(),
+            changeFrequency: 'monthly' as const,
+            priority: 0.7,
+        },
+        {
             url: `${baseUrl}/about`,
             lastModified: new Date(),
             changeFrequency: 'monthly' as const,
@@ -132,8 +138,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [
         ...staticUrls, 
         ...placeUrls, 
-        ...categoryUrls, 
         ...postUrls,
+        ...categoryUrls,
         ...marketCategoryUrls,
         ...marketAdUrls,
         ...bestOfUrls

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { getMarketAds } from "@/lib/actions/market";
+import { useState } from "react";
 import { MarketAd, MarketCategory } from "@/lib/types/market";
 import { createClient } from "@/lib/supabase/client";
 import AuthRequiredModal from "@/components/auth/AuthRequiredModal";
 import { useRouter } from "next/navigation";
 import { Suggestion } from "@/components/common/SearchAutocomplete";
+import { useMarketFilter } from "@/hooks/useMarketFilter";
+import { AreaWithDistrict } from "@/lib/actions/areas";
 
 // New Components
 import MarketHero from "./MarketHero";
@@ -14,78 +15,53 @@ import MarketSearchHeader from "./MarketSearchHeader";
 import MarketCategories from "./MarketCategories";
 import MarketHighlights from "./MarketHighlights";
 import MarketResults from "./MarketResults";
+import { MarketFilterModal } from "./MarketFilterModal";
+import { Pagination } from "@/components/common/Pagination";
 
 interface MarketClientProps {
     initialCategories: MarketCategory[];
     initialAds: MarketAd[];
     initialTotal: number;
-    initialQuery?: string;
-    initialCategory?: string;
     trendingAds?: MarketAd[];
     latestAds?: MarketAd[];
     excludeIds?: string[];
+    districts: { id: number; name: string }[];
+    areas: AreaWithDistrict[];
 }
 
 export function MarketClient({ 
     initialCategories = [],
     initialAds = [],
     initialTotal = 0,
-    initialQuery = "",
     trendingAds = [],
     latestAds = [],
-    excludeIds = []
+    districts = [],
+    areas = []
 }: MarketClientProps) {
     const router = useRouter();
-    
-    // Core State
-    const [searchQuery, setSearchQuery] = useState(initialQuery);
-    const [ads, setAds] = useState<MarketAd[]>(initialAds);
-    const [totalAds, setTotalAds] = useState(initialTotal);
-    const [loading, setLoading] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     
-    // Use ref to track the last synced parameters to prevent loops
-    const lastSyncKey = useRef(initialQuery);
+    // 🧠 Here we use our custom hook. All logic is encapsulated inside it!
+    const {
+        query, setQuery,
+        activeCategory, setActiveCategory,
+        activeDistrict,
+        activeArea,
+        sortBy,
+        page, setPage,
+        showFilters, setShowFilters,
+        applyFilters,
+        handleSearch,
+        getAvailableAreasForDistrict,
+        filtered, hasActiveFilters, clearFilters,
+        isPending,
+        total
+    } = useMarketFilter(initialAds, initialTotal, initialCategories, areas, districts);
 
     const filteredCategories = initialCategories.filter((c: MarketCategory) => c.adCount > 0);
 
-    // Sync State with URL logic (Live Search)
-    useEffect(() => {
-        const currentSyncKey = searchQuery;
-        
-        const timer = setTimeout(async () => {
-            if (lastSyncKey.current === currentSyncKey) return;
-            
-            setLoading(true);
-            try {
-                // Pass excludeIds only if not searching
-                const result = await getMarketAds(1, undefined, searchQuery, 20, searchQuery ? [] : excludeIds);
-                setAds(result.ads);
-                setTotalAds(result.total);
-                
-                const params = new URLSearchParams();
-                if (searchQuery) params.set('q', searchQuery);
-                
-                const newQueryString = params.toString();
-                const currentQueryString = new URLSearchParams(window.location.search).toString();
-
-                if (newQueryString !== currentQueryString) {
-                    router.replace(`/market?${newQueryString}`, { scroll: false });
-                }
-
-                lastSyncKey.current = currentSyncKey;
-            } catch (error) {
-                console.error("Failed to fetch ads:", error);
-            } finally {
-                setLoading(false);
-            }
-        }, searchQuery ? 500 : 50);
-
-        return () => clearTimeout(timer);
-    }, [searchQuery, router, excludeIds]);
-
     const handleCreateAdClick = async (e: React.MouseEvent) => {
-        e.preventDefault(); // Prevent default button behavior
+        e.preventDefault();
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
@@ -99,7 +75,7 @@ export function MarketClient({
     const handleSuggestionSelect = (s: Suggestion) => {
         const isCategory = initialCategories.find((c: MarketCategory) => c.slug === s.slug);
         if (isCategory) {
-            router.push(`/market/category/${encodeURIComponent(s.slug)}`);
+            setActiveCategory(isCategory.slug);
         } else {
             router.push(`/market/${s.slug}`);
         }
@@ -119,31 +95,64 @@ export function MarketClient({
 
             {/* 2. Sticky Search Header */}
             <MarketSearchHeader 
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
+                searchQuery={query}
+                setSearchQuery={setQuery}
+                handleSearch={handleSearch}
                 handleSuggestionSelect={handleSuggestionSelect}
                 handleCreateAdClick={handleCreateAdClick}
+                setShowFilters={setShowFilters}
+                hasActiveFilters={hasActiveFilters}
             />
 
-            <main className="max-w-7xl mx-auto px-4 py-8">
-                {/* 3. Categories Section (Immediately below header) */}
-                <MarketCategories categories={filteredCategories} />
+            <main className="max-w-7xl mx-auto px-4 py-8 relative">
+                {/* Refined Filter Modal */}
+                <MarketFilterModal 
+                    isOpen={showFilters}
+                    onClose={() => setShowFilters(false)}
+                    initialDistrict={activeDistrict}
+                    initialArea={activeArea}
+                    initialSort={sortBy}
+                    districts={districts}
+                    getAvailableAreas={getAvailableAreasForDistrict}
+                    onApply={applyFilters}
+                    onClear={clearFilters}
+                />
 
-                {/* 4. Highlights Sections (Only when not searching) */}
-                {!searchQuery && (
+                {/* 3. Categories Section */}
+                <MarketCategories 
+                    categories={filteredCategories} 
+                    activeCategory={activeCategory} 
+                    setActiveCategory={setActiveCategory} 
+                />
+
+                {/* 4. Highlights Sections (Only when not searching/filtering) */}
+                {!hasActiveFilters && trendingAds.length > 0 && (
                     <MarketHighlights 
                         trendingAds={trendingAds}
-                        latestAds={latestAds}
                     />
                 )}
 
                 {/* 5. Results Section */}
-                <MarketResults 
-                    searchQuery={searchQuery}
-                    totalAds={totalAds}
-                    loading={loading}
-                    ads={ads}
-                />
+                <div className={`${isPending ? 'opacity-60 pointer-events-none' : ''} transition-opacity duration-300`}>
+                    <MarketResults 
+                        searchQuery={query}
+                        totalAds={total}
+                        loading={isPending}
+                        ads={filtered}
+                    />
+                </div>
+
+                {/* 6. Pagination */}
+                {filtered.length > 0 && Math.ceil(total / 20) > 1 && (
+                    <div className="mt-12">
+                        <Pagination 
+                            currentPage={page}
+                            totalPages={Math.ceil(total / 20)}
+                            onPageChange={setPage}
+                            isPending={isPending}
+                        />
+                    </div>
+                )}
             </main>
         </div>
     );

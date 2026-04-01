@@ -1,19 +1,25 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import * as LucideIcons from 'lucide-react';
-import { Search, Clock, X, TrendingUp, ArrowRight } from 'lucide-react';
+import { Search, Clock, X, TrendingUp, ChevronRight, MapPin, ShoppingBag, LayoutGrid, type LucideIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { useDebounce } from '@/lib/hooks/useDebounce';
+import { SafeImage } from './SafeImage';
 
-const HISTORY_KEY = 'daleel_search_history';
-const MAX_HISTORY = 5;
+// HISTORY_KEY removed — segmented key via historyKey useMemo is used instead
+const MAX_HISTORY = 6;
 
 export interface Suggestion {
     name: string;
     slug: string;
     icon: string;
+    type?: 'place' | 'ad' | 'category';
+    image?: string | null;
+    url: string;
+    meta?: string | null;
 }
 
 interface SearchAutocompleteProps {
@@ -24,117 +30,197 @@ interface SearchAutocompleteProps {
     inputClassName?: string;
     apiEndpoint?: string;
     onSuggestionSelect?: (suggestion: Suggestion) => void;
+    searchType?: 'market' | 'places' | 'default';
 }
+
+/* ── Highlight Match Component ─────────────────────────── */
+const HighlightMatch = ({ text, match }: { text: string; match: string }) => {
+    if (!match.trim()) return <span>{text}</span>;
+    const parts = text.split(new RegExp(`(${match})`, 'gi'));
+    return (
+        <span>
+            {parts.map((part, i) =>
+                part.toLowerCase() === match.toLowerCase() ? (
+                    <span key={i} className="text-primary font-bold">{part}</span>
+                ) : (
+                    <span key={i}>{part}</span>
+                )
+            )}
+        </span>
+    );
+};
+
+/* ── Skeleton Loader Component ─────────────────────────── */
+const SearchSkeleton = () => (
+    <div className="space-y-4 px-4 py-3 animate-pulse">
+        {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-elevated-hover rounded-lg" />
+                <div className="flex-1 space-y-2">
+                    <div className="h-3 bg-elevated-hover rounded w-3/4" />
+                    <div className="h-2 bg-elevated-hover rounded w-1/2 opacity-50" />
+                </div>
+            </div>
+        ))}
+    </div>
+);
 
 const IconRenderer = ({ iconName, className }: { iconName: string, className?: string }) => {
     if (!iconName) return null;
-    const Icon = (LucideIcons as unknown as Record<string, LucideIcons.LucideIcon>)[iconName];
+    const Icon = (LucideIcons as unknown as Record<string, LucideIcon>)[iconName];
     if (Icon) {
         return <Icon className={className || "w-4 h-4"} />;
     }
-    // Fallback to emoji if string is short
     if (iconName.length <= 4) return <span className="text-xl leading-none">{iconName}</span>;
-    // Default fallback
     const DefaultIcon = LucideIcons.HelpCircle;
     return <DefaultIcon className={className || "w-4 h-4"} />;
 };
 
-/* ── helpers for localStorage history ─────────────────── */
-function getHistory(): string[] {
-    if (typeof window === 'undefined') return [];
-    try {
-        return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? '[]');
-    } catch {
-        return [];
-    }
+/* ── Result Group Component ─────────────────────────── */
+interface ResultGroupProps {
+    title: string;
+    icon: LucideIcon;
+    items: Suggestion[];
+    renderItem: (s: Suggestion) => React.ReactNode;
 }
 
-function saveToHistory(term: string) {
-    const trimmed = term.trim();
-    if (!trimmed) return;
-    const prev = getHistory().filter((h) => h !== trimmed);
-    const next = [trimmed, ...prev].slice(0, MAX_HISTORY);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
-}
-
-function removeFromHistory(term: string) {
-    const next = getHistory().filter((h) => h !== term);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
-}
+const ResultGroup = ({ title, icon: Icon, items, renderItem }: ResultGroupProps) => {
+    if (items.length === 0) return null;
+    return (
+        <div>
+            <div className="flex items-center gap-2 px-4 py-1.5">
+                <Icon className="w-3.5 h-3.5 text-text-muted" />
+                <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">{title}</span>
+            </div>
+            <ul>{items.map(s => renderItem(s))}</ul>
+        </div>
+    );
+};
 
 /* ── component ─────────────────────────────────────────── */
 export default function SearchAutocomplete({
     value,
     onChange,
     onSearch,
-    placeholder = 'ابحث...',
+    placeholder = 'ابحث عن مكان أو خدمة...',
     inputClassName = '',
     apiEndpoint = '/api/autocomplete',
     onSuggestionSelect,
+    searchType = 'places',
 }: SearchAutocompleteProps) {
+    const router = useRouter();
     const [open, setOpen] = useState(false);
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-    const [history, setHistory] = useState<string[]>([]);
+    const [history, setHistory] = useState<Suggestion[]>([]);
     const [loading, setLoading] = useState(false);
+    const [displayedResults, setDisplayedResults] = useState(10);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
     const [isMobile, setIsMobile] = useState(false);
 
+    // Internal client-side Cache to prevent redundant network requests
+    const cacheRef = useRef<Map<string, Suggestion[]>>(new Map());
+    const isNavigatingRef = useRef(false);
+    // Always-fresh ref to onChange — lets us call it inside effects without stale closure
+    const onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
+    // Always-fresh ref to onSearch — used to clear URL when closing without searching
+    const onSearchRef = useRef(onSearch);
+    onSearchRef.current = onSearch;
+
+    // Segemented History Key based on context (market/places)
+    const historyKey = useMemo(() => `daleel_search_history_${searchType}_v3`, [searchType]);
+
+    const getLocalHistory = useCallback((): Suggestion[] => {
+        if (typeof window === 'undefined') return [];
+        try {
+            const raw = localStorage.getItem(historyKey);
+            if (!raw) return [];
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch { return []; }
+    }, [historyKey]);
+
+    const addToHistory = useCallback((item: Suggestion) => {
+        if (!item || !item.name) return;
+        const prev = getLocalHistory().filter((h) => h.url !== item.url);
+        const next = [item, ...prev].slice(0, MAX_HISTORY);
+        localStorage.setItem(historyKey, JSON.stringify(next));
+    }, [historyKey, getLocalHistory]);
+
+    const removeFromHistoryLocal = useCallback((url: string) => {
+        const next = getLocalHistory().filter((h) => h.url !== url);
+        localStorage.setItem(historyKey, JSON.stringify(next));
+        setHistory(next);
+    }, [historyKey, getLocalHistory]);
+
     useEffect(() => {
-        setTimeout(() => setIsMobile(window.innerWidth < 768), 0);
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+            // Also update dropdown position on resize (replaces the duplicate listener in Effect 4)
+            if (containerRef.current) {
+                setDropdownRect(containerRef.current.getBoundingClientRect());
+            }
+        };
+        // Run once immediately on mount
+        handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Mobile overlay hash management (intercept back button)
+
     useEffect(() => {
         if (!isMobile) return;
-        
         const handleHashChange = () => {
             if (window.location.hash !== '#search' && open) {
                 setOpen(false);
-                onChange('');
+                // Clear value AND URL when user closes modal via phone back button
+                if (!isNavigatingRef.current) {
+                    onChangeRef.current('');
+                    onSearchRef.current(''); // clears ?q= from URL so parent doesn't restore it
+                    setSuggestions([]);
+                }
             }
         };
-
         if (open) {
+            isNavigatingRef.current = false;
             if (window.location.hash !== '#search') {
                 window.history.pushState(null, '', window.location.pathname + window.location.search + '#search');
             }
             window.addEventListener('hashchange', handleHashChange);
             document.body.style.overflow = 'hidden';
         } else {
-            if (window.location.hash === '#search') {
+            if (window.location.hash === '#search' && !isNavigatingRef.current) {
                 window.history.back();
             }
             document.body.style.overflow = '';
         }
-
         return () => {
             window.removeEventListener('hashchange', handleHashChange);
             document.body.style.overflow = '';
         };
-    }, [open, isMobile, onChange]);
+    }, [open, isMobile]);
 
     const debouncedValue = useDebounce(value, 300);
+    // True while the user is typing but debounce hasn't fired yet — prevents flash of "no results"
+    const isDebouncing = value.trim() !== debouncedValue.trim();
 
-    /* load history on focus */
     const handleFocus = () => {
-        setHistory(getHistory());
+        setHistory(getLocalHistory());
         setOpen(true);
     };
 
-    /* close on outside click */
     useEffect(() => {
         const handler = (e: MouseEvent | TouchEvent) => {
-            // Also need to check if click is inside the portal dropdown
-            // To simplify, if it's outside the container AND outside any portal element (which we can identify by a specific ID or class)
-            // But usually, clicking a suggestion triggers handleSelect which closes it anyway.
-            // Let's just use the containerRef and a specific data attribute for the dropdown
             const target = e.target as HTMLElement;
             if (!containerRef.current?.contains(target) && !target.closest('[data-autocomplete-dropdown]')) {
                 setOpen(false);
+                // Clear value AND URL when closing by clicking outside (not after navigation/selection)
+                if (!isNavigatingRef.current) {
+                    onChangeRef.current('');
+                    onSearchRef.current(''); // clears ?q= from URL so parent doesn't restore it
+                    setSuggestions([]);
+                }
             }
         };
         document.addEventListener('mousedown', handler);
@@ -147,44 +233,53 @@ export default function SearchAutocomplete({
 
     const isOpen = isMobile ? open : ((open && !value.trim() && history.length > 0) || (open && value.trim().length > 0));
 
-    /* position update for portal */
     const updateDropdownPosition = useCallback(() => {
         if (containerRef.current) {
             setDropdownRect(containerRef.current.getBoundingClientRect());
-            setIsMobile(window.innerWidth < 768);
         }
     }, []);
 
     useEffect(() => {
         if (isOpen) {
             updateDropdownPosition();
+            // Only scroll — resize is handled by the unified listener in Effect 1
             window.addEventListener('scroll', updateDropdownPosition, true);
-            window.addEventListener('resize', updateDropdownPosition);
             return () => {
                 window.removeEventListener('scroll', updateDropdownPosition, true);
-                window.removeEventListener('resize', updateDropdownPosition);
             };
         }
     }, [isOpen, updateDropdownPosition]);
 
-
-    /* fetch suggestions when debounced value changes */
     useEffect(() => {
-        if (!debouncedValue.trim()) {
-            setTimeout(() => {
-                setSuggestions([]);
-                setLoading(false);
-            }, 0);
+        const term = debouncedValue.trim();
+        if (!term) {
+            setSuggestions([]);
+            setLoading(false);
+            setDisplayedResults(10);
             return;
         }
+
+        // 1. Check local in-memory cache first
+        const cacheId = `${searchType}:${term}`;
+        if (cacheRef.current.has(cacheId)) {
+            setSuggestions(cacheRef.current.get(cacheId)!);
+            setDisplayedResults(10);
+            setLoading(false);
+            return;
+        }
+
         let cancelled = false;
-        setTimeout(() => setLoading(true), 0);
+        setLoading(true);
+        setDisplayedResults(10); // Reset pagination on new search
+
         const separator = apiEndpoint.includes('?') ? '&' : '?';
-        fetch(`${apiEndpoint}${separator}q=${encodeURIComponent(debouncedValue)}`)
+        fetch(`${apiEndpoint}${separator}q=${encodeURIComponent(term)}`)
             .then((r) => r.json())
             .then((data) => {
                 if (!cancelled) {
                     setSuggestions(data);
+                    // Store in cache
+                    cacheRef.current.set(cacheId, data);
                     setLoading(false);
                 }
             })
@@ -192,203 +287,291 @@ export default function SearchAutocomplete({
                 if (!cancelled) setLoading(false);
             });
         return () => { cancelled = true; };
-    }, [debouncedValue, apiEndpoint]);
+    }, [debouncedValue, apiEndpoint, searchType]);
 
-    /* when user picks an item */
     const handleSelect = useCallback(
-        (item: string | Suggestion) => {
-            if (typeof item === 'string') {
-                onChange(item);
-                saveToHistory(item);
-                setHistory(getHistory());
-                setOpen(false);
-                onSearch(item);
+        (item: Suggestion) => {
+            isNavigatingRef.current = true; // Mark that we are navigating
+            addToHistory(item);
+            setHistory(getLocalHistory());
+            setOpen(false);
+
+            if (onSuggestionSelect) {
+                onSuggestionSelect(item);
+            } else if (item.url) {
+                router.push(item.url);
+                onChange(item.name);
             } else {
-                saveToHistory(item.name);
-                setHistory(getHistory());
-                setOpen(false);
-                if (onSuggestionSelect) {
-                    onSuggestionSelect(item);
-                } else {
-                    onChange(item.name);
-                    onSearch(item.name);
-                }
+                onChange(item.name);
+                onSearch(item.name);
             }
         },
-        [onChange, onSearch, onSuggestionSelect]
+        [onChange, onSearch, onSuggestionSelect, router, addToHistory, getLocalHistory]
     );
 
-    /* keyboard: Enter */
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            saveToHistory(value);
+            const term = (e.target as HTMLInputElement).value.trim();
+            if (!term) return;
+            // Prevent mobile hash navigation from firing history.back() and cancelling the search
+            isNavigatingRef.current = true;
             setOpen(false);
-            onSearch(value);
+            setSuggestions([]); // Prevent dropdown re-opening after Enter
+            onSearch(term);
         }
-        if (e.key === 'Escape') setOpen(false);
+        if (e.key === 'Escape') {
+            setOpen(false);
+            setSuggestions([]);
+            onChange('');
+            onSearch(''); // clears ?q= from URL
+        }
     };
 
-    const handleRemoveHistory = (term: string, e: React.MouseEvent) => {
+    const handleRemoveHistory = (url: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        removeFromHistory(term);
-        setHistory(getHistory());
+        removeFromHistoryLocal(url);
     };
 
     const showHistory = open && !value.trim() && history.length > 0;
     const showSuggestions = open && value.trim().length > 0;
+
+    // Use sliced mapping for pagination
+    const visibleSuggestions = useMemo(() => suggestions.slice(0, displayedResults), [suggestions, displayedResults]);
+
+    const groupedResults = useMemo(() => {
+        return {
+            categories: visibleSuggestions.filter(s => s.type === 'category'),
+            places: visibleSuggestions.filter(s => s.type === 'place'),
+            ads: visibleSuggestions.filter(s => s.type === 'ad'),
+        };
+    }, [visibleSuggestions]);
+
+    const renderItem = (s: Suggestion, isHistory = false) => (
+        <li key={s.url + (isHistory ? '-hist' : '')} className="flex items-stretch group">
+            <button
+                type="button"
+                onClick={() => handleSelect(s)}
+                className="flex-1 flex items-center gap-3 px-4 py-2.5 text-right hover:bg-elevated transition-all relative overflow-hidden"
+            >
+                <div className="flex shrink-0 w-10 h-10 items-center justify-center rounded-xl bg-elevated-hover overflow-hidden border border-border-subtle/50 group-hover:border-primary/30 transition-colors">
+                    {s.type !== 'category' && s.image ? (
+                        <SafeImage
+                            src={s.image}
+                            alt={s.name}
+                            width={40}
+                            height={40}
+                            className="object-cover w-full h-full transform group-hover:scale-110 transition-transform duration-300"
+                            fallback={<IconRenderer iconName={s.icon} className="w-5 h-5 text-text-muted" />}
+                        />
+                    ) : (
+                        <IconRenderer iconName={s.icon} className="w-5 h-5 text-text-muted transition-transform group-hover:scale-110" />
+                    )}
+                </div>
+                <div className="flex flex-col flex-1 min-w-0">
+                    <span className="text-sm font-bold text-text-primary truncate">
+                        <HighlightMatch text={s.name} match={value} />
+                    </span>
+                    {s.meta && (
+                        <span className="text-[11px] text-text-muted/80 font-medium flex items-center gap-1">
+                            {s.type === 'place' && <MapPin className="w-2.5 h-2.5" />}
+                            {s.type === 'ad' && <ShoppingBag className="w-2.5 h-2.5" />}
+                            {s.type === 'category' && <LayoutGrid className="w-2.5 h-2.5" />}
+                            {s.meta}
+                        </span>
+                    )}
+                </div>
+                {!isHistory && (
+                    <ChevronRight className="w-3.5 h-3.5 text-text-muted opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all ltr:rotate-0 rtl:rotate-180" />
+                )}
+            </button>
+            {isHistory && (
+                <button
+                    type="button"
+                    onClick={(e) => handleRemoveHistory(s.url, e)}
+                    className={`px-3 rounded-lg hover:bg-danger/10 hover:text-danger text-text-muted transition-all ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                >
+                    <X className="w-3.5 h-3.5" />
+                </button>
+            )}
+        </li>
+    );
 
     const dropdownContent = (
         <AnimatePresence>
             {isOpen && dropdownRect && (
                 <motion.div
                     data-autocomplete-dropdown="true"
-                    initial={{ opacity: 0, y: -8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    initial={{ opacity: 0, scale: 0.95, y: isMobile ? 20 : -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: isMobile ? 20 : -10 }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                     style={isMobile ? {
                         position: 'fixed',
                         inset: 0,
                         zIndex: 999999
                     } : {
                         position: 'fixed',
-                        top: dropdownRect.bottom,
+                        top: dropdownRect.bottom + 4,
                         left: dropdownRect.left,
                         width: dropdownRect.width,
                         zIndex: 999999
                     }}
-                    className={isMobile 
-                        ? "bg-background flex flex-col" 
-                        : "bg-surface border border-border-subtle border-t-0 rounded-b-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 overflow-y-auto max-h-[60vh]"
+                    className={isMobile
+                        ? "bg-background flex flex-col"
+                        : "bg-surface border border-border-subtle rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[70vh]"
                     }
                     dir="rtl"
                 >
                     {isMobile && (
-                        <div className="flex items-center gap-3 p-3 border-b border-border-subtle bg-surface shadow-sm shrink-0">
-                            <button onClick={() => { setOpen(false); onChange(''); }} className="p-2 -mr-2 text-text-muted hover:bg-elevated rounded-full transition-colors">
-                                <ArrowRight className="w-5 h-5" />
-                            </button>
-                            <input
-                                autoFocus
-                                type="text"
-                                value={value}
-                                onChange={(e) => onChange(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder={placeholder}
-                                className="flex-1 bg-transparent border-none outline-none text-base font-bold text-text-primary h-10"
-                            />
-                            {value && (
-                                <button onClick={() => onChange('')} className="p-1.5 text-text-muted hover:bg-elevated rounded-full transition-colors">
-                                   <X className="w-4 h-4" />
+                        <div className="flex flex-col border-b border-border-subtle bg-surface/80 backdrop-blur-md sticky top-0 z-10">
+                            <div className="flex items-center gap-3 p-4">
+                                <button onClick={() => { setOpen(false); onChange(''); }} className="p-2 -mr-1 text-text-muted hover:bg-elevated rounded-xl transition-colors">
+                                    <ChevronRight className="w-6 h-6 rtl:rotate-0 ltr:rotate-180" />
                                 </button>
-                            )}
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    enterKeyHint="search"
+                                    value={value}
+                                    onChange={(e) => onChange(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder={placeholder}
+                                    className="flex-1 bg-transparent border-none outline-none text-lg font-bold text-text-primary h-10"
+                                />
+                                {value && (
+                                    <button onClick={() => onChange('')} className="p-2 text-text-muted hover:bg-elevated rounded-xl transition-colors">
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     )}
-                    
-                    <div className={isMobile ? "flex-1 overflow-y-auto pt-2" : ""}>
-                        {/* ── History Section ── */}
-                    {showHistory && (
-                        <div>
-                            <div className="flex items-center gap-2 px-4 pt-3 pb-2">
-                                <Clock className="w-3.5 h-3.5 text-text-muted" />
-                                <span className="text-xs font-bold text-text-muted tracking-wide">عمليات البحث الأخيرة</span>
-                            </div>
-                            <ul>
-                                {history.map((term) => (
-                                    <li key={term}>
+
+                    <div className="flex-1 overflow-y-auto py-2 custom-scrollbar">
+                        {showHistory && (
+                            <section>
+                                <div className="flex items-center justify-between px-4 pt-2 pb-1">
+                                    <div className="flex items-center gap-2">
+                                        <Clock className="w-3.5 h-3.5 text-text-muted" />
+                                        <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">عمليات البحث الأخيرة</span>
+                                    </div>
+                                    <button
+                                        onClick={() => { localStorage.removeItem(historyKey); setHistory([]); }}
+                                        className="text-[10px] font-bold text-primary hover:underline"
+                                    >
+                                        مسح الكل
+                                    </button>
+                                </div>
+                                <ul>{history.map(s => renderItem(s, true))}</ul>
+                                <div className="h-2 border-b border-border-subtle/50 mb-2 mx-4" />
+                            </section>
+                        )}
+
+                        {showSuggestions && (
+                            <>
+                                {(loading || isDebouncing) && <SearchSkeleton />}
+
+                                {!loading && suggestions.length > 0 && (
+                                    <div className="space-y-4">
+                                        <ResultGroup
+                                            title="الأقسام"
+                                            icon={LayoutGrid}
+                                            items={groupedResults.categories}
+                                            renderItem={renderItem}
+                                        />
+                                        <ResultGroup
+                                            title="الأماكن"
+                                            icon={MapPin}
+                                            items={groupedResults.places}
+                                            renderItem={renderItem}
+                                        />
+                                        <ResultGroup
+                                            title="السوق"
+                                            icon={ShoppingBag}
+                                            items={groupedResults.ads}
+                                            renderItem={renderItem}
+                                        />
+
+                                        {/* Load More Button */}
+                                        {displayedResults < suggestions.length && (
+                                            <div className="px-4 py-2 border-t border-border-subtle/50">
+                                                <button
+                                                    onClick={() => setDisplayedResults(prev => prev + 10)}
+                                                    className="w-full py-2.5 text-sm font-bold text-primary hover:bg-primary/5 rounded-xl transition-colors border border-primary/20"
+                                                >
+                                                    عرض المزيد من النتائج
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {!loading && !isDebouncing && suggestions.length === 0 && debouncedValue.trim() && (
+                                    <div className="px-4 py-8 text-center flex flex-col items-center gap-3">
+                                        <div className="p-4 bg-elevated-hover rounded-full">
+                                            <Search className="w-8 h-8 text-text-muted opacity-20" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-sm font-bold text-text-primary">لا توجد نتائج مطابقة</p>
+                                            <p className="text-xs text-text-muted">جرب البحث بكلمات أخرى أو تحقق من الإملاء</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                        {!showSuggestions && !showHistory && !loading && (
+                            <div className="px-4 py-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <TrendingUp className="w-4 h-4 text-primary" />
+                                    <span className="text-sm font-bold text-text-primary">مشهور الآن في السويس</span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {['مطاعم', 'كافيهات', 'صيدليات', 'عقارات', 'سيارات'].map(trend => (
                                         <button
-                                            type="button"
-                                            onClick={() => handleSelect(term)}
-                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-right hover:bg-elevated transition-colors group"
+                                            key={trend}
+                                            onClick={() => { onChange(trend); onSearch(trend); }}
+                                            className="px-3 py-1.5 bg-elevated-hover hover:bg-primary/10 hover:text-primary rounded-xl text-xs font-bold transition-all"
                                         >
-                                            <Search className="w-4 h-4 text-text-muted shrink-0" />
-                                            <span className="flex-1 text-sm font-semibold text-text-primary">{term}</span>
-                                            <span
-                                                role="button"
-                                                onClick={(e) => handleRemoveHistory(term, e)}
-                                                className={`p-1 rounded-md hover:bg-border-subtle text-text-muted transition-opacity ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                                            >
-                                                <X className="w-3.5 h-3.5" />
-                                            </span>
+                                            {trend}
                                         </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-
-                    {/* ── Suggestions Section ── */}
-                    {showSuggestions && (
-                        <div>
-                            <div className="flex items-center gap-2 px-4 pt-3 pb-2">
-                                <TrendingUp className="w-3.5 h-3.5 text-primary" />
-                                <span className="text-xs font-bold text-text-muted tracking-wide">اقتراحات</span>
-                            </div>
-
-                            {loading ? (
-                                <div className="flex items-center gap-2 px-4 py-3">
-                                    <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                                    <span className="text-sm text-text-muted">جاري البحث...</span>
-                                </div>
-                            ) : suggestions.length > 0 ? (
-                                <ul>
-                                    {suggestions.map((s) => (
-                                        <li key={s.slug}>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleSelect(s)}
-                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-right hover:bg-elevated transition-colors"
-                                            >
-                                                <span className="flex shrink-0 w-6 items-center justify-center text-text-secondary">
-                                                    <IconRenderer iconName={s.icon} className="w-4 h-4" />
-                                                </span>
-                                                <span className="flex-1 text-sm font-semibold text-text-primary">{s.name}</span>
-                                                <Search className="w-3.5 h-3.5 text-text-muted shrink-0 opacity-50" />
-                                            </button>
-                                        </li>
                                     ))}
-                                </ul>
-                            ) : (
-                                <div className="px-4 py-6 text-center">
-                                    <span className="text-sm font-bold text-text-muted">لا توجد نتائج مطابقة لبحثك</span>
                                 </div>
-                            )}
-                        </div>
-                    )}
-                    
-                    {isMobile && !showHistory && !showSuggestions && (
-                        <div className="flex flex-col items-center justify-center h-40 mt-10 text-text-muted/50">
-                            <Search className="w-12 h-12 mb-4 opacity-30" />
-                            <span className="text-sm font-bold">عن إيه بتبحث النهاردة؟</span>
-                        </div>
-                    )}
-
+                            </div>
+                        )}
                     </div>
 
-                    {/* bottom padding */}
-                    <div className="h-2" />
+                    {!isMobile && (
+                        <div className="p-3 border-t border-border-subtle bg-elevated/30 flex items-center justify-between">
+                            <div className="flex items-center gap-4 text-[10px] font-bold text-text-muted uppercase">
+                                <span className="flex items-center gap-1"><kbd className="px-1.5 py-0.5 bg-surface border border-border-subtle rounded shadow-sm">Enter</kbd> للبحث</span>
+                                <span className="flex items-center gap-1"><kbd className="px-1.5 py-0.5 bg-surface border border-border-subtle rounded shadow-sm">Esc</kbd> للإغلاق</span>
+                            </div>
+                            <div className="text-[10px] font-bold text-primary flex items-center gap-1">
+                                دليلك الأول في السويس <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
+                            </div>
+                        </div>
+                    )}
                 </motion.div>
             )}
         </AnimatePresence>
     );
 
     return (
-        <div ref={containerRef} className="relative w-full h-full">
-            {/* Input */}
+        <div ref={containerRef} className="relative w-full h-full rounded-2xl">
             <input
                 type="text"
+                enterKeyHint="search"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 onFocus={handleFocus}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
                 autoComplete="off"
-                className={`block leading-none ${inputClassName}`}
+                className={`block leading-none transition-all focus:ring-2 focus:ring-primary/20 rounded-[inherit] ${inputClassName}`}
                 dir="rtl"
             />
-
-            {/* Dropdown Portal */}
             {typeof window !== 'undefined' && createPortal(dropdownContent, document.body)}
         </div>
     );

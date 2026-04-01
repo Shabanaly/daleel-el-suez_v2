@@ -18,7 +18,7 @@ export default function MarketResults({ searchQuery, totalAds, loading, ads }: M
         <section>
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-black text-text-primary flex items-center gap-2">
-                     {searchQuery ? "نتائج البحث" : "أحدث الإعلانات"}
+                     {searchQuery ? "نتائج البحث" : "إكتشف الإعلانات"}
                      <span className="px-2 py-0.5 rounded-md bg-elevated text-[10px] text-text-muted font-bold">
                         {totalAds} نتيجة
                      </span>

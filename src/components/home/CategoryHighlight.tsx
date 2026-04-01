@@ -34,9 +34,9 @@ export default function CategoryHighlight({ data }: CategoryHighlightProps) {
             <div className="w-full max-w-7xl mx-auto px-4 relative">
                 <SectionHeader 
                     title={`اكتشف ${category.name}`}
-                    subtitle={`أفضل وأشهر الأماكن في تصنيف ${category.name} داخل السويس. تم اختيار هذا التصنيف خصيصاً لك اليوم.`}
+                    subtitle={`أفضل وأشهر الأماكن في تصنيف ${category.name} داخل السويس. ترشيح ذكي يتماشى مع الوقت الحالي خصيصاً لك.`}
                     icon={IconComponent}
-                    href={`/categories/${category.slug}`}
+                    href={`/places?category=${encodeURIComponent(category.name)}`}
                     viewAllText={`عرض كل ${category.name}`}
                 />
 

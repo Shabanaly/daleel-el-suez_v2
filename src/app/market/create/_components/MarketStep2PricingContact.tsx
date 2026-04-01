@@ -1,6 +1,6 @@
 'use client';
 
-import { Phone, MapPin, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Phone, MapPin, ChevronRight, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { MarketFormData } from './MarketStep1BasicInfo';
@@ -43,7 +43,7 @@ export function MarketStep2PricingContact({
                     <div className="space-y-2">
                         <label className="text-xs font-black text-text-muted mr-2 uppercase tracking-wide">السعر المطلوب</label>
                         <div className="relative">
-                            <input 
+                            <input
                                 type="text"
                                 inputMode="numeric"
                                 placeholder="0.00"
@@ -53,7 +53,7 @@ export function MarketStep2PricingContact({
                             />
                             <div className="absolute right-6 top-1/2 -translate-y-1/2 text-text-muted font-bold text-sm pointer-events-none">ج.م</div>
                         </div>
-                        
+
                         {/* Negotiable Toggle */}
                         <div className="flex items-center gap-3 mt-4 mr-2">
                             <button
@@ -61,7 +61,7 @@ export function MarketStep2PricingContact({
                                 onClick={() => updateFormData({ isNegotiable: !formData.isNegotiable })}
                                 className={`w-12 h-6 rounded-full transition-all relative ${formData.isNegotiable ? 'bg-primary' : 'bg-border-subtle'}`}
                             >
-                                <motion.div 
+                                <motion.div
                                     animate={{ x: formData.isNegotiable ? -24 : 0 }}
                                     className="absolute top-1 right-1 w-4 h-4 rounded-full bg-white shadow-sm"
                                 />
@@ -76,7 +76,7 @@ export function MarketStep2PricingContact({
                     <div className="space-y-2">
                         <label className="text-xs font-black text-text-muted mr-2 uppercase tracking-wide">رقم الهاتف للتواصل</label>
                         <div className="relative">
-                            <input 
+                            <input
                                 type="tel"
                                 placeholder="01xxxxxxxxx"
                                 value={formData.phone}
@@ -94,7 +94,7 @@ export function MarketStep2PricingContact({
                 <div className="space-y-2">
                     <label className="text-xs font-black text-text-muted mr-2 uppercase tracking-wide">المنطقة</label>
                     <div className="relative">
-                        <select 
+                        <select
                             value={formData.areaId}
                             onChange={(e) => updateFormData({ areaId: e.target.value })}
                             className={`w-full h-14 px-12 rounded-2xl bg-background border ${errors.areaId ? 'border-red-500' : 'border-border-subtle'} font-bold focus:border-primary transition-all text-sm outline-none appearance-none`}
@@ -117,7 +117,7 @@ export function MarketStep2PricingContact({
                     onClick={onBack}
                     className="h-14 px-8 rounded-2xl bg-surface border border-border-subtle text-text-primary font-black text-sm flex items-center gap-3 hover:bg-elevated transition-all w-full sm:w-auto justify-center"
                 >
-                    <ArrowRight className="w-5 h-5" />
+                    <ChevronRight className="w-5 h-5" />
                     <span>السابق</span>
                 </button>
 

@@ -58,12 +58,14 @@ export async function getMarketAds(
     categoryId?: string,
     search?: string,
     limit = 20,
-    excludeIds: string[] = []
+    excludeIds: string[] = [],
+    areaId?: number,
+    sortOption: 'newest' | 'cheapest' | 'expensive' | 'trending' = 'newest'
 ) {
     const offset = (page - 1) * limit;
 
     return unstable_cache(
-        async (p: number, cid: string | undefined, q: string | undefined, exIds: string[]) => {
+        async (p: number, cid: string | undefined, q: string | undefined, exIds: string[], aId: number | undefined, sort: string) => {
             const supabase = createServiceClient();
 
             let selectStr = `
@@ -102,8 +104,22 @@ export async function getMarketAds(
                 query = query.not('id', 'in', `(${exIds.join(',')})`);
             }
 
+            if (aId) {
+                query = query.eq('area_id', aId);
+            }
+
+            if (sort === 'cheapest') {
+                query = query.order('price', { ascending: true });
+            } else if (sort === 'expensive') {
+                query = query.order('price', { ascending: false });
+            } else if (sort === 'trending') {
+                query = query.order('views_count', { ascending: false });
+            } else {
+                // Default to newest
+                query = query.order('created_at', { ascending: false });
+            }
+
             const { data, count, error } = await query
-                .order('created_at', { ascending: false })
                 .order('view_date', { foreignTable: 'listing_daily_views', ascending: false })
                 .limit(1, { foreignTable: 'listing_daily_views' })
                 .range(offset, offset + limit - 1);
@@ -119,7 +135,7 @@ export async function getMarketAds(
                 total: count || 0
             };
         },
-        [`market-ads-p${page}-cat${categoryId}-q${search}-ex${excludeIds.join(',')}`],
+        [`market-ads-p${page}-cat${categoryId}-q${search}-ex${excludeIds.join(',')}-area${areaId}-sort${sortOption}`],
         {
             tags: [
                 tags.allAds(),
@@ -127,7 +143,7 @@ export async function getMarketAds(
             ],
             revalidate: 7200
         }
-    )(page, categoryId, search, excludeIds);
+    )(page, categoryId, search, excludeIds, areaId, sortOption);
 }
 
 // ── Featured & Recent (Home Page) ───────────────────────────────────

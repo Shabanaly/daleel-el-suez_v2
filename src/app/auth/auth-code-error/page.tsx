@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { ShieldAlert, ArrowRight, RefreshCcw } from 'lucide-react';
+import { ShieldAlert, ChevronRight, RefreshCcw } from 'lucide-react';
 
 export default function AuthErrorPage() {
     return (
@@ -30,7 +30,7 @@ export default function AuthErrorPage() {
                         className="w-full h-14 rounded-2xl bg-surface hover:bg-elevated text-text-primary border border-border-subtle font-black flex items-center justify-center gap-3 transition-all"
                     >
                         <span>الرجوع للرئيسية</span>
-                        <ArrowRight className="w-5 h-5" />
+                        <ChevronRight className="w-5 h-5" />
                     </Link>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Store, Tag, MapPin, ArrowRight } from 'lucide-react';
+import { Store, Tag, MapPin, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Step1Props {
@@ -157,7 +157,7 @@ export function Step1BasicInfo({ formData, updateFormData, categories, areas, di
                 className="w-full h-16 rounded-2xl bg-primary text-white font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-primary/25 hover:bg-primary-hover transition-all active:scale-[0.98]"
             >
                 <span>التالي</span>
-                <ArrowRight className="w-6 h-6 rotate-180" />
+                <ChevronRight className="w-6 h-6 rotate-180" />
             </button>
         </motion.div>
     );

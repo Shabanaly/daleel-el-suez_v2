@@ -51,12 +51,12 @@ export function Pagination({ currentPage, totalPages, onPageChange, isPending }:
             <button
                 disabled={currentPage === 1 || isPending}
                 onClick={() => onPageChange(currentPage - 1)}
-                className="group flex items-center justify-center h-11 w-11 rounded-xl bg-surface/80 border border-border-subtle hover:border-primary/40 hover:bg-surface text-text-muted hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm rtl:rotate-180 md:rtl:rotate-0"
+                className="group flex items-center justify-center h-11 w-11 rounded-xl bg-surface/80 border border-border-subtle hover:border-primary/40 hover:bg-surface text-text-muted hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
                 aria-label="Previous Page"
             >
-                <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform md:hidden" />
+                <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform md:hidden rtl:group-hover:translate-x-1" />
                 <span className="hidden md:flex items-center gap-2 font-bold text-sm px-4">
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     السابق
                 </span>
             </button>
@@ -102,13 +102,13 @@ export function Pagination({ currentPage, totalPages, onPageChange, isPending }:
             <button
                 disabled={currentPage === totalPages || isPending}
                 onClick={() => onPageChange(currentPage + 1)}
-                className="group flex items-center justify-center h-11 w-11 rounded-xl bg-surface/80 border border-border-subtle hover:border-primary/40 hover:bg-surface text-text-muted hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm rtl:rotate-180 md:rtl:rotate-0"
+                className="group flex items-center justify-center h-11 w-11 rounded-xl bg-surface/80 border border-border-subtle hover:border-primary/40 hover:bg-surface text-text-muted hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
                 aria-label="Next Page"
             >
-                <ChevronLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform md:hidden" />
+                <ChevronLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform md:hidden rtl:group-hover:-translate-x-1" />
                 <span className="hidden md:flex items-center gap-2 font-bold text-sm px-4">
                     التالي
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                 </span>
             </button>
         </div>

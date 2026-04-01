@@ -38,8 +38,11 @@ export default function HeroSearch({ searchTerm, setSearchTerm, onSearch }: Hero
                             value={searchTerm}
                             onChange={setSearchTerm}
                             onSearch={handleSelect}
+                            onSuggestionSelect={(item) => {
+                                if (item.url) router.push(item.url);
+                            }}
                             placeholder="ابحث عن مطعم، صيدلية، كافيه..."
-                            inputClassName="w-full h-full bg-transparent border-none outline-none text-text-primary flex items-center placeholder:text-text-muted/50 px-6 md:px-8 text-sm md:text-lg font-bold"
+                            inputClassName="w-full h-full bg-transparent border-none outline-none text-text-primary flex items-center placeholder:text-text-muted/50 px-6 md:px-8 text-sm md:text-lg font-bold rounded-2xl md:rounded-3xl"
                         />
                     </div>
 

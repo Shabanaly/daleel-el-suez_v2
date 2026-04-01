@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ShareButton from '@/components/ui/ShareButton';
 import { useDialog } from "@/components/providers/DialogProvider";
-import { Share2, MapPin, Star, ChevronLeft, ArrowRight, CheckCircle2, Eye } from 'lucide-react';
+import { Share2, MapPin, Star, ChevronLeft, ChevronRight, CheckCircle2, Eye } from 'lucide-react';
 import { Review } from '@/lib/types/reviews';
 import { Place } from '@/lib/types/places';
 import { PlaceCard } from './PlaceCard';
@@ -70,11 +70,11 @@ export function PlaceDetailsClient({
             <AppBar
                 title={place.name}
                 transparent={false}
-                backHref={place.categorySlug ? `/categories/${place.categorySlug}` : "/places"}
+                backHref={place.category ? `/places?category=${encodeURIComponent(place.category)}` : "/places"}
                 actions={
                     <ShareButton
                         title={place.name}
-                        text={`شوف المكان ده في السويس: ${place.name}`}
+                        text={`المكان ده في السويس: ${place.name}`}
                         url={typeof window !== 'undefined' ? window.location.href : ''}
                         className="w-10 h-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-text-primary hover:bg-elevated transition-colors"
                         onSuccess={() => showAlert({
@@ -96,8 +96,8 @@ export function PlaceDetailsClient({
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
                     <Link href="/places" className="text-text-muted hover:text-primary transition-colors">أماكن</Link>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
-                    {place.categorySlug ? (
-                        <Link href={`/categories/${place.categorySlug}`} className="text-text-muted hover:text-primary transition-colors">
+                    {place.category ? (
+                        <Link href={`/places?category=${encodeURIComponent(place.category)}`} className="text-text-muted hover:text-primary transition-colors">
                             {place.category}
                         </Link>
                     ) : (
@@ -170,7 +170,7 @@ export function PlaceDetailsClient({
 
                     <ShareButton
                         title={place.name}
-                        text={`شوف المكان ده في السويس: ${place.name}`}
+                        text={`المكان ده في السويس: ${place.name}`}
                         url={typeof window !== 'undefined' ? window.location.href : ''}
                         className="w-full md:w-auto px-8 h-16 rounded-[28px] bg-surface border border-border-subtle text-text-muted flex items-center justify-center gap-3 hover:bg-elevated transition-all shadow-lg group"
                         onSuccess={() => showAlert({

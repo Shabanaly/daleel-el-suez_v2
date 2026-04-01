@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDialog } from "@/components/providers/DialogProvider";
 import {
-    ArrowRight, MapPin, Phone, Building2,
+    ChevronRight, MapPin, Phone, Building2,
     Image as ImageIcon, CheckCircle2, Send, Clock, Loader2, Trash2,
     Facebook, Instagram, Globe, MessageCircle,
     Plus
@@ -228,7 +228,7 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
 
                             <button type="button" onClick={nextStep} className="w-full h-16 rounded-2xl bg-primary text-white font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-primary/25 hover:bg-primary-hover transition-all">
                                 <span>التالي</span>
-                                <ArrowRight className="w-6 h-6 rotate-180" />
+                                <ChevronRight className="w-6 h-6 rotate-180" />
                             </button>
                         </motion.div>
                     )}
@@ -397,12 +397,12 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
 
                             <div className="flex gap-4">
                                 <button type="button" onClick={prevStep} className="h-16 px-8 rounded-2xl bg-surface border border-border-subtle text-text-primary font-black flex items-center justify-center gap-2 hover:bg-elevated transition-all">
-                                    <ArrowRight className="w-5 h-5" />
+                                    <ChevronRight className="w-5 h-5" />
                                     <span>السابق</span>
                                 </button>
                                 <button type="button" onClick={nextStep} className="flex-1 h-16 rounded-2xl bg-primary text-white font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-primary/25 hover:bg-primary-hover transition-all">
                                     <span>التالي</span>
-                                    <ArrowRight className="w-6 h-6 rotate-180" />
+                                    <ChevronRight className="w-6 h-6 rotate-180" />
                                 </button>
                             </div>
                         </motion.div>
@@ -425,11 +425,11 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
                                     <label className="text-xs font-black text-text-muted mr-3 block uppercase tracking-wide">صورة الغلاف</label>
                                     <div className="relative h-48 rounded-3xl border-2 border-dashed border-border-subtle flex flex-col items-center justify-center text-text-muted/40 hover:border-primary/50 hover:text-primary transition-all group overflow-hidden bg-background/30">
                                         {formData.imageUrl ? (
-                                            <SafeImage 
-                                                src={formData.imageUrl} 
-                                                alt="Preview" 
+                                            <SafeImage
+                                                src={formData.imageUrl}
+                                                alt="Preview"
                                                 fill
-                                                className="w-full h-full object-cover" 
+                                                className="w-full h-full object-cover"
                                             />
                                         ) : (
                                             <>
@@ -446,7 +446,7 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
 
                             <div className="flex gap-4">
                                 <button type="button" onClick={prevStep} className="h-16 px-8 rounded-2xl bg-surface border border-border-subtle text-text-primary font-black flex items-center justify-center gap-2 hover:bg-elevated transition-all">
-                                    <ArrowRight className="w-5 h-5" />
+                                    <ChevronRight className="w-5 h-5" />
                                     <span>السابق</span>
                                 </button>
                                 <button type="submit" disabled={isUploading} className="flex-1 h-16 rounded-2xl bg-linear-to-r from-accent to-accent/90 text-white font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-accent/25 transition-all active:scale-[0.98] group">

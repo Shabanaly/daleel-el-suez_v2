@@ -35,6 +35,7 @@ import { Suspense } from "react";
 import MainContentWrapper from "@/components/layout/MainContentWrapper";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com'),
   title: {
     default: "دليل السويس | Suez Guide - دليلك الشامل",
     template: "%s | دليل السويس"

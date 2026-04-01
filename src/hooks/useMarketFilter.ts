@@ -1,12 +1,14 @@
 import { useState, useMemo, useEffect, useTransition, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { Place, SortOption } from '../lib/types/places';
+import { MarketAd, MarketCategory } from '../lib/types/market';
 import { AreaWithDistrict } from '../lib/actions/areas';
 
-export function usePlacesFilter(
-    initialPlaces: Place[],
+export type MarketSortOption = 'newest' | 'cheapest' | 'expensive' | 'trending';
+
+export function useMarketFilter(
+    initialAds: MarketAd[],
     initialTotal: number,
-    categories: { name: string; count: number; slug: string }[],
+    categories: MarketCategory[],
     allAreas: AreaWithDistrict[],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     districts: any[]
@@ -18,34 +20,31 @@ export function usePlacesFilter(
 
     // Local state for UI responsiveness
     const [query, setQuery] = useState(searchParams.get('q') || '');
-    const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || categories[0]?.name || 'الكل');
+    const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || 'all');
     const [activeDistrict, setActiveDistrict] = useState(searchParams.get('district') || 'كل الأحياء');
     const [activeArea, setActiveArea] = useState(searchParams.get('area') || 'كل المناطق');
-    const [sortBy, setSortBy] = useState<SortOption>((searchParams.get('sort') as SortOption) || 'trending');
+    const [sortBy, setSortBy] = useState<MarketSortOption>((searchParams.get('sort') as MarketSortOption) || 'newest');
     const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
     const [showFilters, setShowFilters] = useState(false);
 
-    // Current displayed places (initial or server-fetched)
-    const [places, setPlaces] = useState<Place[]>(initialPlaces);
+    // Current displayed ads (initial or server-fetched)
+    const [ads, setAds] = useState<MarketAd[]>(initialAds);
     const [total, setTotal] = useState(initialTotal);
 
     // Sync with Server-fetched data when URL changes and page.tsx re-renders
     useEffect(() => {
-        setPlaces(initialPlaces);
+        setAds(initialAds);
         setTotal(initialTotal);
         const urlPage = Number(searchParams.get('page')) || 1;
         setPage(urlPage);
-
-        // NOTE: query is intentionally NOT synced here to avoid a race condition:
-        // when the user clears the search and router.push fires (in startTransition),
-        // searchParams still holds the old ?q= until the transition completes.
-        // Restoring query here would override the user's explicit clear action.
-        // The initial value is set via useState(searchParams.get('q') || '') on mount.
-        setActiveCategory(searchParams.get('category') || categories[0]?.name || 'الكل');
+        
+        // Also sync filter states when URL changes (e.g. browser back button)
+        setQuery(searchParams.get('q') || '');
+        setActiveCategory(searchParams.get('category') || 'all');
         setActiveDistrict(searchParams.get('district') || 'كل الأحياء');
         setActiveArea(searchParams.get('area') || 'كل المناطق');
-        setSortBy((searchParams.get('sort') as SortOption) || 'trending');
-    }, [initialPlaces, initialTotal, searchParams, categories]);
+        setSortBy((searchParams.get('sort') as MarketSortOption) || 'newest');
+    }, [initialAds, initialTotal, searchParams, categories]);
 
     // Derived: Areas belonging to a specific district (helper for modal)
     const getAvailableAreasForDistrict = useCallback((districtName: string) => {
@@ -75,7 +74,7 @@ export function usePlacesFilter(
             else params.delete('q');
         }
         if (updates.category !== undefined) {
-            if (updates.category !== 'الكل') params.set('category', updates.category);
+            if (updates.category !== 'all') params.set('category', updates.category);
             else params.delete('category');
         }
         if (updates.district !== undefined) {
@@ -87,7 +86,7 @@ export function usePlacesFilter(
             else params.delete('area');
         }
         if (updates.sort !== undefined) {
-            if (updates.sort !== 'trending') params.set('sort', updates.sort);
+            if (updates.sort !== 'newest') params.set('sort', updates.sort);
             else params.delete('sort');
         }
         
@@ -114,9 +113,9 @@ export function usePlacesFilter(
     }, [pathname, router, searchParams]);
 
     // Immediate actions
-    const handleCategoryChange = (category: string) => {
-        setActiveCategory(category);
-        updateURL({ category, page: 1 });
+    const handleCategoryChange = (categorySlug: string) => {
+        setActiveCategory(categorySlug);
+        updateURL({ category: categorySlug, page: 1 });
     };
 
     const handlePageChange = (newPage: number) => {
@@ -133,7 +132,7 @@ export function usePlacesFilter(
     const applyFilters = (filters: {
         district: string,
         area: string,
-        sort: SortOption
+        sort: MarketSortOption
     }) => {
         setActiveDistrict(filters.district);
         setActiveArea(filters.area);
@@ -149,21 +148,21 @@ export function usePlacesFilter(
 
     const clearFilters = () => {
         setQuery('');
-        setActiveCategory('الكل');
+        setActiveCategory('all');
         setActiveDistrict('كل الأحياء');
         setActiveArea('كل المناطق');
-        setSortBy('trending');
+        setSortBy('newest');
         updateURL({
             q: '',
-            category: 'الكل',
+            category: 'all',
             district: 'كل الأحياء',
             area: 'كل المناطق',
-            sort: 'trending',
+            sort: 'newest',
             page: 1
         });
     };
 
-    const hasActiveFilters = activeCategory !== 'الكل' || activeDistrict !== 'كل الأحياء' || activeArea !== 'كل المناطق' || query !== '';
+    const hasActiveFilters = activeCategory !== 'all' || activeDistrict !== 'كل الأحياء' || activeArea !== 'كل المناطق' || query !== '';
 
     return {
         query, setQuery,
@@ -177,7 +176,7 @@ export function usePlacesFilter(
         getAvailableAreasForDistrict,
         applyFilters,
         handleSearch,
-        filtered: places, // We trust server-side data
+        filtered: ads, // We trust server-side data
         hasActiveFilters,
         clearFilters,
         isPending,
