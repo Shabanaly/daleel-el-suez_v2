@@ -5,9 +5,14 @@ import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     MapPin,
+    Users,
     Menu,
     X,
-    LogOut
+    LogOut,
+    ShoppingBag,
+    MessageSquare,
+    AlertTriangle,
+    Settings
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -22,6 +27,11 @@ export default function AdminSidebar() {
     const navItems = [
         { href: '/admin', icon: LayoutDashboard, label: 'لوحة التحكم' },
         { href: '/admin/places', icon: MapPin, label: 'الأماكن' },
+        { href: '/admin/users', icon: Users, label: 'المستخدمين' },
+        { href: '/admin/market', icon: ShoppingBag, label: 'الماركت' },
+        { href: '/admin/community', icon: MessageSquare, label: 'المجتمع' },
+        { href: '/admin/reports', icon: AlertTriangle, label: 'البلاغات' },
+        { href: '/admin/settings', icon: Settings, label: 'الإعدادات' },
     ];
 
     const toggleSidebar = () => setIsCollapsed(!isCollapsed);
