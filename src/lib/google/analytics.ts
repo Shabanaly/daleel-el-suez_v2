@@ -15,7 +15,14 @@ let analyticsClient: BetaAnalyticsDataClient | null = null;
 
 if (propertyId && credentialsJson) {
     try {
-        const credentials = JSON.parse(credentialsJson);
+        // Handle potential wrapping quotes and whitespace from .env
+        let cleanJson = credentialsJson.trim();
+        if ((cleanJson.startsWith("'") && cleanJson.endsWith("'")) || 
+            (cleanJson.startsWith('"') && cleanJson.endsWith('"'))) {
+            cleanJson = cleanJson.substring(1, cleanJson.length - 1);
+        }
+
+        const credentials = JSON.parse(cleanJson);
         analyticsClient = new BetaAnalyticsDataClient({
             credentials,
         });
