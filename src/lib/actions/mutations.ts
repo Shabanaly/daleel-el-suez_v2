@@ -3,6 +3,7 @@
 import { createClient } from '../supabase/server';
 import { revalidatePath } from 'next/cache';
 import { cacheManager } from '../cache';
+import { notifyAdmins } from './admin.server';
 
 import { WeeklySchedule } from '@/features/places/types';
 
@@ -50,7 +51,8 @@ export async function addPlace(formData: PlaceMutationData) {
             working_hours: formData.openHours,
             added_by: user.id,
             is_verified: false,
-            avg_rating: 0
+            avg_rating: 0,
+            status: 'pending'
         })
         .select()
         .single();
@@ -65,6 +67,16 @@ export async function addPlace(formData: PlaceMutationData) {
     cacheManager.invalidateMetadata();
     cacheManager.invalidateUserStats(user.id);
     revalidatePath('/places');
+
+    // Notify Admins
+    await notifyAdmins({
+        title: 'مكان جديد يحتاج للمراجعة',
+        message: `تم إضافة مكان جديد: ${formData.name}`,
+        type: 'place_created',
+        link: `/admin/places?status=pending`,
+        actor_id: user.id,
+        metadata: { place_id: data.id }
+    });
 
     return data;
 }

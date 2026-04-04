@@ -2,19 +2,35 @@ import { NextResponse } from 'next/server';
 import admin from 'firebase-admin';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Firebase Admin
-if (!admin.apps.length) {
-  try {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '{}');
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
-  } catch (error) {
-    console.error('Firebase Admin init error:', error);
-  }
-}
-
 export async function POST(req: Request) {
+  // Initialize Firebase Admin lazily to avoid build-time errors
+  if (!admin.apps.length) {
+    try {
+      const firebaseKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+      
+      if (firebaseKey) {
+        const serviceAccount = JSON.parse(firebaseKey);
+        
+        // Fix for private key newlines if they are escaped as literal '\n'
+        if (serviceAccount.private_key) {
+          serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+        }
+
+        if (serviceAccount.project_id && serviceAccount.private_key && serviceAccount.client_email) {
+          admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+          });
+        } else {
+          console.warn('[PushAPI] Firebase Service Account Key is missing required fields.');
+        }
+      } else {
+        console.warn('[PushAPI] FIREBASE_SERVICE_ACCOUNT_KEY is not defined.');
+      }
+    } catch (error) {
+      console.error('Firebase Admin init error:', error);
+    }
+  }
+
   let notificationLogId: string | null = null;
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

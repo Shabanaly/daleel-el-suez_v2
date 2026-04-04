@@ -6,6 +6,7 @@ import { unstable_cache } from 'next/cache';
 import { revalidatePath } from 'next/cache';
 import { cacheManager, tags } from '@/lib/cache';
 import { deleteCloudinaryImage } from '@/lib/actions/media';
+import { notifyAdmins } from '@/lib/actions/admin.server';
 
 /**
  * Creates a new community post.
@@ -31,7 +32,7 @@ export async function createPost(formData: {
             author_id: user.id,
             images: formData.images || [],
             public_ids: formData.publicIds || [],
-            status: 'active'
+            status: 'pending'
         })
         .select()
         .single();
@@ -43,6 +44,16 @@ export async function createPost(formData: {
 
     cacheManager.invalidatePost(data.id, user.id);
     revalidatePath('/community');
+
+    // Notify Admins
+    await notifyAdmins({
+        title: 'منشور جديد يحتاج للمراجعة',
+        message: `تم إضافة منشور جديد في المجتمع`,
+        type: 'post_created',
+        link: `/admin/community?status=pending`,
+        actor_id: user.id,
+        metadata: { post_id: data.id }
+    });
 
     return { success: true, post: data };
 }

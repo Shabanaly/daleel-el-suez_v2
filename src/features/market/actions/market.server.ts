@@ -1,12 +1,12 @@
 'use server';
 
-import { unstable_cache, revalidateTag } from "next/cache";
-
-import { tags } from "@/lib/cache";
-import { createServiceClient } from "@/lib/supabase/client-service";
-import { mapMarketAd, mapMarketCategory } from "@/lib/utils/mappers";
-import { MarketAd } from "@/features/market/types";
+import { unstable_cache, revalidateTag } from 'next/cache';
+import { mapMarketAd, mapMarketCategory } from '@/lib/utils/mappers';
+import { tags } from '@/lib/cache';
+import { MarketAd } from '@/features/market/types';
+import { notifyAdmins } from '@/lib/actions/admin.server';
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/client-service";
 
 // ── Categories ──────────────────────────────────────────────────────
 
@@ -321,7 +321,7 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
             area_id: adData.area_id,
             seller_id: user.id,
             contact_phone: adData.seller_phone,
-            status: 'active',
+            status: 'pending_approval',
             public_ids: adData.public_ids
         })
         .select(`*, categories(slug)`)
@@ -343,6 +343,18 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
     }
     // Refresh the categories list so adCount is updated immediately
     revalidateTag(tags.marketCategories(), 'max');
+
+    // Notify Admins
+    if (data) {
+        await notifyAdmins({
+            title: 'إعلان جديد يحتاج للمراجعة',
+            message: `تم إضافة إعلان جديد: ${data.title}`,
+            type: 'listing_created',
+            link: `/admin/market?status=pending_approval`,
+            actor_id: user.id,
+            metadata: { listing_id: data.id }
+        });
+    }
 
     return { success: true, data: data };
 }
