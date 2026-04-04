@@ -1,4 +1,4 @@
-import { getAdminDashboardStats } from '@/lib/actions/admin/dashboard';
+import { getAdminDashboardStats } from '@/features/admin/actions/dashboard';
 import { Users, MapPin, Clock } from 'lucide-react';
 
 export const metadata = {

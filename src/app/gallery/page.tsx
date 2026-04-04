@@ -1,4 +1,4 @@
-import { getGalleryImages } from '@/lib/actions/gallery';
+import { getGalleryImages } from '@/features/gallery/actions/gallery.server';
 import GalleryClient from './_components/GalleryClient';
 import type { Metadata } from 'next';
 

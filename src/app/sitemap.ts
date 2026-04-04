@@ -1,8 +1,8 @@
 import { MetadataRoute } from 'next';
-import { getAllPlacesForSitemap } from '@/lib/actions/places';
-import { getAllCategories } from '@/lib/actions/categories';
-import { getAllPosts } from '@/lib/actions/posts';
-import { getMarketCategories, getMarketAdsForSitemap } from '@/lib/actions/market';
+import { getAllPlacesForSitemap } from '@/features/places/actions/places.server';
+import { getAllCategories } from '@/features/taxonomy/actions/categories';
+import { getAllPosts } from '@/features/community/actions/posts.server';
+import { getMarketCategories, getMarketAdsForSitemap } from '@/features/market/actions/market.server';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
@@ -38,14 +38,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Market URLs
-    const marketCategoryUrls = marketCategories.map((category) => ({
+    const marketCategoryUrls = marketCategories.map((category: any) => ({
         url: `${baseUrl}/market?category=${encodeURIComponent(category.slug)}`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
     }));
 
-    const marketAdUrls = marketAds.map((ad) => ({
+    const marketAdUrls = marketAds.map((ad: any) => ({
         url: `${baseUrl}/market/${encodeURIComponent(ad.slug)}`,
         lastModified: new Date(ad.created_at),
         changeFrequency: 'weekly' as const,

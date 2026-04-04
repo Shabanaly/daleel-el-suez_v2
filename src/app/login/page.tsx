@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { AuthFormUI } from '@/components/auth/AuthFormUI';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { AuthFormUI } from '@/features/auth/components/AuthFormUI';
 
 export default function LoginPage() {
     const { error, loading, socialLoading, handleLogin, handleSocialLogin } = useAuth();

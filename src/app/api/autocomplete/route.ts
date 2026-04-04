@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAutocompleteSuggestions } from '@/lib/actions/search';
+import { getAutocompleteSuggestions } from '@/features/search/actions/search.server';
 
 export async function GET(req: NextRequest) {
     const q = req.nextUrl.searchParams.get('q')?.trim() ?? '';

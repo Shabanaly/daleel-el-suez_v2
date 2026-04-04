@@ -6,8 +6,8 @@ import { Camera, Grid3X3, Image as ImageIcon, Plus, ArrowUpRight } from 'lucide-
 import { SafeImage } from '@/components/common/SafeImage';
 import Image from 'next/image';
 import { Lightbox } from '@/components/common/Lightbox';
-import { GalleryImage, incrementImageViews } from '@/lib/actions/gallery';
-import UploadPhotoModal from '@/components/gallery/UploadPhotoModal';
+import { GalleryImage, incrementImageViews } from '@/features/gallery/actions/gallery.server';
+import UploadPhotoModal from '@/features/gallery/components/UploadPhotoModal';
 
 interface GalleryClientProps {
     initialImages: GalleryImage[];

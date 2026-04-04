@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Star, MapPin, FileText, MessageSquare, Search, Filter } from 'lucide-react';
-import { ActivityListTile, ActivityItem } from '../../_components/ActivityListTile';
+import { ActivityListTile, ActivityItem } from '@/features/profile/components/ActivityListTile';
 import Link from 'next/link';
 import { AppBar } from '@/components/ui/AppBar';
 import { ContextMenu, ContextMenuItem } from '@/components/ui/ContextMenu';

@@ -1,7 +1,7 @@
-import { getCommunityPosts } from '@/lib/actions/posts';
-import { getCommunityCategories } from '@/lib/actions/categories';
+import { getCommunityPosts } from '@/features/community/actions/posts.server';
+import { getCommunityCategories } from '@/features/taxonomy/actions/categories';
 import { createClient } from '@/lib/supabase/server';
-import CommunityClient from './_components/CommunityClient';
+import CommunityClient from '@/features/community/components/CommunityClient';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({

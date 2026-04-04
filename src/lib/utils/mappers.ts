@@ -1,6 +1,6 @@
 import { Category } from "../types/category";
-import { Place, RawPlace, WeeklySchedule } from "../types/places";
-import { MarketAd, MarketCategory, RawMarketAd, RawMarketCategory, AdCondition, AdStatus } from "../types/market";
+import { Place, RawPlace, WeeklySchedule } from "@/features/places/types";
+import { MarketAd, MarketCategory, RawMarketAd, RawMarketCategory, AdCondition, AdStatus } from "@/features/market/types";
 
 interface RawCategory {
     id: number | string;

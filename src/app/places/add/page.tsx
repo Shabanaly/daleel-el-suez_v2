@@ -1,7 +1,8 @@
-import { getCategoriesWithIds } from '@/lib/actions/categories';
+import { getCategoriesWithIds } from '@/features/taxonomy/actions/categories';
 import { AddPlaceForm } from './_components/AddPlaceForm';
 import { Metadata } from 'next';
-import { getAreasWithIds, getDistricts } from '@/lib/actions/areas';
+import { getAreasWithIds } from '@/features/taxonomy/actions/areas';
+import { getDistricts } from '@/features/taxonomy/actions/districts';
 
 export const metadata: Metadata = {
     title: 'أضف نشاطك | دليل السويس',

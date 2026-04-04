@@ -1,6 +1,6 @@
-import { getAllCategories } from "@/lib/actions/categories";
-import { getTopPlacesByCategory } from "@/lib/actions/places";
-import { getHomeUnifiedStats } from "@/lib/actions/stats";
+import { getAllCategories } from "@/features/taxonomy/actions/categories";
+import { getTopPlacesByCategory } from "@/features/places/actions/places.server";
+import { getHomeUnifiedStats } from "@/features/stats/actions/stats.server";
 import BestOfHero from "./_components/BestOfHero";
 import TopPlaceCard from "./_components/TopPlaceCard";
 import Link from "next/link";

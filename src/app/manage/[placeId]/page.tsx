@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
-import { getOwnedPlaceDetails, getOwnedPlacesReviews } from '@/lib/actions/business';
+import { getOwnedPlaceDetails, getOwnedPlacesReviews } from '@/features/business/actions/business.server';
 import { redirect } from 'next/navigation';
-import { BusinessDashboardClient } from './_components/BusinessDashboardClient';
+import { BusinessDashboardClient } from '@/features/business/components/BusinessDashboardClient';
 
 export const metadata = {
     title: 'لوحة التحكم - دليل السويس',

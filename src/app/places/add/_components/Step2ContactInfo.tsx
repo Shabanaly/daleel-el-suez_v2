@@ -2,7 +2,7 @@
 
 import { Phone, MapPin, Clock, ChevronRight, X, Facebook, Instagram, Globe, MessageCircle, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DayKey, WeeklySchedule } from '@/lib/types/places';
+import { DayKey, WeeklySchedule } from '@/features/places/types';
 
 interface Step2Props {
     formData: {

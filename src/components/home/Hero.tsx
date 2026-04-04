@@ -6,8 +6,8 @@ import { motion } from 'framer-motion';
 
 // Import sub-components
 import HeroBackground from './hero/HeroBackground';
-import HeroSearch from './hero/HeroSearch';
-import HeroCategories from './hero/HeroCategories';
+import HeroSearch from '@/features/search/components/HeroSearch';
+import HeroCategories from '@/features/places/components/HeroCategories';
 
 import type { Category } from '@/lib/types/category';
 

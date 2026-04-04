@@ -115,14 +115,14 @@ export const NotificationTemplates: {
   [NotificationEvent.CONTENT_RETENTION]: (data) => ({
     userId: data.recipientId,
     title: 'اشتقنا لك في دليل السويس! 👋',
-    message: `شوف رواج اليوم وما فاتك من أخبار: "${data.trendingTitle}"`,
+    message: `شوف رائج اليوم وما فاتك من أخبار: "${data.trendingTitle}"`,
     type: 'RETENTION',
     link: data.trendingLink,
   }),
   [NotificationEvent.FRIDAY_BLESSING]: (data) => ({
     userId: data.recipientId,
     title: 'جمعة مباركة! ✨',
-    message: 'نتمنى لك يوماً سعيداً ومليئاً بالخير في سويسنا الحبيبة.',
+    message: 'نتمنى لك يوماً سعيداً ومليئاً بالخير في بلدنا الحبيبة.',
     type: 'BLESSING',
     link: '/',
   }),

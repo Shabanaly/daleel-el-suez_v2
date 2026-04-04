@@ -1,5 +1,5 @@
-import AdminSidebar from '@/components/admin/AdminSidebar';
-import AdminGuard from '@/components/admin/AdminGuard';
+import AdminSidebar from '@/features/admin/components/AdminSidebar';
+import AdminGuard from '@/features/admin/components/AdminGuard';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     return (

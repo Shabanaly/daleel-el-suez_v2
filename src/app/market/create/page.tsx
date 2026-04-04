@@ -1,6 +1,6 @@
-import { getMarketCategories } from "@/lib/actions/market";
-import { getAreasWithIds } from "@/lib/actions/areas";
-import { CreateAdForm } from "./_components/CreateAdForm";
+import { getMarketCategories } from "@/features/market/actions/market.server";
+import { getAreasWithIds } from "@/features/taxonomy/actions/areas";
+import { CreateAdForm } from "@/features/market/components/CreateAdForm";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";

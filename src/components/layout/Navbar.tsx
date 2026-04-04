@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { User, Search, Store, Users, Map } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { NotificationBell } from './NotificationBell';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 
 import Image from 'next/image';
 

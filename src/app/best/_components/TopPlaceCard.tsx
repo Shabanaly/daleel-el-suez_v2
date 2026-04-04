@@ -1,4 +1,4 @@
-import { Place } from "@/lib/types/places";
+import { Place } from "@/features/places/types";
 import { Star, MapPin, Award, CheckCircle2, TrendingUp, Trophy, Medal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

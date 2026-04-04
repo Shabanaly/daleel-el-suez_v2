@@ -1,4 +1,4 @@
-import { getUserActivities } from '@/lib/actions/profile';
+import { getUserActivities } from '@/features/profile/actions/profile.server';
 import { redirect } from 'next/navigation';
 import { ActivitiesClient } from './_components/ActivitiesClient';
 import { createClient } from '@/lib/supabase/server';

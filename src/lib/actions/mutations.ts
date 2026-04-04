@@ -4,7 +4,7 @@ import { createClient } from '../supabase/server';
 import { revalidatePath } from 'next/cache';
 import { cacheManager } from '../cache';
 
-import { WeeklySchedule } from '../types/places';
+import { WeeklySchedule } from '@/features/places/types';
 
 interface PlaceMutationData {
     name: string;

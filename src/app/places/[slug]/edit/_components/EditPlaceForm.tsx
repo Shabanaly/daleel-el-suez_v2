@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getCloudinarySignature } from '@/lib/actions/media';
 import { updatePlace, deletePlace } from '@/lib/actions/mutations';
 import { StepIndicator } from '@/app/places/add/_components/StepIndicator';
-import { Place } from '@/lib/types/places';
+import { Place } from '@/features/places/types';
 import { SafeImage } from '@/components/common/SafeImage';
 
 interface EditPlaceFormProps {

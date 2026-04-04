@@ -1,8 +1,8 @@
-import { ProfileHeader } from './_components/ProfileHeader';
-import { ProfileStats } from './_components/ProfileStats';
-import { ProfileNavigation } from './_components/ProfileNavigation';
+import { ProfileHeader } from '@/features/profile/components/ProfileHeader';
+import { ProfileStats } from '@/features/profile/components/ProfileStats';
+import { ProfileNavigation } from '@/features/profile/components/ProfileNavigation';
 import { createClient } from '@/lib/supabase/server';
-import { getUserProfileStats } from '@/lib/actions/profile';
+import { getUserProfileStats } from '@/features/profile/actions/profile.server';
 import { redirect } from 'next/navigation';
 import { AppBar } from '@/components/ui/AppBar';
 export const metadata = {

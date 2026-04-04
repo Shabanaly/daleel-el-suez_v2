@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Plus, MapPin, Store, Heart, Info, User, LogOut, Loader2, FileText, ShieldCheck, ShoppingBag, Copyright as CopyIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import Image from 'next/image';
 
 export default function DesktopSidebar() {

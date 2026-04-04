@@ -6,8 +6,8 @@ import ShareButton from '@/components/ui/ShareButton';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useAuthModal } from '@/hooks/useAuthModal';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useAuthModal } from '@/features/auth/hooks/useAuthModal';
 
 interface QuickActionsDrawerProps {
     isOpen: boolean;

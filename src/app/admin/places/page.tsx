@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAdminPlaces } from '@/hooks/admin/useAdminPlaces';
-import { PlacesFilter } from '@/components/admin/places/PlacesFilter';
-import { PlacesDataTable } from '@/components/admin/places/PlacesDataTable';
-import { PlaceStatus } from '@/lib/actions/admin/places';
+import { useAdminPlaces } from '@/features/admin/hooks/useAdminPlaces';
+import { PlacesFilter } from '@/features/admin/components/places/PlacesFilter';
+import { PlacesDataTable } from '@/features/admin/components/places/PlacesDataTable';
+import { PlaceStatus } from '@/features/admin/actions/places';
 
 export default function AdminPlacesPage() {
     const { places, totalCount, isLoading, error, fetchPlaces, updateStatus, deletePlace } = useAdminPlaces();

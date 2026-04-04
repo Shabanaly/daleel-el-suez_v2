@@ -1,11 +1,12 @@
 import { Suspense } from 'react';
-import { getPlaces } from '@/lib/actions/places';
-import { getCategories, getCategoriesWithIds } from '@/lib/actions/categories';
+import { getPlaces } from '@/features/places/actions/places.server';
+import { getCategories, getCategoriesWithIds } from '@/features/taxonomy/actions/categories';
 
-import { PlacesClient } from './_components/PlacesClient';
-import { getAreasAction, getDistricts } from '@/lib/actions/areas';
+import { PlacesClient } from '@/features/places/components/PlacesClient';
+import { getAreasAction } from '@/features/taxonomy/actions/areas';
+import { getDistricts } from '@/features/taxonomy/actions/districts';
 import type { Metadata } from 'next';
-import { SortOption } from '@/lib/types/places';
+import { SortOption } from '@/features/places/types';
 
 export const metadata: Metadata = {
     title: 'دليل السويس الشامل | خدمات، أماكن، ومطاعم',

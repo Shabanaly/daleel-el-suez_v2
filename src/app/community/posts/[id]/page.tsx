@@ -1,13 +1,13 @@
-import { getPostById } from '@/lib/actions/posts';
-import { getCommunityCategories } from '@/lib/actions/categories';
-import { getPostComments } from '@/lib/actions/comments';
+import { getPostById } from '@/features/community/actions/posts.server';
+import { getCommunityCategories } from '@/features/taxonomy/actions/categories';
+import { getPostComments } from '@/features/community/actions/comments.server';
 import { createClient } from '@/lib/supabase/server';
-import PostCard from '../../_components/PostCard';
+import PostCard from '@/features/community/components/PostCard';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { ArrowLeft, Users } from 'lucide-react';
 import Link from 'next/link';
-import CommunityComments from '../../_components/CommunityComments';
+import CommunityComments from '@/features/community/components/CommunityComments';
 import { Suspense } from 'react';
 
 interface PostPageProps {

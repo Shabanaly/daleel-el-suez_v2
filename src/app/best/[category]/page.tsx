@@ -1,5 +1,5 @@
-import { getCategoryInfoBySlug } from '@/lib/actions/categories';
-import { getTopPlacesByCategory } from '@/lib/actions/places';
+import { getCategoryInfoBySlug } from '@/features/taxonomy/actions/categories';
+import { getTopPlacesByCategory } from '@/features/places/actions/places.server';
 import BestOfHero from '../_components/BestOfHero';
 import TopPlaceCard from '../_components/TopPlaceCard';
 import { notFound } from 'next/navigation';

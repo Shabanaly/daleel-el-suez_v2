@@ -1,5 +1,5 @@
-import { getUserMarketAds } from "@/lib/actions/market";
-import MyAdsClient from "./_components/MyAdsClient";
+import { getUserMarketAds } from "@/features/market/actions/market.server";
+import MyAdsClient from "@/features/market/components/MyAdsClient";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from 'next/link';

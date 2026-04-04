@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import { getPlaceBySlug } from '@/lib/actions/places';
-import { getCategoriesWithIds } from '@/lib/actions/categories';
-import { getAreasWithIds } from '@/lib/actions/areas';
+import { getPlaceBySlug } from '@/features/places/actions/places.server';
+import { getCategoriesWithIds } from '@/features/taxonomy/actions/categories';
+import { getAreasWithIds } from '@/features/taxonomy/actions/areas';
 import { EditPlaceForm } from './_components/EditPlaceForm';
 import { Metadata } from 'next';
 

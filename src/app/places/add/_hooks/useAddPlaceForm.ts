@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useImageUpload } from '@/lib/hooks/useImageUpload';
 import { addPlace } from '@/lib/actions/mutations';
-import { getOrCreateArea } from '@/lib/actions/areas';
-import { WeeklySchedule } from '@/lib/types/places';
+import { getOrCreateArea } from '@/features/taxonomy/actions/areas';
+import { WeeklySchedule } from '@/features/places/types';
 
 const defaultSchedule: WeeklySchedule = {
     saturday: { isOpen: false, from: '09:00', to: '22:00' },

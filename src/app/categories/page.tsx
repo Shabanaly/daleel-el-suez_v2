@@ -1,4 +1,4 @@
-import { getAllCategories } from '@/lib/actions/categories';
+import { getAllCategories } from '@/features/taxonomy/actions/categories';
 import { Sparkles } from 'lucide-react';
 import { CategoryGrid } from './_components/CategoryGrid';
 

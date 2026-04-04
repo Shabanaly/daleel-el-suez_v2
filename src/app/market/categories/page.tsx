@@ -1,7 +1,7 @@
-import { getMarketCategories } from '@/lib/actions/market';
+import { getMarketCategories } from '@/features/market/actions/market.server';
 import { Sparkles } from 'lucide-react';
-import { MarketCategoryGrid } from './_components/MarketCategoryGrid';
-import { MarketCategory } from '@/lib/types/market';
+import { MarketCategoryGrid } from '@/features/market/components/MarketCategoryGrid';
+import { MarketCategory } from '@/features/market/types';
 import { AppBar } from '@/components/ui/AppBar';
 
 export const metadata = {

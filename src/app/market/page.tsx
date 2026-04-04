@@ -1,10 +1,11 @@
 import { Suspense } from 'react';
-import { MarketClient } from './_components/MarketClient';
+import { MarketClient } from '@/features/market/components/MarketClient';
 import type { Metadata } from 'next';
-import { getMarketCategories, getMarketAds, getMarketHomePageData } from '@/lib/actions/market';
-import { getAreasAction, getDistricts } from '@/lib/actions/areas';
-import { MarketAd, MarketCategory } from '@/lib/types/market';
-import { MarketSortOption } from '@/hooks/useMarketFilter';
+import { getMarketCategories, getMarketAds, getMarketHomePageData } from '@/features/market/actions/market.server';
+import { getAreasAction } from '@/features/taxonomy/actions/areas';
+import { getDistricts } from '@/features/taxonomy/actions/districts';
+import { MarketAd, MarketCategory } from '@/features/market/types';
+import { MarketSortOption } from '@/features/market/hooks/useMarketFilter';
 
 export const metadata: Metadata = {
     title: 'سوق السويس | بيع وشراء، مستعمل، وعروض في السويس',

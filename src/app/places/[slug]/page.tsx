@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
-import { getPlaceBySlug, getRelatedPlaces } from '@/lib/actions/places';
-import { getReviews } from '@/lib/actions/reviews';
-import { PlaceDetailsClient } from '../_components/PlaceDetailsClient';
-import { ViewTracker } from '@/components/places/ViewTracker';
-import { isItemFavorite } from '@/lib/actions/favorites';
+import { getPlaceBySlug, getRelatedPlaces } from '@/features/places/actions/places.server';
+import { getReviews } from '@/features/places/actions/reviews.server';
+import { PlaceDetailsClient } from '@/features/places/components/PlaceDetailsClient';
+import { ViewTracker } from '@/features/places/components/ViewTracker';
+import { isItemFavorite } from '@/features/favorites/actions/favorites.server';
 import { createClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
 
@@ -106,7 +106,7 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
 
 // Generate static params if we want to pre-render (optional, good for performance)
 export async function generateStaticParams() {
-    const { getAllPlacesForSitemap } = await import('@/lib/actions/places');
+    const { getAllPlacesForSitemap } = await import('@/features/places/actions/places.server');
     const places = await getAllPlacesForSitemap();
     return places.map((place) => ({
         slug: place.slug,

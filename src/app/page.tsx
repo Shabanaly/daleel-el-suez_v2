@@ -1,24 +1,24 @@
-import { getHomePageData, getCommunityPulsePlaces } from '@/lib/actions/places';
-import { getHomeCategories, getSmartCategoryHighlights } from '@/lib/actions/categories';
-import { getHomeDistricts } from '@/lib/actions/areas';
-import { getHomeUnifiedStats } from '@/lib/actions/stats';
+import { getHomePageData, getCommunityPulsePlaces } from '@/features/places/actions/places.server';
+import { getHomeCategories, getSmartCategoryHighlights } from '@/features/taxonomy/actions/categories';
+import { getHomeDistricts } from '@/features/taxonomy/actions/districts';
+import { getHomeUnifiedStats } from '@/features/stats/actions/stats.server';
 import Hero from '@/components/home/Hero';
-import TrendingPlaces from '@/components/home/TrendingPlaces';
-import CommunityPulse from '@/components/home/pulse/CommunityPulse';
-import DistrictsExplorer from '@/components/home/DistrictsExplorer';
-import SuezStats from '@/components/home/SuezStats';
-import SuezGallery from '@/components/home/SuezGallery';
-import CommunityTeaser from '@/components/home/CommunityTeaser';
-import NewPlaces from '@/components/home/NewPlaces';
-import HomeMarketSection from '@/components/home/HomeMarketSection';
-import CategoryHighlight from '@/components/home/CategoryHighlight';
-import BestOfSuezHome from '@/components/home/BestOfSuezHome';
-import { getCommunityPosts } from '@/lib/actions/posts';
-import { getMarketHomePageData } from '@/lib/actions/market';
+import SuezStats from '@/features/stats/components/SuezStats';
+import SuezGallery from '@/features/gallery/components/SuezGallery';
+import CommunityTeaser from '@/features/community/components/CommunityTeaser';
+import CategoryHighlight from '@/features/places/components/CategoryHighlight';
+import BestOfSuezHome from '@/features/places/components/BestOfSuezHome';
+import { getCommunityPosts } from '@/features/community/actions/posts.server';
+import { getMarketHomePageData } from '@/features/market/actions/market.server';
 import { createClient } from '@/lib/supabase/server';
-import { getTopGalleryImages } from '@/lib/actions/gallery';
+import { getTopGalleryImages } from '@/features/gallery/actions/gallery.server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import DistrictsExplorer from '@/features/places/components/DistrictsExplorer';
+import HomeMarketSection from '@/features/market/components/HomeMarketSection';
+import NewPlaces from '@/features/places/components/NewPlaces';
+import TrendingPlaces from '@/features/places/components/TrendingPlaces';
+import CommunityPulse from '@/features/places/components/pulse/CommunityPulse';
 
 export const metadata: Metadata = {
   title: "دليل السويس | Suez Guide - كل مكان في السويس في مكان واحد",

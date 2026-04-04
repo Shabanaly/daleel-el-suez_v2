@@ -1,5 +1,5 @@
-import { getMarketAdBySlug, getMarketAdById } from "@/lib/actions/market";
-import AdDetailsClient from "./_components/AdDetailsClient";
+import { getMarketAdBySlug, getMarketAdById } from "@/features/market/actions/market.server";
+import AdDetailsClient from "@/features/market/components/AdDetailsClient";
 import { notFound, redirect } from "next/navigation";
 import { Metadata } from 'next';
 
