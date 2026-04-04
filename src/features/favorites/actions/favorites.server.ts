@@ -5,8 +5,6 @@ import { createServiceClient } from '@/lib/supabase/client-service';
 import { unstable_cache } from 'next/cache';
 import { mapPlace, mapMarketAd } from '@/lib/utils/mappers';
 import { tags, keys, cacheManager } from '@/lib/cache';
-import { NotificationService } from '@/lib/notifications/service';
-import { NotificationEvent } from '@/lib/notifications/types';
 
 
 /**
@@ -54,37 +52,6 @@ export async function toggleFavorite(itemId: string, itemType: 'place' | 'listin
         if (insertError) {
             console.error('Error adding favorite:', insertError);
             return { error: 'حدث خطأ أثناء الإضافة للمفضلة' };
-        }
-        
-        // --- Notification Logic ---
-        try {
-            if (itemType === 'place') {
-                 const { data: itemData } = await supabase
-                    .from('places')
-                    .select('added_by, name, slug') 
-                    .eq('id', itemId)
-                    .single();
-                    
-                 if (itemData && itemData.added_by && itemData.added_by !== user.id) {
-                     // Fetch liker's name
-                     const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('full_name, username')
-                        .eq('id', user.id)
-                        .single();
-
-                     await NotificationService.trigger(NotificationEvent.PLACE_FAVORITED, {
-                        placeId: itemId,
-                        placeName: itemData.name,
-                        placeSlug: itemData.slug || itemId,
-                        actorName: profile?.full_name || profile?.username || 'عضو',
-                        recipientId: itemData.added_by,
-                        actorId: user.id,
-                     });
-                 }
-            }
-        } catch (notifErr) {
-            console.error("Failed to send favorite notification:", notifErr);
         }
     }
 

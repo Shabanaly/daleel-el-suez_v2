@@ -37,7 +37,7 @@ export function PersonalInfoForm({ user }: PersonalInfoFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {/* Full Name */}
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                     <label className="text-sm font-black text-text-primary pr-2">الاسم بالكامل</label>
                     <div className="relative group">
                         <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text-muted group-focus-within:text-primary transition-colors">
@@ -49,25 +49,6 @@ export function PersonalInfoForm({ user }: PersonalInfoFormProps) {
                             defaultValue={metadata.full_name || ''}
                             placeholder="مثال: أحمد محمد"
                             className="w-full h-14 bg-elevated border border-border-subtle rounded-2xl pr-12 pl-4 text-sm font-bold focus:outline-hidden focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all"
-                            required
-                        />
-                    </div>
-                </div>
-
-                {/* Username */}
-                <div className="space-y-2">
-                    <label className="text-sm font-black text-text-primary pr-2">اسم المستخدم</label>
-                    <div className="relative group">
-                        <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text-muted group-focus-within:text-primary transition-colors">
-                            <AtSign className="w-5 h-5" />
-                        </div>
-                        <input
-                            type="text"
-                            name="username"
-                            defaultValue={metadata.username || ''}
-                            placeholder="مثال: ahmed_123"
-                            className="w-full h-14 bg-elevated border border-border-subtle rounded-2xl pr-12 pl-4 text-sm font-bold focus:outline-hidden focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all text-left"
-                            dir="ltr"
                             required
                         />
                     </div>

@@ -49,7 +49,7 @@ export interface RawMarketAd {
     area_id?: string | number;
     categories?: { name: string; slug: string } | { name: string; slug: string }[];
     seller_id: string;
-    profiles?: { full_name: string | null };
+    profiles?: { full_name: string | null; avatar_url?: string | null };
     contact_phone?: string;
     status: string;
     areas?: { name: string };

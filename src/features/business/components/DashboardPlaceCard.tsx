@@ -1,4 +1,5 @@
 'use client';
+import { memo } from 'react';
 
 import { MapPin, Star, Eye } from 'lucide-react';
 import { Place } from '@/features/places/types';
@@ -10,7 +11,7 @@ interface DashboardPlaceCardProps {
     place: Place;
 }
 
-export function DashboardPlaceCard({ place }: DashboardPlaceCardProps) {
+export const DashboardPlaceCard = memo(function DashboardPlaceCard({ place }: DashboardPlaceCardProps) {
     const router = useRouter();
     const isOpen = place.openHours !== 'مغلق' && place.openHours !== 'مغلق حالياً' && place.openHours !== 'قريباً';
 
@@ -89,4 +90,4 @@ export function DashboardPlaceCard({ place }: DashboardPlaceCardProps) {
             </div>
         </motion.div>
     );
-}
+});

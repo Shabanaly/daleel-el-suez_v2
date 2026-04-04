@@ -1,8 +1,4 @@
 export enum NotificationEvent {
-  COMMENT_ADDED = 'COMMENT_ADDED',
-  COMMENT_REPLIED = 'COMMENT_REPLIED',
-  POST_LIKED = 'POST_LIKED',
-  PLACE_FAVORITED = 'PLACE_FAVORITED',
   PLACE_STATUS_UPDATED = 'PLACE_STATUS_UPDATED',
   COMMUNITY_INVITE = 'COMMUNITY_INVITE',
   ADD_PLACE_INVITE = 'ADD_PLACE_INVITE',
@@ -21,6 +17,13 @@ export type NotificationStatus = 'READ' | 'UNREAD';
 export interface Notification {
   id: string;
   user_id: string;
+  actor_id?: string;
+  actor?: {
+    id: string;
+    username: string;
+    full_name: string;
+    avatar_url: string;
+  };
   title: string;
   message: string;
   type: NotificationType;
@@ -42,36 +45,6 @@ export interface NotificationPayload {
 }
 
 export interface EventData {
-  [NotificationEvent.COMMENT_ADDED]: {
-    postId: string;
-    postTitle: string;
-    actorName: string;
-    recipientId: string;
-    actorId: string;
-  };
-  [NotificationEvent.COMMENT_REPLIED]: {
-    postId: string;
-    postTitle: string;
-    parentCommentId: string;
-    actorName: string;
-    recipientId: string; // صاحب التعليق الأصلي
-    actorId: string;
-  };
-  [NotificationEvent.POST_LIKED]: {
-    postId: string;
-    postContent: string;
-    actorName: string;
-    recipientId: string;
-    actorId: string;
-  };
-  [NotificationEvent.PLACE_FAVORITED]: {
-    placeId: string;
-    placeName: string;
-    placeSlug: string;
-    actorName: string;
-    recipientId: string;
-    actorId: string;
-  };
   [NotificationEvent.PLACE_STATUS_UPDATED]: {
     placeId: string;
     placeName: string;

@@ -3,6 +3,7 @@
 import { Image as ImageIcon, Loader2, Info, Send, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ImageUploader } from '@/components/ui/ImageUploader';
+import { useState, memo, useEffect } from 'react';
 
 interface Step3Props {
     formData: {
@@ -18,7 +19,7 @@ interface Step3Props {
     errors?: Record<string, string>;
 }
 
-export function Step3MediaInfo({
+export const Step3MediaInfo = memo(function Step3MediaInfo({
     formData,
     updateFormData,
     onBack,
@@ -28,8 +29,20 @@ export function Step3MediaInfo({
     onSubmit,
     errors
 }: Step3Props) {
-    // const maxImages = 5;
-    // const remainingSlots = maxImages - formData.images.length;
+    const [localDescription, setLocalDescription] = useState(formData.description);
+
+    useEffect(() => {
+        setLocalDescription(formData.description);
+    }, [formData.description]);
+
+    const handleFinalSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        updateFormData({ description: localDescription });
+        // Use a small timeout to ensure state is updated before submit
+        setTimeout(() => {
+            onSubmit(e);
+        }, 0);
+    };
 
     return (
         <motion.div
@@ -50,8 +63,9 @@ export function Step3MediaInfo({
                     <textarea
                         required
                         rows={4}
-                        value={formData.description}
-                        onChange={e => updateFormData({ description: e.target.value })}
+                        value={localDescription}
+                        onChange={e => setLocalDescription(e.target.value)}
+                        onBlur={() => updateFormData({ description: localDescription })}
                         placeholder="احكي للناس أكتر عن اللي بتقدمه، المنتجات، الخدمات، أو أي تفاصيل تميزك..."
                         className={`w-full p-6 rounded-3xl bg-background border ${errors?.description ? 'border-red-500' : 'border-border-subtle'} text-text-primary font-bold placeholder:text-text-muted/30 focus:border-primary transition-all outline-hidden resize-none`}
                     />
@@ -80,7 +94,10 @@ export function Step3MediaInfo({
             <div className="flex gap-4">
                 <button
                     type="button"
-                    onClick={onBack}
+                    onClick={() => {
+                        updateFormData({ description: localDescription });
+                        onBack();
+                    }}
                     className="h-16 px-8 rounded-2xl bg-surface border border-border-subtle text-text-primary font-black flex items-center justify-center gap-2 hover:bg-elevated transition-all"
                 >
                     <ChevronRight className="w-5 h-5" />
@@ -88,7 +105,7 @@ export function Step3MediaInfo({
                 </button>
                 <button
                     type="button"
-                    onClick={onSubmit}
+                    onClick={handleFinalSubmit}
                     disabled={isUploading || formData.images.length === 0}
                     className="flex-1 h-16 rounded-2xl bg-linear-to-r from-accent to-accent/90 text-white font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-accent/25 transition-all active:scale-[0.98] group disabled:opacity-50"
                 >
@@ -102,4 +119,5 @@ export function Step3MediaInfo({
             </div>
         </motion.div>
     );
-}
+});
+

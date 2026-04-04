@@ -73,7 +73,7 @@ export async function getMarketAds(
                 *,
                 categories(name, slug),
                 areas(name),
-                profiles(full_name),
+                profiles(full_name, avatar_url),
                 listing_daily_views(count, view_date)
             `;
 
@@ -83,7 +83,7 @@ export async function getMarketAds(
                     *,
                     categories!inner(name, slug),
                     areas(name),
-                    profiles(full_name),
+                    profiles(full_name, avatar_url),
                     listing_daily_views(count, view_date)
                 `;
             }
@@ -158,7 +158,7 @@ async function baseMarketAdsQuery(orderBy: string, ascending = false, limit = 15
             *,
             categories(name, slug),
             areas(name),
-            profiles(full_name),
+            profiles(full_name, avatar_url),
             listing_daily_views(count, view_date)
         `)
         .eq('status', 'active')
@@ -210,7 +210,7 @@ export async function getMarketAdBySlug(slug: string): Promise<MarketAd | null> 
                     *,
                     categories(name, slug),
                     areas(name),
-                    profiles(full_name),
+                    profiles(full_name, avatar_url),
                     listing_daily_views(count, view_date)
                 `)
                 .eq('slug', decodedSlug)
@@ -241,7 +241,7 @@ export async function getMarketAdById(id: string) {
                     *,
                     categories(name, slug),
                     areas(name),
-                    profiles(full_name),
+                    profiles(full_name, avatar_url),
                     listing_daily_views(count, view_date)
                 `)
                 .eq('id', adId)
@@ -270,7 +270,7 @@ export async function getUserMarketAds() {
             *,
             categories(name, slug),
             areas(name),
-            profiles(full_name),
+            profiles(full_name, avatar_url),
             listing_daily_views(count, view_date)
         `)
         .eq('seller_id', user.id)
@@ -322,7 +322,7 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
             seller_id: user.id,
             contact_phone: adData.seller_phone,
             status: 'active',
-            public_ids: adData.images
+            public_ids: adData.public_ids
         })
         .select(`*, categories(slug)`)
         .single();
@@ -523,7 +523,7 @@ export async function getMarketAdsForSitemap() {
     const supabase = createServiceClient();
     const { data, error } = await supabase
         .from('listings')
-        .select('slug, created_at')
+        .select('slug, created_at, images')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 

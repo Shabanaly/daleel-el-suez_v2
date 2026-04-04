@@ -8,14 +8,18 @@ import Image from 'next/image';
 import { Lightbox } from '@/components/common/Lightbox';
 import { GalleryImage, incrementImageViews } from '@/features/gallery/actions/gallery.server';
 import UploadPhotoModal from '@/features/gallery/components/UploadPhotoModal';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface GalleryClientProps {
     initialImages: GalleryImage[];
     categories: string[];
+    initialCategory?: string;
 }
 
-export default function GalleryClient({ initialImages, categories }: GalleryClientProps) {
-    const [selectedCategory, setSelectedCategory] = useState('الكل');
+export default function GalleryClient({ initialImages, categories, initialCategory = 'الكل' }: GalleryClientProps) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [selectedCategory, setSelectedCategory] = useState(initialCategory);
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [photoIndex, setPhotoIndex] = useState(0);
     const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -38,8 +42,8 @@ export default function GalleryClient({ initialImages, categories }: GalleryClie
             const today = new Date().toDateString();
             
             if (lastView !== today) {
-                incrementImageViews(img.id);
                 localStorage.setItem(lastViewKey, today);
+                incrementImageViews(img.id);
             }
         }
     };
@@ -83,7 +87,13 @@ export default function GalleryClient({ initialImages, categories }: GalleryClie
                     {categories.map(cat => (
                         <button
                             key={cat}
-                            onClick={() => setSelectedCategory(cat)}
+                            onClick={() => {
+                                setSelectedCategory(cat);
+                                const params = new URLSearchParams(searchParams.toString());
+                                if (cat === 'الكل') params.delete('category');
+                                else params.set('category', cat);
+                                router.push(`/gallery?${params.toString()}`, { scroll: false });
+                            }}
                             className={`whitespace-nowrap px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-300 ${
                                 selectedCategory === cat 
                                 ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105' 

@@ -1,15 +1,11 @@
-'use client';
 
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Flame } from 'lucide-react';
 import { PlaceCard } from '@/features/places/components/PlaceCard';
-import { Place } from '@/features/places/types';
+import { getHomePageData } from '@/features/places/actions/places.server';
 
-interface NewPlacesProps {
-    places: Place[];
-}
-
-export default function NewPlaces({ places }: NewPlacesProps) {
+export default async function NewPlaces() {
+    const { newPlaces } = await getHomePageData();
     return (
         <section className="w-full max-w-7xl mx-auto px-4 pt-0 pb-8 md:pt-0 md:pb-16 relative overflow-hidden">
             {/* Ambient Background Glow */}
@@ -24,7 +20,7 @@ export default function NewPlaces({ places }: NewPlacesProps) {
             />
 
             <div className="flex overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-4 gap-6 md:gap-8 pb-10">
-                {places.slice(0, 8).map((place, idx) => (
+                {newPlaces.slice(0, 8).map((place, idx) => (
                     <PlaceCard 
                         key={place.id} 
                         place={place} 

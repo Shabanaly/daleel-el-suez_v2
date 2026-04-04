@@ -13,6 +13,7 @@ import { GoogleOneTap } from "@/features/auth/components/GoogleOneTap";
 import { DialogProvider } from "@/components/providers/DialogProvider";
 import { CommentsProvider } from "@/features/community/providers/CommentsProvider";
 import { NotificationProvider } from "@/features/notifications/components/NotificationProvider";
+import { ToastProvider } from "@/features/notifications/components/ToastProvider";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import LoadingScreen from "@/components/ui/LoadingScreen";
@@ -40,13 +41,15 @@ export const metadata: Metadata = {
     default: "دليل السويس | Suez Guide - دليلك الشامل",
     template: "%s | دليل السويس"
   },
-  description: "اكتشف أفضل الأماكن، الخدمات، والمطاعم في محافظة السويس. دليل السويس هو رفيقك الموثوق لاستكشاف المدينة.",
+  description: "اكتشف أفضل الأماكن، الخدمات، والمطاعم في محافظة السويس. دليل السويس هو الرفيق الأول لأهل السويس لاستكشاف مدينتهم والحصول على أفضل العروض والخدمات الموثوقة.",
   keywords: [
     "السويس", "دليل السويس", "سوق السويس", "أماكن السويس", "خدمات السويس", "عقارات السويس", 
     "وظائف السويس", "مطاعم السويس", "عيادات السويس", "بيع وشراء السويس", "مستعمل السويس", 
-    "اعلانات السويس", "اخبار السويس", "مجتمع السويس"
+    "اعلانات السويس", "أخبار السويس", "مجتمع السويس", "محلات السويس", "خدمات حكومية السويس",
+    "دليل ارقام تليفونات السويس", "افضل مطاعم السويس", "افضل اطباء السويس", "سويسي", "مدن القناة",
+    "بورتوفيق", "الاربعين", "فيصل السويس", "حتا السويس", "الكبريت", "العين السخنة"
   ],
-  authors: [{ name: "Suez Guide Team" }],
+  authors: [{ name: "دليل السويس" }],
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -57,10 +60,18 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    siteName: "دليل السويس",
-    title: "دليل السويس | Suez Guide",
-    description: "كل مكان في السويس في مكان واحد - دليل شامل للخدمات والأماكن",
+    siteName: "دليل السويس - Suez Guide",
+    title: "دليل السويس | Suez Guide - دليلك الشامل",
+    description: "كل ما تحتاجه في السويس في مكان واحد - أماكن، خدمات، وسوق تجاري متكامل.",
     locale: "ar_EG",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "دليل السويس - Suez Guide"
+      }
+    ]
   },
   twitter: {
     card: "summary_large_image",
@@ -127,34 +138,36 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <NotificationProvider>
-              <Suspense fallback={null}>
-                <LoadingScreen />
-              </Suspense>
-              <PWAInstallPrompt />
-              <CookieConsent />
-              {googleClientId && <GoogleOneTap clientId={googleClientId} />}
-              <AuthModalProvider>
-                <DialogProvider>
-                  <CommentsProvider>
-                    <Navbar />
-                    <DesktopSidebar />
-                    <LeftSidebar />
-                    <MainContentWrapper>
-                      {children}
-                      {/* Show Footer only on desktop, balanced between sidebars */}
-                      <div className="hidden lg:block">
-                        <Footer />
-                      </div>
-                    </MainContentWrapper>
+            <ToastProvider>
+              <NotificationProvider>
+                <Suspense fallback={null}>
+                  <LoadingScreen />
+                </Suspense>
+                <PWAInstallPrompt />
+                <CookieConsent />
+                {googleClientId && <GoogleOneTap clientId={googleClientId} />}
+                <AuthModalProvider>
+                  <DialogProvider>
+                    <CommentsProvider>
+                      <Navbar />
+                      <DesktopSidebar />
+                      <LeftSidebar />
+                      <MainContentWrapper>
+                        {children}
+                        {/* Show Footer only on desktop, balanced between sidebars */}
+                        <div className="hidden lg:block">
+                          <Footer />
+                        </div>
+                      </MainContentWrapper>
 
-                    <BottomNav />
-                    <Analytics />
-                    <SpeedInsights />
-                  </CommentsProvider>
-                </DialogProvider>
-              </AuthModalProvider>
-            </NotificationProvider>
+                      <BottomNav />
+                      <Analytics />
+                      <SpeedInsights />
+                    </CommentsProvider>
+                  </DialogProvider>
+                </AuthModalProvider>
+              </NotificationProvider>
+            </ToastProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

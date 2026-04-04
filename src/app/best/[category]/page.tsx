@@ -13,11 +13,12 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { category: slug } = await params;
     const category = await getCategoryInfoBySlug(slug);
+    const currentYear = new Date().getFullYear();
 
     if (!category) return { title: 'قائمة غير موجودة' };
 
-    const title = `أفضل ${addArabicArticle(category.name)} في السويس لعام 2024 | القائمة الكاملة`;
-    const description = `اكتشف أفضل ${addArabicArticle(category.name)} في السويس بناءً على تقييمات حقيقية. قائمة محدثة تشمل رقم التواصل، الموقع، والخدمات المتاحة.`;
+    const title = `أفضل ${addArabicArticle(category.name)} في السويس لعام ${currentYear} | القائمة الكاملة`;
+    const description = `اكتشف القائمة الذهبية لأفضل ${addArabicArticle(category.name)} في السويس لعام ${currentYear} بناءً على تقييمات حقيقية. تشمل العناوين، أرقام التليفون، والخدمات الموزعة.`;
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
     const url = `${baseUrl}/best/${slug}`;
@@ -64,12 +65,13 @@ export default async function BestOfCategoryPage({ params }: Props) {
         { label: "مشاهدة شهرياً", value: category.totalViews, iconName: "trending" },
     ];
 
+    const currentYear = new Date().getFullYear();
     // JSON-LD for rich results
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "ItemList",
-        "name": `أفضل ${category.name} في السويس لعام 2024`,
-        "description": `قائمة حصرية بأفضل ${category.name} في السويس بناءً على التقييمات`,
+        "name": `أفضل ${category.name} في السويس لعام ${currentYear}`,
+        "description": `قائمة حصرية بأفضل ${category.name} في السويس لعام ${currentYear} بناءً على تقييمات حقيقية من مجتمع السويس.`,
         "itemListElement": places.map((place, index) => ({
             "@type": "ListItem",
             "position": index + 1,

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { Bell, CheckSquare } from 'lucide-react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
@@ -8,8 +8,10 @@ import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { Notification } from '@/lib/notifications/types';
 import { NotificationList } from './NotificationList';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 import { getRecentNotificationsAction, markNotificationAsReadAction, markAllNotificationsAsReadAction } from '@/features/notifications/actions/notifications.server';
+import { useToast } from '@/features/notifications/hooks/useToast';
 
 export const NotificationBell = () => {
   const { user } = useAuth();
@@ -18,7 +20,10 @@ export const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const subscriptionRef = useRef<string | null>(null);
-  const supabase = createClient();
+  // Stable supabase ref — prevent re-creation on every render
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
+  const { showToast } = useToast();
 
   // Fetch initial notifications with Smart Caching
   const fetchNotifications = useCallback(async () => {
@@ -59,13 +64,11 @@ export const NotificationBell = () => {
 
   useEffect(() => {
     if (user) {
-      if (subscriptionRef.current === user.id) return; // Prevent duplicate subs for same user
+      if (subscriptionRef.current === user.id) return;
       subscriptionRef.current = user.id;
 
-      console.log(`[NotificationBell] Initializing Realtime for user: ${user.id}`);
       setTimeout(() => fetchNotifications(), 0);
       
-      // Subscribe to real-time notifications with a unique channel name to avoid protocol mismatches
       const channel = supabase
         .channel(`notifs-${user.id}-${Math.floor(Math.random() * 10000)}`)
         .on(
@@ -73,10 +76,18 @@ export const NotificationBell = () => {
           { event: '*', schema: 'public', table: 'notifications' }, 
           (payload: RealtimePostgresChangesPayload<Notification>) => {
             if ((payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') && payload.new && 'user_id' in payload.new && payload.new.user_id === user.id) {
-                console.log(`[NotificationBell] Real-time ${payload.eventType} event received:`, payload.new);
-                
                 if (payload.eventType === 'INSERT') {
                     const newNotif = payload.new as Notification;
+                    
+                    // Trigger visual toast
+                    showToast({
+                        title: newNotif.title,
+                        message: newNotif.message,
+                        type: newNotif.type as any,
+                        link: newNotif.link,
+                        actor: newNotif.actor
+                    });
+
                     setNotifications(prev => {
                         const updated = [newNotif, ...prev.slice(0, 19)];
                         updateCache(updated);
@@ -88,11 +99,8 @@ export const NotificationBell = () => {
                     setNotifications(prev => {
                         const updated = prev.map(n => n.id === updatedNotif.id ? updatedNotif : n);
                         updateCache(updated);
-                        
-                        // Recalculate unread count based on the FRESH state
                         const newUnreadCount = updated.filter(n => !n.is_read).length;
                         setUnreadCount(newUnreadCount);
-                        
                         return updated;
                     });
                 }
@@ -100,18 +108,12 @@ export const NotificationBell = () => {
           }
         )
         .subscribe((status: string, err: Error | undefined) => {
-          console.log(`[NotificationBell] Realtime status: ${status}`);
           if (err) {
-            console.error('[NotificationBell] Realtime subscription error:', err);
-          }
-          // Update status for the UI debug indicator
-          if (status === 'SUBSCRIBED') {
-             console.log('[NotificationBell] Subscribed to realtime');
+            console.error('[NotificationBell] Realtime error:', err);
           }
         });
 
       return () => {
-        console.log('[NotificationBell] Cleaning up Realtime channel');
         subscriptionRef.current = null;
         supabase.removeChannel(channel);
       };
@@ -214,13 +216,18 @@ export const NotificationBell = () => {
               notifications={notifications} 
               onMarkAsRead={markAsRead} 
               onClose={() => setIsOpen(false)}
+              className="max-h-[420px] overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-border-subtle divide-y"
             />
 
             {/* Footer */}
-            <div className="p-3 border-t border-border-subtle text-center bg-elevated/10">
-              <button className="text-xs text-text-muted hover:text-text-primary transition-colors font-medium">
+            <div className="p-3 border-t border-border-subtle text-center bg-elevated/10 hover:bg-elevated/20 transition-colors">
+              <Link 
+                href="/profile/notifications"
+                onClick={() => setIsOpen(false)}
+                className="text-xs text-text-muted hover:text-text-primary transition-colors font-bold block w-full"
+              >
                 عرض أرشيف الإشعارات
-              </button>
+              </Link>
             </div>
           </motion.div>
         )}

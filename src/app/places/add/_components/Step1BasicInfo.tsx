@@ -2,6 +2,7 @@
 
 import { Store, Tag, MapPin, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useState, memo, useEffect } from 'react';
 
 interface Step1Props {
     formData: {
@@ -21,8 +22,31 @@ interface Step1Props {
     errors?: Record<string, string>;
 }
 
-export function Step1BasicInfo({ formData, updateFormData, categories, areas, districts, isVerifyingArea, handleVerifyArea, onNext, errors }: Step1Props) {
+export const Step1BasicInfo = memo(function Step1BasicInfo({ 
+    formData, 
+    updateFormData, 
+    categories, 
+    areas, 
+    districts, 
+    isVerifyingArea, 
+    handleVerifyArea, 
+    onNext, 
+    errors 
+}: Step1Props) {
     const isAddingCustomArea = formData.areaId === -1;
+    
+    // Local state for text fields to prevent cascading renders
+    const [localName, setLocalName] = useState(formData.name);
+    const [localCustomArea, setLocalCustomArea] = useState(formData.customAreaName || '');
+
+    // Sync local state when external data changes (e.g. on mount or step switch)
+    useEffect(() => {
+        setLocalName(formData.name);
+    }, [formData.name]);
+
+    useEffect(() => {
+        setLocalCustomArea(formData.customAreaName || '');
+    }, [formData.customAreaName]);
 
     return (
         <motion.div
@@ -44,8 +68,13 @@ export function Step1BasicInfo({ formData, updateFormData, categories, areas, di
                         <input
                             required
                             type="text"
-                            value={formData.name}
-                            onChange={e => updateFormData({ name: e.target.value })}
+                            value={localName}
+                            onChange={e => {
+                                setLocalName(e.target.value);
+                                // Optional: debounced update to parent if validation is needed live
+                                // updateFormData({ name: e.target.value }); 
+                            }}
+                            onBlur={() => updateFormData({ name: localName })}
                             placeholder="مثال: مطعم النيل، صيدلية الشفاء..."
                             className={`w-full h-16 px-6 rounded-2xl bg-background border ${errors?.name ? 'border-red-500' : 'border-border-subtle'} text-text-primary font-bold placeholder:text-text-muted/30 focus:border-primary transition-all outline-hidden`}
                         />
@@ -106,8 +135,9 @@ export function Step1BasicInfo({ formData, updateFormData, categories, areas, di
                             <input
                                 required={isAddingCustomArea}
                                 type="text"
-                                value={formData.customAreaName || ''}
-                                onChange={e => updateFormData({ customAreaName: e.target.value })}
+                                value={localCustomArea}
+                                onChange={e => setLocalCustomArea(e.target.value)}
+                                onBlur={() => updateFormData({ customAreaName: localCustomArea })}
                                 placeholder="اكتب اسم المنطقة..."
                                 className={`w-full h-14 px-6 rounded-xl bg-background border ${errors?.customAreaName ? 'border-red-500' : 'border-border-subtle'} text-text-primary focus:border-primary transition-all outline-hidden`}
                             />
@@ -133,8 +163,12 @@ export function Step1BasicInfo({ formData, updateFormData, categories, areas, di
 
                                 <button
                                     type="button"
-                                    onClick={handleVerifyArea}
-                                    disabled={isVerifyingArea || !formData.customAreaName || !formData.customDistrictId}
+                                    onClick={() => {
+                                        // Ensure parent has latest custom name before verifying
+                                        updateFormData({ customAreaName: localCustomArea });
+                                        handleVerifyArea?.();
+                                    }}
+                                    disabled={isVerifyingArea || !localCustomArea || !formData.customDistrictId}
                                     className="h-14 px-6 rounded-xl bg-primary text-white font-bold whitespace-nowrap hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                 >
                                     {isVerifyingArea ? (
@@ -153,7 +187,14 @@ export function Step1BasicInfo({ formData, updateFormData, categories, areas, di
 
             <button
                 type="button"
-                onClick={onNext}
+                onClick={() => {
+                    // Sync everything before moving to next step
+                    updateFormData({ 
+                        name: localName,
+                        customAreaName: localCustomArea
+                    });
+                    onNext();
+                }}
                 className="w-full h-16 rounded-2xl bg-primary text-white font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-primary/25 hover:bg-primary-hover transition-all active:scale-[0.98]"
             >
                 <span>التالي</span>
@@ -161,4 +202,5 @@ export function Step1BasicInfo({ formData, updateFormData, categories, areas, di
             </button>
         </motion.div>
     );
-}
+});
+

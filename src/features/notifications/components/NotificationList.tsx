@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Notification } from '@/lib/notifications/types';
@@ -11,6 +11,7 @@ interface NotificationListProps {
   notifications: Notification[];
   onMarkAsRead: (id: string) => void;
   onClose: () => void;
+  className?: string;
 }
 
 const getNotificationIcon = (title: string, type: string) => {
@@ -48,7 +49,7 @@ const getNotificationBg = (title: string, type: string) => {
   return 'bg-primary/10';
 };
 
-export const NotificationList = ({ notifications, onMarkAsRead, onClose }: NotificationListProps) => {
+export const NotificationList = memo(function NotificationList({ notifications, onMarkAsRead, onClose, className }: NotificationListProps) {
   if (notifications.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
@@ -61,36 +62,52 @@ export const NotificationList = ({ notifications, onMarkAsRead, onClose }: Notif
     );
   }
 
+  const isCompact = className?.includes('divide-y');
+
   return (
-    <div className="divide-y divide-border-subtle max-h-[400px] overflow-y-auto">
+    <div className={`${isCompact ? 'divide-y divide-border-subtle' : 'space-y-4'} ${className || ''}`}>
       {notifications.map((notif) => {
         const Content = (
-          <div className="flex gap-3">
-            <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${getNotificationBg(notif.title, notif.type)}`}>
-              {getNotificationIcon(notif.title, notif.type)}
+          <div className="flex gap-4 items-start">
+            {/* Actor Avatar / Icon */}
+            <div className={`w-12 h-12 rounded-2xl shrink-0 flex items-center justify-center overflow-hidden shadow-sm ${getNotificationBg(notif.title, notif.type)}`}>
+              {notif.actor?.avatar_url ? (
+                <img 
+                  src={notif.actor.avatar_url} 
+                  alt={notif.actor.full_name || 'User'} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="p-2.5">
+                  {getNotificationIcon(notif.title, notif.type)}
+                </div>
+              )}
             </div>
             
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-start mb-1">
-                <h4 className={`text-sm font-semibold truncate ${!notif.is_read ? 'text-text-primary' : 'text-text-muted'}`}>
+            <div className="flex-1 min-w-0 py-1">
+              <div className="flex justify-between items-center mb-1.5">
+                <h4 className={`text-sm font-black truncate tracking-tight ${!notif.is_read ? 'text-text-primary' : 'text-text-muted'}`}>
                   {notif.title}
                 </h4>
-                <span className="text-[10px] text-text-muted whitespace-nowrap mr-2">
-                  {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true, locale: ar })}
-                </span>
+                <div className="flex items-center gap-2 shrink-0 ml-2">
+                  <span className="text-[11px] font-bold text-text-muted opacity-70 whitespace-nowrap">
+                    {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true, locale: ar })}
+                  </span>
+                  {!notif.is_read && (
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-sm shadow-primary/50" />
+                  )}
+                </div>
               </div>
-              <p className="text-xs text-text-muted line-clamp-2 leading-relaxed">
+              <p className={`text-sm leading-relaxed ${!notif.is_read ? 'text-text-secondary font-medium' : 'text-text-muted font-normal'}`}>
                 {notif.message}
               </p>
             </div>
-
-            {!notif.is_read && (
-              <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
-            )}
           </div>
         );
 
-        const commonClasses = `p-4 hover:bg-elevated transition-colors cursor-pointer group relative block ${!notif.is_read ? 'bg-primary/5' : ''}`;
+        const commonClasses = isCompact
+          ? `p-5 hover:bg-elevated transition-all duration-300 cursor-pointer group relative block ${!notif.is_read ? 'bg-primary/[0.03]' : ''}`
+          : `p-5 bg-surface rounded-3xl border border-border-subtle hover:border-primary/30 hover:shadow-md transition-all duration-300 cursor-pointer group relative block ${!notif.is_read ? 'border-primary/20 bg-primary/[0.02]' : ''}`;
 
         if (notif.link) {
           return (
@@ -122,4 +139,4 @@ export const NotificationList = ({ notifications, onMarkAsRead, onClose }: Notif
       })}
     </div>
   );
-};
+});

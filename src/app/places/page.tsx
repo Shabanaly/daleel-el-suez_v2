@@ -8,19 +8,44 @@ import { getDistricts } from '@/features/taxonomy/actions/districts';
 import type { Metadata } from 'next';
 import { SortOption } from '@/features/places/types';
 
-export const metadata: Metadata = {
-    title: 'دليل السويس الشامل | خدمات، أماكن، ومطاعم',
-    description: 'دليلك الشامل لمحافظة السويس. ابحث عن أفضل المطاعم، العيادات، المحلات، والخدمات الحكومية. اكتشف تقييمات وتفاصيل أكثر من 1000 مكان في السويس.',
-    keywords: [
-        "مطاعم السويس", "عيادات السويس", "بنوك السويس", "محلات السويس", "خدمات السويس", 
-        "دليل السويس", "أماكن ترفيه في السويس", "صيدليات السويس", "مدارس السويس"
-    ],
-    openGraph: {
-        title: 'دليل السويس | اكتشف أفضل الأماكن والخدمات',
-        description: 'كل ما تحتاجه في السويس في مكان واحد. بحث سهل وسريع عن كل الخدمات.',
-        type: 'website',
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }): Promise<Metadata> {
+    const params = await searchParams;
+    const categoryName = params.category as string;
+    const areaName = params.area as string;
+    const query = params.q as string;
+
+    let title = 'دليل السويس الشامل | خدمات، أماكن، ومطاعم';
+    let description = 'دليلك الشامل لمحافظة السويس. ابحث عن أفضل المطاعم، العيادات، المحلات، والخدمات الحكومية. اكتشف تقييمات وتفاصيل أكثر من 1000 مكان في السويس.';
+
+    if (categoryName && areaName) {
+        title = `${categoryName} في ${areaName} | دليل السويس`;
+        description = `اكتشف أفضل ${categoryName} في منطقة ${areaName} بالسويس. مواعيد العمل، أرقام التليفون، والتقييمات الحقيقية.`;
+    } else if (categoryName) {
+        title = `أفضل ${categoryName} في السويس | دليل السويس`;
+        description = `دليلك لأفضل ${categoryName} في محافظة السويس. اطلع على العناوين والتقييمات وتواصل مباشرة.`;
+    } else if (areaName) {
+        title = `دليل الخدمات في ${areaName} | السويس`;
+        description = `كل الخدمات والأماكن المتاحة في منطقة ${areaName} بالسويس. بحث شامل وسريع.`;
+    } else if (query) {
+        title = `نتائج البحث عن: ${query} | دليل السويس`;
+        description = `نتائج البحث عن ${query} في السويس. اعثر على ما تحتاجه بسرعة وسهولة.`;
     }
-};
+
+    return {
+        title,
+        description,
+        keywords: [
+            categoryName, areaName, query, 
+            "مطاعم السويس", "عيادات السويس", "بنوك السويس", "محلات السويس", "خدمات السويس", 
+            "دليل السويس", "أماكن ترفيه في السويس", "صيدليات السويس", "مدارس السويس"
+        ].filter(Boolean) as string[],
+        openGraph: {
+            title,
+            description,
+            type: 'website',
+        }
+    };
+}
 
 
 export default async function PlacesPage({

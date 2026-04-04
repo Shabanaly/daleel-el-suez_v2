@@ -5,8 +5,9 @@ import { NotificationTemplates } from './templates';
 export class NotificationService {
   /**
    * Unified entry point to trigger notifications across the app.
+   * Only events defined in NotificationTemplates (code-managed) can be triggered.
    */
-  static async trigger<T extends NotificationEvent>(
+  static async trigger<T extends keyof typeof NotificationTemplates>(
     event: T,
     data: EventData[T]
   ): Promise<{ success: boolean; error?: unknown }> {

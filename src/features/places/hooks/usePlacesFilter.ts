@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useTransition, useCallback } from 'react';
+import { useState, useMemo, useEffect, useTransition, useCallback, useDeferredValue } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Place, SortOption } from '@/features/places/types';
 import { AreaWithDistrict } from '@/features/taxonomy/actions/areas';
@@ -24,6 +24,8 @@ export function usePlacesFilter(
     const [sortBy, setSortBy] = useState<SortOption>((searchParams.get('sort') as SortOption) || 'trending');
     const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
     const [showFilters, setShowFilters] = useState(false);
+    const openFilters = useCallback(() => setShowFilters(true), []);
+    const closeFilters = useCallback(() => setShowFilters(false), []);
 
     // Current displayed places (initial or server-fetched)
     const [places, setPlaces] = useState<Place[]>(initialPlaces);
@@ -33,19 +35,22 @@ export function usePlacesFilter(
     useEffect(() => {
         setPlaces(initialPlaces);
         setTotal(initialTotal);
+        
         const urlPage = Number(searchParams.get('page')) || 1;
-        setPage(urlPage);
+        if (page !== urlPage) setPage(urlPage);
 
-        // NOTE: query is intentionally NOT synced here to avoid a race condition:
-        // when the user clears the search and router.push fires (in startTransition),
-        // searchParams still holds the old ?q= until the transition completes.
-        // Restoring query here would override the user's explicit clear action.
-        // The initial value is set via useState(searchParams.get('q') || '') on mount.
-        setActiveCategory(searchParams.get('category') || categories[0]?.name || 'الكل');
-        setActiveDistrict(searchParams.get('district') || 'كل الأحياء');
-        setActiveArea(searchParams.get('area') || 'كل المناطق');
-        setSortBy((searchParams.get('sort') as SortOption) || 'trending');
-    }, [initialPlaces, initialTotal, searchParams, categories]);
+        const urlCat = searchParams.get('category') || categories[0]?.name || 'الكل';
+        if (activeCategory !== urlCat) setActiveCategory(urlCat);
+
+        const urlDistrict = searchParams.get('district') || 'كل الأحياء';
+        if (activeDistrict !== urlDistrict) setActiveDistrict(urlDistrict);
+
+        const urlArea = searchParams.get('area') || 'كل المناطق';
+        if (activeArea !== urlArea) setActiveArea(urlArea);
+
+        const urlSort = (searchParams.get('sort') as SortOption) || 'trending';
+        if (sortBy !== urlSort) setSortBy(urlSort);
+    }, [initialPlaces, initialTotal, searchParams, categories, page, activeCategory, activeDistrict, activeArea, sortBy]);
 
     // Derived: Areas belonging to a specific district (helper for modal)
     const getAvailableAreasForDistrict = useCallback((districtName: string) => {
@@ -114,23 +119,23 @@ export function usePlacesFilter(
     }, [pathname, router, searchParams]);
 
     // Immediate actions
-    const handleCategoryChange = (category: string) => {
+    const handleCategoryChange = useCallback((category: string) => {
         setActiveCategory(category);
         updateURL({ category, page: 1 });
-    };
+    }, [updateURL]);
 
-    const handlePageChange = (newPage: number) => {
+    const handlePageChange = useCallback((newPage: number) => {
         setPage(newPage);
         updateURL({ page: newPage });
-    };
+    }, [updateURL]);
 
-    const handleSearch = (searchTerm: string) => {
+    const handleSearch = useCallback((searchTerm: string) => {
         setQuery(searchTerm);
         updateURL({ q: searchTerm, page: 1 });
-    };
+    }, [updateURL]);
 
     // Staged actions (for Modal)
-    const applyFilters = (filters: {
+    const applyFilters = useCallback((filters: {
         district: string,
         area: string,
         sort: SortOption
@@ -145,9 +150,9 @@ export function usePlacesFilter(
             page: 1
         });
         setShowFilters(false);
-    };
+    }, [updateURL]);
 
-    const clearFilters = () => {
+    const clearFilters = useCallback(() => {
         setQuery('');
         setActiveCategory('الكل');
         setActiveDistrict('كل الأحياء');
@@ -161,9 +166,12 @@ export function usePlacesFilter(
             sort: 'trending',
             page: 1
         });
-    };
+    }, [updateURL]);
 
-    const hasActiveFilters = activeCategory !== 'الكل' || activeDistrict !== 'كل الأحياء' || activeArea !== 'كل المناطق' || query !== '';
+    // Defer the query for performance matching react 18 rendering
+    const deferredQuery = useDeferredValue(query);
+
+    const hasActiveFilters = activeCategory !== 'الكل' || activeDistrict !== 'كل الأحياء' || activeArea !== 'كل المناطق' || deferredQuery !== '';
 
     return {
         query, setQuery,
@@ -172,7 +180,7 @@ export function usePlacesFilter(
         activeArea,
         sortBy,
         page, setPage: handlePageChange,
-        showFilters, setShowFilters,
+        showFilters, openFilters, closeFilters,
         availableAreas,
         getAvailableAreasForDistrict,
         applyFilters,
@@ -182,6 +190,6 @@ export function usePlacesFilter(
         clearFilters,
         isPending,
         total,
-        debouncedQuery: query // Renamed for compatibility, though searching is manual now
+        debouncedQuery: deferredQuery // Using deferredValue for UI responsiveness
     };
 }

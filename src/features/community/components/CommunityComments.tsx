@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { MessageCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { addComment, getPostComments, deleteComment } from '@/features/community/actions/comments.server';
 import { useDialog } from '@/components/providers/DialogProvider';
 import AuthRequiredModal from '@/features/auth/components/AuthRequiredModal';
 import CommentItem from './CommentItem';
-import CommentForm from './CommentForm';
+import CommentForm, { CommentFormHandle } from './CommentForm';
 
 import { CommunityComment } from '@/features/community/types';
 
@@ -20,11 +20,10 @@ interface CommunityCommentsProps {
 export default function CommunityComments({ postId, isInline = false, initialComments }: CommunityCommentsProps) {
     const { user } = useAuth();
     const { showAlert } = useDialog();
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<CommentFormHandle>(null);
 
     const [comments, setComments] = useState<CommunityComment[]>(initialComments || []);
     const [isLoading, setIsLoading] = useState(!initialComments);
-    const [newComment, setNewComment] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [replyTo, setReplyTo] = useState<CommunityComment | null>(null);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -50,7 +49,8 @@ export default function CommunityComments({ postId, isInline = false, initialCom
             if (inputRef.current) {
                 inputRef.current.focus();
                 setTimeout(() => {
-                    inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const el = document.getElementById('comment-input');
+                    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 300);
             }
         };
@@ -59,11 +59,10 @@ export default function CommunityComments({ postId, isInline = false, initialCom
         return () => window.removeEventListener('community:focus-comment-input', handleFocus);
     }, [postId, initialComments, fetchComments]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newComment.trim() || isSubmitting || !user || !postId) return;
+    const handleSubmit = useCallback(async (content: string) => {
+        if (!content.trim() || isSubmitting || !user || !postId) return;
 
-        const commentText = newComment.trim();
+        const commentText = content.trim();
         const parentId = replyTo?.id;
 
         // Optimistic UI update
@@ -84,7 +83,6 @@ export default function CommunityComments({ postId, isInline = false, initialCom
         };
 
         setComments(prev => [...prev, optimisticComment]);
-        setNewComment("");
         setReplyTo(null);
         setIsSubmitting(true);
 
@@ -98,20 +96,18 @@ export default function CommunityComments({ postId, isInline = false, initialCom
             } else {
                 // Rollback on failure
                 setComments(prev => prev.filter(c => c.id !== optimisticComment.id));
-                setNewComment(commentText); // Restore input
                 showAlert({ title: "خطأ", message: result.error || "فشل إرسال التعليق", type: "error" });
             }
         } catch (error) {
             // Rollback on error
             setComments(prev => prev.filter(c => c.id !== optimisticComment.id));
-            setNewComment(commentText);
             console.error('Failed to add comment:', error);
         } finally {
             setIsSubmitting(false);
         }
-    };
+    }, [postId, user, isSubmitting, replyTo, showAlert]);
 
-    const handleDeleteComment = async (commentId: string) => {
+    const handleDeleteComment = useCallback(async (commentId: string) => {
         const commentToDelete = comments.find(c => c.id === commentId);
         if (!commentToDelete) return;
 
@@ -138,10 +134,33 @@ export default function CommunityComments({ postId, isInline = false, initialCom
             ));
             console.error('Delete comment failed:', error);
         }
-    };
+    }, [postId, comments, showAlert]);
 
-    const mainComments = comments.filter(c => !c.parent_id);
-    const getReplies = (parentId: string) => comments.filter(c => c.parent_id === parentId);
+    const handleReply = useCallback((c: CommunityComment) => {
+        if (!user) {
+            setIsAuthModalOpen(true);
+            return;
+        }
+        setReplyTo(c);
+        inputRef.current?.focus();
+    }, [user]);
+
+    const handleCancelReply = useCallback(() => setReplyTo(null), []);
+    const handleAuthRequired = useCallback(() => setIsAuthModalOpen(true), []);
+
+    const repliesMap = useMemo(() => {
+        const map = new Map<string, CommunityComment[]>();
+        comments.forEach(c => {
+            if (c.parent_id) {
+                const list = map.get(c.parent_id) || [];
+                list.push(c);
+                map.set(c.parent_id, list);
+            }
+        });
+        return map;
+    }, [comments]);
+
+    const mainComments = useMemo(() => comments.filter(c => !c.parent_id), [comments]);
 
     return (
         <div className={`flex flex-col ${isInline ? 'mt-8 pb-32' : 'h-full'}`}>
@@ -165,25 +184,18 @@ export default function CommunityComments({ postId, isInline = false, initialCom
                     </div>
                 ) : mainComments.length > 0 ? (
                     <div className="space-y-6 pb-6">
-                        {mainComments.map((comment) => (
+                        {mainComments.map((comment: CommunityComment) => (
                             <div key={comment.id} className="space-y-4 px-2">
                                 <CommentItem
                                     comment={comment}
-                                    onReply={(c) => {
-                                        if (!user) {
-                                            setIsAuthModalOpen(true);
-                                            return;
-                                        }
-                                        setReplyTo(c);
-                                        inputRef.current?.focus();
-                                    }}
+                                    onReply={handleReply}
                                     onDelete={handleDeleteComment}
                                     currentUserId={user?.id}
                                 />
 
-                                {getReplies(comment.id).length > 0 && (
+                                {repliesMap.has(comment.id) && (
                                     <div className="mr-8 pr-4 border-r-2 border-primary/10 space-y-4">
-                                        {getReplies(comment.id).map((reply) => (
+                                        {repliesMap.get(comment.id)?.map((reply: CommunityComment) => (
                                             <CommentItem
                                                 key={reply.id}
                                                 comment={reply}
@@ -214,14 +226,12 @@ export default function CommunityComments({ postId, isInline = false, initialCom
             >
                 <CommentForm
                     ref={inputRef}
-                    value={newComment}
-                    onChange={setNewComment}
                     onSubmit={handleSubmit}
                     isSubmitting={isSubmitting}
                     user={user}
                     replyTo={replyTo}
-                    onCancelReply={() => setReplyTo(null)}
-                    onAuthRequired={() => setIsAuthModalOpen(true)}
+                    onCancelReply={handleCancelReply}
+                    onAuthRequired={handleAuthRequired}
                 />
             </div>
 
@@ -234,3 +244,4 @@ export default function CommunityComments({ postId, isInline = false, initialCom
         </div>
     );
 }
+

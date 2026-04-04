@@ -37,8 +37,8 @@ export default function SuezGallery({ initialImages = [] }: SuezGalleryProps) {
             const today = new Date().toDateString();
             
             if (lastView !== today) {
-                incrementImageViews(item.id);
                 localStorage.setItem(lastViewKey, today);
+                incrementImageViews(item.id);
             }
         }
     };

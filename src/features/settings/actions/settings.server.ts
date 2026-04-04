@@ -12,17 +12,15 @@ export async function updateProfile(formData: FormData) {
     }
 
     const fullName = formData.get('fullName') as string
-    const username = formData.get('username') as string
 
-    if (!fullName || !username) {
-        return { error: 'يرجى ملء جميع الحقول المطلوبة' }
+    if (!fullName) {
+        return { error: 'يرجى ملء الاسم بالكامل' }
     }
 
     // Update Auth User Metadata
     const { error: authError } = await supabase.auth.updateUser({
         data: {
             full_name: fullName,
-            username: username,
         }
     })
 
@@ -35,7 +33,6 @@ export async function updateProfile(formData: FormData) {
         .from('profiles')
         .update({
             full_name: fullName,
-            username: username,
         })
         .eq('id', user.id)
 
@@ -50,7 +47,7 @@ export async function updateProfile(formData: FormData) {
     return { success: true }
 }
 
-export async function updateAvatar(avatarUrl: string) {
+export async function updateAvatar(formData: FormData) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -58,34 +55,70 @@ export async function updateAvatar(avatarUrl: string) {
         return { error: 'يجب تسجيل الدخول لتحديث الصورة' }
     }
 
-    // Update Auth User Metadata
-    const { error: authError } = await supabase.auth.updateUser({
-        data: {
-            avatar_url: avatarUrl,
+    const file = formData.get('file') as File
+    if (!file) {
+        return { error: 'لم يتم العثور على ملف للصورة' }
+    }
+
+    try {
+        // 1. Upload to Supabase Storage (avatars bucket)
+        // We use a unique name including user ID to overwrite previous avatar and save space
+        const fileExt = file.name.split('.').pop()
+        const fileName = `avatar.${fileExt}`
+        const filePath = `${user.id}/${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, file, {
+                upsert: true,
+                contentType: file.type
+            })
+
+        if (uploadError) {
+            console.error('Storage upload error:', uploadError)
+            return { error: 'فشل رفع الصورة إلى الخادم' }
         }
-    })
 
-    if (authError) {
-        return { error: authError.message }
-    }
+        // 2. Get Public URL
+        const { data: { publicUrl } } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(filePath)
 
-    // Update Public Profiles Table
-    const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-            avatar_url: avatarUrl,
+        // Add a timestamp to bypass browser cache
+        const finalUrl = `${publicUrl}?t=${Date.now()}`
+
+        // 3. Update Auth User Metadata
+        const { error: authError } = await supabase.auth.updateUser({
+            data: {
+                avatar_url: finalUrl,
+            }
         })
-        .eq('id', user.id)
 
-    if (profileError) {
-        return { error: profileError.message }
+        if (authError) {
+            return { error: authError.message }
+        }
+
+        // 4. Update Public Profiles Table
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .update({
+                avatar_url: finalUrl,
+            })
+            .eq('id', user.id)
+
+        if (profileError) {
+            return { error: profileError.message }
+        }
+
+        revalidateTag(`user-${user.id}-stats`, 'max')
+        revalidatePath('/profile')
+        revalidatePath('/settings')
+        
+        return { success: true, avatarUrl: finalUrl }
+    } catch (err) {
+        console.error('Unexpected updateAvatar error:', err)
+        return { error: 'حدث خطأ غير متوقع أثناء تحديث الصورة' }
     }
-
-    revalidateTag(`user-${user.id}-stats`, 'max')
-    revalidateTag(`user-${user.id}-activities`, 'max')
-    revalidatePath('/profile')
-    revalidatePath('/settings')
-    return { success: true }
 }
 
 export async function updatePassword(formData: FormData) {

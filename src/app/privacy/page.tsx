@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { ShieldCheck } from 'lucide-react';
 
 export const metadata: Metadata = {
-    title: 'سياسة الخصوصية | دليل السويس',
-    description: 'تعرف على سياسة الخصوصية وكيفية حماية بياناتك في منصة دليل السويس.',
+    title: 'سياسة الخصوصية | كيف نحمي بياناتك في دليل السويس',
+    description: 'تعرف على سياسة الخصوصية، حقوقك، وكيفية حماية بياناتك الشخصية في منصة دليل السويس. الخصوصية والأمان هما أولويتنا القصوى.',
 };
 
 export default function PrivacyPage() {

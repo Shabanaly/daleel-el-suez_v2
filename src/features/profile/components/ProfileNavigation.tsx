@@ -1,12 +1,16 @@
 'use client';
 
-import { Activity, LayoutDashboard, Settings, ChevronLeft, LogOut, Tag } from 'lucide-react';
+import { Activity, LayoutDashboard, Settings, ChevronLeft, LogOut, Tag, Bell, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
-export function ProfileNavigation() {
+interface ProfileNavigationProps {
+    isAdmin?: boolean;
+}
+
+export function ProfileNavigation({ isAdmin }: ProfileNavigationProps) {
     const router = useRouter();
     const handleLogout = async () => {
         const supabase = createClient();
@@ -22,6 +26,13 @@ export function ProfileNavigation() {
             href: '/profile/activities',
             icon: <Activity className="w-6 h-6 text-blue-500" />,
             bgColor: 'bg-blue-500/10'
+        },
+        {
+            label: 'الإشعارات',
+            description: 'تنبيهات التفاعل، التعليقات، والإعجابات',
+            href: '/profile/notifications',
+            icon: <Bell className="w-6 h-6 text-orange-500" />,
+            bgColor: 'bg-orange-500/10'
         },
         {
             label: 'إعلاناتي',
@@ -47,7 +58,7 @@ export function ProfileNavigation() {
     ];
 
     return (
-        <div className="max-w-2xl mx-auto px-4 pb-24">
+        <div className="w-full pb-24">
             <div className="space-y-3">
                 {navItems.map((item, index) => (
                     <motion.div
@@ -76,12 +87,39 @@ export function ProfileNavigation() {
                     </motion.div>
                 ))}
 
+                {isAdmin && (
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.25 }}
+                        className="mt-6"
+                    >
+                        <Link
+                            href="/admin"
+                            className="flex items-center gap-4 p-4 bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-3xl transition-all group shadow-sm hover:shadow-md"
+                        >
+                            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+                                <ShieldCheck className="w-6 h-6" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-base font-black text-primary">
+                                    لوحة التحكم (إشراف)
+                                </h3>
+                                <p className="text-xs text-primary/60 font-medium">
+                                    إدارة الأماكن، المستخدمين، والطلبات
+                                </p>
+                            </div>
+                            <ChevronLeft className="w-5 h-5 text-primary group-hover:translate-x-[-4px] transition-all" />
+                        </Link>
+                    </motion.div>
+                )}
+
                 <motion.button
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 }}
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-4 p-4 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 rounded-3xl transition-all group mt-6"
+                    className="w-full flex items-center gap-4 p-4 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 rounded-3xl transition-all group mt-3"
                 >
                     <div className="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0 text-red-600 dark:text-red-500">
                         <LogOut className="w-6 h-6" />

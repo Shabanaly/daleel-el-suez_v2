@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useTransition, useCallback } from 'react';
+import { useState, useMemo, useEffect, useTransition, useCallback, useDeferredValue } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { MarketAd, MarketCategory } from '@/features/market/types';
 import { AreaWithDistrict } from '@/features/taxonomy/actions/areas';
@@ -26,6 +26,8 @@ export function useMarketFilter(
     const [sortBy, setSortBy] = useState<MarketSortOption>((searchParams.get('sort') as MarketSortOption) || 'newest');
     const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
     const [showFilters, setShowFilters] = useState(false);
+    const openFilters = useCallback(() => setShowFilters(true), []);
+    const closeFilters = useCallback(() => setShowFilters(false), []);
 
     // Current displayed ads (initial or server-fetched)
     const [ads, setAds] = useState<MarketAd[]>(initialAds);
@@ -113,23 +115,23 @@ export function useMarketFilter(
     }, [pathname, router, searchParams]);
 
     // Immediate actions
-    const handleCategoryChange = (categorySlug: string) => {
+    const handleCategoryChange = useCallback((categorySlug: string) => {
         setActiveCategory(categorySlug);
         updateURL({ category: categorySlug, page: 1 });
-    };
+    }, [updateURL]);
 
-    const handlePageChange = (newPage: number) => {
+    const handlePageChange = useCallback((newPage: number) => {
         setPage(newPage);
         updateURL({ page: newPage });
-    };
+    }, [updateURL]);
 
-    const handleSearch = (searchTerm: string) => {
+    const handleSearch = useCallback((searchTerm: string) => {
         setQuery(searchTerm);
         updateURL({ q: searchTerm, page: 1 });
-    };
+    }, [updateURL]);
 
     // Staged actions (for Modal)
-    const applyFilters = (filters: {
+    const applyFilters = useCallback((filters: {
         district: string,
         area: string,
         sort: MarketSortOption
@@ -144,9 +146,9 @@ export function useMarketFilter(
             page: 1
         });
         setShowFilters(false);
-    };
+    }, [updateURL]);
 
-    const clearFilters = () => {
+    const clearFilters = useCallback(() => {
         setQuery('');
         setActiveCategory('all');
         setActiveDistrict('كل الأحياء');
@@ -160,9 +162,12 @@ export function useMarketFilter(
             sort: 'newest',
             page: 1
         });
-    };
+    }, [updateURL]);
 
-    const hasActiveFilters = activeCategory !== 'all' || activeDistrict !== 'كل الأحياء' || activeArea !== 'كل المناطق' || query !== '';
+    // Defer the query for performance matching react 18 rendering
+    const deferredQuery = useDeferredValue(query);
+
+    const hasActiveFilters = activeCategory !== 'all' || activeDistrict !== 'كل الأحياء' || activeArea !== 'كل المناطق' || deferredQuery !== '';
 
     return {
         query, setQuery,
@@ -171,7 +176,7 @@ export function useMarketFilter(
         activeArea,
         sortBy,
         page, setPage: handlePageChange,
-        showFilters, setShowFilters,
+        showFilters, openFilters, closeFilters,
         availableAreas,
         getAvailableAreasForDistrict,
         applyFilters,
@@ -181,6 +186,6 @@ export function useMarketFilter(
         clearFilters,
         isPending,
         total,
-        debouncedQuery: query // Renamed for compatibility, though searching is manual now
+        debouncedQuery: deferredQuery // Using deferredValue for UI responsiveness
     };
 }

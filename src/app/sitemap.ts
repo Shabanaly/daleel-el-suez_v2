@@ -23,11 +23,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
     }));
 
-    const placeUrls = places.map((place) => ({
+    const placeUrls = places.map((place: any) => ({
         url: `${baseUrl}/places/${encodeURIComponent(place.slug)}`,
         lastModified: new Date(place.created_at || new Date()),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
+        images: Array.isArray(place.images) && place.images.length > 0 ? [place.images[0]] : [],
     }));
 
     const categoryUrls = categories.map((category) => ({
@@ -50,6 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: new Date(ad.created_at),
         changeFrequency: 'weekly' as const,
         priority: 0.6,
+        images: Array.isArray(ad.images) && ad.images.length > 0 ? [ad.images[0]] : [],
     }));
     
     // Best of Suez URLs

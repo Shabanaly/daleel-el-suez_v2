@@ -18,7 +18,7 @@ export default function SellerInfo({
     return (
         <div className={`flex items-center gap-2 ${className}`} dir="rtl">
             {showAvatar && (
-                <div className="w-6 h-6 rounded-full bg-elevated border border-border-subtle overflow-hidden flex items-center justify-center shrink-0 text-text-muted">
+                <div className="relative w-6 h-6 rounded-full bg-elevated border border-border-subtle overflow-hidden flex items-center justify-center shrink-0 text-text-muted">
                     {photo ? (
                         <SafeImage 
                             src={photo} 

@@ -1,15 +1,11 @@
-'use client';
 
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Flame } from 'lucide-react';
-import { Place } from '@/features/places/types';
 import { PulsePlaceCard } from './PulsePlaceCard';
+import { getCommunityPulsePlaces } from '@/features/places/actions/places.server';
 
-interface CommunityPulseProps {
-    places: Place[];
-}
-
-export default function CommunityPulse({ places }: CommunityPulseProps) {
+export default async function CommunityPulse() {
+    const places = await getCommunityPulsePlaces(14, 4);
     if (!places || places.length === 0) return null;
 
     return (

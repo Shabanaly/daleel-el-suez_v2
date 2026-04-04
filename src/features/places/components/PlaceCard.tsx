@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Star, MapPin, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -15,7 +15,7 @@ interface PlaceCardProps {
   className?: string;
 }
 
-export function PlaceCard({ place, index = 0, className = "" }: PlaceCardProps) {
+export const PlaceCard = memo(function PlaceCard({ place, index = 0, className = "" }: PlaceCardProps) {
   const isVisible = true;
   const isOpen = place.openHours !== 'مغلق';
 
@@ -142,4 +142,4 @@ export function PlaceCard({ place, index = 0, className = "" }: PlaceCardProps) 
       </motion.div>
     </AnimatePresence>
   );
-}
+});

@@ -5,10 +5,22 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfileStats } from '@/features/profile/actions/profile.server';
 import { redirect } from 'next/navigation';
 import { AppBar } from '@/components/ui/AppBar';
-export const metadata = {
-    title: 'البروفايل - دليل السويس',
-    description: 'الصفحة الشخصية للمستخدم في دليل السويس',
-};
+import type { Metadata } from 'next';
+export const revalidate = 0;
+export async function generateMetadata(): Promise<Metadata> {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    const title = user?.user_metadata?.full_name 
+        ? `${user.user_metadata.full_name} | ملفك الشخصي` 
+        : 'ملفك الشخصي | دليل السويس';
+
+    return {
+        title,
+        description: 'إدارة حسابك، منشوراتك، وإشعاراتك في دليل السويس.',
+        robots: { index: false, follow: false } // Private page
+    };
+}
 
 export default async function ProfilePage() {
     const supabase = await createClient();
@@ -18,8 +30,15 @@ export default async function ProfilePage() {
         redirect('/login');
     }
 
-    // Fetch user stats
-    const stats = await getUserProfileStats(user.id);
+    // Fetch user stats & profile
+    const [stats, { data: profile }] = await Promise.all([
+        getUserProfileStats(user.id),
+        supabase.from('profiles').select('role').eq('id', user.id).single()
+    ]);
+
+    // Check if user is admin/moderator from metadata OR database
+    const userRole = profile?.role || (user.user_metadata?.role as string);
+    const isAdmin = ['admin', 'moderator'].includes(userRole);
 
     return (
         <div className="min-h-screen bg-background pb-20 md:pb-12">
@@ -29,22 +48,12 @@ export default async function ProfilePage() {
             {/* Header section includes cover, avatar, and core info */}
             <ProfileHeader user={user} isOwnProfile={true} />
 
-            <div className="max-w-7xl mx-auto px-4 md:px-12 mt-8">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+            <div className="max-w-5xl mx-auto px-4 md:px-12 mt-8 space-y-10">
+                {/* Hero Stats Section */}
+                <ProfileStats stats={stats} />
 
-                    {/* Left Sidebar (Desktop): Stats */}
-                    <aside className="md:col-span-4 lg:col-span-3 space-y-6 md:sticky md:top-24">
-                        <div className="p-1">
-                            <ProfileStats stats={stats} />
-                        </div>
-                    </aside>
-
-                    {/* Main Content (Desktop): Navigation List Tiles */}
-                    <main className="md:col-span-8 lg:col-span-9">
-                        <ProfileNavigation />
-                    </main>
-
-                </div>
+                {/* Navigation Menu */}
+                <ProfileNavigation isAdmin={isAdmin} />
             </div>
         </div>
     );

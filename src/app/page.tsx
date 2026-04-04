@@ -1,4 +1,3 @@
-import { getHomePageData, getCommunityPulsePlaces } from '@/features/places/actions/places.server';
 import { getHomeCategories, getSmartCategoryHighlights } from '@/features/taxonomy/actions/categories';
 import { getHomeDistricts } from '@/features/taxonomy/actions/districts';
 import { getHomeUnifiedStats } from '@/features/stats/actions/stats.server';
@@ -29,12 +28,11 @@ export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // 🧠 Fetch data using the centralized home page action (logic moved to server)
+ // 🧠 Fetch shared data needed by Home Page
+
   const [
     categories, 
     districts, 
-    homeData, 
-    pulsePlaces,
     communityPosts, 
     smartCategoryData, 
     unifiedStats, 
@@ -43,8 +41,6 @@ export default async function Home() {
   ] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
-    getHomePageData(),
-    getCommunityPulsePlaces(14, 4), // Fetch top 4 pulse places
     getCommunityPosts(undefined, undefined, 1, 2, user?.id),
     getSmartCategoryHighlights(),
     getHomeUnifiedStats(),
@@ -52,7 +48,6 @@ export default async function Home() {
     getTopGalleryImages(5)
   ]);
 
-  const { trending, newPlaces } = homeData;
   const homeMarketAds = [...marketData.trendingAds, ...marketData.latestAds].slice(0, 8); // Top 8 combined
 
   // Map unified stats to specific component needs
@@ -72,12 +67,12 @@ export default async function Home() {
     <div className="w-full flex flex-col items-center overflow-hidden">
       <Hero categories={categories} />
 
-      <TrendingPlaces places={trending} />
-      <NewPlaces places={newPlaces} />
+      <TrendingPlaces />
+      <NewPlaces />
       <HomeMarketSection ads={homeMarketAds} />
       <BestOfSuezHome stats={bestOfStats} />
       {smartCategoryData && <CategoryHighlight data={smartCategoryData} />}
-      <CommunityPulse places={pulsePlaces} />
+      <CommunityPulse />
       <SuezGallery initialImages={topGalleryImages} />
       <DistrictsExplorer districts={districts} />
       <CommunityTeaser posts={communityPosts} />

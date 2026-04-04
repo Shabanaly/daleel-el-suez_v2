@@ -1,6 +1,7 @@
 import { getMarketAdBySlug, getMarketAdById } from "@/features/market/actions/market.server";
 import AdDetailsClient from "@/features/market/components/AdDetailsClient";
 import { notFound, redirect } from "next/navigation";
+import BreadcrumbsJsonLd from "@/components/seo/BreadcrumbsJsonLd";
 import { Metadata } from 'next';
 
 interface Props {
@@ -73,6 +74,8 @@ export default async function AdDetailsPage({ params }: Props) {
         notFound();
     }
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
+
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "Product",
@@ -82,7 +85,7 @@ export default async function AdDetailsPage({ params }: Props) {
         "sku": ad.id,
         "offers": {
             "@type": "Offer",
-            "url": `https://daleel-al-suez.com/market/${ad.slug}`,
+            "url": `${baseUrl}/market/${ad.slug}`,
             "priceCurrency": "EGP",
             "price": ad.price,
             "itemCondition": ad.condition === 'new' ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
@@ -95,12 +98,20 @@ export default async function AdDetailsPage({ params }: Props) {
         }
     };
 
+    const breadcrumbs = [
+        { name: 'الرئيسية', item: '/' },
+        { name: 'سوق السويس', item: '/market' },
+        { name: ad.category_name || 'تصنيف', item: `/market?category=${encodeURIComponent(ad.category_slug || '')}` },
+        { name: ad.title, item: `/market/${ad.slug}` }
+    ];
+
     return (
         <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
+            <BreadcrumbsJsonLd items={breadcrumbs} />
             <AdDetailsClient ad={ad} />
         </>
     );

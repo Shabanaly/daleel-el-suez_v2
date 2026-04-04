@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { MarketAd } from '@/features/market/types';
 import {
     ChevronLeft,
@@ -18,9 +18,9 @@ import ShareButton from '@/components/ui/ShareButton';
 import { useDialog } from "@/components/providers/DialogProvider";
 import Link from 'next/link';
 import { ImageGallery } from '@/components/common/ImageGallery';
+import { SafeImage } from '@/components/common/SafeImage';
 import { Lightbox } from '@/components/common/Lightbox';
 import { AdStickyActionsBar } from './AdStickyActionsBar';
-import { useEffect } from 'react';
 import { incrementMarketAdView } from '@/features/market/actions/market.server';
 import { AppBar } from '@/components/ui/AppBar';
 interface AdDetailsClientProps {
@@ -31,8 +31,12 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
 
+    const viewIncremented = useRef(false);
+
     // Throttled View Increment (1 per ad per 24h)
     useEffect(() => {
+        if (viewIncremented.current) return;
+
         const checkAndView = async () => {
             const lastViewKey = `last_view_${ad.id}`;
             const lastView = localStorage.getItem(lastViewKey);
@@ -40,8 +44,14 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
             const dayInMs = 24 * 60 * 60 * 1000;
 
             if (!lastView || now - parseInt(lastView) > dayInMs) {
-                await incrementMarketAdView(ad.id);
+                viewIncremented.current = true;
+                // Update local storage synchronously first to block racing Next.js re-renders
                 localStorage.setItem(lastViewKey, now.toString());
+                try {
+                    await incrementMarketAdView(ad.id);
+                } catch (e) {
+                    console.error('Failed to increment view:', e);
+                }
             }
         };
 
@@ -202,8 +212,12 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
 
                     <div className="glass-panel p-6 rounded-[32px] border border-border-subtle/50 space-y-6">
                         <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl border border-primary/20">
-                                👤
+                            <div className="relative w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl border border-primary/20 overflow-hidden">
+                                {ad.seller_photo ? (
+                                    <SafeImage src={ad.seller_photo} alt={ad.seller_name} fill className="object-cover" />
+                                ) : (
+                                    <span>👤</span>
+                                )}
                             </div>
                             <div>
                                 <h4 className="text-lg font-black text-text-primary">{ad.seller_name}</h4>

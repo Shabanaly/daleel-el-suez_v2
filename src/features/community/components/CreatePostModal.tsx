@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Loader2, User, ChevronDown, ImageIcon, Plus, Check } from 'lucide-react';
 import Image from 'next/image';
@@ -53,7 +53,9 @@ export default function CreatePostModal({ isOpen, onClose, categories, initialDa
         }
     });
 
-    const selectedCategory = categories.find(c => c.id === selectedCatId) || categories[0];
+    const selectedCategory = useMemo(() => 
+        categories.find(c => c.id === selectedCatId) || categories[0],
+    [categories, selectedCatId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -200,12 +202,9 @@ export default function CreatePostModal({ isOpen, onClose, categories, initialDa
                             </div>
 
                             {/* Text Input */}
-                            <textarea
+                            <PostContentInput 
                                 value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                placeholder="بماذا تفكر يا سويسي؟ اكتب هنا تفاصيل منشورك..."
-                                className="w-full h-40 bg-background border-none text-lg font-bold placeholder:text-text-muted/30 focus:ring-0 outline-none resize-none px-0"
-                                autoFocus
+                                onChange={setContent}
                             />
 
                             {/* Image Grid Preview */}
@@ -267,3 +266,17 @@ export default function CreatePostModal({ isOpen, onClose, categories, initialDa
         </AnimatePresence>
     );
 }
+
+const PostContentInput = memo(({ value, onChange }: { value: string; onChange: (val: string) => void }) => {
+    return (
+        <textarea
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="بماذا تفكر يا سويسي؟ اكتب هنا تفاصيل منشورك..."
+            className="w-full h-40 bg-background border-none text-lg font-bold placeholder:text-text-muted/30 focus:ring-0 outline-none resize-none px-0"
+            autoFocus
+        />
+    );
+});
+
+PostContentInput.displayName = 'PostContentInput';

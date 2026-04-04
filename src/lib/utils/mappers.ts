@@ -125,6 +125,7 @@ export function mapMarketAd(p: RawMarketAd): MarketAd {
         seller_id: p.seller_id,
         seller_name: p.profiles?.full_name || 'صاحب الإعلان',
         seller_phone: p.contact_phone || '',
+        seller_photo: p.profiles?.avatar_url || '',
         status: p.status as AdStatus,
         location: p.areas?.name || 'السويس',
         is_negotiable: p.is_negotiable || false,

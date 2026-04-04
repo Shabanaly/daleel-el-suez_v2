@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
@@ -22,7 +23,7 @@ const IconRenderer = ({ iconName, className }: { iconName: string, className?: s
     return <Icon className={className} />;
 };
 
-export default function HeroCategories({ categories }: HeroCategoriesProps) {
+export default memo(function HeroCategories({ categories }: HeroCategoriesProps) {
     if (!categories.length) return null;
 
     // Limit to top 6 for the Hero section
@@ -93,4 +94,4 @@ export default function HeroCategories({ categories }: HeroCategoriesProps) {
             </motion.div>
         </div>
     );
-}
+});

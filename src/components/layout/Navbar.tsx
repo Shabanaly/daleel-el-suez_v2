@@ -106,6 +106,23 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <NotificationBell />
+            <Link
+                href={user ? "/profile" : "/login"}
+                className="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden border border-border-subtle hover:border-primary/50 transition-all bg-elevated"
+              >
+                {user?.user_metadata?.avatar_url ? (
+                  <Image
+                    src={user.user_metadata.avatar_url}
+                    alt="Profile"
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                    priority
+                  />
+                ) : (
+                  <User className="w-5 h-5 text-text-muted" />
+                )}
+            </Link>
           </div>
 
         </div>

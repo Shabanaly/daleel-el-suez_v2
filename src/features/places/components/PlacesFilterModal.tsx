@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Filter, Check, RotateCcw } from 'lucide-react';
 import { SortOption } from '@/features/places/types';
@@ -18,7 +18,7 @@ interface PlacesFilterModalProps {
     onClear: () => void;
 }
 
-export function PlacesFilterModal({
+export const PlacesFilterModal = memo(function PlacesFilterModal({
     isOpen,
     onClose,
     initialDistrict,
@@ -214,4 +214,4 @@ export function PlacesFilterModal({
             )}
         </AnimatePresence>
     );
-}
+});

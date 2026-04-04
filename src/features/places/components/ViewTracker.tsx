@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { incrementPlaceViews } from '@/features/places/actions/places.server';
 
 interface ViewTrackerProps {
@@ -8,7 +8,11 @@ interface ViewTrackerProps {
 }
 
 export function ViewTracker({ placeId }: ViewTrackerProps) {
+    const viewIncremented = useRef(false);
+
     useEffect(() => {
+        if (viewIncremented.current) return;
+
         const trackView = async () => {
             const storageKey = `viewed_${placeId}`;
             const lastViewed = localStorage.getItem(storageKey);
@@ -16,9 +20,10 @@ export function ViewTracker({ placeId }: ViewTrackerProps) {
             const ONE_DAY = 24 * 60 * 60 * 1000;
 
             if (!lastViewed || (now - parseInt(lastViewed)) > ONE_DAY) {
+                viewIncremented.current = true;
+                localStorage.setItem(storageKey, now.toString());
                 try {
                     await incrementPlaceViews(placeId);
-                    localStorage.setItem(storageKey, now.toString());
                 } catch (error) {
                     console.error('Failed to track view:', error);
                 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useImageUpload } from '@/lib/hooks/useImageUpload';
 import { addPlace } from '@/lib/actions/mutations';
 import { getOrCreateArea } from '@/features/taxonomy/actions/areas';
@@ -60,66 +60,65 @@ export function useAddPlaceForm({ areas }: UseAddPlaceFormProps) {
         customDistrictId: 0
     });
 
-    // Update formData when hook state changes
+    // Sync media data to formData when it changes
     useEffect(() => {
-        setFormData(prev => {
-            // Only update if there's an actual change to prevent unnecessary renders
-            const imagesChanged = JSON.stringify(prev.images) !== JSON.stringify(images);
-            const publicIdsChanged = JSON.stringify(prev.publicIds) !== JSON.stringify(publicIds);
-
-            if (imagesChanged || publicIdsChanged) {
-                return { ...prev, images, publicIds };
-            }
-            return prev;
-        });
+        setFormData(prev => ({ ...prev, images, publicIds }));
     }, [images, publicIds]);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const updateFormData = (data: Partial<typeof formData>) => {
-        setFormData(prev => ({ ...prev, ...data }));
+    const updateFormData = useCallback((data: Partial<typeof formData>) => {
+        setFormData(prev => {
+            // Shallow comparison for top-level keys to avoid unnecessary updates
+            const hasChange = Object.entries(data).some(([key, value]) => prev[key as keyof typeof prev] !== value);
+            if (!hasChange) return prev;
+            
+            return { ...prev, ...data };
+        });
+
+        // Clear error for the field being updated
         if (Object.keys(data).length > 0) {
             const field = Object.keys(data)[0];
             setErrors(prev => {
+                if (!prev[field]) return prev;
                 const newErrors = { ...prev };
                 delete newErrors[field];
                 return newErrors;
             });
         }
-    };
+    }, []);
 
-    const validateStep = (currentStep: number) => {
+    const validateStep = useCallback((currentStep: number, currentData: typeof formData) => {
         const newErrors: Record<string, string> = {};
 
         if (currentStep === 1) {
-            if (!formData.name || formData.name.length < 3) {
+            if (!currentData.name || currentData.name.length < 3) {
                 newErrors.name = 'الاسم يجب أن يكون 3 أحرف على الأقل';
             }
-            if (!formData.categoryId) newErrors.categoryId = 'يرجى اختيار التصنيف';
-            if (!formData.areaId) newErrors.areaId = 'يرجى اختيار المنطقة';
+            if (!currentData.categoryId) newErrors.categoryId = 'يرجى اختيار التصنيف';
+            if (!currentData.areaId) newErrors.areaId = 'يرجى اختيار المنطقة';
 
-            if (formData.areaId === -1) {
-                newErrors.areaId = 'يرجى التحقق من المنطقة الجديدة وإضافتها أولاً';
-                // Also validate the inputs themselves for immediate feedback
-                if (!formData.customAreaName || formData.customAreaName.length < 2) {
+            if (currentData.areaId === -1) {
+                if (!currentData.customAreaName || currentData.customAreaName.length < 2) {
                     newErrors.customAreaName = 'الرجاء إدخال اسم المنطقة بشكل صحيح';
                 }
-                if (!formData.customDistrictId) {
+                if (!currentData.customDistrictId) {
                     newErrors.customDistrictId = 'الرجاء اختيار الحي التابع للمنطقة';
                 }
             }
         }
 
         if (currentStep === 2) {
-            const phoneRegex = /^01[0125][0-9]{8}$/;
-            if (!formData.phone.primary || !phoneRegex.test(formData.phone.primary)) {
+            // Support both local 01... and international +201... formats
+            const phoneRegex = /^(\+20|0)1[0125][0-9]{8}$/;
+            if (!currentData.phone.primary || !phoneRegex.test(currentData.phone.primary)) {
                 newErrors.phone = 'رقم الهاتف الأساسي غير صحيح (يجب أن يكون رقم مصري)';
             }
-            if (!formData.address || formData.address.length < 5) {
+            if (!currentData.address || currentData.address.length < 5) {
                 newErrors.address = 'العنوان يجب أن يكون 5 أحرف على الأقل';
             }
 
-            Object.entries(formData.openHours).forEach(([, schedule]) => {
+            Object.entries(currentData.openHours).forEach(([, schedule]) => {
                 if (schedule.isOpen && (!schedule.from || !schedule.to)) {
                     newErrors.openHours = 'يرجى تحديد مواعيد العمل للأيام المفتوحة';
                 }
@@ -127,37 +126,37 @@ export function useAddPlaceForm({ areas }: UseAddPlaceFormProps) {
         }
 
         if (currentStep === 3) {
-            if (!formData.description || formData.description.length < 10) {
+            if (!currentData.description || currentData.description.length < 10) {
                 newErrors.description = 'الوصف يجب أن يكون 10 أحرف على الأقل';
             }
-            if (formData.images.length === 0) {
+            if (currentData.images.length === 0) {
                 newErrors.images = 'يرجى رفع صورة واحدة على الأقل (صورة الغلاف)';
             }
         }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-    };
+    }, []);
 
-    const nextStep = () => {
-        if (validateStep(step)) {
+    const nextStep = useCallback(() => {
+        if (validateStep(step, formData)) {
             setStep(prev => prev + 1);
             window.scrollTo(0, 0);
         }
-    };
+    }, [step, validateStep, formData]);
 
-    const prevStep = () => {
+    const prevStep = useCallback(() => {
         setStep(prev => prev - 1);
         window.scrollTo(0, 0);
-    };
+    }, []);
 
-    const handleVerifyArea = async () => {
+    const handleVerifyArea = useCallback(async () => {
         if (!formData.customAreaName || formData.customAreaName.length < 2) {
-            setErrors({ ...errors, customAreaName: 'الرجاء إدخال اسم المنطقة بشكل صحيح' });
+            setErrors(prev => ({ ...prev, customAreaName: 'الرجاء إدخال اسم المنطقة بشكل صحيح' }));
             return;
         }
         if (!formData.customDistrictId) {
-            setErrors({ ...errors, customDistrictId: 'الرجاء اختيار الحي التابع للمنطقة' });
+            setErrors(prev => ({ ...prev, customDistrictId: 'الرجاء اختيار الحي التابع للمنطقة' }));
             return;
         }
 
@@ -165,26 +164,19 @@ export function useAddPlaceForm({ areas }: UseAddPlaceFormProps) {
         setError(null);
 
         try {
-            // 1. Client-Side Validation (Smart Match across all districts)
+            // Normalize text helper
             const normalizeText = (text: string) => text
-                .replace(/[أإآا]/g, 'ا') // Normalize aleph
-                .replace(/[ةه]/g, 'ه')   // Normalize teh marbuta/heh
-                .replace(/[يى]/g, 'ي')   // Normalize yeh/alef maksura
-                .trim()
-                .toLowerCase();
+                .replace(/[أإآا]/g, 'ا').replace(/[ةه]/g, 'ه').replace(/[يى]/g, 'ي')
+                .trim().toLowerCase();
 
             const ignoreWords = ['حي', 'منطقة', 'شارع', 'ش', 'مدينة', 'مساكن', 'تعاونيات', 'تقسيم', 'قرية', 'عزبة', 'بمنطقة', 'بحي', 'مدينة', 'و', 'في', 'من', 'ال', 'ابو', 'أبو'];
-            const normalizedIgnoreWords = ignoreWords.map(normalizeText);
-
             const normalizedSearch = normalizeText(formData.customAreaName);
-            const searchWords = normalizedSearch
-                .split(/\s+/)
-                .filter(w => w.length > 2 && !normalizedIgnoreWords.includes(w));
+            
+            const searchWords = normalizedSearch.split(/\s+/)
+                .filter(w => w.length > 2 && !ignoreWords.map(normalizeText).includes(w));
 
-            // First try exact normalized match
             let localMatch = localAreas.find(a => normalizeText(a.name) === normalizedSearch);
 
-            // If no exact match, try smart word intersection match
             if (!localMatch && searchWords.length > 0) {
                 localMatch = localAreas.find(a => {
                     const areaWords = normalizeText(a.name).split(/\s+/);
@@ -193,65 +185,53 @@ export function useAddPlaceForm({ areas }: UseAddPlaceFormProps) {
             }
 
             if (localMatch) {
-                // Found locally! Just switch the dropdown to it
                 updateFormData({ areaId: localMatch.id, customAreaName: '', customDistrictId: 0 });
-                console.log('Area found locally (Smart Match), auto-selecting ID:', localMatch.id);
             } else {
-                // 2. Not found locally, hit the server
                 const newAreaId = await getOrCreateArea(formData.customAreaName, formData.customDistrictId);
-
-                // Add to local state so dropdown has it
                 setLocalAreas(prev => [...prev, { id: newAreaId, name: formData.customAreaName.trim() }]);
-
-                // Switch dropdown to the new area
                 updateFormData({ areaId: newAreaId, customAreaName: '', customDistrictId: 0 });
-                console.log('New area created and selected:', newAreaId);
             }
 
-            // Clear area errors
-            const newErrors = { ...errors };
-            delete newErrors.areaId;
-            delete newErrors.customAreaName;
-            delete newErrors.customDistrictId;
-            setErrors(newErrors);
+            setErrors(prev => {
+                const next = { ...prev };
+                delete next.areaId; delete next.customAreaName; delete next.customDistrictId;
+                return next;
+            });
 
-        } catch (err: unknown) {
-            console.error('Area Verification Error:', err);
-            const message = err instanceof Error ? err.message : 'فشل التحقق من المنطقة';
-            setError(message);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'فشل التحقق من المنطقة');
         } finally {
             setIsVerifyingArea(false);
         }
-    };
+    }, [formData, localAreas, updateFormData]);
 
-    const handleSubmit = async (e?: React.FormEvent) => {
+    const handleSubmit = useCallback(async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
-
-        if (!validateStep(3)) return;
+        
+        if (!validateStep(3, formData)) return;
 
         setIsSubmitting(true);
         setError(null);
 
         try {
-            // 1. Start image upload
             const uploadResult = await startUpload();
-
-            // 2. Add place with final URLs, Public IDs
             await addPlace({
                 ...formData,
                 images: uploadResult.urls,
                 publicIds: uploadResult.publicIds
             });
-
             setIsSubmitted(true);
-        } catch (err: unknown) {
-            console.error('Submission error:', err);
-            const message = err instanceof Error ? err.message : 'حدث خطأ أثناء حفظ البيانات';
-            setError(message);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'حدث خطأ أثناء حفظ البيانات');
         } finally {
             setIsSubmitting(false);
         }
-    };
+    }, [formData, startUpload, validateStep]);
+
+
+    const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) uploadFiles(e.target.files);
+    }, [uploadFiles]);
 
     return {
         step,
@@ -266,8 +246,9 @@ export function useAddPlaceForm({ areas }: UseAddPlaceFormProps) {
         nextStep,
         prevStep,
         handleVerifyArea,
-        handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => uploadFiles(e.target.files!),
+        handleFileChange,
         handleDeleteImage: deleteImage,
         handleSubmit
     };
 }
+

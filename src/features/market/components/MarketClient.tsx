@@ -49,7 +49,7 @@ export function MarketClient({
         activeArea,
         sortBy,
         page, setPage,
-        showFilters, setShowFilters,
+        showFilters, openFilters, closeFilters,
         applyFilters,
         handleSearch,
         getAvailableAreasForDistrict,
@@ -100,7 +100,7 @@ export function MarketClient({
                 handleSearch={handleSearch}
                 handleSuggestionSelect={handleSuggestionSelect}
                 handleCreateAdClick={handleCreateAdClick}
-                setShowFilters={setShowFilters}
+                onOpenFilters={openFilters}
                 hasActiveFilters={hasActiveFilters}
             />
 
@@ -108,7 +108,7 @@ export function MarketClient({
                 {/* Refined Filter Modal */}
                 <MarketFilterModal 
                     isOpen={showFilters}
-                    onClose={() => setShowFilters(false)}
+                    onClose={closeFilters}
                     initialDistrict={activeDistrict}
                     initialArea={activeArea}
                     initialSort={sortBy}

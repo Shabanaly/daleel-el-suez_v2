@@ -9,7 +9,7 @@ interface MarketSearchHeaderProps {
     handleSearch: (searchTerm: string) => void;
     handleSuggestionSelect: (s: Suggestion) => void;
     handleCreateAdClick: (e: React.MouseEvent) => void;
-    setShowFilters: (show: boolean) => void;
+    onOpenFilters: () => void;
     hasActiveFilters: boolean;
 }
 
@@ -19,7 +19,7 @@ export default function MarketSearchHeader({
     handleSearch,
     handleSuggestionSelect,
     handleCreateAdClick,
-    setShowFilters,
+    onOpenFilters,
     hasActiveFilters
 }: MarketSearchHeaderProps) {
     return (
@@ -42,7 +42,7 @@ export default function MarketSearchHeader({
 
                 {/* Filter toggle */}
                 <button
-                    onClick={() => setShowFilters(true)}
+                    onClick={onOpenFilters}
                     className={`relative h-14 md:h-18 w-14 md:w-18 rounded-2xl md:rounded-3xl border-2 transition-all duration-300 shrink-0 shadow-lg flex items-center justify-center ${hasActiveFilters
                         ? 'bg-primary border-primary text-white shadow-primary/25'
                         : 'bg-surface/90 border-border-subtle/60 text-text-muted hover:border-primary/40 hover:text-text-primary'

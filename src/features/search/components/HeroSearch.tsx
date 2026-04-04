@@ -4,14 +4,20 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import SearchAutocomplete from '@/features/search/components/SearchAutocomplete';
 
-interface HeroSearchProps {
-    searchTerm: string;
-    setSearchTerm: (term: string) => void;
-    onSearch: (e?: React.FormEvent) => void;
-}
+import { useState } from 'react';
 
-export default function HeroSearch({ searchTerm, setSearchTerm, onSearch }: HeroSearchProps) {
+export default function HeroSearch() {
     const router = useRouter();
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (searchTerm.trim()) {
+            router.push(`/places?q=${encodeURIComponent(searchTerm.trim())}`);
+        } else {
+            router.push('/places');
+        }
+    };
 
     const handleSelect = (term: string) => {
         if (term.trim()) {
@@ -26,7 +32,7 @@ export default function HeroSearch({ searchTerm, setSearchTerm, onSearch }: Hero
             transition={{ duration: 0.8, delay: 0.3 }}
             className="w-full max-w-2xl mb-8 md:mb-10 px-4 md:px-0"
         >
-            <form onSubmit={onSearch}>
+            <form onSubmit={handleSearch}>
                 <motion.div
                     whileFocus={{ scale: 1.01 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}

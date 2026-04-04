@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { User, Clock } from 'lucide-react';
 import { SafeImage } from '@/components/common/SafeImage';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,6 +13,8 @@ import PostImagesGrid from './PostImagesGrid';
 import PostCardAnimation from './PostCardAnimation';
 import { CommunityPost, CommunityCategory } from '@/features/community/types';
 
+const ORIGIN = typeof window !== 'undefined' ? window.location.origin : '';
+
 interface PostCardProps {
   post: CommunityPost;
   categories: CommunityCategory[];
@@ -20,11 +22,9 @@ interface PostCardProps {
   isFullPage?: boolean;
 }
 
-export default function PostCard({ post, categories, isLikedInitial = false, isFullPage = false }: PostCardProps) {
+export default memo(function PostCard({ post, categories, isLikedInitial = false, isFullPage = false }: PostCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const CONTENT_THRESHOLD = 200; // rough char count for 4 lines
-  // Use window.location.origin in client
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
 
   const likesCount = post.likes_count || 0;
   const commentsCount = Array.isArray(post.comments_count) ? post.comments_count[0]?.count || 0 : (post.comments_count || 0);
@@ -73,7 +73,7 @@ export default function PostCard({ post, categories, isLikedInitial = false, isF
 
         <PostHeaderActions
           post={post}
-          origin={origin}
+          origin={ORIGIN}
           categories={categories}
         />
       </div>
@@ -117,9 +117,9 @@ export default function PostCard({ post, categories, isLikedInitial = false, isF
         initialIsLiked={post.isLiked || isLikedInitial}
         commentsCount={commentsCount}
         postContent={post.content}
-        origin={origin}
+        origin={ORIGIN}
         isFullPage={isFullPage}
       />
     </PostCardAnimation>
   );
-}
+});

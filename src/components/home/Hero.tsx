@@ -1,7 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+
 import { motion } from 'framer-motion';
 
 // Import sub-components
@@ -12,19 +11,6 @@ import HeroCategories from '@/features/places/components/HeroCategories';
 import type { Category } from '@/lib/types/category';
 
 export default function Hero({ categories = [] }: { categories?: Category[] }) {
-    const router = useRouter();
-    const [searchTerm, setSearchTerm] = useState('');
-
-    const handleSearch = (e?: React.FormEvent) => {
-        if (e) e.preventDefault();
-        if (searchTerm.trim()) {
-            router.push(`/places?q=${encodeURIComponent(searchTerm.trim())}`);
-        } else {
-            router.push('/places');
-        }
-    };
-
-
     return (
         <section className="relative w-full flex flex-col items-center justify-center overflow-hidden pt-20 pb-0 md:pt-28 md:pb-0 min-h-[60vh] bg-background">
 
@@ -56,11 +42,7 @@ export default function Hero({ categories = [] }: { categories?: Category[] }) {
                     </p>
                 </motion.div>
 
-                <HeroSearch
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    onSearch={handleSearch}
-                />
+                <HeroSearch />
 
                 <HeroCategories categories={categories} />
             </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import Link from 'next/link';
 import { MapPin, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -20,11 +20,11 @@ interface AdCardProps {
     priority?: boolean;
 }
 
-export default function AdCard({ ad, priority = false }: AdCardProps) {
-    const formattedTime = formatDistanceToNow(new Date(ad.created_at), { 
+export default memo(function AdCard({ ad, priority = false }: AdCardProps) {
+    const formattedTime = useMemo(() => formatDistanceToNow(new Date(ad.created_at), { 
         addSuffix: true, 
         locale: ar 
-    });
+    }), [ad.created_at]);
 
     return (
         <motion.div
@@ -120,4 +120,4 @@ export default function AdCard({ ad, priority = false }: AdCardProps) {
             </Link>
         </motion.div>
     );
-}
+});

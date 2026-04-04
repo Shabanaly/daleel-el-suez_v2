@@ -2,8 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/client-service';
-import { NotificationService } from '@/lib/notifications/service';
-import { NotificationEvent } from '@/lib/notifications/types';
 import { unstable_cache } from 'next/cache';
 import { revalidatePath } from 'next/cache';
 import { cacheManager, tags } from '@/lib/cache';
@@ -165,37 +163,6 @@ export async function toggleLikePost(postId: string) {
 
         // Increment like count
         await supabase.rpc('increment_post_likes', { target_post_id: postId });
-        
-        // --- Notification Logic ---
-        const { data: postData } = await supabase
-            .from('posts')
-            .select('author_id, content, title')
-            .eq('id', postId)
-            .single();
-            
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name, username')
-            .eq('id', user.id)
-            .single();
-
-        // Send notification if the liker is not the post author
-        if (postData && postData.author_id !== user.id) {
-            try {
-                const actorName = profile?.full_name || profile?.username || 'عضو في المجتمع';
-                const postContent = postData.content || postData.title || 'منشور';
-                
-                await NotificationService.trigger(NotificationEvent.POST_LIKED, {
-                    postId,
-                    postContent: postContent,
-                    actorName: actorName,
-                    recipientId: postData.author_id,
-                    actorId: user.id,
-                });
-            } catch (notificationError) {
-                console.error('Error sending post liked notification:', notificationError);
-            }
-        }
     }
 
     cacheManager.invalidatePost(postId, user.id);

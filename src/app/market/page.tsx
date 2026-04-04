@@ -7,20 +7,45 @@ import { getDistricts } from '@/features/taxonomy/actions/districts';
 import { MarketAd, MarketCategory } from '@/features/market/types';
 import { MarketSortOption } from '@/features/market/hooks/useMarketFilter';
 
-export const metadata: Metadata = {
-    title: 'سوق السويس | بيع وشراء، مستعمل، وعروض في السويس',
-    description: 'سوق السويس المحلي - أفضل منصة لبيع وشراء المنتجات الجديدة والمستعملة، العقارات، والسيارات في محافظة السويس. أضف إعلانك الآن مجاناً.',
-    keywords: [
-        "سوق السويس", "بيع وشراء السويس", "مستعمل السويس", "اعلانات مبوبة السويس", 
-        "حراج السويس", "عقارات السويس", "سيارات للبيع في السويس", "خدمات السويس"
-    ],
-    openGraph: {
-        title: 'سوق السويس - بيع وشراء في السويس',
-        description: 'منصة أهل السويس لبيع وشراء كل شيء. تصفح آلاف العروض المتاحة الآن.',
-        type: 'website',
-        locale: 'ar_EG',
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }): Promise<Metadata> {
+    const params = await searchParams;
+    const categoryName = params.category as string;
+    const areaName = params.area as string;
+    const query = params.q as string;
+
+    let title = 'سوق السويس | بيع وشراء، مستعمل، وعروض في السويس';
+    let description = 'سوق السويس المحلي - أفضل منصة لبيع وشراء المنتجات الجديدة والمستعملة في محافظة السويس. أضف إعلانك الآن مجاناً.';
+
+    if (categoryName && categoryName !== 'all') {
+        title = `سوق ال${categoryName} في السويس | عروض ومستعمل`;
+        description = `تصفح أحدث إعلانات ${categoryName} في السويس. بيع وشراء بأفضل الأسعار وتواصل مباشر مع البائعين.`;
     }
-};
+    
+    if (areaName) {
+        title = `${title} - في ${areaName}`;
+        description = `${description} متاح في منطقة ${areaName}.`;
+    }
+
+    if (query) {
+        title = `نتائج البحث عن "${query}" في سوق السويس`;
+        description = `استعرض كل العروض المتعلقة بـ ${query} في السويس. نوفر لك أفضل خيارات البيع والشراء.`;
+    }
+
+    return {
+        title,
+        description,
+        keywords: [
+            categoryName, areaName, query, 
+            "سوق السويس", "بيع وشراء السويس", "مستعمل السويس", "اعلانات مبوبة السويس"
+        ].filter(Boolean) as string[],
+        openGraph: {
+            title,
+            description,
+            type: 'website',
+            locale: 'ar_EG',
+        }
+    };
+}
 
 export default async function MarketPage({
     searchParams

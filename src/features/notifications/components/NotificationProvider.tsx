@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 import { requestForToken, onMessageListener } from '@/lib/firebase';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
+import { useToast } from '@/features/notifications/hooks/useToast';
 
 const FCM_TOKEN_KEY = 'fcm_token';
 
@@ -32,9 +33,9 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const { user, isLoading: authLoading } = useAuth();
   const [fcmToken, setFcmToken] = useState<string | null>(null);
   const [notification, setNotification] = useState<NotificationPayload | null>(null);
-  const [showToast, setShowToast] = useState(false);
   const isRegistering = useRef(false);
   const supabase = createClient();
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (isRegistering.current || authLoading) return;
@@ -116,8 +117,13 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       // Only show toast if this specific tab is focused to avoid duplicates across tabs
       if (document.hasFocus()) {
         setNotification(payload);
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 6000);
+        
+        showToast({
+          title: payload.notification?.title || payload.data?.title || 'تنبيه جديد',
+          message: payload.notification?.body || payload.data?.body || '',
+          type: 'DEFAULT',
+          id: payload.data?.notification_id
+        });
       }
 
       // REMOVED: Native Notification here was causing double notifications in foreground
@@ -132,29 +138,6 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   return (
     <NotificationContext.Provider value={{ fcmToken, notification }}>
       {children}
-      
-      {/* Real-time Visual Toast for Debugging */}
-      {showToast && notification && (
-        <div 
-           className="fixed bottom-6 lg:bottom-auto lg:top-24 left-1/2 -translate-x-1/2 lg:left-auto lg:right-4 lg:translate-x-0 w-[94%] max-w-[340px] lg:max-w-sm bg-surface border-2 border-primary/30 lg:border-primary shadow-2xl p-3 lg:p-4 rounded-2xl animate-in fade-in slide-in-from-bottom-6 lg:slide-in-from-top-4 duration-300" 
-           dir="rtl"
-           style={{ zIndex: 99999 }}
-        >
-          <div className="flex items-start gap-2.5 lg:gap-3">
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
-              <span className="text-primary text-lg lg:text-xl">🔔</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 mb-0.5 lg:mb-1">
-                 <h4 className="font-bold text-text-primary text-[13px] lg:text-sm truncate">{notification.notification?.title || notification.data?.title || 'تنبيه جديد'}</h4>
-                 <span className="text-[9px] lg:text-[10px] bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded-full font-bold whitespace-nowrap">REAL-TIME</span>
-              </div>
-              <p className="text-text-muted text-[11px] lg:text-xs leading-relaxed line-clamp-2">{notification.notification?.body || notification.data?.body || 'لا يوجد محتوى'}</p>
-            </div>
-            <button onClick={() => setShowToast(false)} className="text-text-muted hover:text-text-primary p-1 shrink-0">✕</button>
-          </div>
-        </div>
-      )}
     </NotificationContext.Provider>
   );
 };

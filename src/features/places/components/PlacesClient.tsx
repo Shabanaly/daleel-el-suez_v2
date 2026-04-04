@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Filter, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import SearchAutocomplete from '@/features/search/components/SearchAutocomplete';
+import { PlacesSearchHeader } from './PlacesSearchHeader';
 import { Place } from '@/features/places/types';
 import { usePlacesFilter } from '../hooks/usePlacesFilter';
 import { PlaceCard } from './PlaceCard';
@@ -23,13 +22,13 @@ interface PlacesClientProps {
 export function PlacesClient({ initialPlaces, totalCount, categories, areas, districts }: PlacesClientProps) {
     // 🧠 Here we use our custom hook. All logic is encapsulated inside it!
     const {
-        query, setQuery,
+        query,
         activeCategory, setActiveCategory,
         activeDistrict,
         activeArea,
         sortBy,
         page, setPage,
-        showFilters, setShowFilters,
+        showFilters, openFilters, closeFilters,
         applyFilters,
         handleSearch,
         getAvailableAreasForDistrict,
@@ -57,35 +56,13 @@ export function PlacesClient({ initialPlaces, totalCount, categories, areas, dis
                     className="flex flex-col gap-4 md:gap-6"
                 >
                     {/* Search & Filter toggle row */}
-                    <div className="flex gap-3 md:gap-4 items-center">
-                        <div className="relative flex-1 group">
-                            <div className="absolute inset-0 bg-primary/10 dark:bg-primary/5 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 rounded-2xl md:rounded-3xl" />
-                            <div className="relative self-stretch flex items-center bg-surface/90 dark:bg-elevated/90 backdrop-blur-2xl border-2 border-border-subtle/60 rounded-2xl md:rounded-3xl shadow-xl shadow-black/5 dark:shadow-primary/10 transition-all duration-300 h-14 md:h-18">
-                                <SearchAutocomplete
-                                    value={query}
-                                    onChange={setQuery}
-                                    onSearch={handleSearch}
-                                    searchType="places"
-                                    placeholder="ابحث عن مكان، نشاط، أو منطقة في السويس..."
-                                    inputClassName="w-full h-full bg-transparent border-none outline-none text-text-primary flex items-center placeholder-text-muted/60 pr-6 md:pr-10 pl-6 text-base md:text-xl font-bold rounded-2xl md:rounded-3xl"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Filter toggle */}
-                        <button
-                            onClick={() => setShowFilters(true)}
-                            className={`relative h-14 md:h-18 w-14 md:w-18 rounded-2xl md:rounded-3xl border-2 transition-all duration-300 shrink-0 shadow-lg flex items-center justify-center ${hasActiveFilters
-                                ? 'bg-primary border-primary text-white shadow-primary/25'
-                                : 'bg-surface/90 border-border-subtle/60 text-text-muted hover:border-primary/40 hover:text-text-primary'
-                                }`}
-                        >
-                            <Filter className="w-5 h-5 md:w-6 md:h-6" />
-                            {hasActiveFilters && (
-                                <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-accent rounded-full shadow-lg shadow-accent/50 animate-pulse border-2 border-white dark:border-surface" />
-                            )}
-                        </button>
-                    </div>
+                    {/* Search & Filter toggle row */}
+                    <PlacesSearchHeader 
+                        initialQuery={query}
+                        onSearch={handleSearch}
+                        onOpenFilters={openFilters}
+                        hasActiveFilters={hasActiveFilters}
+                    />
 
                     {/* Category Chips - Horizontal Scrollable */}
                     <div className="relative">
@@ -118,7 +95,7 @@ export function PlacesClient({ initialPlaces, totalCount, categories, areas, dis
                 {/* Refined Filter Modal */}
                 <PlacesFilterModal
                     isOpen={showFilters}
-                    onClose={() => setShowFilters(false)}
+                    onClose={closeFilters}
                     initialDistrict={activeDistrict}
                     initialArea={activeArea}
                     initialSort={sortBy}

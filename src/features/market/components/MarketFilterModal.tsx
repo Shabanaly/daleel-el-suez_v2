@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Filter, Check, RotateCcw } from 'lucide-react';
 import { MarketSortOption } from '../hooks/useMarketFilter';
@@ -16,7 +16,7 @@ interface MarketFilterModalProps {
     onClear: () => void;
 }
 
-export function MarketFilterModal({
+export const MarketFilterModal = memo(function MarketFilterModal({
     isOpen,
     onClose,
     initialDistrict,
@@ -213,4 +213,4 @@ export function MarketFilterModal({
             )}
         </AnimatePresence>
     );
-}
+});

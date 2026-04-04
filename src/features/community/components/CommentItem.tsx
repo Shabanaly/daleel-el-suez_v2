@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { User, Loader2, Reply, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
@@ -17,7 +17,7 @@ interface CommentItemProps {
   isReply?: boolean;
 }
 
-export default function CommentItem({
+const CommentItem = memo(function CommentItem({
   comment,
   onReply,
   onDelete,
@@ -99,4 +99,13 @@ export default function CommentItem({
       </div>
     </div>
   );
-}
+}, (prev, next) => {
+    return (
+        prev.comment.id === next.comment.id &&
+        prev.comment.content === next.comment.content &&
+        prev.currentUserId === next.currentUserId &&
+        prev.isReply === next.isReply
+    );
+});
+
+export default CommentItem;

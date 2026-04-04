@@ -48,3 +48,4 @@ scripts/
 .env*.local
 
 data_migration/
+/docs/

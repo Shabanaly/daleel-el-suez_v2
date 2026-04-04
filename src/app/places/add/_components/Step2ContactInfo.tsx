@@ -3,6 +3,7 @@
 import { Phone, MapPin, Clock, ChevronRight, X, Facebook, Instagram, Globe, MessageCircle, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DayKey, WeeklySchedule } from '@/features/places/types';
+import { useState, memo, useEffect } from 'react';
 
 interface Step2Props {
     formData: {
@@ -31,7 +32,23 @@ const daysMapping: { key: DayKey; label: string }[] = [
     { key: 'friday', label: 'الجمعة' },
 ];
 
-export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, errors }: Step2Props) {
+export const Step2ContactInfo = memo(function Step2ContactInfo({ formData, updateFormData, onNext, onBack, errors }: Step2Props) {
+    // Local state for all fields
+    const [localPrimary, setLocalPrimary] = useState(formData.phone.primary);
+    const [localWhatsapp, setLocalWhatsapp] = useState(formData.phone.whatsapp);
+    const [localOthers, setLocalOthers] = useState(formData.phone.others);
+    const [localAddress, setLocalAddress] = useState(formData.address);
+    const [localSocialLinks, setLocalSocialLinks] = useState(formData.socialLinks);
+
+    // Sync from parent if needed (e.g. initial load)
+    useEffect(() => {
+        setLocalPrimary(formData.phone.primary);
+        setLocalWhatsapp(formData.phone.whatsapp);
+        setLocalOthers(formData.phone.others);
+        setLocalAddress(formData.address);
+        setLocalSocialLinks(formData.socialLinks);
+    }, [formData.phone.primary, formData.phone.whatsapp, formData.phone.others, formData.address, formData.socialLinks]);
+
     const is24Hours = (formData.openHours?.saturday?.isOpen && formData.openHours?.saturday?.from === '00:00' && formData.openHours?.saturday?.to === '23:59') || false;
     const fromTime = (!formData.openHours?.saturday?.isOpen || formData.openHours.saturday.from === '00:00') ? '09:00' : formData.openHours.saturday.from;
     const toTime = (!formData.openHours?.saturday?.isOpen || formData.openHours.saturday.to === '23:59') ? '22:00' : formData.openHours.saturday.to;
@@ -46,6 +63,53 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
             return acc;
         }, {} as WeeklySchedule);
         updateFormData({ openHours: payload });
+    };
+
+    const syncToParent = () => {
+        updateFormData({
+            phone: {
+                primary: localPrimary,
+                whatsapp: localWhatsapp,
+                others: localOthers
+            },
+            address: localAddress,
+            socialLinks: localSocialLinks
+        });
+    };
+
+    const formatPhoneNumber = (value: string) => {
+        // 1. Strip everything except digits
+        let digits = value.replace(/\D/g, '');
+
+        // 2. Handle variants and clean up to have only the mobile part (e.g. 1xxxxxxxxx)
+        if (digits.startsWith('0020')) {
+            digits = digits.substring(4);
+        } else if (digits.startsWith('20')) {
+            digits = digits.substring(2);
+        } else if (digits.startsWith('0')) {
+            digits = digits.substring(1);
+        }
+
+        // 3. Re-prepend the +20 and limit to the appropriate length (10 digits for the number part)
+        if (digits.length > 0) {
+            return '+20' + digits.slice(0, 10);
+        }
+        
+        return '';
+    };
+
+    const handlePrimaryChange = (val: string) => {
+        setLocalPrimary(formatPhoneNumber(val));
+    };
+
+    const handleWhatsappChange = (val: string) => {
+        setLocalWhatsapp(formatPhoneNumber(val));
+    };
+
+    const handleOtherChange = (val: string, idx: number) => {
+        const newOthers = [...localOthers];
+        newOthers[idx] = formatPhoneNumber(val);
+        setLocalOthers(newOthers);
     };
 
     return (
@@ -69,9 +133,10 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                             <input
                                 required
                                 type="tel"
-                                value={formData.phone.primary}
-                                onChange={e => updateFormData({ phone: { ...formData.phone, primary: e.target.value } })}
-                                placeholder="01xxxxxxxxx"
+                                value={localPrimary}
+                                onChange={e => handlePrimaryChange(e.target.value)}
+                                onBlur={() => updateFormData({ phone: { ...formData.phone, primary: localPrimary } })}
+                                placeholder="+201xxxxxxxxx"
                                 dir="ltr"
                                 className={`w-full h-16 px-6 rounded-2xl bg-background border ${errors?.phone ? 'border-red-500' : 'border-border-subtle'} text-text-primary font-bold placeholder:text-text-muted/30 focus:border-primary transition-all outline-hidden pr-6 text-right`}
                             />
@@ -84,9 +149,10 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                                 <MessageCircle className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted/40" />
                                 <input
                                     type="tel"
-                                    value={formData.phone.whatsapp}
-                                    onChange={e => updateFormData({ phone: { ...formData.phone, whatsapp: e.target.value } })}
-                                    placeholder="01xxxxxxxxx"
+                                    value={localWhatsapp}
+                                    onChange={e => handleWhatsappChange(e.target.value)}
+                                    onBlur={() => updateFormData({ phone: { ...formData.phone, whatsapp: localWhatsapp } })}
+                                    placeholder="+201xxxxxxxxx"
                                     dir="ltr"
                                     className="w-full h-16 px-6 rounded-2xl bg-background border border-border-subtle text-text-primary font-bold placeholder:text-text-muted/30 focus:border-primary transition-all outline-hidden pr-6 text-right"
                                 />
@@ -94,7 +160,7 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                         </div>
 
                         <AnimatePresence>
-                            {formData.phone.others.map((phone, idx) => (
+                            {localOthers.map((phone, idx) => (
                                 <motion.div
                                     key={idx}
                                     initial={{ opacity: 0, height: 0 }}
@@ -107,18 +173,16 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                                         <input
                                             type="tel"
                                             value={phone}
-                                            onChange={e => {
-                                                const newOthers = [...formData.phone.others];
-                                                newOthers[idx] = e.target.value;
-                                                updateFormData({ phone: { ...formData.phone, others: newOthers } });
-                                            }}
+                                            onChange={e => handleOtherChange(e.target.value, idx)}
+                                            onBlur={() => updateFormData({ phone: { ...formData.phone, others: localOthers } })}
                                             dir="ltr"
                                             className="flex-1 h-16 px-6 rounded-2xl bg-background border border-border-subtle text-text-primary font-bold focus:border-primary transition-all outline-hidden pr-6 text-right"
                                         />
                                         <button
                                             type="button"
                                             onClick={() => {
-                                                const newOthers = formData.phone.others.filter((_, i) => i !== idx);
+                                                const newOthers = localOthers.filter((_, i) => i !== idx);
+                                                setLocalOthers(newOthers);
                                                 updateFormData({ phone: { ...formData.phone, others: newOthers } });
                                             }}
                                             className="w-16 h-16 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shrink-0 active:scale-95"
@@ -133,7 +197,9 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                         <button
                             type="button"
                             onClick={() => {
-                                updateFormData({ phone: { ...formData.phone, others: [...formData.phone.others, ''] } });
+                                const newOthers = [...localOthers, ''];
+                                setLocalOthers(newOthers);
+                                updateFormData({ phone: { ...formData.phone, others: newOthers } });
                             }}
                             className="w-full h-14 rounded-2xl border-2 border-dashed border-border-subtle/50 text-text-muted font-black flex items-center justify-center gap-3 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group mt-2"
                         >
@@ -142,6 +208,7 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                         </button>
                     </div>
 
+
                     <div className="space-y-2">
                         <label className="text-xs font-black text-text-muted mr-3 block uppercase tracking-wide">العنوان بالتفصيل</label>
                         <div className="relative">
@@ -149,8 +216,9 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                             <input
                                 required
                                 type="text"
-                                value={formData.address}
-                                onChange={e => updateFormData({ address: e.target.value })}
+                                value={localAddress}
+                                onChange={e => setLocalAddress(e.target.value)}
+                                onBlur={() => updateFormData({ address: localAddress })}
                                 placeholder="مثال: شارع النهضة، خلف بنك مصر..."
                                 className={`w-full h-16 px-6 rounded-2xl bg-background border ${errors?.address ? 'border-red-500' : 'border-border-subtle'} text-text-primary font-bold placeholder:text-text-muted/30 focus:border-primary transition-all outline-hidden`}
                             />
@@ -168,9 +236,9 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                         <button
                             type="button"
                             onClick={() => {
-                                updateFormData({
-                                    socialLinks: [...formData.socialLinks, { platform: 'website', url: '' }]
-                                });
+                                const newLinks = [...localSocialLinks, { platform: 'website', url: '' }];
+                                setLocalSocialLinks(newLinks);
+                                updateFormData({ socialLinks: newLinks });
                             }}
                             className="text-[10px] font-black text-primary hover:text-primary-hover px-3 py-1 rounded-lg bg-primary/10 transition-colors uppercase tracking-wider"
                         >
@@ -180,7 +248,7 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
 
                     <div className="space-y-3">
                         <AnimatePresence initial={false}>
-                            {formData.socialLinks.map((link, index) => {
+                            {localSocialLinks.map((link, index) => {
                                 const detectPlatform = (url: string) => {
                                     if (url.includes('facebook') || url.includes('fb.com')) return 'facebook';
                                     if (url.includes('instagram') || url.includes('instagr.am')) return 'instagram';
@@ -211,23 +279,25 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                                                 type="url"
                                                 value={link.url}
                                                 onChange={e => {
-                                                    const newLinks = [...formData.socialLinks];
+                                                    const newLinks = [...localSocialLinks];
                                                     const url = e.target.value;
                                                     newLinks[index] = {
                                                         url,
                                                         platform: detectPlatform(url)
                                                     };
-                                                    updateFormData({ socialLinks: newLinks });
+                                                    setLocalSocialLinks(newLinks);
                                                 }}
+                                                onBlur={() => updateFormData({ socialLinks: localSocialLinks })}
                                                 placeholder="أدخل رابط (فيسبوك، انستجرام، أو موقع)..."
                                                 className="w-full h-14 pl-12 pr-4 rounded-xl bg-background border border-border-subtle text-sm font-bold focus:border-primary transition-all outline-hidden"
                                             />
                                         </div>
-                                        {formData.socialLinks.length > 1 && (
+                                        {localSocialLinks.length > 1 && (
                                             <button
                                                 type="button"
                                                 onClick={() => {
-                                                    const newLinks = formData.socialLinks.filter((_, i) => i !== index);
+                                                    const newLinks = localSocialLinks.filter((_, i) => i !== index);
+                                                    setLocalSocialLinks(newLinks);
                                                     updateFormData({ socialLinks: newLinks });
                                                 }}
                                                 className="w-10 h-10 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shrink-0"
@@ -305,7 +375,10 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
             <div className="flex gap-4">
                 <button
                     type="button"
-                    onClick={onBack}
+                    onClick={() => {
+                        syncToParent();
+                        onBack();
+                    }}
                     className="h-16 px-8 rounded-2xl bg-surface border border-border-subtle text-text-primary font-black flex items-center justify-center gap-2 hover:bg-elevated transition-all"
                 >
                     <ChevronRight className="w-5 h-5" />
@@ -313,7 +386,10 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
                 </button>
                 <button
                     type="button"
-                    onClick={onNext}
+                    onClick={() => {
+                        syncToParent();
+                        onNext();
+                    }}
                     className="flex-1 h-16 rounded-2xl bg-primary text-white font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-primary/25 hover:bg-primary-hover transition-all active:scale-[0.98]"
                 >
                     <span>التالي</span>
@@ -322,4 +398,5 @@ export function Step2ContactInfo({ formData, updateFormData, onNext, onBack, err
             </div>
         </motion.div>
     );
-}
+});
+
