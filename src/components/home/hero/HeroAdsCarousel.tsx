@@ -58,17 +58,40 @@ export default function HeroAdsCarousel({ ads = [] }: HeroAdsCarouselProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative group">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeAd.id}
-            initial={{ opacity: 0, scale: 0.98, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: -10 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(_, info) => {
+              const swipeThreshold = 50;
+              if (info.offset.x > swipeThreshold) {
+                // Swipe Right (Previous)
+                setIndex((prev) => (prev - 1 + ads.length) % ads.length);
+              } else if (info.offset.x < -swipeThreshold) {
+                // Swipe Left (Next)
+                setIndex((prev) => (prev + 1) % ads.length);
+              }
+            }}
+            className="cursor-grab active:cursor-grabbing touch-pan-y"
           >
-            <CustomLink href={activeAd.action_url || "#"} className="block">
+            <CustomLink 
+              href={activeAd.action_url || "#"} 
+              className="block pointer-events-none sm:pointer-events-auto"
+              onClick={(e) => {
+                // منع الانتقال للرابط إذا كان المستخدم يقوم بالسحب
+                if (Math.abs(window.getSelection()?.toString().length || 0) > 0) {
+                  e.preventDefault();
+                }
+              }}
+            >
               <div
-                className={`relative overflow-hidden rounded-2xl border border-white/10 dark:border-white/5 transition-all duration-500 shadow-xl shadow-primary/5 hover:shadow-primary/20 hover:border-primary/40 group/card w-full h-[180px] sm:h-[200px] md:h-[240px] flex flex-col justify-end ${!hasMedia ? "glass-panel" : "bg-black"}`}
+                className={`relative overflow-hidden rounded-2xl border border-white/10 dark:border-white/5 transition-all duration-500 shadow-xl shadow-primary/5 hover:shadow-primary/20 hover:border-primary/40 group/card w-full h-[180px] sm:h-[200px] md:h-[240px] flex flex-col justify-end pointer-events-auto ${!hasMedia ? "glass-panel" : "bg-black"}`}
               >
                 {/* Background Media (Image / Video) */}
                 {hasMedia && (
