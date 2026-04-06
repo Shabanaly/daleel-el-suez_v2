@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { ChevronLeft, LucideIcon } from 'lucide-react';
 
 interface SectionHeaderProps {
@@ -27,13 +27,13 @@ export default function SectionHeader({
             </div>
 
             {href && (
-                <Link
+                <CustomLink
                     href={href}
                     className="group flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-border-subtle hover:border-primary/30 hover:bg-primary/5 transition-all duration-300"
                 >
                     <span className="text-[10px] md:text-sm font-black text-text-muted group-hover:text-primary transition-colors">{viewAllText}</span>
                     <ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4 text-text-muted group-hover:text-primary transition-transform group-hover:-translate-x-1" />
-                </Link>
+                </CustomLink>
             )}
         </div>
     );

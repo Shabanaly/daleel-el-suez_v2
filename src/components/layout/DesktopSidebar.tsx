@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Plus, MessageSquare, Heart, User, LogOut, ShoppingBag, Copyright as CopyIcon, Settings } from 'lucide-react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import Image from 'next/image';
@@ -67,7 +67,7 @@ export default function DesktopSidebar() {
 
 function SidebarItem({ icon, label, href, color, active }: { icon: React.ReactNode; label: string; href: string; color: string; active: boolean }) {
     return (
-        <Link href={href} className="group/item flex items-center justify-center group-hover/sidebar:justify-start gap-0 group-hover/sidebar:gap-3 w-full p-2 group-hover/sidebar:p-3 rounded-2xl transition-all duration-300 relative overflow-hidden active:scale-95">
+        <CustomLink href={href} className="group/item flex items-center justify-center group-hover/sidebar:justify-start gap-0 group-hover/sidebar:gap-3 w-full p-2 group-hover/sidebar:p-3 rounded-2xl transition-all duration-300 relative overflow-hidden active:scale-95">
             {/* Active Highlight Background */}
             {active && (
                 <motion.div
@@ -95,6 +95,6 @@ function SidebarItem({ icon, label, href, color, active }: { icon: React.ReactNo
             {active && (
                 <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-primary rounded-r-full" />
             )}
-        </Link>
+        </CustomLink>
     );
 }

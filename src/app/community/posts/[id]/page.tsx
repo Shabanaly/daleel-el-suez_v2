@@ -6,7 +6,6 @@ import PostCard from '@/features/community/components/PostCard';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { ArrowLeft, Users } from 'lucide-react';
-import Link from 'next/link';
 import CommunityComments from '@/features/community/components/CommunityComments';
 import { Suspense } from 'react';
 import { AppBar } from '@/components/ui/AppBar';

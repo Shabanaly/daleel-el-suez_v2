@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import ShareButton from '@/components/ui/ShareButton';
 import { useDialog } from "@/components/providers/DialogProvider";
 import { Share2, MapPin, Star, ChevronLeft, ChevronRight, CheckCircle2, Eye } from 'lucide-react';
@@ -92,14 +92,14 @@ export function PlaceDetailsClient({
 
                 {/* ── Desktop Breadcrumbs ───────────────────────────────────── */}
                 <nav className="hidden md:flex items-center gap-2 mb-10 text-sm font-bold">
-                    <Link href="/" className="text-text-muted hover:text-primary transition-colors">الرئيسية</Link>
+                    <CustomLink href="/" className="text-text-muted hover:text-primary transition-colors">الرئيسية</CustomLink>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
-                    <Link href="/places" className="text-text-muted hover:text-primary transition-colors">أماكن</Link>
+                    <CustomLink href="/places" className="text-text-muted hover:text-primary transition-colors">أماكن</CustomLink>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
                     {place.category ? (
-                        <Link href={`/places?category=${encodeURIComponent(place.category)}`} className="text-text-muted hover:text-primary transition-colors">
+                        <CustomLink href={`/places?category=${encodeURIComponent(place.category)}`} className="text-text-muted hover:text-primary transition-colors">
                             {place.category}
-                        </Link>
+                        </CustomLink>
                     ) : (
                         <span className="text-text-muted/50">{place.category}</span>
                     )}

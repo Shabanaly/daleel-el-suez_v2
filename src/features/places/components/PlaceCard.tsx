@@ -3,7 +3,7 @@
 import { useState, memo } from 'react';
 import { Star, MapPin, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import Image from 'next/image';
 import { SafeImage } from '@/components/common/SafeImage';
 import { Place } from '@/features/places/types';
@@ -40,7 +40,7 @@ export const PlaceCard = memo(function PlaceCard({ place, index = 0, className =
         transition={{ duration: 0.4, delay: index * 0.05 }}
         className={`relative group ${className}`}
       >
-        <Link href={`/places/${encodeURIComponent(place.slug)}`} className="block h-full">
+        <CustomLink href={`/places/${encodeURIComponent(place.slug)}`} className="block h-full">
           <div className="bg-surface rounded-2xl overflow-hidden flex flex-col border border-border-subtle shadow-sm hover:shadow-xl transition-all duration-300 h-full underline-none">
             {/* Image Container */}
             <div className="relative aspect-4/3 overflow-hidden bg-muted">
@@ -130,7 +130,7 @@ export const PlaceCard = memo(function PlaceCard({ place, index = 0, className =
               </p>
             </div>
           </div>
-        </Link>
+        </CustomLink>
         <div className="absolute top-3 left-3 z-20">
           <FavoriteButton
             itemId={place.id}

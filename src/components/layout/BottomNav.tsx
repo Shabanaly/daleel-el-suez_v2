@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Home, MapPin, Store, Users, Plus } from 'lucide-react';
@@ -129,7 +129,7 @@ function NavItem({
     onClick?: (e: React.MouseEvent) => void;
 }) {
     return (
-        <Link
+        <CustomLink
             href={href}
             onClick={onClick}
             className="relative flex flex-col items-center justify-center h-full w-[68px] md:w-20 touch-none group"
@@ -169,6 +169,6 @@ function NavItem({
                 }`}>
                 {label}
             </span>
-        </Link>
+        </CustomLink>
     );
 }

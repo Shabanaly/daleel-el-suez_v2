@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
@@ -77,7 +77,7 @@ export default function AdminSidebar() {
                     {navItems.map((item) => {
                         const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
                         return (
-                            <Link
+                            <CustomLink
                                 key={item.href}
                                 href={item.href}
                                 onClick={closeMobileMenu}
@@ -97,7 +97,7 @@ export default function AdminSidebar() {
                                 {isActive && !isCollapsed && (
                                     <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-primary rounded-l-full shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
                                 )}
-                            </Link>
+                            </CustomLink>
                         );
                     })}
                 </nav>

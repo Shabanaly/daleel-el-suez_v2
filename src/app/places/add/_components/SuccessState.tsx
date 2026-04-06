@@ -2,7 +2,7 @@
 
 import { CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 
 export function SuccessState() {
     return (
@@ -18,12 +18,12 @@ export function SuccessState() {
             <p className="text-text-muted font-medium mb-8 leading-relaxed">
                 شكراً لثقتك في دليل السويس. سنقوم بمراجعة بيانات نشاطك التجاري وتفعيله فوراً.
             </p>
-            <Link
+            <CustomLink
                 href="/places"
                 className="inline-flex h-14 px-8 rounded-2xl bg-accent text-white font-black items-center justify-center hover:bg-accent transition-all shadow-lg shadow-accent/25"
             >
                 الرجوع للدليل
-            </Link>
+            </CustomLink>
         </motion.div>
     );
 }

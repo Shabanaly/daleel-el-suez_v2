@@ -2,13 +2,12 @@
 
 import { motion } from 'framer-motion';
 import { MessageSquare, Heart, Share2 } from 'lucide-react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { toggleLikePost } from '@/features/community/actions/posts.server';
 import AuthRequiredModal from '@/features/auth/components/AuthRequiredModal';
-import SectionHeader from '@/components/ui/SectionHeader';
 import { CommunityPost } from '@/features/community/types';
 import { SafeImage } from '@/components/common/SafeImage';
 import ShareButton from '@/components/ui/ShareButton';
@@ -60,115 +59,117 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
         }
     };
 
+    // We take exactly 3 posts to match the requested 3-column layout ideally
+    const displayPosts = posts.slice(0, 3);
+
     return (
-        <section className="w-full max-w-7xl mx-auto px-4 pt-0 pb-8 md:pt-0 md:pb-16 overflow-hidden relative border-t border-border-subtle/30">
-            {/* Decorative elements */}
-            <div className="absolute top-1/4 right-0 w-64 h-64 bg-primary/5 blur-[100px] pointer-events-none" />
+        <section className="w-full bg-background pt-4 pb-4 md:pt-8 md:pb-8 overflow-hidden relative">
+            <div className="mx-auto max-w-7xl px-4 lg:px-8">
+                {/* Header Section */}
+                <div className="w-full mb-8 md:mb-10 flex flex-col items-start gap-2">
+                    <h2 className="text-3xl font-black tracking-tight text-text-primary md:text-4xl">
+                        أحدث مشاركات المجتمع
+                    </h2>
+                    <p className="text-base text-text-muted font-medium w-full max-w-3xl">
+                        تابع نقاشات أهل السويس، وتعرف على أحدث التقييمات والأخبار المحلية لحظة بلحظة.
+                    </p>
+                </div>
 
-            <SectionHeader
-                title="مجتمع السويس"
-                subtitle="شارك معانا "
-                icon={MessageSquare}
-                href="/community"
-                viewAllText="اكتشف المزيد"
-            />
+                {/* Posts Grid */}
+                <div className="w-full grid grid-cols-1 gap-6 md:grid-cols-2">
+                    {displayPosts.map((post) => {
+                        const initialIsLiked = post.isLiked || false;
+                        const isLiked = likedPosts[post.id] !== undefined ? likedPosts[post.id] : initialIsLiked;
+                        const likesCount = (post.likes_count || 0) + (isLiked && !initialIsLiked ? 1 : 0) - (!isLiked && initialIsLiked ? 1 : 0);
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {posts.map((post, idx) => {
-                    const initialIsLiked = post.isLiked || false;
-                    const isLiked = likedPosts[post.id] !== undefined ? likedPosts[post.id] : initialIsLiked;
-                    const likesCount = (post.likes_count || 0) + (isLiked && !initialIsLiked ? 1 : 0) - (!isLiked && initialIsLiked ? 1 : 0);
-
-                    return (
-                        <Link
-                            key={post.id}
-                            href={`/community/posts/${post.id}`}
-                            className="group/card"
-                        >
-                            <motion.div
-                                initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
+                        return (
+                            <motion.article 
+                                key={post.id} 
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                transition={{ duration: 0.5 }}
-                                className="bg-elevated/50 backdrop-blur-md border border-border-subtle/50 rounded-[32px] p-6 md:p-8 hover:border-primary/20 transition-all duration-300 shadow-sm flex flex-col h-full group-hover/card:bg-surface/80 group-hover/card:shadow-xl group-hover/card:translate-y-[-4px]"
+                                className="flex max-w-xl flex-col items-start justify-between group"
                             >
-                                <div className="flex items-start gap-4 mb-6">
-                                    <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 ring-2 ring-primary/10 border border-border-subtle">
+                                {/* Author Profile, Date and Tag */}
+                                <div className="flex items-center gap-x-3 w-full mb-4">
+                                    <div className="relative w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0 border border-border-subtle">
                                         {post.author?.avatar_url ? (
                                             <SafeImage
-                                                src={post.author.avatar_url}
                                                 alt={post.author.full_name || 'User'}
+                                                src={post.author.avatar_url}
                                                 fill
                                                 className="object-cover"
-                                                sizes="48px"
                                             />
                                         ) : (
-                                            <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-black uppercase text-base">
+                                            <span className="text-primary font-black uppercase text-sm">
                                                 {(post.author?.username || post.author?.full_name || '؟')[0]}
-                                            </div>
+                                            </span>
                                         )}
                                     </div>
-                                    <div className="flex-1">
-                                        <h4 className="font-black text-text-primary text-sm mb-0.5">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-bold text-text-primary text-sm truncate">
                                             {post.author?.full_name || 'مستشار سويسي'}
-                                        </h4>
-                                        <span className="text-[10px] text-text-muted opacity-60 font-bold">
+                                        </p>
+                                        <time dateTime={post.created_at} className="text-text-muted text-xs font-semibold block mt-0.5">
                                             {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: ar })}
+                                        </time>
+                                    </div>
+                                    
+                                    <CustomLink
+                                        href="/community"
+                                        className="relative z-10 rounded-full bg-primary/10 px-3 py-1 font-bold text-primary hover:bg-primary/20 transition-colors text-xs shrink-0"
+                                    >
+                                        مجتمع السويس
+                                    </CustomLink>
+                                </div>
+
+                                {/* Post Content (Replacing Title/Description) */}
+                                <div className="relative w-full grow">
+                                    <h3 className="text-lg/8 font-bold text-text-primary group-hover:text-primary transition-colors line-clamp-4">
+                                        <CustomLink href={`/community/posts/${post.id}`}>
+                                            <span className="absolute inset-0 z-0" />
+                                            {post.content}
+                                        </CustomLink>
+                                    </h3>
+                                    
+                                    {/* Preview Image if exists */}
+                                    {post.images && post.images.length > 0 && (
+                                        <div className="mt-4 relative w-full h-40 rounded-2xl overflow-hidden border border-border-subtle z-10 cursor-pointer">
+                                            <SafeImage 
+                                                src={post.images[0]} 
+                                                alt="Post attachment" 
+                                                fill 
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Footer: Interactions */}
+                                <div className="relative mt-6 flex items-center justify-start gap-6 w-full z-10 border-t border-border-subtle/50 pt-4">
+                                    <button
+                                        onClick={(e) => handleLike(e, post.id, initialIsLiked)}
+                                        className={`flex items-center gap-1.5 transition-all active:scale-90 relative z-20 ${isLiked ? 'text-red-500' : 'text-text-muted hover:text-red-500'}`}
+                                    >
+                                        <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+                                        <span className="text-xs font-black">{Math.max(0, likesCount)}</span>
+                                    </button>
+                                    <div
+                                        onClick={handleInteraction}
+                                        className="flex items-center gap-1.5 text-text-muted hover:text-primary transition-all cursor-pointer relative z-20"
+                                    >
+                                        <MessageSquare className="w-5 h-5" />
+                                        <span className="text-xs font-black">
+                                            {typeof post.comments_count === 'number'
+                                                ? post.comments_count
+                                                : (Array.isArray(post.comments_count) ? post.comments_count[0]?.count || 0 : 0)}
                                         </span>
                                     </div>
                                 </div>
-
-                                <p className="text-text-primary leading-relaxed mb-6 font-bold text-sm line-clamp-3">
-                                    {post.content}
-                                </p>
-
-                                {/* Images Preview */}
-                                {post.images && post.images.length > 0 && (
-                                    <div className="grid grid-cols-2 gap-2 mb-6 pointer-events-none">
-                                        {post.images.slice(0, 2).map((img, i: number) => (
-                                            <div key={i} className={`relative rounded-2xl overflow-hidden border border-border-subtle/50 aspect-4/3 ${post.images?.length === 1 ? 'col-span-2' : ''}`}>
-                                                <SafeImage src={img} alt="Preview" fill sizes="(max-width: 768px) 50vw, 300px" className="object-cover" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                <div className="mt-auto flex items-center justify-between pt-5 border-t border-border-subtle/30">
-                                    <div className="flex items-center gap-5">
-                                        <button
-                                            onClick={(e) => handleLike(e, post.id, initialIsLiked)}
-                                            className={`flex items-center gap-2 transition-all active:scale-90 ${isLiked ? 'text-red-500' : 'text-text-muted hover:text-red-500'}`}
-                                        >
-                                            <Heart className={`w-4.5 h-4.5 ${isLiked ? 'fill-current' : ''}`} />
-                                            <span className="text-xs font-black">{Math.max(0, likesCount)}</span>
-                                        </button>
-                                        <div
-                                            onClick={handleInteraction}
-                                            className="flex items-center gap-2 text-text-muted hover:text-primary transition-all cursor-pointer"
-                                        >
-                                            <MessageSquare className="w-4.5 h-4.5" />
-                                            <span className="text-xs font-black">
-                                                {typeof post.comments_count === 'number'
-                                                    ? post.comments_count
-                                                    : (Array.isArray(post.comments_count) ? post.comments_count[0]?.count || 0 : 0)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div onClick={(e) => e.stopPropagation()}>
-                                        <ShareButton
-                                            title="دليل السويس - منشور في المجتمع"
-                                            text={post.content}
-                                            url={`${origin}/community/posts/${post.id}`}
-                                            className="p-2 rounded-xl hover:bg-primary/5 text-text-muted hover:text-primary transition-all active:scale-90"
-                                        >
-                                            <Share2 className="w-4.5 h-4.5" />
-                                        </ShareButton>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </Link>
-                    );
-                })}
+                            </motion.article>
+                        );
+                    })}
+                </div>
             </div>
 
             <AuthRequiredModal
@@ -180,3 +181,4 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
         </section>
     );
 }
+

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { MapPin, Star, MessageSquareHeart } from 'lucide-react';
 import { Place } from '@/features/places/types';
 import { motion } from 'framer-motion';
@@ -22,7 +22,7 @@ export function PulsePlaceCard({ place, index, className = '' }: PulsePlaceCardP
             transition={{ delay: index * 0.1, duration: 0.5 }}
             className={`group relative bg-surface rounded-3xl overflow-hidden border border-border-subtle shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 block ${className}`}
         >
-            <Link href={`/places/${place.slug}`} className="block h-full">
+            <CustomLink href={`/places/${place.slug}`} className="block h-full">
                 {/* ── Visual Context (Image & Badges) ── */}
                 <div className="relative h-48 sm:h-52 w-full overflow-hidden">
                     {/* Hot Trending Badge */}
@@ -83,7 +83,7 @@ export function PulsePlaceCard({ place, index, className = '' }: PulsePlaceCardP
                         </div>
                     )}
                 </div>
-            </Link>
+            </CustomLink>
         </motion.div>
     );
 }

@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { PlaceCard } from '@/features/places/components/PlaceCard';
 import AdCard from '@/features/market/components/AdCard';
 import { Heart, MapPin, Store, Map as MapIcon } from 'lucide-react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { AppBar } from '@/components/ui/AppBar';
 
 export const metadata = {
@@ -46,7 +46,7 @@ export default async function FavoritesPage({
 
                 {/* Tabs */}
                 <div className="flex items-center p-1.5 bg-surface border border-border-subtle rounded-2xl mb-8 w-fit">
-                    <Link
+                    <CustomLink
                         href="/favorites?tab=places"
                         className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'places'
                             ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
@@ -55,8 +55,8 @@ export default async function FavoritesPage({
                     >
                         <MapIcon className="w-4 h-4" />
                         الأماكن
-                    </Link>
-                    <Link
+                    </CustomLink>
+                    <CustomLink
                         href="/favorites?tab=market"
                         className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'market'
                             ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
@@ -65,7 +65,7 @@ export default async function FavoritesPage({
                     >
                         <Store className="w-4 h-4" />
                         السوق
-                    </Link>
+                    </CustomLink>
                 </div>
 
                 {activeTab === 'places' ? (
@@ -124,12 +124,12 @@ function EmptyState({ title, desc, btnLink, btnText, icon }: EmptyStateProps) {
             <p className="text-text-muted font-bold mb-8 text-center max-w-sm px-6">
                 {desc}
             </p>
-            <Link
+            <CustomLink
                 href={btnLink}
                 className="px-8 h-14 rounded-2xl bg-primary text-white font-black flex items-center gap-3 hover:scale-105 transition-transform shadow-lg shadow-primary/20"
             >
                 {btnText}
-            </Link>
+            </CustomLink>
         </div>
     );
 }

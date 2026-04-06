@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Star, MapPin, Clock } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 
 interface ActivityItem {
     id: string;
@@ -95,7 +95,7 @@ export function ProfileTabs({ activities, reviews = [], places = [] }: ProfileTa
                                 </div>
 
                                 {/* Content Card */}
-                                <Link href={activity.link} className="flex-1 bg-surface border border-border-subtle hover:border-primary/20 rounded-3xl p-4 md:p-6 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row gap-4 sm:items-center cursor-pointer group/card mt-1">
+                                <CustomLink href={activity.link} className="flex-1 bg-surface border border-border-subtle hover:border-primary/20 rounded-3xl p-4 md:p-6 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row gap-4 sm:items-center cursor-pointer group/card mt-1">
                                     {activity.image && (
                                         <div className="w-full sm:w-24 h-32 sm:h-24 rounded-2xl overflow-hidden shrink-0 relative border border-border-subtle">
                                             <Image
@@ -137,7 +137,7 @@ export function ProfileTabs({ activities, reviews = [], places = [] }: ProfileTa
                                             </span>
                                         </div>
                                     </div>
-                                </Link>
+                                </CustomLink>
                             </motion.div>
                         ))
                     ) : (

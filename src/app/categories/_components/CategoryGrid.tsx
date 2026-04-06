@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
 import type { Category } from '@/lib/types/category';
@@ -42,7 +42,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
         >
             {categories.map((category) => (
                 <motion.div key={category.id} variants={itemAnim}>
-                    <Link
+                    <CustomLink
                         href={`/places?category=${encodeURIComponent(category.name)}`}
                         className="group relative flex flex-col items-center justify-between text-center p-6 md:p-8 rounded-2xl md:rounded-3xl bg-surface/30 backdrop-blur-xl border border-border-subtle hover:border-primary/40 hover:bg-surface/80 hover:translate-y-[-8px] active:scale-95 transition-all duration-500 w-full min-h-[160px] md:min-h-[200px] shadow-sm hover:shadow-2xl hover:shadow-primary/10 overflow-hidden"
                     >
@@ -70,7 +70,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
 
                         {/* Status dot if highly active (optional logic) */}
                         <div className="absolute top-4 right-4 w-1.5 h-1.5 rounded-full bg-primary/20 group-hover:bg-primary animate-pulse" />
-                    </Link>
+                    </CustomLink>
                 </motion.div>
             ))}
         </motion.div>

@@ -31,7 +31,6 @@ export default async function NotificationsArchivePage() {
         <div className="min-h-screen bg-background pb-32">
             <AppBar 
                 title="الإشعارات" 
-                backHref="/profile" 
                 transparent={true}
                 titleBehavior="scroll-reveal"
             />

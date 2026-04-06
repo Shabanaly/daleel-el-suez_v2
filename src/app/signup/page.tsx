@@ -1,7 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { AuthFormUI } from '@/features/auth/components/AuthFormUI';
@@ -32,13 +32,13 @@ export default function SignupPage() {
             <div className="relative z-10 w-full max-w-[480px] flex flex-col gap-6 animate-in fade-in zoom-in duration-700 ease-out-expo">
                 {/* Back to Home Button - Aligned to Left */}
                 <div className="flex justify-start">
-                    <Link
+                    <CustomLink
                         href="/"
                         className="flex items-center gap-2 text-text-primary/80 hover:text-text-primary font-black transition-all group bg-surface/20 backdrop-blur-md px-4 py-2 rounded-xl border border-border-subtle hover:border-primary/25"
                     >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         <span className="text-xs md:text-sm">الرجوع للرئيسية</span>
-                    </Link>
+                    </CustomLink>
                 </div>
 
                 <div className="w-full max-w-[480px]">

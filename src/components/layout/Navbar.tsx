@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { usePathname } from 'next/navigation';
 import { User, Search, Store, Users, Map } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -35,7 +35,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between w-full max-w-sm md:max-w-2xl lg:max-w-4xl h-full px-4">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <CustomLink href="/" className="flex items-center gap-2">
             <Image 
               src="/favicon-circular.ico" 
               alt="Logo" 
@@ -46,14 +46,14 @@ export default function Navbar() {
             <span className="font-semibold text-base text-text-primary">
               دليل السويس
             </span>
-          </Link>
+          </CustomLink>
 
           {/* Actions */}
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <div className="flex items-center gap-2">
               <NotificationBell />
-              <Link
+              <CustomLink
                 href={user ? "/profile" : "/login"}
                 className="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden border border-border-subtle hover:border-primary/50 transition-all bg-elevated"
               >
@@ -69,7 +69,7 @@ export default function Navbar() {
                 ) : (
                   <User className="w-5 h-5 text-text-muted" />
                 )}
-              </Link>
+              </CustomLink>
             </div>
           </div>
         </div>
@@ -81,7 +81,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-8">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <CustomLink href="/" className="flex items-center gap-2">
             <Image 
               src="/favicon-circular.ico" 
               alt="Logo" 
@@ -92,7 +92,7 @@ export default function Navbar() {
             <span className="font-semibold text-lg text-text-primary tracking-tight">
               دليل السويس
             </span>
-          </Link>
+          </CustomLink>
 
           {/* Navigation */}
           <div className="flex items-center gap-6">
@@ -106,7 +106,7 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <NotificationBell />
-            <Link
+            <CustomLink
                 href={user ? "/profile" : "/login"}
                 className="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden border border-border-subtle hover:border-primary/50 transition-all bg-elevated"
               >
@@ -122,7 +122,7 @@ export default function Navbar() {
                 ) : (
                   <User className="w-5 h-5 text-text-muted" />
                 )}
-            </Link>
+            </CustomLink>
           </div>
 
         </div>
@@ -143,7 +143,7 @@ function NavLink({
   active: boolean;
 }) {
   return (
-    <Link
+    <CustomLink
       href={href}
       className={`flex items-center gap-2 pb-1 text-sm font-medium transition
         ${active
@@ -153,6 +153,6 @@ function NavLink({
     >
       {icon}
       <span>{label}</span>
-    </Link>
+    </CustomLink>
   );
 }

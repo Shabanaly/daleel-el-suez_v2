@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, MapPin, Store, Users, Settings, LogOut, Info, Heart, Share2, User, FileText, ShieldCheck, ShoppingBag, Copyright as CopyIcon } from 'lucide-react';
 import ShareButton from '@/components/ui/ShareButton';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
@@ -213,7 +213,7 @@ function ActionItem({
     }
 
     return (
-        <Link
+        <CustomLink
             href={href}
             onClick={onClick}
             className="flex flex-col items-center gap-2 group"
@@ -222,7 +222,7 @@ function ActionItem({
                 {icon}
             </div>
             <span className="text-[11px] font-black text-text-primary tracking-tight">{label}</span>
-        </Link>
+        </CustomLink>
     );
 }
 
@@ -258,7 +258,7 @@ function ListLink({
     }
 
     return (
-        <Link
+        <CustomLink
             href={href}
             onClick={onClick}
             className="w-full flex items-center justify-between p-4 rounded-2xl bg-elevated hover:bg-elevated/80 border border-border-subtle text-text-primary hover:shadow-lg transition-all font-bold group"
@@ -270,6 +270,6 @@ function ListLink({
             <div className="w-8 h-8 flex items-center justify-center rounded-full bg-background border border-border-subtle group-hover:bg-primary group-hover:text-white transition-all">
                 <Plus className="w-4 h-4 rotate-45" />
             </div>
-        </Link>
+        </CustomLink>
     );
 }

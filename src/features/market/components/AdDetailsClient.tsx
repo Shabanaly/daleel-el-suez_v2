@@ -16,7 +16,7 @@ import {
 import FavoriteButton from '@/features/market/components/FavoriteButton';
 import ShareButton from '@/components/ui/ShareButton';
 import { useDialog } from "@/components/providers/DialogProvider";
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { ImageGallery } from '@/components/common/ImageGallery';
 import { SafeImage } from '@/components/common/SafeImage';
 import { Lightbox } from '@/components/common/Lightbox';
@@ -107,11 +107,11 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
             <main className="pt-14 md:pt-32 max-w-4xl mx-auto px-4">
                 {/* ── Desktop Breadcrumbs ───────────────────────────────────── */}
                 <nav className="hidden md:flex items-center gap-2 mb-10 text-sm font-bold whitespace-nowrap overflow-hidden">
-                    <Link href="/market" className="text-text-muted hover:text-primary transition-colors">السوق</Link>
+                    <CustomLink href="/market" className="text-text-muted hover:text-primary transition-colors">السوق</CustomLink>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 shrink-0" />
-                    <Link href={`/market?category=${encodeURIComponent(ad.category_slug || 'all')}`} className="text-text-muted hover:text-primary transition-colors">
+                    <CustomLink href={`/market?category=${encodeURIComponent(ad.category_slug || 'all')}`} className="text-text-muted hover:text-primary transition-colors">
                         {ad.category_name || 'قسم آخر'}
-                    </Link>
+                    </CustomLink>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 shrink-0" />
                     <span className="text-primary truncate max-w-[200px]" title={ad.title}>{ad.title}</span>
                 </nav>

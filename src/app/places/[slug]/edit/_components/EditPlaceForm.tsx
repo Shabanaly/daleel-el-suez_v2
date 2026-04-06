@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { useDialog } from "@/components/providers/DialogProvider";
 import {
     ChevronRight, MapPin, Phone, Building2,
@@ -173,9 +173,9 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
                 </div>
                 <h2 className="text-3xl font-black text-text-primary mb-4 tracking-tight">تم التحديث!</h2>
                 <p className="text-text-muted font-medium mb-8">تم حفظ تعديلات المكان بنجاح.</p>
-                <Link href={`/places/${place.slug}`} className="inline-flex h-14 px-8 rounded-2xl bg-accent text-white font-black items-center justify-center hover:bg-accent transition-all shadow-lg shadow-accent/25">
+                <CustomLink href={`/places/${place.slug}`} className="inline-flex h-14 px-8 rounded-2xl bg-accent text-white font-black items-center justify-center hover:bg-accent transition-all shadow-lg shadow-accent/25">
                     العودة للمكان
-                </Link>
+                </CustomLink>
             </motion.div>
         );
     }

@@ -2,7 +2,7 @@
 
 import { DashboardPlaceCard } from './DashboardPlaceCard';
 import { LayoutDashboard, Plus, PlusCircle, Store } from 'lucide-react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Place } from '@/features/places/types';
 import { AppBar } from '@/components/ui/AppBar';
@@ -28,13 +28,13 @@ export function ManageBusinessesClient({ places }: ManageBusinessesClientProps) 
                     </div>
                     
                     <div className="flex items-center gap-3 w-full lg:w-auto">
-                        <Link
+                        <CustomLink
                             href="/places/add"
                             className="bg-primary text-white px-6 h-12 rounded-2xl hidden lg:flex items-center justify-center gap-2 font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform flex-1 md:flex-none text-sm"
                         >
                             <Plus className="w-5 h-5" />
                             إضافة نشاط جديد
-                        </Link>
+                        </CustomLink>
                         <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/20">
                             <LayoutDashboard className="w-6 h-6" />
                         </div>
@@ -67,13 +67,13 @@ export function ManageBusinessesClient({ places }: ManageBusinessesClientProps) 
                                 <p className="text-text-muted font-medium mb-10 max-w-sm mx-auto leading-relaxed">
                                     هل تمتلك محلاً أو تقدم خدمة في السويس؟ أضف نشاطك الآن للتواصل مع آلاف الزبائن في الدليل.
                                 </p>
-                                <Link 
+                                <CustomLink 
                                     href="/places/add"
                                     className="bg-primary text-white px-10 h-16 rounded-xl flex items-center gap-3 font-black text-lg shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all outline-none"
                                 >
                                     <PlusCircle className="w-6 h-6" />
                                     أضف نشاطك الآن
-                                </Link>
+                                </CustomLink>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -82,12 +82,12 @@ export function ManageBusinessesClient({ places }: ManageBusinessesClientProps) 
 
             {/* Mobile FAB */}
             <div className="lg:hidden fixed bottom-6 left-6 z-40">
-                <Link
+                <CustomLink
                     href="/places/add"
                     className="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/50 active:scale-90 transition-all border-2 border-white/20"
                 >
                     <Plus className="w-8 h-8 font-black" />
-                </Link>
+                </CustomLink>
             </div>
         </div>
     );

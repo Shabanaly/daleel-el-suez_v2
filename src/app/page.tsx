@@ -1,43 +1,51 @@
-import { getHomeCategories, getSmartCategoryHighlights } from '@/features/taxonomy/actions/categories';
-import { getHomeDistricts } from '@/features/taxonomy/actions/districts';
-import { getHomeUnifiedStats } from '@/features/stats/actions/stats.server';
-import Hero from '@/components/home/Hero';
-import SuezStats from '@/features/stats/components/SuezStats';
-import SuezGallery from '@/features/gallery/components/SuezGallery';
-import CommunityTeaser from '@/features/community/components/CommunityTeaser';
-import CategoryHighlight from '@/features/places/components/CategoryHighlight';
-import BestOfSuezHome from '@/features/places/components/BestOfSuezHome';
-import { getCommunityPosts } from '@/features/community/actions/posts.server';
-import { getMarketHomePageData } from '@/features/market/actions/market.server';
-import { createClient } from '@/lib/supabase/server';
-import { getTopGalleryImages } from '@/features/gallery/actions/gallery.server';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import DistrictsExplorer from '@/features/places/components/DistrictsExplorer';
-import HomeMarketSection from '@/features/market/components/HomeMarketSection';
-import NewPlaces from '@/features/places/components/NewPlaces';
-import TrendingPlaces from '@/features/places/components/TrendingPlaces';
-import CommunityPulse from '@/features/places/components/pulse/CommunityPulse';
+import {
+  getHomeCategories,
+  getSmartCategoryHighlights,
+} from "@/features/taxonomy/actions/categories";
+import { getHomeDistricts } from "@/features/taxonomy/actions/districts";
+import { getHomeUnifiedStats } from "@/features/stats/actions/stats.server";
+import Hero from "@/components/home/Hero";
+import SuezStats from "@/features/stats/components/SuezStats";
+import SuezGallery from "@/features/gallery/components/SuezGallery";
+import CommunityTeaser from "@/features/community/components/CommunityTeaser";
+import CategoryHighlight from "@/features/places/components/CategoryHighlight";
+import BestOfSuezHome from "@/features/places/components/BestOfSuezHome";
+import { getCommunityPosts } from "@/features/community/actions/posts.server";
+import { getMarketHomePageData } from "@/features/market/actions/market.server";
+import { createClient } from "@/lib/supabase/server";
+import { getTopGalleryImages } from "@/features/gallery/actions/gallery.server";
+import type { Metadata } from "next";
+import DistrictsExplorer from "@/features/places/components/DistrictsExplorer";
+import HomeMarketSection from "@/features/market/components/HomeMarketSection";
+import NewPlaces from "@/features/places/components/NewPlaces";
+import TrendingPlaces from "@/features/places/components/TrendingPlaces";
+import CommunityPulse from "@/features/places/components/pulse/CommunityPulse";
+import CustomLink from "@/components/customLink/customLink";
+import { getActiveHeroAds } from "@/features/marketing/actions/hero.server";
 
 export const metadata: Metadata = {
   title: "دليل السويس | Suez Guide - كل مكان في السويس في مكان واحد",
-  description: "اكتشف أفضل الأماكن، الخدمات، والمطاعم في محافظة السويس. دليل السويس هو رفيقك الموثوق لاستكشاف المدينة والوصول لكل ما تحتاجه.",
+  description:
+    "اكتشف أفضل الأماكن، الخدمات، والمطاعم في محافظة السويس. دليل السويس هو رفيقك الموثوق لاستكشاف المدينة والوصول لكل ما تحتاجه.",
 };
 
 export default async function Home() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
- // 🧠 Fetch shared data needed by Home Page
+  // 🧠 Fetch shared data needed by Home Page
 
   const [
-    categories, 
-    districts, 
-    communityPosts, 
-    smartCategoryData, 
-    unifiedStats, 
-    marketData, 
-    topGalleryImages
+    categories,
+    districts,
+    communityPosts,
+    smartCategoryData,
+    unifiedStats,
+    marketData,
+    topGalleryImages,
+    heroAds,
   ] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
@@ -45,27 +53,31 @@ export default async function Home() {
     getSmartCategoryHighlights(),
     getHomeUnifiedStats(),
     getMarketHomePageData(),
-    getTopGalleryImages(5)
+    getTopGalleryImages(5),
+    getActiveHeroAds(),
   ]);
 
-  const homeMarketAds = [...marketData.trendingAds, ...marketData.latestAds].slice(0, 8); // Top 8 combined
+  const homeMarketAds = [
+    ...marketData.trendingAds,
+    ...marketData.latestAds,
+  ].slice(0, 8); // Top 8 combined
 
   // Map unified stats to specific component needs
   const bestOfStats = {
-      verifiedCount: unifiedStats.verifiedCount,
-      reviewsCount: unifiedStats.reviewsCount,
-      totalViews: unifiedStats.formattedReach
+    verifiedCount: unifiedStats.verifiedCount,
+    reviewsCount: unifiedStats.reviewsCount,
+    totalViews: unifiedStats.formattedReach,
   };
 
   const suezStats = {
-      places: unifiedStats.places,
-      areas: unifiedStats.areas,
-      reach: unifiedStats.totalReachRaw
+    places: unifiedStats.places,
+    areas: unifiedStats.areas,
+    reach: unifiedStats.totalReachRaw,
   };
 
   return (
     <div className="w-full flex flex-col items-center overflow-hidden">
-      <Hero categories={categories} />
+      <Hero categories={categories} ads={heroAds} />
 
       <TrendingPlaces />
       <NewPlaces />
@@ -87,14 +99,15 @@ export default async function Home() {
             أضف نشاطك في دليل السويس
           </h2>
           <p className="text-lg text-text-muted max-w-2xl mb-8 relative z-10">
-            انضم لآلاف الأماكن والأنشطة التجارية في دليل السويس، واصل لعملاء أكثر في منطقتك. التسجيل مجاني وسهل!
+            انضم لآلاف الأماكن والأنشطة التجارية في دليل السويس، واصل لعملاء
+            أكثر في منطقتك. التسجيل مجاني وسهل!
           </p>
-          <Link 
+          <CustomLink
             href="/places/add"
             className="px-8 py-4 rounded-full bg-linear-to-r from-accent to-primary text-white font-bold text-lg shadow-accent/40 hover:shadow-accent/60 hover:scale-105 transition-all relative z-10"
           >
             سجل نشاطك الآن
-          </Link>
+          </CustomLink>
         </div>
       </section>
 

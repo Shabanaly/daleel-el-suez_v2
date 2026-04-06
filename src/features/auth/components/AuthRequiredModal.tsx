@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogIn, X, User } from 'lucide-react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 
 interface AuthRequiredModalProps {
     isOpen: boolean;
@@ -67,22 +67,22 @@ export default function AuthRequiredModal({
                                 </p>
 
                                 <div className="w-full">
-                                    <Link
+                                    <CustomLink
                                         href="/login"
                                         onClick={onClose}
                                         className="w-full h-14 bg-primary hover:bg-primary-hover text-white rounded-2xl font-black flex items-center justify-center gap-3 shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                                     >
                                         <LogIn className="w-5 h-5" />
                                         <span>تسجيل الدخول الآن</span>
-                                    </Link>
+                                    </CustomLink>
 
-                                    <Link
+                                    <CustomLink
                                         href="/signup"
                                         onClick={onClose}
                                         className="mt-4 block text-xs font-black text-primary hover:underline"
                                     >
                                         أو إنشاء حساب جديد
-                                    </Link>
+                                    </CustomLink>
                                 </div>
                             </div>
                         </motion.div>

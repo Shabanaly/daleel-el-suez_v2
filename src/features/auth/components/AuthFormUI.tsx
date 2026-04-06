@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { Mail, Lock, LogIn, Eye, EyeOff, Loader2, UserPlus } from 'lucide-react';
 
 interface AuthFormUIProps {
@@ -82,7 +82,7 @@ export function AuthFormUI({
                     <div className="flex items-center justify-between mr-3 mb-1">
                         <label className="text-[10px] font-black text-text-muted block uppercase tracking-wider">كلمة المرور</label>
                         {type === 'login' && (
-                            <Link href="#" className="text-[9px] font-black text-primary hover:text-primary-hover underline decoration-primary/30 underline-offset-4">هل نسيت كلمة السر؟</Link>
+                            <CustomLink href="#" className="text-[9px] font-black text-primary hover:text-primary-hover underline decoration-primary/30 underline-offset-4">هل نسيت كلمة السر؟</CustomLink>
                         )}
                     </div>
                     <div className="relative group/input">
@@ -162,9 +162,9 @@ export function AuthFormUI({
             <div className="text-center pt-8 relative z-10">
                 <p className="text-xs font-bold text-text-muted">
                     {type === 'login' ? 'ليس لديك حساب بعد؟ ' : 'لديك حساب بالفعل؟ '}
-                    <Link href={type === 'login' ? '/signup' : '/login'} className="text-primary hover:text-primary-hover underline decoration-2 underline-offset-4 font-black transition-colors">
+                    <CustomLink href={type === 'login' ? '/signup' : '/login'} className="text-primary hover:text-primary-hover underline decoration-2 underline-offset-4 font-black transition-colors">
                         {type === 'login' ? 'أنشئ حساباً جديداً' : 'سجل دخولك الآن'}
-                    </Link>
+                    </CustomLink>
                 </p>
             </div>
         </div>

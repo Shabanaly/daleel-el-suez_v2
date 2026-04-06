@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { Star, MapPin, MessageSquare, FileText, Clock, ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 
 export interface ActivityItem {
     id: string;
@@ -50,7 +50,7 @@ export function ActivityListTile({ activity, index = 0 }: ActivityListTileProps)
             transition={{ delay: index * 0.05 }}
             className="group relative"
         >
-            <Link 
+            <CustomLink 
                 href={activity.link}
                 className="flex items-center gap-3 md:gap-4 p-4 bg-surface hover:bg-elevated border border-border-subtle hover:border-primary/20 rounded-3xl transition-all duration-300"
             >
@@ -114,7 +114,7 @@ export function ActivityListTile({ activity, index = 0 }: ActivityListTileProps)
                 <div className="flex items-center justify-center w-10 h-10 rounded-xl text-text-muted group-hover:text-primary transition-all group-hover:translate-x-[-4px]">
                     <ChevronLeft className="w-5 h-5" />
                 </div>
-            </Link>
+            </CustomLink>
         </motion.div>
     );
 }

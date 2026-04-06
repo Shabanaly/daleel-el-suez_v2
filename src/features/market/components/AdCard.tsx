@@ -1,7 +1,7 @@
 'use client';
 
 import React, { memo, useMemo } from 'react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { MapPin, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MarketAd } from '@/features/market/types';
@@ -115,9 +115,9 @@ export default memo(function AdCard({ ad, priority = false }: AdCardProps) {
             </div>
 
             {/* Click Area */}
-            <Link href={`/market/${ad.slug}`} className="absolute inset-0 z-10">
+            <CustomLink href={`/market/${ad.slug}`} className="absolute inset-0 z-10">
                 <span className="sr-only">مشاهدة {ad.title}</span>
-            </Link>
+            </CustomLink>
         </motion.div>
     );
 });

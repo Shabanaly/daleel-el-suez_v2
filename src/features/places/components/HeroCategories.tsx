@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
 import { LucideIcon, HelpCircle } from 'lucide-react';
@@ -44,21 +44,21 @@ export default memo(function HeroCategories({ categories }: HeroCategoriesProps)
             <div className="md:hidden w-full overflow-x-auto hide-scrollbar -mx-4 px-4">
                 <div className="flex items-center gap-2 pb-4 mb-2">
                     {displayCategories.map((cat, idx) => (
-                        <Link
+                        <CustomLink
                             key={idx}
                             href={`/places?category=${encodeURIComponent(cat.name)}`}
                             className="flex items-center gap-2 px-5 py-3 rounded-xl bg-surface/70 backdrop-blur-xl border border-border-subtle hover:border-primary/40 active:scale-95 transition-all duration-300 whitespace-nowrap group shadow-sm"
                         >
                             <IconRenderer iconName={cat.icon} className="w-4 h-4 text-primary/80 group-hover:text-primary transition-colors" />
                             <span className="text-xs font-bold text-text-muted group-hover:text-primary transition-colors">{cat.name}</span>
-                        </Link>
+                        </CustomLink>
                     ))}
-                    <Link
+                    <CustomLink
                         href="/categories"
                         className="flex items-center gap-2 px-5 py-3 rounded-full bg-primary/10 border border-primary/20 text-primary active:scale-95 transition-all duration-300 whitespace-nowrap font-bold text-xs"
                     >
                         المزيد
-                    </Link>
+                    </CustomLink>
                 </div>
             </div>
 
@@ -70,7 +70,7 @@ export default memo(function HeroCategories({ categories }: HeroCategoriesProps)
                 className="hidden md:grid grid-cols-3 lg:grid-cols-6 gap-4"
             >
                 {displayCategories.map((cat, idx) => (
-                    <Link
+                    <CustomLink
                         key={idx}
                         href={`/places?category=${encodeURIComponent(cat.name)}`}
                         className="flex flex-col items-center justify-between p-5 md:p-6 rounded-2xl bg-surface/30 backdrop-blur-md border border-border-subtle hover:border-primary/30 hover:bg-surface/60 hover:translate-y-[-4px] transition-all duration-500 group relative overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5 min-h-[140px] md:min-h-[160px]"
@@ -89,7 +89,7 @@ export default memo(function HeroCategories({ categories }: HeroCategoriesProps)
 
                         {/* Shine effect */}
                         <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-                    </Link>
+                    </CustomLink>
                 ))}
             </motion.div>
         </div>

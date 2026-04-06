@@ -3,7 +3,7 @@
 import React, { createContext, useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageSquare, Heart, Star, Bell, Info } from 'lucide-react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 
 export type ToastType = 'COMMENT' | 'LIKE' | 'FAVORITE' | 'DEFAULT' | 'INFO';
 
@@ -86,7 +86,7 @@ const ToastNotification = ({ toast, onDismiss }: { toast: ToastOptions; onDismis
     }
   };
 
-  const Wrapper = link ? Link : 'div';
+  const Wrapper = link ? CustomLink : 'div';
   const wrapperProps = link ? { href: link, onClick: () => onDismiss(id!) } : {};
 
   return (

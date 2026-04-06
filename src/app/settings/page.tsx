@@ -10,7 +10,7 @@ import { NotificationSection } from '@/features/settings/components/Notification
 import { AvatarSection } from '@/features/settings/components/AvatarSection'
 import { AppBar } from '@/components/ui/AppBar'
 import Image from 'next/image'
-import Link from 'next/link'
+import CustomLink from '@/components/customLink/customLink'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 
@@ -56,13 +56,13 @@ function SettingsContent() {
                     <h1 className="text-3xl font-black text-text-primary tracking-tight mb-2">الإعدادات</h1>
                     <p className="text-text-muted font-bold text-sm">إدارة حسابك وتفضيلاتك في مكان واحد</p>
                 </div>
-                <Link
+                <CustomLink
                     href="/profile"
                     className="flex items-center gap-2 text-primary font-black text-sm hover:underline"
                 >
                     <span>الرجوع للبروفايل</span>
                     <ChevronRight className="w-4 h-4 rotate-180" />
-                </Link>
+                </CustomLink>
             </div>
 
             {/* Mobile: Horizontal chips */}

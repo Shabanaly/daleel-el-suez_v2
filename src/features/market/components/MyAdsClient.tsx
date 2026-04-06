@@ -17,7 +17,7 @@ import {
     Tag
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { useRouter } from 'next/navigation';
 import { SafeImage } from '@/components/common/SafeImage';
 import { AppBar } from '@/components/ui/AppBar';
@@ -140,13 +140,13 @@ export default function MyAdsClient({ initialAds }: MyAdsClientProps) {
                                 align="left"
                             />
                         </div>
-                        <Link
+                        <CustomLink
                             href="/market/create"
                             className="bg-primary text-white px-6 h-12 rounded-2xl flex items-center justify-center gap-2 font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform flex-1 md:flex-none"
                         >
                             <Plus className="w-5 h-5" />
                             إعلان جديد
-                        </Link>
+                        </CustomLink>
                     </div>
                 </div>
 
@@ -187,24 +187,24 @@ export default function MyAdsClient({ initialAds }: MyAdsClientProps) {
                             : 'حاول تغيير الفلتر لعرض جميع إعلاناتك أو قم بإضافة إعلان جديد.'}
                     </p>
 
-                    <Link
+                    <CustomLink
                         href="/market/create"
                         className="bg-primary text-white px-10 h-16 rounded-xl flex items-center gap-3 font-black text-lg shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all"
                     >
                         <Plus className="w-6 h-6 outline-none" />
                         نزل إعلان جديد
-                    </Link>
+                    </CustomLink>
                 </motion.div>
             )}
 
             {/* Mobile FAB for adding new ad (Floating Action Button) */}
             <div className="md:hidden fixed bottom-5 left-6 z-40">
-                <Link
+                <CustomLink
                     href="/market/create"
                     className="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/50 active:scale-90 transition-all border-2 border-white/20"
                 >
                     <Plus className="w-8 h-8" />
-                </Link>
+                </CustomLink>
             </div>
         </div>
     </div>

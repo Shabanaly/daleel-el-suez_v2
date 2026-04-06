@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Star, MapPin, FileText, MessageSquare, Search, Filter } from 'lucide-react';
 import { ActivityListTile, ActivityItem } from '@/features/profile/components/ActivityListTile';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { AppBar } from '@/components/ui/AppBar';
 import { ContextMenu, ContextMenuItem } from '@/components/ui/ContextMenu';
 
@@ -113,18 +113,18 @@ export function ActivitiesClient({ activities }: ActivitiesClientProps) {
                                 يبدو أنك لم تقم بأي نشاط في هذا القسم بعد. ابدأ الآن واصنع بصمتك في السويس!
                             </p>
                             <div className="flex flex-wrap items-center justify-center gap-4">
-                                <Link
+                                <CustomLink
                                     href="/places"
                                     className="px-6 py-3 bg-primary text-white rounded-2xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
                                 >
                                     استكشف الأماكن
-                                </Link>
-                                <Link
+                                </CustomLink>
+                                <CustomLink
                                     href="/community"
                                     className="px-6 py-3 bg-surface border border-border-subtle text-text-primary rounded-2xl font-bold text-sm hover:bg-elevated transition-colors"
                                 >
                                     شارك في المجتمع
-                                </Link>
+                                </CustomLink>
                             </div>
                         </motion.div>
                     )}

@@ -1,7 +1,7 @@
 import { MarketAd } from '@/features/market/types';
 import { Eye, Pencil, Trash2, Loader2, MoreVertical, CheckCircle2, AlertCircle, Tag, RefreshCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { SafeImage } from '@/components/common/SafeImage';
 import { ContextMenu } from '@/components/ui/ContextMenu';
 import { useRouter } from 'next/navigation';
@@ -45,22 +45,22 @@ export function MyAdCard({ ad, onDelete, onUpdateStatus, isProcessing, index }: 
                 {/* Top Section: Image & Main Details */}
                 <div className="flex gap-4 relative">
                     {/* Image */}
-                    <Link href={`/market/${ad.slug}`} className="block relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-background">
+                    <CustomLink href={`/market/${ad.slug}`} className="block relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-background">
                         <SafeImage
                             src={ad.images[0]}
                             alt={ad.title}
                             fill
                             className="object-cover hover:scale-110 transition-transform duration-700"
                         />
-                    </Link>
+                    </CustomLink>
 
                     {/* Details */}
                     <div className="flex-1 flex flex-col justify-center min-w-0 pr-1">
-                        <Link href={`/market/${ad.slug}`}>
+                        <CustomLink href={`/market/${ad.slug}`}>
                             <h3 className="text-sm font-black text-text-primary line-clamp-1 hover:text-primary transition-colors">
                                 {ad.title}
                             </h3>
-                        </Link>
+                        </CustomLink>
                         
                         <div className="text-base font-black text-primary mt-1.5 flex items-baseline gap-1">
                             {formatPrice(ad.price)}

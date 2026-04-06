@@ -5,7 +5,7 @@ import { User, Clock } from 'lucide-react';
 import { SafeImage } from '@/components/common/SafeImage';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import CategoryIcon from './CategoryIcon';
 import PostActions from './PostActions';
 import PostHeaderActions from './PostHeaderActions';
@@ -55,9 +55,9 @@ export default memo(function PostCard({ post, categories, isLikedInitial = false
             </h3>
             <div className="flex items-center gap-2 text-text-muted text-xs font-bold opacity-60">
               <Clock className="w-3 h-3" />
-              <Link href={`/community/posts/${post.id}`} className="hover:text-primary transition-colors">
+              <CustomLink href={`/community/posts/${post.id}`} className="hover:text-primary transition-colors">
                 {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: ar })}
-              </Link>
+              </CustomLink>
               {post.category && (
                 <>
                   <span>•</span>
@@ -82,11 +82,11 @@ export default memo(function PostCard({ post, categories, isLikedInitial = false
       <div className="px-6 pb-4">
         {!isFullPage ? (
           <div>
-            <Link href={`/community/posts/${post.id}`} className="block group/content">
+            <CustomLink href={`/community/posts/${post.id}`} className="block group/content">
               <p className={`text-text-primary text-base leading-relaxed font-bold whitespace-pre-wrap group-hover/content:text-primary transition-colors ${!isExpanded ? 'line-clamp-4' : ''}`}>
                 {post.content}
               </p>
-            </Link>
+            </CustomLink>
             {post.content && post.content.length > CONTENT_THRESHOLD && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}

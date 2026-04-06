@@ -1,7 +1,7 @@
 'use client';
 
 import { Activity, LayoutDashboard, Settings, ChevronLeft, LogOut, Tag, Bell, ShieldCheck } from 'lucide-react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -67,7 +67,7 @@ export function ProfileNavigation({ isAdmin }: ProfileNavigationProps) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
                     >
-                        <Link
+                        <CustomLink
                             href={item.href}
                             className="flex items-center gap-4 p-4 bg-surface hover:bg-elevated border border-border-subtle rounded-3xl transition-all group shadow-sm hover:shadow-md"
                         >
@@ -83,7 +83,7 @@ export function ProfileNavigation({ isAdmin }: ProfileNavigationProps) {
                                 </p>
                             </div>
                             <ChevronLeft className="w-5 h-5 text-text-muted group-hover:text-primary group-hover:translate-x-[-4px] transition-all" />
-                        </Link>
+                        </CustomLink>
                     </motion.div>
                 ))}
 
@@ -94,7 +94,7 @@ export function ProfileNavigation({ isAdmin }: ProfileNavigationProps) {
                         transition={{ delay: 0.25 }}
                         className="mt-6"
                     >
-                        <Link
+                        <CustomLink
                             href="/admin"
                             className="flex items-center gap-4 p-4 bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-3xl transition-all group shadow-sm hover:shadow-md"
                         >
@@ -110,7 +110,7 @@ export function ProfileNavigation({ isAdmin }: ProfileNavigationProps) {
                                 </p>
                             </div>
                             <ChevronLeft className="w-5 h-5 text-primary group-hover:translate-x-[-4px] transition-all" />
-                        </Link>
+                        </CustomLink>
                     </motion.div>
                 )}
 

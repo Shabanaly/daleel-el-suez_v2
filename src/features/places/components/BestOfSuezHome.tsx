@@ -1,5 +1,5 @@
 import { Award, ChevronLeft } from "lucide-react";
-import Link from "next/link";
+import CustomLink from "@/components/customLink/customLink";
 
 interface BestOfSuezHomeProps {
     stats: {
@@ -45,7 +45,7 @@ export default function BestOfSuezHome({ stats }: BestOfSuezHomeProps) {
                     </div>
 
                     <div className="shrink-0">
-                        <Link
+                        <CustomLink
                             href="/best"
                             className="group/btn relative flex items-center gap-3 px-10 py-5 bg-text-primary text-surface font-black text-lg rounded-2xl hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white transition-all shadow-2xl hover:scale-105 active:scale-95 overflow-hidden"
                         >
@@ -54,7 +54,7 @@ export default function BestOfSuezHome({ stats }: BestOfSuezHomeProps) {
 
                             {/* Reflection effect */}
                             <div className="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
-                        </Link>
+                        </CustomLink>
                     </div>
                 </div>
 

@@ -5,7 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Notification } from '@/lib/notifications/types';
 import { Bell, Heart, MessageCircle, Star, CheckCircle, XCircle, Trophy, BarChart3, Ghost, Sparkles } from 'lucide-react';
-import Link from 'next/link';
+import CustomLink from '@/components/customLink/customLink';
 
 interface NotificationListProps {
   notifications: Notification[];
@@ -111,7 +111,7 @@ export const NotificationList = memo(function NotificationList({ notifications, 
 
         if (notif.link) {
           return (
-            <Link 
+            <CustomLink 
               key={notif.id}
               href={notif.link}
               className={commonClasses}
@@ -121,7 +121,7 @@ export const NotificationList = memo(function NotificationList({ notifications, 
               }}
             >
               {Content}
-            </Link>
+            </CustomLink>
           );
         }
 
