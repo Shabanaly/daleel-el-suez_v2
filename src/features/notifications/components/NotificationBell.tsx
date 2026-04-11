@@ -9,6 +9,7 @@ import { Notification } from '@/lib/notifications/types';
 import { NotificationList } from './NotificationList';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomLink from '@/components/customLink/customLink';
+import { ROUTES } from '@/constants';
 
 import { getRecentNotificationsAction, markNotificationAsReadAction, markAllNotificationsAsReadAction } from '@/features/notifications/actions/notifications.server';
 import { useToast } from '@/features/notifications/hooks/useToast';
@@ -222,7 +223,7 @@ export const NotificationBell = () => {
             {/* Footer */}
             <div className="p-3 border-t border-border-subtle text-center bg-elevated/10 hover:bg-elevated/20 transition-colors">
               <CustomLink 
-                href="/profile/notifications"
+                href={ROUTES.PROFILE_NOTIFICATIONS}
                 onClick={() => setIsOpen(false)}
                 className="text-xs text-text-muted hover:text-text-primary transition-colors font-bold block w-full"
               >

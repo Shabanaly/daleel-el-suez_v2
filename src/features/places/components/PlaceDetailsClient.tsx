@@ -17,7 +17,9 @@ import { getPlaceViews } from '@/features/places/actions/places.server';
 
 
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
-import { AppBar } from '@/components/ui/AppBar'; interface PlaceDetailsClientProps {
+import { AppBar } from '@/components/ui/AppBar';
+import { ROUTES, ROUTE_HELPERS } from '@/constants';
+interface PlaceDetailsClientProps {
     place: Place;
     relatedPlaces: Place[];
     initialReviews?: Review[];
@@ -70,7 +72,7 @@ export function PlaceDetailsClient({
             <AppBar
                 title={place.name}
                 transparent={false}
-                backHref={place.category ? `/places?category=${encodeURIComponent(place.category)}` : "/places"}
+                backHref={place.category ? ROUTE_HELPERS.PLACES_CATEGORY(place.category) : ROUTES.PLACES}
                 actions={
                     <ShareButton
                         title={place.name}
@@ -92,12 +94,12 @@ export function PlaceDetailsClient({
 
                 {/* ── Desktop Breadcrumbs ───────────────────────────────────── */}
                 <nav className="hidden md:flex items-center gap-2 mb-10 text-sm font-bold">
-                    <CustomLink href="/" className="text-text-muted hover:text-primary transition-colors">الرئيسية</CustomLink>
+                    <CustomLink href={ROUTES.HOME} className="text-text-muted hover:text-primary transition-colors">الرئيسية</CustomLink>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
-                    <CustomLink href="/places" className="text-text-muted hover:text-primary transition-colors">أماكن</CustomLink>
+                    <CustomLink href={ROUTES.PLACES} className="text-text-muted hover:text-primary transition-colors">أماكن</CustomLink>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
                     {place.category ? (
-                        <CustomLink href={`/places?category=${encodeURIComponent(place.category)}`} className="text-text-muted hover:text-primary transition-colors">
+                        <CustomLink href={ROUTE_HELPERS.PLACES_CATEGORY(place.category)} className="text-text-muted hover:text-primary transition-colors">
                             {place.category}
                         </CustomLink>
                     ) : (

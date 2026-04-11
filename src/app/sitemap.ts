@@ -3,6 +3,8 @@ import { getAllPlacesForSitemap } from '@/features/places/actions/places.server'
 import { getAllCategories } from '@/features/taxonomy/actions/categories';
 import { getAllPosts } from '@/features/community/actions/posts.server';
 import { getMarketCategories, getMarketAdsForSitemap } from '@/features/market/actions/market.server';
+import { ROUTES, ROUTE_HELPERS } from '@/constants';
+
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
@@ -17,14 +19,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     const postUrls = posts.map((post) => ({
-        url: `${baseUrl}/community/posts/${encodeURIComponent(post.id)}`,
+        url: `${baseUrl}${ROUTE_HELPERS.COMMUNITY_POST(post.id)}`,
         lastModified: new Date(post.created_at),
         changeFrequency: 'weekly' as const,
         priority: 0.7,
     }));
 
     const placeUrls = places.map((place: any) => ({
-        url: `${baseUrl}/places/${encodeURIComponent(place.slug)}`,
+        url: `${baseUrl}${ROUTE_HELPERS.PLACE(place.slug)}`,
         lastModified: new Date(place.created_at || new Date()),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
@@ -32,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     const categoryUrls = categories.map((category) => ({
-        url: `${baseUrl}/places?category=${encodeURIComponent(category.name)}`,
+        url: `${baseUrl}${ROUTE_HELPERS.PLACES_CATEGORY(category.name)}`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
@@ -40,14 +42,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Market URLs
     const marketCategoryUrls = marketCategories.map((category: any) => ({
-        url: `${baseUrl}/market?category=${encodeURIComponent(category.slug)}`,
+        url: `${baseUrl}${ROUTE_HELPERS.MARKET_CATEGORY(category.slug)}`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
     }));
 
     const marketAdUrls = marketAds.map((ad: any) => ({
-        url: `${baseUrl}/market/${encodeURIComponent(ad.slug)}`,
+        url: `${baseUrl}${ROUTE_HELPERS.MARKET_AD(ad.slug)}`,
         lastModified: new Date(ad.created_at),
         changeFrequency: 'weekly' as const,
         priority: 0.6,
@@ -56,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     
     // Best of Suez URLs
     const bestOfUrls = categories.map((category) => ({
-        url: `${baseUrl}/best/${encodeURIComponent(category.slug)}`,
+        url: `${baseUrl}${ROUTE_HELPERS.BEST_CATEGORY(category.slug)}`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
@@ -70,67 +72,67 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 1,
         },
         {
-            url: `${baseUrl}/community`,
+            url: `${baseUrl}${ROUTES.COMMUNITY}`,
             lastModified: new Date(),
             changeFrequency: 'always' as const,
             priority: 0.9,
         },
         {
-            url: `${baseUrl}/categories`,
+            url: `${baseUrl}${ROUTES.CATEGORIES}`,
             lastModified: new Date(),
             changeFrequency: 'monthly' as const,
             priority: 0.7,
         },
         {
-            url: `${baseUrl}/places`,
+            url: `${baseUrl}${ROUTES.PLACES}`,
             lastModified: new Date(),
             changeFrequency: 'daily' as const,
             priority: 0.8,
         },
         {
-            url: `${baseUrl}/market`,
+            url: `${baseUrl}${ROUTES.MARKET}`,
             lastModified: new Date(),
             changeFrequency: 'daily' as const,
             priority: 0.8,
         },
         {
-            url: `${baseUrl}/market/categories`,
+            url: `${baseUrl}${ROUTES.MARKET_CATEGORIES}`,
             lastModified: new Date(),
             changeFrequency: 'monthly' as const,
             priority: 0.7,
         },
         {
-            url: `${baseUrl}/about`,
+            url: `${baseUrl}${ROUTES.ABOUT}`,
             lastModified: new Date(),
             changeFrequency: 'monthly' as const,
             priority: 0.4,
         },
         {
-            url: `${baseUrl}/privacy`,
+            url: `${baseUrl}${ROUTES.PRIVACY}`,
             lastModified: new Date(),
             changeFrequency: 'yearly' as const,
             priority: 0.3,
         },
         {
-            url: `${baseUrl}/terms`,
+            url: `${baseUrl}${ROUTES.TERMS}`,
             lastModified: new Date(),
             changeFrequency: 'yearly' as const,
             priority: 0.3,
         },
         {
-            url: `${baseUrl}/copyright`,
+            url: `${baseUrl}${ROUTES.COPYRIGHT}`,
             lastModified: new Date(),
             changeFrequency: 'yearly' as const,
             priority: 0.3,
         },
         {
-            url: `${baseUrl}/gallery`,
+            url: `${baseUrl}${ROUTES.GALLERY}`,
             lastModified: new Date(),
             changeFrequency: 'daily' as const,
             priority: 0.9,
         },
         {
-            url: `${baseUrl}/best`,
+            url: `${baseUrl}${ROUTES.BEST}`,
             lastModified: new Date(),
             changeFrequency: 'daily' as const,
             priority: 0.9,

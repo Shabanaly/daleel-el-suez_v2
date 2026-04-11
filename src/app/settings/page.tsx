@@ -13,6 +13,7 @@ import Image from 'next/image'
 import CustomLink from '@/components/customLink/customLink'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import { ROUTES } from '@/constants'
 
 function SettingsContent() {
     const { user, isLoading } = useAuth()
@@ -24,7 +25,7 @@ function SettingsContent() {
 
     useEffect(() => {
         if (!isLoading && !user) {
-            router.push('/login')
+            router.push(ROUTES.LOGIN)
         }
     }, [user, isLoading, router])
 
@@ -44,7 +45,7 @@ function SettingsContent() {
 
     const handleTabChange = (id: 'profile' | 'security' | 'notifications') => {
         setActiveTab(id)
-        router.push(`/settings?tab=${id}`, { scroll: false })
+        router.push(`${ROUTES.SETTINGS}?tab=${id}`, { scroll: false })
     }
 
     return (
@@ -57,7 +58,7 @@ function SettingsContent() {
                     <p className="text-text-muted font-bold text-sm">إدارة حسابك وتفضيلاتك في مكان واحد</p>
                 </div>
                 <CustomLink
-                    href="/profile"
+                    href={ROUTES.PROFILE}
                     className="flex items-center gap-2 text-primary font-black text-sm hover:underline"
                 >
                     <span>الرجوع للبروفايل</span>
@@ -168,7 +169,7 @@ function SettingsContent() {
 export default function SettingsPage() {
     return (
         <>
-            <AppBar title="الإعدادات" backHref="/profile" />
+            <AppBar title="الإعدادات" backHref={ROUTES.PROFILE} />
         <div className="min-h-screen bg-background pb-20 pt-16 md:pt-20 px-4 md:px-8">
             <Suspense fallback={
                 <div className="min-h-screen flex items-center justify-center">

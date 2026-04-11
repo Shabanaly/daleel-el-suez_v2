@@ -1,8 +1,7 @@
-'use client';
-
-import { motion, AnimatePresence } from 'framer-motion';
-import { LogIn, X, User } from 'lucide-react';
 import CustomLink from '@/components/customLink/customLink';
+import { ROUTES } from '@/constants';
+import { AnimatePresence, motion } from 'framer-motion';
+import { X, User, LogIn } from 'lucide-react';
 
 interface AuthRequiredModalProps {
     isOpen: boolean;
@@ -68,7 +67,7 @@ export default function AuthRequiredModal({
 
                                 <div className="w-full">
                                     <CustomLink
-                                        href="/login"
+                                        href={ROUTES.LOGIN}
                                         onClick={onClose}
                                         className="w-full h-14 bg-primary hover:bg-primary-hover text-white rounded-2xl font-black flex items-center justify-center gap-3 shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                                     >
@@ -77,7 +76,7 @@ export default function AuthRequiredModal({
                                     </CustomLink>
 
                                     <CustomLink
-                                        href="/signup"
+                                        href={ROUTES.SIGNUP}
                                         onClick={onClose}
                                         className="mt-4 block text-xs font-black text-primary hover:underline"
                                     >

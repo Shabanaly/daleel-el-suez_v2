@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { MessageSquare, Heart, Share2 } from 'lucide-react';
 import CustomLink from '@/components/customLink/customLink';
+import { ROUTES, ROUTE_HELPERS } from '@/constants';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useAuth } from '@/features/auth/hooks/useAuth';
@@ -116,7 +117,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                                     </div>
                                     
                                     <CustomLink
-                                        href="/community"
+                                        href={ROUTES.COMMUNITY}
                                         className="relative z-10 rounded-full bg-primary/10 px-3 py-1 font-bold text-primary hover:bg-primary/20 transition-colors text-xs shrink-0"
                                     >
                                         مجتمع السويس
@@ -126,7 +127,7 @@ export default function CommunityTeaser({ posts }: CommunityTeaserProps) {
                                 {/* Post Content (Replacing Title/Description) */}
                                 <div className="relative w-full grow">
                                     <h3 className="text-lg/8 font-bold text-text-primary group-hover:text-primary transition-colors line-clamp-4">
-                                        <CustomLink href={`/community/posts/${post.id}`}>
+                                        <CustomLink href={ROUTE_HELPERS.COMMUNITY_POST(post.id)}>
                                             <span className="absolute inset-0 z-0" />
                                             {post.content}
                                         </CustomLink>

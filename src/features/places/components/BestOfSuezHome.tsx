@@ -1,5 +1,6 @@
 import { Award, ChevronLeft } from "lucide-react";
 import CustomLink from "@/components/customLink/customLink";
+import { ROUTES } from '@/constants';
 
 interface BestOfSuezHomeProps {
     stats: {
@@ -46,7 +47,7 @@ export default function BestOfSuezHome({ stats }: BestOfSuezHomeProps) {
 
                     <div className="shrink-0">
                         <CustomLink
-                            href="/best"
+                            href={ROUTES.BEST}
                             className="group/btn relative flex items-center gap-3 px-10 py-5 bg-text-primary text-surface font-black text-lg rounded-2xl hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white transition-all shadow-2xl hover:scale-105 active:scale-95 overflow-hidden"
                         >
                             تصفح القائمة

@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import { SafeImage } from '@/components/common/SafeImage';
+import { API_ENDPOINTS } from '@/constants/api';
 
 // HISTORY_KEY removed — segmented key via historyKey useMemo is used instead
 const MAX_HISTORY = 6;
@@ -104,7 +105,7 @@ export default function SearchAutocomplete({
     onSearch,
     placeholder = 'ابحث عن مكان أو خدمة...',
     inputClassName = '',
-    apiEndpoint = '/api/autocomplete',
+    apiEndpoint = API_ENDPOINTS.AUTOCOMPLETE,
     onSuggestionSelect,
     searchType = 'places',
 }: SearchAutocompleteProps) {

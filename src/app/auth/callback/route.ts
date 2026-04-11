@@ -12,7 +12,12 @@ export async function GET(request: Request) {
     
     const { searchParams } = url
     const code = searchParams.get('code')
+    const type = searchParams.get('type')
     let next = searchParams.get('next') ?? '/'
+
+    if (type === 'recovery') {
+        next = '/reset-password'
+    }
 
     // 🛡️ SECURITY: Prevent Open Redirect vulnerability
     // If 'next' is an absolute URL and doesn't match our origin, reset it to '/'

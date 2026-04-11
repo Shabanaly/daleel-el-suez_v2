@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useImageUpload } from '@/lib/hooks/useImageUpload';
 import { createMarketAd, updateMarketAd } from '@/features/market/actions/market.server';
 import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/constants';
 import { MarketAd } from '@/features/market/types';
 
 export function useCreateAdForm(initialAd?: MarketAd) {
@@ -144,7 +145,7 @@ export function useCreateAdForm(initialAd?: MarketAd) {
 
             setIsSubmitted(true);
             setTimeout(() => {
-                router.push(initialAd ? '/market/my-ads' : '/market');
+                router.push(initialAd ? ROUTES.MARKET_MY_ADS : ROUTES.MARKET);
                 router.refresh();
             }, 2000);
         } catch (err: unknown) {

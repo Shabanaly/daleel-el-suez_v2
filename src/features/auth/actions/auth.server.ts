@@ -4,27 +4,30 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
-
-const AUTH_ERRORS_AR: Record<string, string> = {
-    'Invalid login credentials': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
-    'Email not confirmed': 'يرجى تأكيد بريدك الإلكتروني أولاً عبر الرابط المرسل لبريدك',
-    'User already registered': 'هذا البريد الإلكتروني مسجل بالفعل، حاول تسجيل الدخول',
-    'Password is too short': 'كلمة المرور قصيرة جداً (يجب أن تكون ٦ أحرف على الأقل)',
-    'Network error': 'خطأ في الاتصال بالشبكة، يرجى التحقق من الإنترنت',
-    'Auth session missing!': 'انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى',
-    'Database error': 'خطأ في قاعدة البيانات، يرجى المحاولة لاحقاً',
-    'rate_limit': 'لقد قمت بمحاولات كثيرة جداً، يرجى الانتظار قليلاً',
-}
+import { AuthResult } from '../types'
+import { AUTH_MESSAGES, APP_CONFIG, ROUTES, API_ENDPOINTS } from '@/constants'
 
 function getErrorMessage(error: unknown): string {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const message = (error as any)?.message || String(error);
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((error as any)?.status === 429) return AUTH_ERRORS_AR['rate_limit'];
-    return AUTH_ERRORS_AR[message] || 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً';
+    if ((error as any)?.status === 429) return AUTH_MESSAGES.RATE_LIMIT;
+
+    const errorMapping: Record<string, string> = {
+        'Invalid login credentials': AUTH_MESSAGES.INVALID_CREDENTIALS,
+        'Email not confirmed': AUTH_MESSAGES.EMAIL_NOT_CONFIRMED,
+        'User already registered': AUTH_MESSAGES.USER_ALREADY_REGISTERED,
+        'Password is too short': AUTH_MESSAGES.PASSWORD_TOO_SHORT,
+        'Network error': AUTH_MESSAGES.NETWORK_ERROR,
+        'Auth session missing!': AUTH_MESSAGES.SESSION_EXPIRED,
+        'Database error': AUTH_MESSAGES.DATABASE_ERROR,
+    };
+
+    return errorMapping[message] || AUTH_MESSAGES.UNEXPECTED_ERROR;
 }
 
-export async function login(formData: FormData) {
+export async function login(formData: FormData): Promise<AuthResult> {
     const supabase = await createClient()
 
     const email = formData.get('email') as string
@@ -44,19 +47,19 @@ export async function login(formData: FormData) {
 }
 
 
-export async function signup(formData: FormData) {
+export async function signup(formData: FormData): Promise<AuthResult> {
     const supabase = await createClient()
 
     const email = formData.get('email') as string
     const password = formData.get('password') as string
-    const fullName = formData.get('fullName') as string
+    const fullName = formData.get('full_name') as string
 
     if (!email || !password || !fullName) {
-        return { error: 'يرجى ملء جميع الحقول المطلوبة' }
+        return { error: AUTH_MESSAGES.FILL_REQUIRED_FIELDS }
     }
 
     if (password.length < 6) {
-        return { error: AUTH_ERRORS_AR['Password is too short'] }
+        return { error: AUTH_MESSAGES.PASSWORD_TOO_SHORT }
     }
 
     // Generating a simple username from email for now to satisfy DB constraint
@@ -113,7 +116,7 @@ export async function signInWithGoogle() {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: `${typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+            redirectTo: `${APP_CONFIG.SITE_URL}${ROUTES.AUTH_CALLBACK}`,
             queryParams: {
                 prompt: 'select_account',
             },
@@ -134,7 +137,7 @@ export async function signInWithFacebook() {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: {
-            redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+            redirectTo: `${APP_CONFIG.SITE_URL}${ROUTES.AUTH_CALLBACK}`,
             queryParams: {
                 prompt: 'select_account',
             },
@@ -152,7 +155,7 @@ export async function signInWithFacebook() {
 }
 
 
-export async function loginWithIdToken(idToken: string) {
+export async function loginWithIdToken(idToken: string): Promise<AuthResult> {
     const supabase = await createClient()
     const { data, error } = await supabase.auth.signInWithIdToken({
         provider: 'google',
@@ -187,5 +190,31 @@ export async function loginWithIdToken(idToken: string) {
 
 
     return { error: 'Failed to verify user' }
+}
+
+export async function sendPasswordResetEmail(email: string): Promise<AuthResult> {
+    const supabase = await createClient()
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${APP_CONFIG.SITE_URL}${ROUTES.AUTH_CALLBACK}?type=recovery`,
+    })
+
+    if (error) {
+        return { error: getErrorMessage(error) }
+    }
+
+    return { success: true }
+}
+
+export async function updatePassword(password: string): Promise<AuthResult> {
+    const supabase = await createClient()
+    const { error } = await supabase.auth.updateUser({
+        password,
+    })
+
+    if (error) {
+        return { error: getErrorMessage(error) }
+    }
+
+    return { success: true }
 }
 

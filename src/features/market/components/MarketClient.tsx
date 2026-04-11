@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import AuthRequiredModal from "@/features/auth/components/AuthRequiredModal";
 import { useRouter } from "next/navigation";
 import { Suggestion } from "@/features/search/components/SearchAutocomplete";
+import { ROUTES, ROUTE_HELPERS } from "@/constants";
 import { useMarketFilter } from "@/features/market/hooks/useMarketFilter";
 import { AreaWithDistrict } from "@/features/taxonomy/actions/areas";
 
@@ -68,7 +69,7 @@ export function MarketClient({
         if (!user) {
             setIsAuthModalOpen(true);
         } else {
-            router.push('/market/create');
+            router.push(ROUTES.MARKET_CREATE);
         }
     };
 
@@ -77,7 +78,7 @@ export function MarketClient({
         if (isCategory) {
             setActiveCategory(isCategory.slug);
         } else {
-            router.push(`/market/${s.slug}`);
+            router.push(ROUTE_HELPERS.MARKET_AD(s.slug));
         }
     };
 

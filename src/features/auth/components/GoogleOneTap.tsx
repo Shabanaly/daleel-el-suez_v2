@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { loginWithIdToken } from '../actions/auth.server';
+import { ROUTES } from '@/constants';
 
 interface GoogleOneTapProps {
     clientId: string;
@@ -48,7 +49,7 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
                             if (result?.success || !result?.error) {
                                 await refreshSession();
                                 router.refresh();
-                                router.push(`/?t=${Date.now()}`);
+                                router.push(`${ROUTES.HOME}?t=${Date.now()}`);
                             } else {
                                 console.error('One Tap Error:', result.error);
                             }

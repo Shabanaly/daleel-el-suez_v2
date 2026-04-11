@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import LightboxComponent from 'yet-another-react-lightbox';
+import dynamic from 'next/dynamic';
+
+const LightboxComponent = dynamic(() => import('yet-another-react-lightbox'), { ssr: false });
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
 import { useDialog } from '@/components/providers/DialogProvider';

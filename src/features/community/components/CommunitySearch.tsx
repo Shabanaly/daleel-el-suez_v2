@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import SearchAutocomplete from '@/features/search/components/SearchAutocomplete';
+import { ROUTES, ROUTE_HELPERS } from '@/constants';
+import { API_ENDPOINTS } from '@/constants/api';
 
 export default function CommunitySearch() {
     const router = useRouter();
@@ -13,7 +15,7 @@ export default function CommunitySearch() {
     const handleSearch = (term: string) => {
         const params = new URLSearchParams();
         if (term.trim()) params.set('q', term.trim());
-        router.push(`/community?${params.toString()}`, { scroll: false });
+        router.push(`${ROUTES.COMMUNITY}?${params.toString()}`, { scroll: false });
     };
 
     return (
@@ -27,9 +29,9 @@ export default function CommunitySearch() {
                 value={searchQuery}
                 onChange={setSearchQuery}
                 onSearch={handleSearch}
-                onSuggestionSelect={(s) => router.push(`/community/posts/${s.slug}`)}
+                onSuggestionSelect={(s) => router.push(ROUTE_HELPERS.COMMUNITY_POST(s.slug))}
                 placeholder="ابحث في مجتمع السويس..."
-                apiEndpoint="/api/community-autocomplete"
+                apiEndpoint={API_ENDPOINTS.COMMUNITY_AUTOCOMPLETE}
                 inputClassName="w-full h-full pr-14 pl-6 bg-surface/90 dark:bg-elevated/90 backdrop-blur-2xl text-right border-2 border-border-subtle/60 rounded-2xl md:rounded-3xl font-bold text-text-primary placeholder:text-text-muted/40 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none text-base md:text-lg shadow-xl shadow-black/5 dark:shadow-primary/10"
             />
         </div>

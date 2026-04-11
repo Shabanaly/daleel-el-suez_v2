@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield } from 'lucide-react';
 import CustomLink from '@/components/customLink/customLink';
+import { ROUTES } from '@/constants';
 
 const COOKIE_CONSENT_KEY = 'daleel-cookie-consent';
 
@@ -56,7 +57,7 @@ export default function CookieConsent() {
             <p className="text-text-muted text-[11px] leading-relaxed">
               نحن نستخدم ملفات تعريف الارتباط (Cookies) لتحسين تجربة تصفحك وعرض إعلانات مخصصة لك. بضغطك على &quot;موافق&quot;، فإنك تقبل استخدامنا لها.
               {' '}
-              <CustomLink href="/privacy" className="text-primary hover:underline font-bold">
+              <CustomLink href={ROUTES.PRIVACY} className="text-primary hover:underline font-bold">
                 اقرأ سياسة الخصوصية
               </CustomLink>
             </p>

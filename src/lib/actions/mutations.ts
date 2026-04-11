@@ -4,6 +4,8 @@ import { createClient } from '../supabase/server';
 import { revalidatePath } from 'next/cache';
 import { cacheManager } from '../cache';
 import { notifyAdmins } from './admin.server';
+import { ROUTES, ROUTE_HELPERS } from '@/constants';
+
 
 import { WeeklySchedule } from '@/features/places/types';
 
@@ -66,14 +68,14 @@ export async function addPlace(formData: PlaceMutationData) {
     cacheManager.invalidateAllPlaces();
     cacheManager.invalidateMetadata();
     cacheManager.invalidateUserStats(user.id);
-    revalidatePath('/places');
+    revalidatePath(ROUTES.PLACES);
 
     // Notify Admins
     await notifyAdmins({
         title: 'مكان جديد يحتاج للمراجعة',
         message: `تم إضافة مكان جديد: ${formData.name}`,
         type: 'place_created',
-        link: `/admin/places?status=pending`,
+        link: `${ROUTES.ADMIN_PLACES}?status=pending`,
         actor_id: user.id,
         metadata: { place_id: data.id }
     });
@@ -115,8 +117,8 @@ export async function updatePlace(id: string, formData: PlaceMutationData) {
 
     // 🔥 Revalidate: bust unstable_cache AND UI paths
     cacheManager.invalidatePlace(data.slug, data.id, data.category_id, data.area_id);
-    revalidatePath('/places');
-    revalidatePath(`/places/${data.slug}`);
+    revalidatePath(ROUTES.PLACES);
+    revalidatePath(ROUTE_HELPERS.PLACE(data.slug));
 
     return data;
 }
@@ -166,6 +168,6 @@ export async function deletePlace(id: string) {
     cacheManager.invalidatePlace(place.slug, id);
     cacheManager.invalidateMetadata();
     cacheManager.invalidateUserStats(user.id);
-    revalidatePath('/places');
+    revalidatePath(ROUTES.PLACES);
     return { success: true };
 }

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfileStats } from '@/features/profile/actions/profile.server';
 import { redirect } from 'next/navigation';
 import { AppBar } from '@/components/ui/AppBar';
+import { ROUTES } from '@/constants';
 import type { Metadata } from 'next';
 export const revalidate = 0;
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,7 +28,7 @@ export default async function ProfilePage() {
     const { data: { user }, error } = await supabase.auth.getUser();
 
     if (error || !user) {
-        redirect('/login');
+        redirect(ROUTES.LOGIN);
     }
 
     // Fetch user stats & profile
@@ -42,7 +43,7 @@ export default async function ProfilePage() {
 
     return (
         <div className="min-h-screen bg-background pb-20 md:pb-12">
-            <AppBar title="البروفايل" backHref="/" transparent={true} titleBehavior="scroll-reveal" />
+            <AppBar title="البروفايل" backHref={ROUTES.HOME} transparent={true} titleBehavior="scroll-reveal" />
             <div className="max-w-7xl mx-auto px-6 md:px-12 pt-16 -mb-24 relative z-10 flex justify-start">
             </div>
             {/* Header section includes cover, avatar, and core info */}

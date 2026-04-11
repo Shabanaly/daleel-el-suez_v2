@@ -5,6 +5,7 @@ import { MarketAd, MarketCategory } from '@/features/market/types';
 import { CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomLink from '@/components/customLink/customLink';
+import { ROUTES } from '@/constants';
 
 import { MarketStepIndicator } from './MarketStepIndicator';
 import MarketStep1Category from './MarketStep1Category';
@@ -54,7 +55,7 @@ export function CreateAdForm({ categories, areas, initialAd }: CreateAdFormProps
                 </div>
                 <div className="flex gap-4">
                     <CustomLink 
-                        href="/market/my-ads"
+                        href={ROUTES.MARKET_MY_ADS}
                         className="px-8 h-14 rounded-2xl bg-primary text-white font-bold flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
                     >
                         إعلاناتي

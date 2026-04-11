@@ -5,6 +5,7 @@ import { mapMarketAd, mapMarketCategory } from '@/lib/utils/mappers';
 import { tags } from '@/lib/cache';
 import { MarketAd } from '@/features/market/types';
 import { notifyAdmins } from '@/lib/actions/admin.server';
+import { ROUTES } from '@/constants';
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/client-service";
 
@@ -350,7 +351,7 @@ export async function createMarketAd(adData: Partial<MarketAd>) {
             title: 'إعلان جديد يحتاج للمراجعة',
             message: `تم إضافة إعلان جديد: ${data.title}`,
             type: 'listing_created',
-            link: `/admin/market?status=pending_approval`,
+            link: `${ROUTES.ADMIN_MARKET}?status=pending_approval`,
             actor_id: user.id,
             metadata: { listing_id: data.id }
         });

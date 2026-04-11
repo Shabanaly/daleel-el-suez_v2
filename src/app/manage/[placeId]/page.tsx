@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getOwnedPlaceDetails, getOwnedPlacesReviews } from '@/features/business/actions/business.server';
 import { redirect } from 'next/navigation';
+import { ROUTES } from '@/constants';
 import { BusinessDashboardClient } from '@/features/business/components/BusinessDashboardClient';
 
 export const metadata = {
@@ -19,14 +20,14 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     const { data: { user }, error } = await supabase.auth.getUser();
 
     if (error || !user) {
-        redirect('/login');
+        redirect(ROUTES.LOGIN);
     }
 
     // Fetch place details
     const placeRes = await getOwnedPlaceDetails(placeId);
 
     if (!placeRes.success || !placeRes.place) {
-        redirect('/manage'); // Redirect back to list if unauthorized or not found
+        redirect(ROUTES.MANAGE); // Redirect back to list if unauthorized or not found
     }
 
     // We can also reuse getOwnedPlacesReviews but filter it down, or we can fetch reviews specifically for this place later if we want.

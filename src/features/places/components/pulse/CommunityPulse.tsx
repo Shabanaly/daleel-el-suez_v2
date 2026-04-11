@@ -3,6 +3,7 @@ import SectionHeader from '@/components/ui/SectionHeader';
 import { Flame } from 'lucide-react';
 import { PulsePlaceCard } from './PulsePlaceCard';
 import { getCommunityPulsePlaces } from '@/features/places/actions/places.server';
+import { ROUTES } from '@/constants';
 
 export default async function CommunityPulse() {
     const places = await getCommunityPulsePlaces(14, 4);
@@ -13,12 +14,11 @@ export default async function CommunityPulse() {
             {/* Ambient Background Decor */}
             <div className="absolute inset-0 bg-primary/2 dark:bg-primary/5 -skew-y-3 pointer-events-none transform origin-left rounded-[48px]" />
             <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-accent/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2" />
-
             <SectionHeader
                 title="نبض المجتمع"
                 subtitle="الأماكن التي يعلو النقاش حولها وتتصدر مراجعات السوايسة خلال الأسبوع."
                 icon={Flame}
-                href="/places"
+                href={ROUTES.PLACES}
                 viewAllText="استكشف المزيد"
             />
 

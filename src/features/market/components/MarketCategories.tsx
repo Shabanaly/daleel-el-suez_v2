@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ChevronLeft, ShoppingBag } from "lucide-react";
 import DynamicIcon from "@/components/common/DynamicIcon";
 import { MarketCategory } from "@/features/market/types";
+import { ROUTES } from '@/constants';
 
 interface MarketCategoriesProps {
     categories: MarketCategory[];
@@ -19,7 +20,7 @@ export default function MarketCategories({ categories, activeCategory, setActive
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-black text-text-primary min-w-fit">التصنيفات</h2>
                 <Link 
-                    href="/market/categories"
+                    href={ROUTES.MARKET_CATEGORIES}
                     className="bg-primary/10 hover:bg-primary/10 text-primary px-4 py-2 rounded-xl text-xs font-black transition-all active:scale-95 flex items-center gap-2"
                 >
                     عرض الكل

@@ -7,6 +7,7 @@ import { ActivityListTile, ActivityItem } from '@/features/profile/components/Ac
 import CustomLink from '@/components/customLink/customLink';
 import { AppBar } from '@/components/ui/AppBar';
 import { ContextMenu, ContextMenuItem } from '@/components/ui/ContextMenu';
+import { ROUTES } from '@/constants';
 
 interface ActivitiesClientProps {
     activities: ActivityItem[];
@@ -52,7 +53,7 @@ export function ActivitiesClient({ activities }: ActivitiesClientProps) {
         <div className="min-h-screen" dir="rtl">
             <AppBar 
                 title="سجل النشاطات" 
-                backHref="/profile" 
+                backHref={ROUTES.PROFILE} 
                 actions={
                     <ContextMenu 
                         trigger={<FilterTrigger isMobile />} 
@@ -114,13 +115,13 @@ export function ActivitiesClient({ activities }: ActivitiesClientProps) {
                             </p>
                             <div className="flex flex-wrap items-center justify-center gap-4">
                                 <CustomLink
-                                    href="/places"
+                                    href={ROUTES.PLACES}
                                     className="px-6 py-3 bg-primary text-white rounded-2xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
                                 >
                                     استكشف الأماكن
                                 </CustomLink>
                                 <CustomLink
-                                    href="/community"
+                                    href={ROUTES.COMMUNITY}
                                     className="px-6 py-3 bg-surface border border-border-subtle text-text-primary rounded-2xl font-bold text-sm hover:bg-elevated transition-colors"
                                 >
                                     شارك في المجتمع

@@ -2,6 +2,7 @@
 
 import CustomLink from '@/components/customLink/customLink';
 import { ShieldAlert, ChevronRight, RefreshCcw } from 'lucide-react';
+import { ROUTES } from '@/constants';
 
 export default function AuthErrorPage() {
     return (
@@ -18,7 +19,7 @@ export default function AuthErrorPage() {
 
                 <div className="space-y-4">
                     <CustomLink
-                        href="/login"
+                        href={ROUTES.LOGIN}
                         className="w-full h-14 rounded-2xl bg-primary hover:bg-primary-hover text-white font-black flex items-center justify-center gap-3 transition-all active:scale-95"
                     >
                         <RefreshCcw className="w-5 h-5" />
@@ -26,7 +27,7 @@ export default function AuthErrorPage() {
                     </CustomLink>
 
                     <CustomLink
-                        href="/"
+                        href={ROUTES.HOME}
                         className="w-full h-14 rounded-2xl bg-surface hover:bg-elevated text-text-primary border border-border-subtle font-black flex items-center justify-center gap-3 transition-all"
                     >
                         <span>الرجوع للرئيسية</span>

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import SearchAutocomplete from '@/features/search/components/SearchAutocomplete';
+import { ROUTES } from '@/constants';
 
 import { useState } from 'react';
 
@@ -13,15 +14,15 @@ export default function HeroSearch() {
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         if (searchTerm.trim()) {
-            router.push(`/places?q=${encodeURIComponent(searchTerm.trim())}`);
+            router.push(`${ROUTES.PLACES}?q=${encodeURIComponent(searchTerm.trim())}`);
         } else {
-            router.push('/places');
+            router.push(ROUTES.PLACES);
         }
     };
 
     const handleSelect = (term: string) => {
         if (term.trim()) {
-            router.push(`/places?q=${encodeURIComponent(term.trim())}`);
+            router.push(`${ROUTES.PLACES}?q=${encodeURIComponent(term.trim())}`);
         }
     };
 

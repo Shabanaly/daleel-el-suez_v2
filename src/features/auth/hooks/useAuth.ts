@@ -1,109 +1,53 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
-import { login, signup, logout as logoutAction } from '@/features/auth/actions/auth.server';
-import { useAuth as useAuthProvider } from '@/components/providers/AuthProvider';
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { logout as logoutAction } from "@/features/auth/actions/auth.server";
+import { useAuth as useAuthProvider } from "@/components/providers/AuthProvider";
+import { useSignIn } from "./useSignIn";
+import { useSignUp } from "./useSignUp";
 
+/**
+ * Shared Auth Hook
+ * This hook provides a unified interface for auth state and actions across the app.
+ * It remains compatible with existing components while using the new refactored hooks internally.
+ */
 export function useAuth() {
-    const router = useRouter();
-    const { user, isLoading: authLoading } = useAuthProvider();
-    const [actionLoading, setActionLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [socialLoading, setSocialLoading] = useState<'google' | 'facebook' | null>(null);
-    const supabase = createClient();
+  const { user, isLoading: authLoading } = useAuthProvider();
+  const [actionLoading, setActionLoading] = useState(false);
 
-    const handleLogin = async (formData: FormData) => {
-        setActionLoading(true);
-        setError(null);
-        try {
-            const result = await login(formData);
-            if (result?.error) {
-                setError(result.error);
-                setActionLoading(false);
-                return { error: result.error };
-            }
-            
-            window.location.href = '/';
-            return { success: true };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            if (err.message !== 'NEXT_REDIRECT') {
-                setError('حدث خطأ غير متوقع');
-                setActionLoading(false);
-                return { error: 'Unexpected error' };
-            }
-        }
-    };
+  // New specialized hooks for potential use
+  const signIn = useSignIn();
+  const signUp = useSignUp();
 
-    const handleSignup = async (formData: FormData) => {
-        setActionLoading(true);
-        setError(null);
-        try {
-            const result = await signup(formData);
-            if (result?.error) {
-                setError(result.error);
-                setActionLoading(false);
-                return { error: result.error };
-            }
+  const handleLogout = async () => {
+    setActionLoading(true);
+    try {
+      await logoutAction();
+      window.location.href = "/login?t=" + Date.now();
+    } catch (err) {
+      console.error("Logout error:", err);
+      window.location.href = "/login";
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
-            window.location.href = '/';
-            return { success: true };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            if (err.message !== 'NEXT_REDIRECT') {
-                setError('حدث خطأ غير متوقع');
-                setActionLoading(false);
-                return { error: 'Unexpected error' };
-            }
-        }
-    };
+  return {
+    // State
+    user,
+    loading:
+      authLoading || actionLoading || signIn.isLoading || signUp.isLoading,
+    error: signIn.error || signUp.error,
+    socialLoading: signIn.socialLoading,
 
-    const handleSocialLogin = async (provider: 'google' | 'facebook') => {
-        setSocialLoading(provider);
-        setError(null);
-        try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider,
-                options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
-                    queryParams: {
-                        prompt: 'select_account',
-                    },
-                },
-            });
-            if (error) throw error;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            setError(err.message || 'حدث خطأ أثناء الاتصال');
-            setSocialLoading(null);
-        }
-    };
+    // Actions
+    handleLogin: signIn.handleSignIn,
+    handleSignup: signUp.handleSignUp,
+    handleSocialLogin: signIn.handleSocialLogin,
+    handleLogout,
 
-    const handleLogout = async () => {
-        setActionLoading(true);
-        try {
-            await logoutAction();
-            // Force a full page reload to clear all states and cache
-            window.location.href = '/login?t=' + Date.now();
-        } catch (err) {
-            console.error('Logout error:', err);
-            window.location.href = '/login';
-        } finally {
-            setActionLoading(false);
-        }
-    };
-
-    return {
-        user,
-        loading: authLoading || actionLoading,
-        error,
-        socialLoading,
-        handleLogin,
-        handleSignup,
-        handleSocialLogin,
-        handleLogout,
-        setError
-    };
+    // Utils
+    setError: signIn.setError,
+  };
 }

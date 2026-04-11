@@ -6,12 +6,13 @@ import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { AppBar } from '@/components/ui/AppBar';
+import { ROUTES } from '@/constants';
 export default async function CreateAdPage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect("/login?returnUrl=/market/create");
+        redirect(`${ROUTES.LOGIN}?returnUrl=${ROUTES.MARKET_CREATE}`);
     }
 
     const [categories, areas] = await Promise.all([
@@ -21,11 +22,11 @@ export default async function CreateAdPage() {
 
     return (
         <div className="min-h-screen bg-background pb-20 pt-14 md:pt-24 overflow-x-hidden">
-            <AppBar title="أضف إعلانك" backHref="/market" />
+            <AppBar title="أضف إعلانك" backHref={ROUTES.MARKET} />
             {/* ─── Header ─── */}
             <div className="max-w-4xl mx-auto px-4 mb-10 mt-4 md:mt-0">
                 <Link 
-                    href="/market"
+                    href={ROUTES.MARKET}
                     className="hidden lg:inline-flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors mb-6 group"
                 >
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />

@@ -4,6 +4,7 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import { motion } from "framer-motion";
 import { Map } from "lucide-react";
 import CustomLink from "@/components/customLink/customLink";
+import { ROUTES, ROUTE_HELPERS } from '@/constants';
 
 interface District {
   id: string | number;
@@ -26,7 +27,7 @@ export default function DistrictsExplorer({
         title="الأحياء"
         subtitle="استكشف حيك الآن"
         icon={Map}
-        href="/"
+        href={ROUTES.HOME}
         viewAllText=""
       />
 
@@ -49,7 +50,7 @@ export default function DistrictsExplorer({
               className="shrink-0 snap-center first:ms-4 last:me-4 md:first:ms-0 md:last:me-0"
             >
               <CustomLink
-                href={`/places?district=${encodeURIComponent(district.name)}`}
+                href={ROUTE_HELPERS.PLACES_DISTRICT(district.name)}
                 className="block"
               >
                 <div className="w-32 h-40 md:w-44 md:h-56 rounded-[32px] md:rounded-[40px] border border-border-subtle bg-surface/40 backdrop-blur-md p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 hover:border-primary/40 hover:bg-surface hover:shadow-[0_20px_50px_rgba(var(--primary-rgb),0.12)] cursor-pointer select-none relative overflow-hidden group/card">

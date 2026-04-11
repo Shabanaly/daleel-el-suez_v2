@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, X, Loader2 } from 'lucide-react';
 import { useDebounce } from '../../../lib/hooks/useDebounce';
+import { ROUTES } from '@/constants';
 
 export default function SearchBar() {
     const router = useRouter();
@@ -28,7 +29,7 @@ export default function SearchBar() {
         if (category) params.set('category', category);
 
         setIsPending(true);
-        router.push(`/community?${params.toString()}`);
+        router.push(`${ROUTES.COMMUNITY}?${params.toString()}`);
     }, [router, searchParams]);
 
     useEffect(() => {

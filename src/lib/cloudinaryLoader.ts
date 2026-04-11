@@ -36,7 +36,20 @@ export default function cloudinaryLoader({ src, width, quality }: { src: string,
         return `${baseUrl}=s${width}-c`;
     }
 
-    // Generic fallback for all other images to satisfy Next.js "loader must implement width" requirement
+    // Generic fallback for all other external images (Supabase, Google Maps /p/, etc.)
+    // Uses Cloudinary Fetch API to optimize them automatically and save loading times.
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dqwkv5gax';
+    if (!src.startsWith('/') && !src.includes('localhost')) {
+        const params = [
+            'f_auto',
+            'q_auto',
+            `w_${width}`,
+            'c_limit'
+        ];
+        return `https://res.cloudinary.com/${cloudName}/image/fetch/${params.join(',')}/${encodeURIComponent(src)}`;
+    }
+
+    // Local images fallback
     try {
         const url = new URL(src, process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
         if (!url.searchParams.has('w') && !url.searchParams.has('width')) {

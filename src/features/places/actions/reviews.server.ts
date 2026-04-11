@@ -5,6 +5,7 @@ import { createServiceClient } from '@/lib/supabase/client-service';
 import { revalidatePath, unstable_cache } from 'next/cache';
 import { cacheManager, tags } from '@/lib/cache';
 import { Review } from '../types/reviews';
+import { ROUTES, ROUTE_HELPERS } from '@/constants';
 
 export async function submitReview(formData: {
     placeId: string;
@@ -36,8 +37,8 @@ export async function submitReview(formData: {
 
     // 🔥 Granular Revalidation
     cacheManager.invalidateReview(formData.placeId, user.id);
-    revalidatePath(`/places/${formData.placeId}`);
-    revalidatePath('/places');
+    revalidatePath(ROUTE_HELPERS.PLACE(formData.placeId));
+    revalidatePath(ROUTES.PLACES);
 
     return { success: true };
 }
@@ -109,8 +110,8 @@ export async function deleteReview(placeId: string) {
 
     // 🔥 Granular Revalidation
     cacheManager.invalidateReview(placeId, user.id);
-    revalidatePath(`/places/${placeId}`);
-    revalidatePath('/places');
+    revalidatePath(ROUTE_HELPERS.PLACE(placeId));
+    revalidatePath(ROUTES.PLACES);
 
     return { success: true };
 }

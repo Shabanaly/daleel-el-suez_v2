@@ -2,6 +2,7 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import { Flame } from "lucide-react";
 import { PlaceCard } from "@/features/places/components/PlaceCard";
 import { getHomePageData } from "@/features/places/actions/places.server";
+import { ROUTE_HELPERS } from '@/constants';
 
 export default async function TrendingPlaces() {
   const { trending } = await getHomePageData();
@@ -15,7 +16,7 @@ export default async function TrendingPlaces() {
         title="الاكثر رواجاَ"
         subtitle="اكتشف الأماكن الأكثر زيارة وتفاعلاً"
         icon={Flame}
-        href="/places?sort=trending"
+        href={ROUTE_HELPERS.PLACES_SORT('trending')}
       />
 
       <div className="flex overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 gap-6 md:gap-8 pb-10">

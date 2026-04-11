@@ -45,9 +45,15 @@ export default function Hero({ categories = [], ads = [] }: { categories?: Categ
                 </motion.div>
 
                 <HeroSearch />
+            </div>
 
+            {/* ── Promo Ads — Full-width (outside container) ── */}
+            <div className="relative z-10 w-full">
                 <HeroAdsCarousel ads={ads} />
+            </div>
 
+            {/* ── Categories — back inside container ── */}
+            <div className="relative z-10 w-full max-w-6xl px-4 flex flex-col items-center">
                 <HeroCategories categories={categories} />
             </div>
         </section>

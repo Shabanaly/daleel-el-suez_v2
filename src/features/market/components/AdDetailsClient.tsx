@@ -23,6 +23,7 @@ import { Lightbox } from '@/components/common/Lightbox';
 import { AdStickyActionsBar } from './AdStickyActionsBar';
 import { incrementMarketAdView } from '@/features/market/actions/market.server';
 import { AppBar } from '@/components/ui/AppBar';
+import { ROUTES, ROUTE_HELPERS } from '@/constants';
 interface AdDetailsClientProps {
     ad: MarketAd;
 }
@@ -86,7 +87,7 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
             <AppBar
                 title={ad.title}
                 transparent={false}
-                backHref={`/market?category=${encodeURIComponent(ad.category_slug || 'all')}`}
+                backHref={ROUTE_HELPERS.MARKET_CATEGORY(ad.category_slug || 'all')}
                 actions={
                     <ShareButton
                         title={ad.title}
@@ -107,9 +108,9 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
             <main className="pt-14 md:pt-32 max-w-4xl mx-auto px-4">
                 {/* ── Desktop Breadcrumbs ───────────────────────────────────── */}
                 <nav className="hidden md:flex items-center gap-2 mb-10 text-sm font-bold whitespace-nowrap overflow-hidden">
-                    <CustomLink href="/market" className="text-text-muted hover:text-primary transition-colors">السوق</CustomLink>
+                    <CustomLink href={ROUTES.MARKET} className="text-text-muted hover:text-primary transition-colors">السوق</CustomLink>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 shrink-0" />
-                    <CustomLink href={`/market?category=${encodeURIComponent(ad.category_slug || 'all')}`} className="text-text-muted hover:text-primary transition-colors">
+                    <CustomLink href={ROUTE_HELPERS.MARKET_CATEGORY(ad.category_slug || 'all')} className="text-text-muted hover:text-primary transition-colors">
                         {ad.category_name || 'قسم آخر'}
                     </CustomLink>
                     <ChevronLeft className="w-4 h-4 text-text-muted/30 shrink-0" />

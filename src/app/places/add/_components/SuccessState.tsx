@@ -3,6 +3,7 @@
 import { CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CustomLink from '@/components/customLink/customLink';
+import { ROUTES } from '@/constants';
 
 export function SuccessState() {
     return (
@@ -19,7 +20,7 @@ export function SuccessState() {
                 شكراً لثقتك في دليل السويس. سنقوم بمراجعة بيانات نشاطك التجاري وتفعيله فوراً.
             </p>
             <CustomLink
-                href="/places"
+                href={ROUTES.PLACES}
                 className="inline-flex h-14 px-8 rounded-2xl bg-accent text-white font-black items-center justify-center hover:bg-accent transition-all shadow-lg shadow-accent/25"
             >
                 الرجوع للدليل

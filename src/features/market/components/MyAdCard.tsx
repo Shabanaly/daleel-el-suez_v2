@@ -5,6 +5,7 @@ import CustomLink from '@/components/customLink/customLink';
 import { SafeImage } from '@/components/common/SafeImage';
 import { ContextMenu } from '@/components/ui/ContextMenu';
 import { useRouter } from 'next/navigation';
+import { ROUTE_HELPERS } from '@/constants';
 
 interface MyAdCardProps {
     ad: MarketAd;
@@ -84,7 +85,7 @@ export function MyAdCard({ ad, onDelete, onUpdateStatus, isProcessing, index }: 
                                 {
                                     label: 'تعديل الإعلان',
                                     icon: <Pencil className="w-4 h-4" />,
-                                    onClick: () => router.push(`/market/edit/${ad.id}`)
+                                    onClick: () => router.push(ROUTE_HELPERS.MARKET_AD_EDIT(ad.id))
                                 },
                                 {
                                     label: isSold ? 'تنشيط الإعلان' : 'تغيير لـ تم بيعه',
@@ -141,7 +142,7 @@ export function MyAdCard({ ad, onDelete, onUpdateStatus, isProcessing, index }: 
                 {/* Bottom Actions */}
                 <div className="flex items-center gap-2 mt-4">
                     <button 
-                        onClick={() => router.push(`/market/edit/${ad.id}`)}
+                        onClick={() => router.push(ROUTE_HELPERS.MARKET_AD_EDIT(ad.id))}
                         className="flex-1 bg-surface-elevated hover:bg-border-subtle text-text-primary rounded-xl py-2.5 text-sm font-black transition-colors border border-border-subtle"
                     >
                         تعديل الإعلان

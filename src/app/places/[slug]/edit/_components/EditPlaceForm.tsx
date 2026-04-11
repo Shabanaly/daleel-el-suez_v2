@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CustomLink from '@/components/customLink/customLink';
+import { ROUTES, ROUTE_HELPERS } from '@/constants';
 import { useDialog } from "@/components/providers/DialogProvider";
 import {
     ChevronRight, MapPin, Phone, Building2,
@@ -138,7 +139,7 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
                 try {
                     const result = await deletePlace(place.id);
                     if (result && result.success) {
-                        router.push('/places');
+                        router.push(ROUTES.PLACES);
                         router.refresh();
                         showAlert({
                             title: 'تم الحذف',
@@ -173,7 +174,7 @@ export function EditPlaceForm({ place, categories, areas }: EditPlaceFormProps) 
                 </div>
                 <h2 className="text-3xl font-black text-text-primary mb-4 tracking-tight">تم التحديث!</h2>
                 <p className="text-text-muted font-medium mb-8">تم حفظ تعديلات المكان بنجاح.</p>
-                <CustomLink href={`/places/${place.slug}`} className="inline-flex h-14 px-8 rounded-2xl bg-accent text-white font-black items-center justify-center hover:bg-accent transition-all shadow-lg shadow-accent/25">
+                <CustomLink href={ROUTE_HELPERS.PLACE(place.slug)} className="inline-flex h-14 px-8 rounded-2xl bg-accent text-white font-black items-center justify-center hover:bg-accent transition-all shadow-lg shadow-accent/25">
                     العودة للمكان
                 </CustomLink>
             </motion.div>

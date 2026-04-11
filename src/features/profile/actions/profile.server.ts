@@ -1,6 +1,8 @@
 'use server';
 import { createServiceClient } from '@/lib/supabase/client-service';
 import { unstable_cache } from 'next/cache';
+import { ROUTE_HELPERS } from '@/constants';
+
 
 export async function getUserProfileStats(userId: string) {
     return unstable_cache(
@@ -104,7 +106,7 @@ export async function getUserActivities(userId: string, limit = 10) {
                         title: `قيمت ${place?.name || 'مكان'} بـ ${review.rating} نجوم`,
                         description: review.comment || 'بدون تعليق',
                         date: review.created_at,
-                        link: `/places/${place?.slug || review.place_id}`,
+                        link: ROUTE_HELPERS.PLACE(place?.slug || review.place_id),
                         image: Array.isArray(place?.images) ? place.images[0] : null,
                         rating: review.rating,
                     };
@@ -118,7 +120,7 @@ export async function getUserActivities(userId: string, limit = 10) {
                         title: `رددت على تقييم في ${place?.name || 'مكانك'}`,
                         description: review.reply_text,
                         date: review.replied_at,
-                        link: `/places/${place?.slug || review.place_id}`,
+                        link: ROUTE_HELPERS.PLACE(place?.slug || review.place_id),
                         image: Array.isArray(place?.images) ? place.images[0] : null,
                     };
                 });
@@ -131,7 +133,7 @@ export async function getUserActivities(userId: string, limit = 10) {
                         title: `أضفت مكان جديد: ${place.name}`,
                         description: `تمت الإضافة تحت تصنيف ${category?.name || 'آخر'}`,
                         date: place.created_at,
-                        link: `/places/${place.slug || place.id}`,
+                        link: ROUTE_HELPERS.PLACE(place.slug || place.id),
                         image: Array.isArray(place.images) ? place.images[0] : null,
                         category: category?.name,
                     };
@@ -144,7 +146,7 @@ export async function getUserActivities(userId: string, limit = 10) {
                         title: `نشرت منشوراً جديداً`,
                         description: post.title || post.content.substring(0, 100),
                         date: post.created_at,
-                        link: `/community/posts/${post.id}`,
+                        link: ROUTE_HELPERS.COMMUNITY_POST(post.id),
                     };
                 });
 
@@ -162,7 +164,7 @@ export async function getUserActivities(userId: string, limit = 10) {
                         title: isReply ? `رددت على تعليق في: ${postDisplayName}` : `علقت على: ${postDisplayName}`,
                         description: comment.content,
                         date: comment.created_at,
-                        link: `/community/posts/${comment.post_id}`,
+                        link: ROUTE_HELPERS.COMMUNITY_POST(comment.post_id),
                     };
                 });
 

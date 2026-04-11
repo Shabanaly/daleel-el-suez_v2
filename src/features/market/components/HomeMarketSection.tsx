@@ -4,6 +4,7 @@ import SectionHeader from '@/components/ui/SectionHeader';
 import { ShoppingBag } from 'lucide-react';
 import AdCard from '@/features/market/components/AdCard';
 import { MarketAd } from '@/features/market/types';
+import { ROUTES } from '@/constants';
 
 interface HomeMarketSectionProps {
     ads: MarketAd[];
@@ -22,7 +23,7 @@ export default function HomeMarketSection({ ads }: HomeMarketSectionProps) {
                 title="سوق السويس"
                 subtitle="اكتشف أحدث العروض والمنتجات المتاحة في مدينتك"
                 icon={ShoppingBag}
-                href="/market"
+                href={ROUTES.MARKET}
             />
 
             <div className="flex overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 gap-6 md:gap-8 pb-10">

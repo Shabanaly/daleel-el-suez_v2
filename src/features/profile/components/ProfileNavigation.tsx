@@ -2,6 +2,7 @@
 
 import { Activity, LayoutDashboard, Settings, ChevronLeft, LogOut, Tag, Bell, ShieldCheck } from 'lucide-react';
 import CustomLink from '@/components/customLink/customLink';
+import { ROUTES, APP_CONFIG } from '@/constants';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -15,7 +16,7 @@ export function ProfileNavigation({ isAdmin }: ProfileNavigationProps) {
     const handleLogout = async () => {
         const supabase = createClient();
         await supabase.auth.signOut();
-        router.push('/');
+        router.push(ROUTES.HOME);
         router.refresh();
     };
 
@@ -23,35 +24,35 @@ export function ProfileNavigation({ isAdmin }: ProfileNavigationProps) {
         {
             label: 'نشاطاتي',
             description: 'التقييمات، الأماكن المضافة، والتعليقات',
-            href: '/profile/activities',
+            href: ROUTES.PROFILE_ACTIVITIES,
             icon: <Activity className="w-6 h-6 text-blue-500" />,
             bgColor: 'bg-blue-500/10'
         },
         {
             label: 'الإشعارات',
             description: 'تنبيهات التفاعل، التعليقات، والإعجابات',
-            href: '/profile/notifications',
+            href: ROUTES.PROFILE_NOTIFICATIONS,
             icon: <Bell className="w-6 h-6 text-orange-500" />,
             bgColor: 'bg-orange-500/10'
         },
         {
             label: 'إعلاناتي',
             description: 'إدارة إعلاناتك في السوق والمبوبة',
-            href: '/market/my-ads',
+            href: ROUTES.MARKET_MY_ADS,
             icon: <Tag className="w-6 h-6 text-emerald-500" />,
             bgColor: 'bg-emerald-500/10'
         },
         {
             label: 'إدارة أعمالي',
             description: 'تحديث بيانات أماكنك والرد على المراجعات',
-            href: '/manage',
+            href: ROUTES.MANAGE,
             icon: <LayoutDashboard className="w-6 h-6 text-primary" />,
             bgColor: 'bg-primary/10'
         },
         {
             label: 'إعدادات الحساب',
             description: 'تعديل بياناتك الشخصية وتغيير كلمة المرور',
-            href: '/settings',
+            href: ROUTES.SETTINGS,
             icon: <Settings className="w-6 h-6 text-slate-500" />,
             bgColor: 'bg-slate-500/10'
         }
@@ -95,7 +96,7 @@ export function ProfileNavigation({ isAdmin }: ProfileNavigationProps) {
                         className="mt-6"
                     >
                         <CustomLink
-                            href="/admin"
+                            href={ROUTES.ADMIN}
                             className="flex items-center gap-4 p-4 bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-3xl transition-all group shadow-sm hover:shadow-md"
                         >
                             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 text-primary">
@@ -129,7 +130,7 @@ export function ProfileNavigation({ isAdmin }: ProfileNavigationProps) {
                             تسجيل الخروج
                         </h3>
                         <p className="text-xs text-red-400 font-medium">
-                            نراك قريباً في دليل السويس
+                            نراك قريباً في {APP_CONFIG.NAME}
                         </p>
                     </div>
                 </motion.button>

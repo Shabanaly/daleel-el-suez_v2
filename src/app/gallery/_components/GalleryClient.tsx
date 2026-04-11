@@ -9,6 +9,7 @@ import { Lightbox } from '@/components/common/Lightbox';
 import { GalleryImage, incrementImageViews } from '@/features/gallery/actions/gallery.server';
 import UploadPhotoModal from '@/features/gallery/components/UploadPhotoModal';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { ROUTES } from '@/constants';
 
 interface GalleryClientProps {
     initialImages: GalleryImage[];
@@ -92,7 +93,7 @@ export default function GalleryClient({ initialImages, categories, initialCatego
                                 const params = new URLSearchParams(searchParams.toString());
                                 if (cat === 'الكل') params.delete('category');
                                 else params.set('category', cat);
-                                router.push(`/gallery?${params.toString()}`, { scroll: false });
+                                router.push(`${ROUTES.GALLERY}?${params.toString()}`, { scroll: false });
                             }}
                             className={`whitespace-nowrap px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-300 ${
                                 selectedCategory === cat 

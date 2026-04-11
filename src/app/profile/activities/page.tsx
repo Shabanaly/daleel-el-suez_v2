@@ -2,6 +2,7 @@ import { getUserActivities } from '@/features/profile/actions/profile.server';
 import { redirect } from 'next/navigation';
 import { ActivitiesClient } from './_components/ActivitiesClient';
 import { createClient } from '@/lib/supabase/server';
+import { ROUTES } from '@/constants';
 export const metadata = {
     title: 'نشاطاتي - دليل السويس',
 };
@@ -11,7 +12,7 @@ export default async function ActivitiesPage() {
     const { data: { user }, error } = await supabase.auth.getUser();
 
     if (error || !user) {
-        redirect('/login');
+        redirect(ROUTES.LOGIN);
     }
     const { activities } = await getUserActivities(user.id, 50);
 

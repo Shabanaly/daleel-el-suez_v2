@@ -7,6 +7,7 @@ import { Camera, ArrowUpRight, Plus, Eye, Image as ImageIcon } from 'lucide-reac
 import { SafeImage } from '@/components/common/SafeImage';
 import { GalleryImage, incrementImageViews } from '@/features/gallery/actions/gallery.server';
 import CustomLink from '@/components/customLink/customLink';
+import { ROUTES } from '@/constants';
 
 interface SuezGalleryProps {
     initialImages?: GalleryImage[];
@@ -151,7 +152,7 @@ export default function SuezGallery({ initialImages = [] }: SuezGalleryProps) {
                     className="mt-12 flex justify-center"
                 >
                     <CustomLink 
-                        href="/gallery"
+                        href={ROUTES.GALLERY}
                         className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-primary/10 text-primary font-black text-lg hover:bg-primary hover:text-white transition-all duration-300"
                     >
                         <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />

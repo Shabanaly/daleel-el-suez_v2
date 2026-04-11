@@ -19,6 +19,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import PWAInstallPrompt from "@/components/pwa/PWAInstallPrompt";
 import CookieConsent from "@/components/common/CookieConsent";
+import { APP_CONFIG, ROUTES } from "@/constants";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -36,12 +37,12 @@ import { Suspense } from "react";
 import MainContentWrapper from "@/components/layout/MainContentWrapper";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com'),
+  metadataBase: new URL(APP_CONFIG.BASE_URL),
   title: {
-    default: "دليل السويس | Suez Guide - دليلك الشامل",
-    template: "%s | دليل السويس"
+    default: `${APP_CONFIG.NAME} | ${APP_CONFIG.TAGLINE}`,
+    template: `%s | ${APP_CONFIG.NAME}`
   },
-  description: "اكتشف أفضل الأماكن، الخدمات، والمطاعم في محافظة السويس. دليل السويس هو الرفيق الأول لأهل السويس لاستكشاف مدينتهم والحصول على أفضل العروض والخدمات الموثوقة.",
+  description: APP_CONFIG.DESCRIPTION,
   keywords: [
     "السويس", "دليل السويس", "سوق السويس", "أماكن السويس", "خدمات السويس", "عقارات السويس", 
     "وظائف السويس", "مطاعم السويس", "عيادات السويس", "بيع وشراء السويس", "مستعمل السويس", 
@@ -49,34 +50,34 @@ export const metadata: Metadata = {
     "دليل ارقام تليفونات السويس", "افضل مطاعم السويس", "افضل اطباء السويس", "سويسي", "مدن القناة",
     "بورتوفيق", "الاربعين", "فيصل السويس", "حتا السويس", "الكبريت", "العين السخنة"
   ],
-  authors: [{ name: "دليل السويس" }],
+  authors: [{ name: APP_CONFIG.NAME }],
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "دليل السويس",
+    title: APP_CONFIG.NAME,
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
     type: "website",
-    siteName: "دليل السويس - Suez Guide",
-    title: "دليل السويس | Suez Guide - دليلك الشامل",
-    description: "كل ما تحتاجه في السويس في مكان واحد - أماكن، خدمات، وسوق تجاري متكامل.",
+    siteName: APP_CONFIG.NAME,
+    title: `${APP_CONFIG.NAME} | ${APP_CONFIG.TAGLINE}`,
+    description: APP_CONFIG.DESCRIPTION,
     locale: "ar_EG",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "دليل السويس - Suez Guide"
+        alt: APP_CONFIG.NAME
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
-    title: "دليل السويس | Suez Guide",
-    description: "دليلك الشامل للأماكن والخدمات في السويس",
+    title: `${APP_CONFIG.NAME} | ${APP_CONFIG.TAGLINE}`,
+    description: APP_CONFIG.DESCRIPTION,
   },
   icons: {
     icon: [
@@ -94,7 +95,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false, // Prevents auto-zooming or accidental desktop-view scaling on iOS/Android
-  themeColor: "#0066FF",
+  themeColor: APP_CONFIG.THEME_COLOR,
   interactiveWidget: "resizes-content",
 };
 
@@ -113,22 +114,33 @@ export default function RootLayout({
         className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 lg:pb-0`}
         suppressHydrationWarning
       >
-        {/* Raw scripts instead of next/script due to AdSense disliking data-nscript */}
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775" crossOrigin="anonymous"></script>
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        {/* Third-party Scripts */}
+        <Script 
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775" 
+          strategy="lazyOnload" 
+          crossOrigin="anonymous" 
+        />
+        <Script 
+          src="https://accounts.google.com/gsi/client" 
+          strategy="lazyOnload" 
+        />
+        
         <JsonLd />
+        
         {/* Google Analytics */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-CYWJ3TSSFF"
-          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=${APP_CONFIG.GA_ID}`}
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
 
-            gtag('config', 'G-CYWJ3TSSFF');
+            gtag('config', '${APP_CONFIG.GA_ID}', {
+              page_path: window.location.pathname,
+            });
           `}
         </Script>
         <ThemeProvider

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getFavoritePlaces, getFavoriteAds } from '@/features/favorites/actions/favorites.server';
 import { redirect } from 'next/navigation';
+import { ROUTES } from '@/constants';
 import { PlaceCard } from '@/features/places/components/PlaceCard';
 import AdCard from '@/features/market/components/AdCard';
 import { Heart, MapPin, Store, Map as MapIcon } from 'lucide-react';
@@ -23,7 +24,7 @@ export default async function FavoritesPage({
     const activeTab = params.tab || 'places';
 
     if (error || !user) {
-        redirect('/login');
+        redirect(ROUTES.LOGIN);
     }
 
     const favoritePlaces = activeTab === 'places' ? await getFavoritePlaces(user.id) : [];
@@ -31,7 +32,7 @@ export default async function FavoritesPage({
 
     return (
         <div className="min-h-screen bg-background pb-20 md:pb-32 text-right" dir="rtl">
-            <AppBar title="المفضلة" backHref="/profile" />
+            <AppBar title="المفضلة" backHref={ROUTES.PROFILE} />
 
             <main className="pt-14 md:pt-24 max-w-7xl mx-auto px-4 mt-4">
                 <div className="flex items-center gap-4 mb-10">
@@ -47,7 +48,7 @@ export default async function FavoritesPage({
                 {/* Tabs */}
                 <div className="flex items-center p-1.5 bg-surface border border-border-subtle rounded-2xl mb-8 w-fit">
                     <CustomLink
-                        href="/favorites?tab=places"
+                        href={`${ROUTES.FAVORITES}?tab=places`}
                         className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'places'
                             ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
                             : 'text-text-muted hover:text-text-primary'
@@ -57,7 +58,7 @@ export default async function FavoritesPage({
                         الأماكن
                     </CustomLink>
                     <CustomLink
-                        href="/favorites?tab=market"
+                        href={`${ROUTES.FAVORITES}?tab=market`}
                         className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'market'
                             ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
                             : 'text-text-muted hover:text-text-primary'
@@ -79,7 +80,7 @@ export default async function FavoritesPage({
                         <EmptyState 
                             title="لا توجد أماكن مفضلة" 
                             desc="لم تقم بإضافة أي أماكن للمفضلة بعد." 
-                            btnLink="/places" 
+                            btnLink={ROUTES.PLACES} 
                             btnText="استكشف الأماكن"
                             icon={<MapPin className="w-10 h-10" />}
                         />
@@ -95,7 +96,7 @@ export default async function FavoritesPage({
                         <EmptyState 
                             title="لا توجد إعلانات مفضلة" 
                             desc="لم تقم بحفظ أي إعلانات من السوق بعد." 
-                            btnLink="/market" 
+                            btnLink={ROUTES.MARKET} 
                             btnText="الذهاب للسوق"
                             icon={<Store className="w-10 h-10" />}
                         />

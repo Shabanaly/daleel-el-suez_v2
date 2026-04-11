@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { Search, Plus, Filter } from "lucide-react";
 import SearchAutocomplete, { Suggestion } from "@/features/search/components/SearchAutocomplete";
+import { API_ENDPOINTS } from "@/constants/api";
 
 interface MarketSearchHeaderProps {
     searchQuery: string;
@@ -34,7 +35,7 @@ export default function MarketSearchHeader({
                         onSearch={handleSearch}
                         onSuggestionSelect={handleSuggestionSelect}
                         searchType="market"
-                        apiEndpoint="/api/autocomplete?type=market"
+                        apiEndpoint={`${API_ENDPOINTS.AUTOCOMPLETE}?type=market`}
                         placeholder="بتدور على إيه النهاردة؟"
                         inputClassName="w-full h-full pr-14 pl-6 bg-surface/90 dark:bg-elevated/90 backdrop-blur-2xl border-2 border-border-subtle/60 rounded-2xl md:rounded-3xl text-base md:text-lg font-bold focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all placeholder:text-text-muted/50 shadow-xl shadow-black/5 dark:shadow-primary/10"
                     />

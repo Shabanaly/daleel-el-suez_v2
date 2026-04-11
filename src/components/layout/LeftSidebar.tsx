@@ -1,8 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Ship, Anchor, Waves, Info, Sparkles, ShieldCheck, Zap } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { ROUTES, AUTH_ROUTES } from '@/constants';
+import { Anchor, Info, ShieldCheck, Ship, Sparkles, Waves, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const SUEZ_HIGHLIGHTS = [
     { title: "قناة السويس", description: "شريان الحياة العالمي وأهم ممر ملاحي في العالم.", icon: <Ship className="w-5 h-5 text-primary" /> },
@@ -19,8 +20,8 @@ const OUR_SERVICES = [
 
 export default function LeftSidebar() {
     const pathname = usePathname();
-    const isAuthPage = pathname === '/login' || pathname === '/signup';
-    const isAdminPage = pathname?.startsWith('/admin');
+    const isAuthPage = AUTH_ROUTES.includes(pathname);
+    const isAdminPage = pathname?.startsWith(ROUTES.ADMIN);
 
     if (isAuthPage || isAdminPage) return null;
 

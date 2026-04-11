@@ -4,6 +4,7 @@ import CustomLink from '@/components/customLink/customLink';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { ROUTES } from '@/constants';
 
 export const metadata = {
     title: 'لوحة التحكم | دليل السويس',
@@ -29,7 +30,7 @@ export default async function AdminDashboardPage() {
             icon: MapPin,
             color: 'text-primary',
             bg: 'bg-primary/5',
-            link: '/admin/places',
+            link: ROUTES.ADMIN_PLACES,
             trend: stats.pendingPlaces > 0 ? `${stats.pendingPlaces} معلق` : 'مستقر',
             description: 'أماكن مضافة في الدليل'
         },
@@ -39,7 +40,7 @@ export default async function AdminDashboardPage() {
             icon: Users,
             color: 'text-accent',
             bg: 'bg-accent/5',
-            link: '/admin/users',
+            link: ROUTES.ADMIN_USERS,
             trend: `+${stats.newUsers}`,
             description: 'خلال آخر 7 أيام'
         },
@@ -69,7 +70,7 @@ export default async function AdminDashboardPage() {
             icon: ShoppingBag,
             color: 'text-secondary',
             bg: 'bg-secondary/5',
-            link: '/admin/market',
+            link: ROUTES.ADMIN_MARKET,
             trend: 'متفاعل',
             description: 'إعلانات ومنشورات'
         },
@@ -191,7 +192,7 @@ export default async function AdminDashboardPage() {
                             إجراءات سريعة
                         </h3>
                         <div className="grid grid-cols-1 gap-3">
-                            <CustomLink href="/admin/reports" className="flex items-center gap-4 p-4 rounded-2xl bg-background/50 border border-border-subtle hover:border-error/50 hover:bg-error/5 transition-all text-right group">
+                            <CustomLink href={ROUTES.ADMIN_REPORTS} className="flex items-center gap-4 p-4 rounded-2xl bg-background/50 border border-border-subtle hover:border-error/50 hover:bg-error/5 transition-all text-right group">
                                 <div className="p-3 rounded-xl bg-error/10 text-error border border-error/20 group-hover:scale-110 transition-transform">
                                     <AlertTriangle className="w-5 h-5" />
                                 </div>
@@ -200,7 +201,7 @@ export default async function AdminDashboardPage() {
                                     <div className="text-[10px] text-text-muted font-bold">مراجعة المحتوى المبلغ عنه</div>
                                 </div>
                             </CustomLink>
-                            <CustomLink href="/admin/places?status=pending" className="flex items-center gap-4 p-4 rounded-2xl bg-background/50 border border-border-subtle hover:border-warning/50 hover:bg-warning/5 transition-all text-right group">
+                            <CustomLink href={`${ROUTES.ADMIN_PLACES}?status=pending`} className="flex items-center gap-4 p-4 rounded-2xl bg-background/50 border border-border-subtle hover:border-warning/50 hover:bg-warning/5 transition-all text-right group">
                                 <div className="p-3 rounded-xl bg-warning/10 text-warning border border-warning/20 group-hover:scale-110 transition-transform">
                                     <Clock className="w-5 h-5" />
                                 </div>
@@ -209,7 +210,7 @@ export default async function AdminDashboardPage() {
                                     <div className="text-[10px] text-text-muted font-bold">الموافقة على الإضافات الجديدة</div>
                                 </div>
                             </CustomLink>
-                            <CustomLink href="/admin/settings" className="flex items-center gap-4 p-4 rounded-2xl bg-background/50 border border-border-subtle hover:border-primary/50 hover:bg-primary/5 transition-all text-right group">
+                            <CustomLink href={ROUTES.ADMIN_SETTINGS} className="flex items-center gap-4 p-4 rounded-2xl bg-background/50 border border-border-subtle hover:border-primary/50 hover:bg-primary/5 transition-all text-right group">
                                 <div className="p-3 rounded-xl bg-primary/10 text-primary border border-primary/20 group-hover:scale-110 transition-transform">
                                     <Settings className="w-5 h-5" />
                                 </div>

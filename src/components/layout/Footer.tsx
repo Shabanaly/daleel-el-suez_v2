@@ -1,9 +1,9 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import CustomLink from '@/components/customLink/customLink';
+"use client";
+import { MapPin, Mail, MessageCircle } from 'lucide-react';
+import { ROUTES, AUTH_ROUTES, APP_CONFIG } from '@/constants';
 import { usePathname } from 'next/navigation';
-import { MapPin, Mail, MessageCircle, Award } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import CustomLink from '@/components/customLink/customLink';
 
 export default function Footer() {
     const pathname = usePathname();
@@ -13,8 +13,8 @@ export default function Footer() {
         setTimeout(() => setMounted(true), 0);
     }, []);
 
-    const isAuthPage = pathname === '/login' || pathname === '/signup';
-    const isAdminPage = pathname?.startsWith('/admin');
+    const isAuthPage = AUTH_ROUTES.includes(pathname);
+    const isAdminPage = pathname?.startsWith(ROUTES.ADMIN);
     if (isAuthPage || isAdminPage) return null;
 
     return (
@@ -27,11 +27,11 @@ export default function Footer() {
 
                     {/* Brand Section */}
                     <div className="col-span-2 md:col-span-3 lg:col-span-5">
-                        <CustomLink href="/" className="flex items-center gap-2 mb-6 group">
+                        <CustomLink href={ROUTES.HOME} className="flex items-center gap-2 mb-6 group">
                             <div className="w-10 h-10 rounded-2xl bg-linear-to-tr from-primary to-primary-hover flex items-center justify-center glow-primary shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500">
                                 <MapPin className="w-5 h-5 text-white" />
                             </div>
-                            <span className="font-black text-2xl text-text-primary tracking-tighter">دليل السويس</span>
+                            <span className="font-black text-2xl text-text-primary tracking-tighter">{APP_CONFIG.NAME}</span>
                         </CustomLink>
                         <p className="text-text-muted text-sm md:text-base leading-relaxed max-w-sm font-medium opacity-80">
                             اكتشف مدينتك بشكل جديد. مشروع يهدف لتوثيق كل شبر في السويس وتسهيل الوصول للخدمات بجودة واحترافية عالية.
@@ -46,32 +46,32 @@ export default function Footer() {
                         </h3>
                         <ul className="space-y-4">
                             <li>
-                                <CustomLink href="/" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
+                                <CustomLink href={ROUTES.HOME} className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
                                     الرئيسية
                                 </CustomLink>
                             </li>
                             <li>
-                                <CustomLink href="/best" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
+                                <CustomLink href={ROUTES.BEST} className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
                                     أفضل ما في السويس
                                 </CustomLink>
                             </li>
                             <li>
-                                <CustomLink href="/places" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
+                                <CustomLink href={ROUTES.PLACES} className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
                                     الأماكن
                                 </CustomLink>
                             </li>
                             <li>
-                                <CustomLink href="/community" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
+                                <CustomLink href={ROUTES.COMMUNITY} className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
                                     المجتمع
                                 </CustomLink>
                             </li>
                             <li>
-                                <CustomLink href="/about" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
+                                <CustomLink href={ROUTES.ABOUT} className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
                                     عن السويس
                                 </CustomLink>
                             </li>
                             <li>
-                                <a href="https://tools.daleel-al-suez.com" target="_blank" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
+                                <a href={APP_CONFIG.TOOLS_URL} target="_blank" className="text-text-muted text-sm font-bold hover:text-primary transition-colors">
                                 الأدوات
                                 </a>
                             </li>
@@ -87,17 +87,17 @@ export default function Footer() {
                         </h3>
                         <ul className="space-y-4">
                             <li>
-                                <CustomLink href="/terms" className="text-text-muted text-sm font-bold hover:text-text-primary transition-colors">
+                                <CustomLink href={ROUTES.TERMS} className="text-text-muted text-sm font-bold hover:text-text-primary transition-colors">
                                     الشروط والأحكام
                                 </CustomLink>
                             </li>
                             <li>
-                                <CustomLink href="/privacy" className="text-text-muted text-sm font-bold hover:text-text-primary transition-colors">
+                                <CustomLink href={ROUTES.PRIVACY} className="text-text-muted text-sm font-bold hover:text-text-primary transition-colors">
                                     سياسة الخصوصية
                                 </CustomLink>
                             </li>
                             <li>
-                                <CustomLink href="/copyright" className="text-text-muted text-sm font-bold hover:text-text-primary transition-colors">
+                                <CustomLink href={ROUTES.COPYRIGHT} className="text-text-muted text-sm font-bold hover:text-text-primary transition-colors">
                                     حقوق النشر
                                 </CustomLink>
                             </li>
@@ -111,14 +111,14 @@ export default function Footer() {
                             تواصل معنا
                         </h3>
                         <ul className="space-y-4">
-                            <li className="flex flex-col gap-1"> <a href="mailto:sa676185@gmail.com">
+                            <li className="flex flex-col gap-1"> <a href={`mailto:${APP_CONFIG.CONTACT_EMAIL}`}>
                                 <span className="text-[10px] text-text-muted font-black uppercase opacity-60 flex items-center gap-2"><Mail className="w-3 h-3" />البريد الإلكتروني</span>
-                                <span className="text-sm font-bold text-text-primary tracking-tight">daleel_suez@gmail.com</span>
+                                <span className="text-sm font-bold text-text-primary tracking-tight">{APP_CONFIG.CONTACT_EMAIL}</span>
                             </a>
                             </li>
-                            <li className="flex flex-col gap-1"><a href="https://wa.me/+201019979315">
+                            <li className="flex flex-col gap-1"><a href={APP_CONFIG.CONTACT_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
                                 <span className="text-[10px] text-text-muted font-black uppercase opacity-60 flex items-center gap-2"><MessageCircle className="w-3 h-3" />واتساب</span>
-                                <span className="text-sm font-bold text-text-primary tracking-tight">+201019979315</span>
+                                <span className="text-sm font-bold text-text-primary tracking-tight" dir="ltr">{APP_CONFIG.CONTACT_WHATSAPP}</span>
                             </a>
                             </li>
                         </ul>
@@ -127,11 +127,9 @@ export default function Footer() {
 
                 {/* Bottom Bar */}
                 <div className="pt-8 border-t border-border-subtle/50 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <p className="text-text-muted text-xs md:text-sm font-bold opacity-60">
-                        © {mounted ? new Date().getFullYear() : '2026'} دليل السويس • لكل أهل السويس 🌊
-                    </p>
+                        © {mounted ? new Date().getFullYear() : '2026'} {APP_CONFIG.NAME} • لكل أهل السويس 🌊
                     <div className="flex items-center gap-6">
-                        <CustomLink target="_blank" href="https://www.facebook.com/profile.php?id=61587358715645" className="text-text-muted hover:text-primary transition-all scale-110">
+                        <CustomLink target="_blank" href={APP_CONFIG.FACEBOOK_URL} className="text-text-muted hover:text-primary transition-all scale-110">
                             <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
                         </CustomLink>
                         <CustomLink href="#" className="text-text-muted hover:text-accent transition-all scale-110">

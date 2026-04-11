@@ -7,6 +7,8 @@ import { revalidatePath } from 'next/cache';
 import { cacheManager, tags } from '@/lib/cache';
 import { deleteCloudinaryImage } from '@/lib/actions/media';
 import { notifyAdmins } from '@/lib/actions/admin.server';
+import { ROUTES } from '@/constants';
+
 
 /**
  * Creates a new community post.
@@ -43,14 +45,14 @@ export async function createPost(formData: {
     }
 
     cacheManager.invalidatePost(data.id, user.id);
-    revalidatePath('/community');
+    revalidatePath(ROUTES.COMMUNITY);
 
     // Notify Admins
     await notifyAdmins({
         title: 'منشور جديد يحتاج للمراجعة',
         message: `تم إضافة منشور جديد في المجتمع`,
         type: 'post_created',
-        link: `/admin/community?status=pending`,
+        link: `${ROUTES.ADMIN_COMMUNITY}?status=pending`,
         actor_id: user.id,
         metadata: { post_id: data.id }
     });
@@ -89,7 +91,7 @@ export async function updatePost(postId: string, formData: {
     }
 
     cacheManager.invalidatePost(postId, user.id);
-    revalidatePath('/community');
+    revalidatePath(ROUTES.COMMUNITY);
 
     return { success: true };
 }
@@ -128,7 +130,7 @@ export async function deletePost(postId: string) {
     }
 
     cacheManager.invalidatePost(postId, user.id);
-    revalidatePath('/community');
+    revalidatePath(ROUTES.COMMUNITY);
 
     return { success: true };
 }

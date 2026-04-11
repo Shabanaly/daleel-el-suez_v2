@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { CheckCheck } from 'lucide-react';
 import { revalidatePath } from 'next/cache';
+import { ROUTES } from '@/constants';
 
 export const metadata = {
     title: 'الإشعارات - دليل السويس',
@@ -16,7 +17,7 @@ export default async function NotificationsArchivePage() {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect('/login');
+        redirect(ROUTES.LOGIN);
     }
 
     const { notifications, total } = await getArchivedNotificationsAction(1, 20);
