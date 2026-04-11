@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 
 const LightboxComponent = dynamic(() => import('yet-another-react-lightbox'), { ssr: false });
