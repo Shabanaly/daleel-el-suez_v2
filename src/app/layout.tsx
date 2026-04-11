@@ -6,10 +6,12 @@ import BottomNav from "@/components/layout/BottomNav";
 import DesktopSidebar from "@/components/layout/DesktopSidebar";
 import LeftSidebar from "@/components/layout/LeftSidebar";
 import Footer from "@/components/layout/Footer";
+import { AdsenseScript } from "@/components/common/AdsenseScript";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { AuthModalProvider } from "@/features/auth/hooks/useAuthModal";
 import { GoogleOneTap } from "@/features/auth/components/GoogleOneTap";
+import { GoogleIdScript } from "@/features/auth/components/GoogleIdScript";
 import { DialogProvider } from "@/components/providers/DialogProvider";
 import { CommentsProvider } from "@/features/community/providers/CommentsProvider";
 import { NotificationProvider } from "@/features/notifications/components/NotificationProvider";
@@ -114,16 +116,9 @@ export default function RootLayout({
         className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 lg:pb-0`}
         suppressHydrationWarning
       >
-        {/* Third-party Scripts */}
-        <Script 
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775" 
-          strategy="lazyOnload" 
-          crossOrigin="anonymous" 
-        />
-        <Script 
-          src="https://accounts.google.com/gsi/client" 
-          strategy="lazyOnload" 
-        />
+        {/* Third-party Scripts (Delayed) */}
+        <AdsenseScript />
+        <GoogleIdScript />
         
         <JsonLd />
         

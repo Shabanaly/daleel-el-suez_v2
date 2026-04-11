@@ -20,7 +20,7 @@ export default async function NewPlaces() {
       />
 
       <div className="flex overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 gap-6 md:gap-8 pb-10">
-        {newPlaces.slice(0, 8).map((place, idx) => (
+        {newPlaces.slice(0, 9).map((place, idx) => (
           <PlaceCard
             key={place.id}
             place={place}

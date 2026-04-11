@@ -60,7 +60,7 @@ export default async function Home() {
   const homeMarketAds = [
     ...marketData.trendingAds,
     ...marketData.latestAds,
-  ].slice(0, 8); // Top 8 combined
+  ].slice(0, 9); // Top 8 combined
 
   // Map unified stats to specific component needs
   const bestOfStats = {

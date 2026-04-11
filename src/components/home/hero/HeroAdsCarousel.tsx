@@ -125,6 +125,7 @@ export default function HeroAdsCarousel({ ads = [] }: HeroAdsCarouselProps) {
                     src={activeAd.media_url!}
                     alt={activeAd.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 1152px, 1152px"
                     className="object-cover transition-transform duration-1200 ease-out group-hover:scale-105"
                     priority
                   />
