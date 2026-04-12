@@ -10,9 +10,11 @@ import { ReviewsManager } from './dashboard/ReviewsManager';
 interface BusinessDashboardClientProps {
     place: Place;
     reviews: any[];
+    categories: { id: number; name: string }[];
+    areas: { id: number; name: string }[];
 }
 
-export function BusinessDashboardClient({ place, reviews }: BusinessDashboardClientProps) {
+export function BusinessDashboardClient({ place, reviews, categories, areas }: BusinessDashboardClientProps) {
     return (
         <div className="min-h-screen bg-background pb-20" dir="rtl">
             <AppBar
@@ -41,7 +43,7 @@ export function BusinessDashboardClient({ place, reviews }: BusinessDashboardCli
                                 <span className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">📝</span>
                                 البيانات الأساسية
                             </h2>
-                            <InlineEditForm place={place} />
+                            <InlineEditForm place={place} categories={categories} areas={areas} />
                         </div>
 
                         {/* 3. Reviews Manager */}

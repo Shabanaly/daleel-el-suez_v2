@@ -5,6 +5,7 @@ export interface Place {
     category: string;
     categoryId?: number;
     categorySlug?: string;
+    areaId?: number;
     rating: number;
     reviews: number;
     area: string;
@@ -62,7 +63,7 @@ export interface RawPlace {
     slug: string;
     name: string;
     category_id?: number;
-    area_id?: number;
+    area_id?: number | null;
     categories?: {
         name: string;
         slug: string;

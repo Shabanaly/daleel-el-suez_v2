@@ -60,6 +60,7 @@ export function mapPlace(p: RawPlace): Place {
         category: p.categories?.name || 'عام',
         categoryId: p.category_id,
         categorySlug: p.categories?.slug || '',
+        areaId: p.area_id ?? undefined,
         rating: Number(p.avg_rating) || 0,
         reviews: typeof p.reviews_count === 'number' ? p.reviews_count : (Array.isArray(p.reviews_count) ? p.reviews_count[0]?.count || 0 : 0),
         area: typeof p.areas?.name === 'string' ? p.areas.name : 'السويس',

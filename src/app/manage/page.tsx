@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { getOwnedPlaces } from '@/features/business/actions/business.server';
 import { redirect } from 'next/navigation';
-import { LayoutDashboard } from 'lucide-react';
 import { ROUTES } from '@/constants';
 import { ManageBusinessesClient } from '@/features/business/components/ManageBusinessesClient';
 

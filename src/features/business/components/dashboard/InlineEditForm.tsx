@@ -11,8 +11,12 @@ import { WorkingHoursManager } from './WorkingHoursManager';
 import { ContactManager } from './ContactManager';
 import { TagsManager } from './TagsManager';
 import { SocialLinksManager } from './SocialLinksManager';
+import { TaxonomyEditor } from './TaxonomyEditor';
+
 interface InlineEditFormProps {
     place: Place;
+    categories: { id: number; name: string }[];
+    areas: { id: number; name: string }[];
 }
 
 interface EditableFieldProps {
@@ -117,7 +121,7 @@ function EditableField({ label, value, fieldName, icon, type = 'text', onSave }:
     );
 }
 
-export function InlineEditForm({ place }: InlineEditFormProps) {
+export function InlineEditForm({ place, categories, areas }: InlineEditFormProps) {
     const router = useRouter();
     const { showAlert } = useDialog();
 
@@ -161,6 +165,8 @@ export function InlineEditForm({ place }: InlineEditFormProps) {
                 icon={<MapPin className="w-3.5 h-3.5" />}
                 onSave={handleFieldSave}
             />
+            <TaxonomyEditor place={place} categories={categories} areas={areas} />
+            <TagsManager place={place} />
             <ContactManager place={place} />
             <WorkingHoursManager place={place} />
             <SocialLinksManager place={place} />

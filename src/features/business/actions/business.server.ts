@@ -357,6 +357,53 @@ export async function updatePlaceBasicInfo(placeId: string, field: string, value
 }
 
 /**
+ * Update category and/or area for a place
+ */
+export async function updatePlaceTaxonomy(
+    placeId: string,
+    data: { categoryId?: number; areaId?: number }
+) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { success: false, error: 'غير مصرح به' };
+
+    try {
+        const { data: place, error: fetchError } = await supabase
+            .from('places')
+            .select('added_by, slug')
+            .eq('id', placeId)
+            .single();
+
+        if (fetchError || !place) throw new Error('المكان غير موجود');
+        if (place.added_by !== user.id) return { success: false, error: 'ليس لديك صلاحية التعديل' };
+
+        const dataToUpdate: Record<string, number> = {};
+        if (data.categoryId) dataToUpdate.category_id = data.categoryId;
+        if (data.areaId) dataToUpdate.area_id = data.areaId;
+
+        if (Object.keys(dataToUpdate).length === 0) {
+            return { success: true };
+        }
+
+        const { error: updateError } = await supabase
+            .from('places')
+            .update(dataToUpdate)
+            .eq('id', placeId);
+
+        if (updateError) throw updateError;
+
+        cacheManager.invalidatePlace(place.slug, placeId);
+        revalidatePath(`/manage/${placeId}`);
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error in updatePlaceTaxonomy:', error);
+        return { success: false, error: 'حدث خطأ أثناء تحديث البيانات' };
+    }
+}
+
+/**
  * Append newly uploaded images to a place (called after Cloudinary upload)
  */
 export async function addPlaceImages(placeId: string, newUrls: string[], newPublicIds: string[]) {
