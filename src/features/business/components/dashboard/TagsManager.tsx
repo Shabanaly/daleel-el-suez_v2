@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Place } from '@/features/places/types';
 import { updatePlaceBasicInfo } from '@/features/business/actions/business.server';
 import { Hash, Check, X, RotateCcw, Plus } from 'lucide-react';
@@ -15,12 +15,20 @@ export function TagsManager({ place }: TagsManagerProps) {
     const router = useRouter();
     const { showAlert, showConfirm } = useDialog();
 
-    const initialTags = place.tags || [];
-    const [tags, setTags] = useState<string[]>(initialTags);
+    const [tags, setTags] = useState<string[]>(place.tags || []);
     const [inputValue, setInputValue] = useState('');
     const [isSaving, setIsSaving] = useState(false);
-    
-    const isDirty = JSON.stringify(tags) !== JSON.stringify(initialTags);
+
+    // Sync local state whenever the server refreshes the place prop
+    const prevPlaceId = useRef(place.id);
+    useEffect(() => {
+        // Reset tags when place changes or after a successful save (router.refresh)
+        setTags(place.tags || []);
+        prevPlaceId.current = place.id;
+    }, [place.id, place.tags]);
+
+    const savedTags = place.tags || [];
+    const isDirty = JSON.stringify(tags) !== JSON.stringify(savedTags);
 
     const handleAddTag = () => {
         const trimmed = inputValue.trim();
@@ -64,7 +72,7 @@ export function TagsManager({ place }: TagsManagerProps) {
             title: 'تأكيد التراجع',
             message: 'هل أنت متأكد من رغبتك في إلغاء التغييرات غير المحفوظة؟',
             onConfirm: () => {
-                setTags(initialTags);
+                setTags(savedTags);
                 setInputValue('');
             }
         });
