@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 export default function MarketHero() {
     return (
-        <section className="pt-12 md:pt-24 pb-8 md:pb-16 text-center px-4 relative overflow-hidden">
+        <section className="pt-4 md:pt-6 pb-8 md:pb-16 text-center px-4 relative overflow-hidden">
             {/* Background Decorations */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] -z-10" />
             

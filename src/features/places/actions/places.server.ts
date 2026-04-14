@@ -562,14 +562,18 @@ export const getHomePageData = unstable_cache(
     { tags: [tags.trendingPlaces(), tags.newestPlaces(), tags.allPlaces()], revalidate: 3600 }
 );
 
-export async function incrementPlaceViews(placeId: string) {
+export async function incrementPlaceViews(placeId: string, slug?: string) {
     const supabase = createServiceClient();
     const { error } = await supabase.rpc('increment_place_views', {
         target_place_id: placeId
     });
 
     if (!error) {
+        // Revalidate both the specific views counter and the whole place object
         revalidateTag(tags.placeViews(placeId), 'max');
+        if (slug) {
+            revalidateTag(tags.place(slug), 'max');
+        }
     }
     return { success: !error };
 }

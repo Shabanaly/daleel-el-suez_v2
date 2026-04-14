@@ -15,6 +15,7 @@ import CustomLink from "@/components/customLink/customLink";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ROUTES, AUTH_ROUTES } from "@/constants";
+import { Vertical160x600 } from "@/components/common/ThirdPartyAds";
 
 export default function DesktopSidebar() {
   const pathname = usePathname();
@@ -75,6 +76,11 @@ export default function DesktopSidebar() {
               active={pathname === item.href}
             />
           ))}
+        </div>
+
+        {/* Ad Unit - Only visible when expanded */}
+        <div className="hidden group-hover/sidebar:block mt-4">
+          <Vertical160x600 />
         </div>
 
         {/* Bottom section with Logout */}
