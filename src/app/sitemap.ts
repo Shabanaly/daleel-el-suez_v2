@@ -5,6 +5,9 @@ import { getAllPosts } from '@/features/community/actions/posts.server';
 import { getMarketCategories, getMarketAdsForSitemap } from '@/features/market/actions/market.server';
 import { ROUTES, ROUTE_HELPERS } from '@/constants';
 
+// ⚡ Optimization: Cache sitemap for 24 hours
+export const revalidate = 86400;
+
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';

@@ -105,7 +105,7 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
             <BreadcrumbsJsonLd items={breadcrumbs} />
-            <ViewTracker placeId={place.id} />
+            <ViewTracker placeId={place.id} slug={place.slug} />
             <PlaceDetailsClient
                 place={place}
                 relatedPlaces={relatedPlaces}
@@ -118,9 +118,18 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
 
 // Generate static params if we want to pre-render (optional, good for performance)
 export async function generateStaticParams() {
-    const { getAllPlacesForSitemap } = await import('@/features/places/actions/places.server');
-    const places = await getAllPlacesForSitemap();
-    return places.map((place) => ({
-        slug: place.slug,
-    }));
+    try {
+        const { getAllPlacesForSitemap } = await import('@/features/places/actions/places.server');
+        const places = await getAllPlacesForSitemap();
+        
+        // 🚀 Optimization: Only pre-render the top 50 recently added/popular places
+        // The rest will be rendered on-demand (ISR) when first visited.
+        // This significantly reduces Vercel CPU usage during Build.
+        return places.slice(0, 50).map((place: any) => ({
+            slug: place.slug,
+        }));
+    } catch (error) {
+        console.error('Error in generateStaticParams:', error);
+        return [];
+    }
 }

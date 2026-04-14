@@ -5,9 +5,10 @@ import { incrementPlaceViews } from '@/features/places/actions/places.server';
 
 interface ViewTrackerProps {
     placeId: string;
+    slug: string;
 }
 
-export function ViewTracker({ placeId }: ViewTrackerProps) {
+export function ViewTracker({ placeId, slug }: ViewTrackerProps) {
     const viewIncremented = useRef(false);
 
     useEffect(() => {
@@ -23,7 +24,7 @@ export function ViewTracker({ placeId }: ViewTrackerProps) {
                 viewIncremented.current = true;
                 localStorage.setItem(storageKey, now.toString());
                 try {
-                    await incrementPlaceViews(placeId);
+                    await incrementPlaceViews(placeId, slug);
                 } catch (error) {
                     console.error('Failed to track view:', error);
                 }

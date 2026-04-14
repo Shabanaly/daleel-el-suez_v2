@@ -10,9 +10,6 @@ import SuezGallery from "@/features/gallery/components/SuezGallery";
 import CommunityTeaser from "@/features/community/components/CommunityTeaser";
 import CategoryHighlight from "@/features/places/components/CategoryHighlight";
 import BestOfSuezHome from "@/features/places/components/BestOfSuezHome";
-import { getCommunityPosts } from "@/features/community/actions/posts.server";
-import { getMarketHomePageData } from "@/features/market/actions/market.server";
-import { createClient } from "@/lib/supabase/server";
 import { getTopGalleryImages } from "@/features/gallery/actions/gallery.server";
 import type { Metadata } from "next";
 import DistrictsExplorer from "@/features/places/components/DistrictsExplorer";
@@ -23,24 +20,24 @@ import CommunityPulse from "@/features/places/components/pulse/CommunityPulse";
 import CustomLink from "@/components/customLink/customLink";
 import { getActiveHeroAds } from "@/features/marketing/actions/hero.server";
 import { APP_CONFIG, ROUTES } from "@/constants";
+import { Suspense } from "react";
+import CommunityTeaserWrapper from "@/features/community/components/CommunityTeaserWrapper";
+import { getMarketHomePageData } from "@/features/market/actions/market.server";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.NAME} | ${APP_CONFIG.TAGLINE}`,
   description: APP_CONFIG.DESCRIPTION,
 };
 
+// ⚡ Optimization: Enable ISR (Revalidate every 1 hour)
+// This significantly reduces CPU usage on Vercel by caching the page shell.
+export const revalidate = 3600;
+
 export default async function Home() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // 🧠 Fetch shared data needed by Home Page
-
+  // 🧠 Fetch shared data (These use unstable_cache internally for maximum speed)
   const [
     categories,
     districts,
-    communityPosts,
     smartCategoryData,
     unifiedStats,
     marketData,
@@ -49,7 +46,6 @@ export default async function Home() {
   ] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
-    getCommunityPosts(undefined, undefined, 1, 2, user?.id),
     getSmartCategoryHighlights(),
     getHomeUnifiedStats(),
     getMarketHomePageData(),
@@ -87,7 +83,11 @@ export default async function Home() {
       <CommunityPulse />
       <SuezGallery initialImages={topGalleryImages} />
       <DistrictsExplorer districts={districts} />
-      <CommunityTeaser posts={communityPosts} />
+      
+      {/* 🚀 Auth-decoupled section: Wrapped in Suspense to keep the rest of the page static/cacheable */}
+      <Suspense fallback={<div className="h-40 w-full animate-pulse bg-surface rounded-3xl" />}>
+        <CommunityTeaserWrapper />
+      </Suspense>
 
       {/* Call to action banner at the end */}
       <section className="w-full max-w-7xl mx-auto px-4 pb-6 md:pb-12">

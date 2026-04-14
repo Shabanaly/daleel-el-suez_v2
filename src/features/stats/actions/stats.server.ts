@@ -23,8 +23,8 @@ export async function getHomeUnifiedStats() {
                 supabase.from('places').select('id', { count: 'exact', head: true }).eq('status', 'approved').eq('is_verified', true),
                 // 4. Total reviews count
                 supabase.from('reviews').select('id', { count: 'exact', head: true }),
-                // 5. Views sum (Fetch just the column to compute reach)
-                supabase.from('places').select('views_count').eq('status', 'approved')
+                // 5. Views sum (Database-side aggregate for CPU efficiency)
+                supabase.rpc('get_total_place_views')
             ]);
 
             const placesCount = placesRes.count || 0;
@@ -32,8 +32,8 @@ export async function getHomeUnifiedStats() {
             const verifiedCount = verifiedRes.count || (placesCount > 0 ? Math.floor(placesCount * 0.4) : 450);
             const reviewsCount = reviewsRes.count || 0;
             
-            // Calculate total reach
-            const totalReachRaw = (viewsRes.data || []).reduce((acc: number, curr: any) => acc + (curr.views_count || 0), 0);
+            // Calculate total reach (RPC returns a single number)
+            const totalReachRaw = Number(viewsRes.data || 0);
             
             // Format Reach for display (e.g., 50.5k+)
             const formattedReach = totalReachRaw > 1000 
