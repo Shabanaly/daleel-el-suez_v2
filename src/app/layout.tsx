@@ -7,7 +7,7 @@ import DesktopSidebar from "@/components/layout/DesktopSidebar";
 import LeftSidebar from "@/components/layout/LeftSidebar";
 import Footer from "@/components/layout/Footer";
 import { AdsenseScript } from "@/components/common/AdsenseScript";
-import { Banner728x90, ContainerAd } from "@/components/common/ThirdPartyAds";
+import { Banner728x90 } from "@/components/common/ThirdPartyAds";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { AuthModalProvider } from "@/features/auth/hooks/useAuthModal";
@@ -91,6 +91,9 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-touch-icon.png",
   },
+  other: {
+    monetag: "ffdd26cc5e52c318066f057b9558dc99",
+  },
 };
 
 export const viewport: Viewport = {
@@ -120,16 +123,6 @@ export default function RootLayout({
         {/* Third-party Scripts (Delayed) */}
         <AdsenseScript />
         
-        {/* Adsterra/ProfitableCPM Global Scripts */}
-        <Script 
-          src="https://pl29155095.profitablecpmratenetwork.com/2f/8e/e4/2f8ee4acae3776e2d0a65e781b343ed4.js"
-          strategy="afterInteractive"
-        />
-        <Script 
-          src="https://pl29155097.profitablecpmratenetwork.com/65/ec/64/65ec6451eea85dce923fcdded8e63928.js"
-          strategy="afterInteractive"
-        />
-
         <GoogleIdScript />
         
         <JsonLd />
@@ -176,7 +169,6 @@ export default function RootLayout({
                           <Banner728x90 />
                         </div>
                         {children}
-                        <ContainerAd />
                         {/* Show Footer only on desktop, balanced between sidebars */}
                         <div className="hidden lg:block">
                           <Footer />

@@ -90,22 +90,3 @@ export function Banner320x50() {
     );
 }
 
-// Container-based ad (ProfitableCPM / Adsterra)
-export function ContainerAd({ 
-    containerId = "container-4e21bf42bd3b28d4054a768b2cab88fe", 
-    invokeId = "invoke-4e21bf42bd3b28d4054a768b2cab88fe",
-    scriptSrc = "https://pl29155098.profitablecpmratenetwork.com/4e21bf42bd3b28d4054a768b2cab88fe/invoke.js"
-}: { containerId?: string, invokeId?: string, scriptSrc?: string }) {
-    return (
-        <div className="flex justify-center items-center my-4">
-            <Script 
-                id={invokeId}
-                async={true}
-                data-cfasync="false"
-                src={scriptSrc}
-                strategy="afterInteractive"
-            />
-            <div id={containerId}></div>
-        </div>
-    );
-}
