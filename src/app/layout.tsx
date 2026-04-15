@@ -123,6 +123,15 @@ export default function RootLayout({
         {/* Third-party Scripts (Delayed) */}
         <AdsenseScript />
         
+        {/* Monetag Script */}
+        <Script 
+          src="https://quge5.com/88/tag.min.js" 
+          data-zone="229875" 
+          async 
+          data-cfasync="false" 
+          strategy="afterInteractive"
+        />
+        
         <GoogleIdScript />
         
         <JsonLd />
