@@ -14,11 +14,17 @@ import { SocialButtons } from "./SocialButtons";
 import { AuthCard } from "./AuthCard";
 import { AppBar } from "@/components/ui/AppBar";
 import { ROUTES, APP_CONFIG } from "@/constants";
+import HoneypotField from "@/components/common/HoneypotField";
+
+
+
 
 export function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const { handleSignUp, isLoading, error, isSuccess } = useSignUp();
   const { handleSocialLogin, socialLoading, isLoading: isSignInLoading } = useSignIn();
+
+
 
   const {
     register,
@@ -28,9 +34,16 @@ export function SignupForm() {
     resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = async (data: SignupInput) => {
-    await handleSignUp(data);
+  const onSubmit = async (data: SignupInput, e?: React.BaseSyntheticEvent) => {
+    const formData = new FormData(e?.target as HTMLFormElement);
+    const honeypot = formData.get('hp_field_check') as string;
+    
+    await handleSignUp(data, honeypot);
   };
+
+
+
+
 
   if (isSuccess) {
     return (
@@ -70,6 +83,8 @@ export function SignupForm() {
         />
 
         <form className="w-full space-y-6 relative z-10" onSubmit={handleSubmit(onSubmit)}>
+          <HoneypotField />
+
           {error && (
             <div className="bg-error/10 border border-error/20 text-error p-3 rounded-xl text-xs font-bold text-center animate-in fade-in slide-in-from-top-2">
               {error}
@@ -117,6 +132,8 @@ export function SignupForm() {
 
         <button
           disabled={isLoading}
+
+
           className="w-full h-12 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-[0.98] group mt-8 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {isLoading ? (

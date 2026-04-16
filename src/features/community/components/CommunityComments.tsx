@@ -59,7 +59,7 @@ export default function CommunityComments({ postId, isInline = false, initialCom
         return () => window.removeEventListener('community:focus-comment-input', handleFocus);
     }, [postId, initialComments, fetchComments]);
 
-    const handleSubmit = useCallback(async (content: string) => {
+    const handleSubmit = useCallback(async (content: string, honeypot?: string) => {
         if (!content.trim() || isSubmitting || !user || !postId) return;
 
         const commentText = content.trim();
@@ -87,7 +87,8 @@ export default function CommunityComments({ postId, isInline = false, initialCom
         setIsSubmitting(true);
 
         try {
-            const result = await addComment(postId, commentText, parentId);
+            const result = await addComment(postId, commentText, parentId, honeypot);
+
             if (result && result.success) {
                 // Replace optimistic comment with real one
                 setComments(prev =>

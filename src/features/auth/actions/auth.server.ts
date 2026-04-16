@@ -48,7 +48,15 @@ export async function login(formData: FormData): Promise<AuthResult> {
 
 
 export async function signup(formData: FormData): Promise<AuthResult> {
+    // 🛡️ Honeypot check
+    const honeypot = formData.get('hp_field_check') as string
+    if (honeypot) {
+        console.warn('Spam detected via signup honeypot')
+        return { error: 'تم اكتشاف نشاط مشبوه' }
+    }
+
     const supabase = await createClient()
+
 
     const email = formData.get('email') as string
     const password = formData.get('password') as string

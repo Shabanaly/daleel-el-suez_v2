@@ -11,7 +11,14 @@ export async function submitReview(formData: {
     placeId: string;
     rating: number;
     comment: string;
+    honeypot?: string;
 }) {
+    // 🛡️ Honeypot check
+    if (formData.honeypot) {
+        console.warn('Spam detected via honeypot');
+        return { error: 'تم اكتشاف نشاط مشبوه' };
+    }
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 

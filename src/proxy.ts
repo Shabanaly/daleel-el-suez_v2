@@ -1,5 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { ratelimit, getIP } from './lib/ratelimit'
+
 
 export async function proxy(request: NextRequest) {
     const supabaseResponse = NextResponse.next({
@@ -40,6 +42,26 @@ export async function proxy(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
 
     const { pathname } = request.nextUrl
+
+    // 🛡️ Rate Limiting Logic
+    if (pathname.startsWith('/api/') || pathname === '/signup' || pathname === '/login') {
+        if (ratelimit) {
+            const ip = getIP(request.headers)
+            const { success, limit, reset, remaining } = await ratelimit.limit(`ratelimit_${ip}`)
+            
+            if (!success) {
+                return new NextResponse('Too Many Requests', {
+                    status: 429,
+                    headers: {
+                        'X-RateLimit-Limit': limit.toString(),
+                        'X-RateLimit-Remaining': remaining.toString(),
+                        'X-RateLimit-Reset': reset.toString(),
+                    },
+                })
+            }
+        }
+    }
+
     const isAuthPage = pathname === '/login' || pathname === '/signup'
 
     // Define routes that require authentication

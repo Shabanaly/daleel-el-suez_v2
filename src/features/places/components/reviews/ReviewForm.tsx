@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { RatingStars } from './RatingStars';
 import { submitReview } from '@/features/places/actions/reviews.server';
 import { Loader2, Send, Save } from 'lucide-react';
+import HoneypotField from '@/components/common/HoneypotField';
+
 
 interface ReviewFormProps {
     placeId: string;
@@ -44,11 +46,17 @@ export function ReviewForm({ placeId, onSuccess, initialData }: ReviewFormProps)
         setIsSubmitting(true);
         setError(null);
 
+        const form = e.currentTarget as HTMLFormElement;
+        const formData = new FormData(form);
+        const hpValue = formData.get('hp_field_check') as string;
+
         const result = await submitReview({
             placeId,
             rating,
-            comment
+            comment,
+            honeypot: hpValue
         });
+
 
         setIsSubmitting(false);
 
@@ -67,7 +75,9 @@ export function ReviewForm({ placeId, onSuccess, initialData }: ReviewFormProps)
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            <HoneypotField />
             <div className={`flex flex-col items-center gap-4 py-6 rounded-3xl border transition-all duration-300 ${rating === 0 ? 'bg-background border-border-subtle' : 'bg-primary/5 border-primary/20'}`}>
+
                 <span className={`text-sm font-black transition-colors ${rating === 0 ? 'text-text-muted' : 'text-text-primary'}`}>
                     {rating === 0 ? 'ما هو تقييمك للمكان؟' : `تقييمك: ${rating} من 5 نجوم`}
                 </span>

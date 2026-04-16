@@ -7,7 +7,7 @@ export function useSignUp() {
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSignUp = async (data: SignupInput) => {
+  const handleSignUp = async (data: SignupInput, honeypot?: string) => {
     setIsLoading(true);
     setError(null);
     setIsSuccess(false);
@@ -17,6 +17,8 @@ export function useSignUp() {
       formData.append("full_name", data.full_name);
       formData.append("email", data.email);
       formData.append("password", data.password);
+      if (honeypot) formData.append("hp_field_check", honeypot);
+
       
       const result = await signup(formData);
       if (result?.error) {

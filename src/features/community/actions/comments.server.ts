@@ -9,7 +9,13 @@ import { NotificationService } from '@/lib/notifications/service';
 /**
  * Adds a comment to a post.
  */
-export async function addComment(postId: string, content: string, parentId?: string) {
+export async function addComment(postId: string, content: string, parentId?: string, honeypot?: string) {
+    // 🛡️ Honeypot check
+    if (honeypot) {
+        console.warn('Spam detected via honeypot');
+        return { error: 'تم اكتشاف نشاط مشبوه' };
+    }
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 

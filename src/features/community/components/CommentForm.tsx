@@ -5,9 +5,12 @@ import Image from 'next/image';
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { CommunityComment } from '@/features/community/types';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import HoneypotField from '@/components/common/HoneypotField';
+
 
 interface CommentFormProps {
-    onSubmit: (content: string) => Promise<void>;
+    onSubmit: (content: string, honeypot?: string) => Promise<void>;
+
     isSubmitting: boolean;
     user: SupabaseUser | null;
     replyTo?: CommunityComment | null;
@@ -53,9 +56,15 @@ const CommentForm = forwardRef<CommentFormHandle, CommentFormProps>(({
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!text.trim() || isSubmitting) return;
-        await onSubmit(text.trim());
+
+        const form = e.currentTarget as HTMLFormElement;
+        const formData = new FormData(form);
+        const hpValue = formData.get('hp_field_check') as string;
+
+        await onSubmit(text.trim(), hpValue);
         setText('');
     };
+
 
     return (
         <div className="space-y-2">
@@ -71,6 +80,8 @@ const CommentForm = forwardRef<CommentFormHandle, CommentFormProps>(({
                 onSubmit={handleFormSubmit} 
                 className="relative flex items-center gap-2 p-1 bg-background border border-border-subtle focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 rounded-2xl shadow-sm transition-all group"
             >
+                <HoneypotField />
+
                 <div className="shrink-0 w-7 h-7 sm:w-9 sm:h-9 relative rounded-full overflow-hidden ring-2 ring-background border border-border-subtle/50 mr-1">
                     {userAvatar ? (
                         <Image src={userAvatar} alt="User" fill sizes="36px" className="object-cover" />
