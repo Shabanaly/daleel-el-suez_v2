@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { ROUTES, AUTH_ROUTES } from '@/constants';
 import { Anchor, Info, ShieldCheck, Ship, Sparkles, Waves, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Vertical160x600 } from '@/components/common/ThirdPartyAds';
+import { Vertical160x600, Rectangle300x250, ContainerAd } from '@/components/common/ThirdPartyAds';
 
 const SUEZ_HIGHLIGHTS = [
     { title: "قناة السويس", description: "شريان الحياة العالمي وأهم ممر ملاحي في العالم.", icon: <Ship className="w-5 h-5 text-primary" /> },
@@ -109,9 +109,15 @@ export default function LeftSidebar() {
                     </motion.div>
                 </div>
 
-                {/* Ad Unit */}
-                <div className="mt-4 flex justify-center">
-                    <Vertical160x600 />
+                {/* Ad Units */}
+                <div className="mt-4 flex flex-col gap-4 items-center">
+                    <span className="text-[10px] text-text-muted font-bold uppercase tracking-widest opacity-50">إعلان</span>
+                    <Vertical160x600 containerId="ad-sidebar-vertical" />
+                    
+                    <span className="text-[10px] text-text-muted font-bold uppercase tracking-widest opacity-50">إعلان</span>
+                    <Rectangle300x250 containerId="ad-sidebar-rect" />
+                    
+                    <ContainerAd containerId="container-4e21bf42bd3b28d4054a768b2cab88fe" />
                 </div>
 
             </div>

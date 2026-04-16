@@ -78,7 +78,7 @@ export default async function Home() {
 
       <TrendingPlaces />
       <NewPlaces />
-      <Banner320x50 />
+      <Banner320x50 containerId="ad-home-middle" />
       <HomeMarketSection ads={homeMarketAds} />
       <BestOfSuezHome stats={bestOfStats} />
       {smartCategoryData && <CategoryHighlight data={smartCategoryData} />}
