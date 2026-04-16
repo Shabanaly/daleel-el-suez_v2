@@ -9,6 +9,14 @@ import { ROUTES, ROUTE_HELPERS } from '@/constants';
 export const revalidate = 86400;
 
 
+// ⚡ Utility: Escape XML special characters
+const escapeXml = (str: string) => 
+    str.replace(/&/g, '&amp;')
+       .replace(/</g, '&lt;')
+       .replace(/>/g, '&gt;')
+       .replace(/"/g, '&quot;')
+       .replace(/'/g, '&apos;');
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
 
@@ -22,22 +30,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     const postUrls = posts.map((post) => ({
-        url: `${baseUrl}${ROUTE_HELPERS.COMMUNITY_POST(post.id)}`,
+        url: escapeXml(`${baseUrl}${ROUTE_HELPERS.COMMUNITY_POST(post.id)}`),
         lastModified: new Date(post.created_at),
         changeFrequency: 'weekly' as const,
         priority: 0.7,
     }));
 
     const placeUrls = places.map((place: any) => ({
-        url: `${baseUrl}${ROUTE_HELPERS.PLACE(place.slug)}`,
+        url: escapeXml(`${baseUrl}${ROUTE_HELPERS.PLACE(place.slug)}`),
         lastModified: new Date(place.created_at || new Date()),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
-        images: Array.isArray(place.images) && place.images.length > 0 ? [place.images[0]] : [],
+        images: Array.isArray(place.images) && place.images.length > 0 
+            ? [escapeXml(place.images[0])] 
+            : [],
     }));
 
     const categoryUrls = categories.map((category) => ({
-        url: `${baseUrl}${ROUTE_HELPERS.PLACES_CATEGORY(category.name)}`,
+        url: escapeXml(`${baseUrl}${ROUTE_HELPERS.PLACES_CATEGORY(category.name)}`),
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
@@ -45,23 +55,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Market URLs
     const marketCategoryUrls = marketCategories.map((category: any) => ({
-        url: `${baseUrl}${ROUTE_HELPERS.MARKET_CATEGORY(category.slug)}`,
+        url: escapeXml(`${baseUrl}${ROUTE_HELPERS.MARKET_CATEGORY(category.slug)}`),
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
     }));
 
     const marketAdUrls = marketAds.map((ad: any) => ({
-        url: `${baseUrl}${ROUTE_HELPERS.MARKET_AD(ad.slug)}`,
+        url: escapeXml(`${baseUrl}${ROUTE_HELPERS.MARKET_AD(ad.slug)}`),
         lastModified: new Date(ad.created_at),
         changeFrequency: 'weekly' as const,
         priority: 0.6,
-        images: Array.isArray(ad.images) && ad.images.length > 0 ? [ad.images[0]] : [],
+        images: Array.isArray(ad.images) && ad.images.length > 0 
+            ? [escapeXml(ad.images[0])] 
+            : [],
     }));
     
     // Best of Suez URLs
     const bestOfUrls = categories.map((category) => ({
-        url: `${baseUrl}${ROUTE_HELPERS.BEST_CATEGORY(category.slug)}`,
+        url: escapeXml(`${baseUrl}${ROUTE_HELPERS.BEST_CATEGORY(category.slug)}`),
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
@@ -142,8 +154,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
     ];
 
+    // Wrap static URLs too just in case baseUrl or routes have special chars (unlikely but safe)
+    const escapedStaticUrls = staticUrls.map(s => ({ ...s, url: escapeXml(s.url) }));
+
     return [
-        ...staticUrls, 
+        ...escapedStaticUrls, 
         ...placeUrls, 
         ...postUrls,
         ...categoryUrls,
@@ -152,3 +167,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ...bestOfUrls
     ];
 }
+
