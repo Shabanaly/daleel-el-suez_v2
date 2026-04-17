@@ -24,8 +24,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     
     if (!ad) return { title: 'إعلان غير موجود' };
 
-    const title = `${ad.title} | سوق السويس`;
-    const description = ad.description ? ad.description.substring(0, 160) : `إعلان ${ad.title} في سوق السويس. السعر: ${ad.price} ج.م.`;
+    const title = `${ad.title} - سوق السويس`;
+    const description = ad.description 
+        ? ad.description.substring(0, 160) 
+        : `اشترِ ${ad.title} في سوق السويس بسعر مناسب. تواصل مباشرة مع البائع الآن.`;
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
     const url = `${baseUrl}/market/${encodeURIComponent(ad.slug)}`;

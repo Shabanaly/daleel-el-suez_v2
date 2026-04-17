@@ -16,22 +16,22 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     const page = Number(params.page) || 1;
     const pageSuffix = page > 1 ? ` - صفحة ${page}` : '';
 
-    let title = 'سوق السويس | بيع وشراء، مستعمل، وعروض في السويس';
-    let description = 'سوق السويس المحلي - أفضل منصة لبيع وشراء المنتجات الجديدة والمستعملة في محافظة السويس. أضف إعلانك الآن مجاناً.';
+    let title = 'سوق السويس المفتوح - بيع، اشترِ ووفّر في مدينتك';
+    let description = 'سوق السويس المحلي الأنشط - منصتك المجانية لبيع وشراء المنتجات الجديدة والمستعملة في السويس. تصفح آلاف العروض الموثوقة أو أضف إعلانك الآن.';
 
     if (categoryName && categoryName !== 'all') {
-        title = `سوق ال${categoryName} في السويس | عروض ومستعمل`;
-        description = `تصفح أحدث إعلانات ${categoryName} في السويس. بيع وشراء بأفضل الأسعار وتواصل مباشر مع البائعين.`;
+        title = `عروض ال${categoryName} في سوق السويس - بيع وشراء`;
+        description = `تصفح أحدث إعلانات ${categoryName} الماركت في السويس. ابحث عن أفضل الصفقات، قارن الأسعار، وتواصل مباشرة مع البائعين في مدينتك.`;
     }
     
     if (areaName) {
-        title = `${title} - في ${areaName}`;
-        description = `${description} متاح في منطقة ${areaName}.`;
+        title = `${title} في ${areaName}`;
+        description = `${description} متاح الآن في منطقة ${areaName}.`;
     }
 
     if (query) {
-        title = `نتائج البحث عن "${query}" في سوق السويس`;
-        description = `استعرض كل العروض المتعلقة بـ ${query} في السويس. نوفر لك أفضل خيارات البيع والشراء.`;
+        title = `أفضل النتائج لـ "${query}" في سوق السويس`;
+        description = `اكتشف كافة العروض المتاحة المتعلقة بـ ${query} في السويس. سوقنا يوفر لك أفضل الخيارات بأقل مجهود.`;
     }
 
     title += pageSuffix;

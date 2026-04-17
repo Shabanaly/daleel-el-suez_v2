@@ -13,8 +13,8 @@ export async function generateMetadata(): Promise<Metadata> {
     const { data: { user } } = await supabase.auth.getUser();
     
     const title = user?.user_metadata?.full_name 
-        ? `${user.user_metadata.full_name} | ملفك الشخصي` 
-        : 'ملفك الشخصي | دليل السويس';
+        ? `${user.user_metadata.full_name} - حسابك في دليل السويس` 
+        : 'ملفك الشخصي - دليل السويس';
 
     return {
         title,

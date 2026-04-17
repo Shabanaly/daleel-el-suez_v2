@@ -18,21 +18,21 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     const page = Number(params.page) || 1;
     const pageSuffix = page > 1 ? ` - صفحة ${page}` : '';
 
-    let title = 'دليل السويس الشامل | خدمات، أماكن، ومطاعم';
-    let description = 'دليلك الشامل لمحافظة السويس. ابحث عن أفضل المطاعم، العيادات، المحلات، والخدمات الحكومية. اكتشف تقييمات وتفاصيل أكثر من 1000 مكان في السويس.';
+    let title = 'أماكن السويس - اكتشف كل ما تبحث عنه في مكان واحد';
+    let description = 'استكشف أفضل المطاعم، العيادات، المحلات، والخدمات في السويس. دليلك الشامل الذي يضع المدينة بين يديك مع تفاصيل دقيقة وتقييمات حقيقية.';
 
     if (categoryName && areaName) {
-        title = `${categoryName} في ${areaName} | دليل السويس`;
-        description = `اكتشف أفضل ${categoryName} في منطقة ${areaName} بالسويس. مواعيد العمل، أرقام التليفون، والتقييمات الحقيقية.`;
+        title = `أفضل ${categoryName} في ${areaName} - دليل السويس`;
+        description = `تبحث عن ${categoryName} في ${areaName}؟ هنا تجد أفضل الترشيحات، أرقام التليفون، ومواقعهم على الخريطة في السويس.`;
     } else if (categoryName) {
-        title = `أفضل ${categoryName} في السويس | دليل السويس`;
-        description = `دليلك لأفضل ${categoryName} في محافظة السويس. اطلع على العناوين والتقييمات وتواصل مباشرة.`;
+        title = `دليلك لأفضل ${categoryName} في السويس ومحيطها`;
+        description = `اكتشف قائمة شاملة ومحدثة بـ ${categoryName} في محافظة السويس. كل المعلومات اللي تحتاجها في مكان واحد.`;
     } else if (areaName) {
-        title = `دليل الخدمات في ${areaName} | السويس`;
-        description = `كل الخدمات والأماكن المتاحة في منطقة ${areaName} بالسويس. بحث شامل وسريع.`;
+        title = `كل ما يخص منطقة ${areaName} في السويس - الخدمات والأماكن`;
+        description = `تعرف على الخدمات والمطاعم والمحلات المتاحة في ${areaName} بالسويس. دليلك المحلي لمنطقتك.`;
     } else if (query) {
-        title = `نتائج البحث عن: ${query} | دليل السويس`;
-        description = `نتائج البحث عن ${query} في السويس. اعثر على ما تحتاجه بسرعة وسهولة.`;
+        title = `نتائج البحث عن: ${query} - اكتشف المزيد في السويس`;
+        description = `عرض كافة النتائج المتعلقة بـ ${query} في السويس. نوفر لك أدق التفاصيل للوصول لهدفك بسرعة.`;
     }
 
     title += pageSuffix;

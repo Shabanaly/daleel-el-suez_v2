@@ -29,7 +29,7 @@ import { getRecentBlogPosts } from "@/features/blog/actions/blog";
 import HomeBlogSection from "@/features/blog/components/HomeBlogSection";
 
 export const metadata: Metadata = {
-  title: `${APP_CONFIG.NAME} | ${APP_CONFIG.TAGLINE}`,
+  title: `${APP_CONFIG.NAME} - ${APP_CONFIG.TAGLINE}`,
   description: APP_CONFIG.DESCRIPTION,
 };
 

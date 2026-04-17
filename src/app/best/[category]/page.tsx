@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!category) return { title: 'قائمة غير موجودة' };
 
-    const title = `أفضل ${addArabicArticle(category.name)} في السويس لعام ${currentYear} | القائمة الكاملة`;
+    const title = `أفضل ${addArabicArticle(category.name)} في السويس ${currentYear} - القائمة الذهبية`;
     const description = `اكتشف القائمة الذهبية لأفضل ${addArabicArticle(category.name)} في السويس لعام ${currentYear} بناءً على تقييمات حقيقية. تشمل العناوين، أرقام التليفون، والخدمات الموزعة.`;
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';

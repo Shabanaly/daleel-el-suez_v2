@@ -6,8 +6,8 @@ import { CategoryGrid } from './_components/CategoryGrid';
 // البيانات تُجلب من السيرفر مباشرة — لا skeleton، لا useEffect
 
 export const metadata = {
-    title: 'أقسام دليل السويس | Suez Directory Categories',
-    description: 'استعرض جميع أقسام وتصنيفات الخدمات المتاحة في دليل السويس',
+    title: 'استكشف السويس - دليل الخدمات والأماكن المصنف',
+    description: 'تصفح جميع أقسام وتصنيفات الخدمات والمحلات في السويس. واجهتك الموحدة للوصول لكل احتياجاتك بسهولة.',
 };
 
 export default async function CategoriesPage() {

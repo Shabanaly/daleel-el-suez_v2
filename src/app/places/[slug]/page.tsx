@@ -14,8 +14,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
     if (!place) return { title: 'مكان غير موجود' };
 
-    const title = `${place.name} | ${place.category} في ${place.area}`;
-    const description = `تعرف على ${place.name} في ${place.area}، السويس. ${place.description?.slice(0, 150) || ''}...`;
+    const title = `${place.name} - ${place.category} في ${place.area} - السويس`;
+    const description = place.description
+        ? `${place.description.slice(0, 140)}...`
+        : `اكتشف ${place.name} في ${place.area}، السويس. اطلع على العنوان، أرقام التليفون، وآراء الزوار الحقيقية.`;
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
     const url = `${baseUrl}/places/${encodeURIComponent(place.slug)}`;

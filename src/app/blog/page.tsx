@@ -18,10 +18,11 @@ export async function generateMetadata({
   const page = Number(params.page) || 1;
   const category = params.category;
   const pageSuffix = page > 1 ? ` - صفحة ${page}` : '';
-  const catSuffix = category ? ` - ${category}` : '';
   
-  const title = `المدونة${catSuffix}${pageSuffix}`;
-  const description = 'مقالات دليل السويس عن الأماكن والخدمات والحياة اليومية في السويس.';
+  const title = (category 
+    ? `مقالات عن ${category} - مدونة دليل السويس` 
+    : `نبض السويس - أخبار، مقالات ومعلومات تهمك`) + pageSuffix;
+  const description = 'اكتشف آخر أخبار السويس، مقالات مفيدة عن أفضل الأماكن، ونصائح يومية تهم كل سويسي وزائر للمدينة.';
   const url = page > 1 
     ? `${APP_CONFIG.BASE_URL}${ROUTES.BLOG}?page=${page}`
     : `${APP_CONFIG.BASE_URL}${ROUTES.BLOG}`;
@@ -33,14 +34,14 @@ export async function generateMetadata({
       canonical: url,
     },
     openGraph: {
-      title: `${title} | ${APP_CONFIG.NAME}`,
+      title: `${title} - ${APP_CONFIG.NAME}`,
       description: 'مقالات ونصائح وأدلة محلية لأهل السويس وزوارها.',
       url,
       images: [APP_CONFIG.OG_IMAGE],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${title} | ${APP_CONFIG.NAME}`,
+      title: `${title} - ${APP_CONFIG.NAME}`,
       description: 'مقالات ونصائح وأدلة محلية لأهل السويس وزوارها.',
     },
     robots: {

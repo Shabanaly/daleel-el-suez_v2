@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { Info } from 'lucide-react';
 
 export const metadata: Metadata = {
-    title: 'عن دليل السويس | تعرف على رؤيتنا ومهمتنا في خدمة مدينتنا',
+    title: 'قصتنا ورؤيتنا - تعرف على دليل السويس',
     description: 'اكتشف قصة دليل السويس، أهدافنا، ورؤيتنا لتطوير الخدمات الرقمية في مدينة السويس. دليلك الأول لكل ما تحتاجه في السويس.',
 };
 

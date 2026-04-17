@@ -41,8 +41,8 @@ import MainContentWrapper from "@/components/layout/MainContentWrapper";
 export const metadata: Metadata = {
   metadataBase: new URL(APP_CONFIG.BASE_URL),
   title: {
-    default: `${APP_CONFIG.NAME} | ${APP_CONFIG.TAGLINE}`,
-    template: `%s | ${APP_CONFIG.NAME}`
+    default: `${APP_CONFIG.NAME} - ${APP_CONFIG.TAGLINE}`,
+    template: `%s - ${APP_CONFIG.NAME}`
   },
   description: APP_CONFIG.DESCRIPTION,
   keywords: [
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     "وظائف السويس", "مطاعم السويس", "عيادات السويس", "بيع وشراء السويس", "مستعمل السويس", 
     "اعلانات السويس", "أخبار السويس", "مجتمع السويس", "محلات السويس", "خدمات حكومية السويس",
     "دليل ارقام تليفونات السويس", "افضل مطاعم السويس", "افضل اطباء السويس", "سويسي", "مدن القناة",
-    "بورتوفيق", "الاربعين", "فيصل السويس", "حتا السويس", "الكبريت", "العين السخنة"
+    "بورتوفيق", "الاربعين", "فيصل السويس", "السويس", "كبريت", "العين السخنة"
   ],
   authors: [{ name: APP_CONFIG.NAME }],
   appleWebApp: {
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: APP_CONFIG.NAME,
-    title: `${APP_CONFIG.NAME} | ${APP_CONFIG.TAGLINE}`,
+    title: `${APP_CONFIG.NAME} - ${APP_CONFIG.TAGLINE}`,
     description: APP_CONFIG.DESCRIPTION,
     locale: "ar_EG",
     images: [
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${APP_CONFIG.NAME} | ${APP_CONFIG.TAGLINE}`,
+    title: `${APP_CONFIG.NAME} - ${APP_CONFIG.TAGLINE}`,
     description: APP_CONFIG.DESCRIPTION,
   },
   icons: {

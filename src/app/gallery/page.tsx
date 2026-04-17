@@ -7,8 +7,8 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     const category = params.category;
 
     const title = category && category !== 'الكل' 
-        ? `صور ${category} في السويس | عدسة السويس` 
-        : 'عدسة السويس | معرض صور مدينة السويس';
+        ? `صور ${category} في السويس - عدسة السويس` 
+        : 'عدسة السويس - معرض صور مدينة السويس';
     
     const description = category && category !== 'الكل'
         ? `استكشف أجمل صور ${category} في مدينة السويس. شارك بصورتك ووثق جمال معالم مدينتك.`
