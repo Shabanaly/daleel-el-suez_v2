@@ -185,6 +185,7 @@ export function BlogAdminClient({
             <div className="space-y-2">
               <label className="text-sm font-black text-text-primary">عنوان المقال</label>
               <input
+                dir="auto"
                 value={form.title}
                 onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
                 className="w-full rounded-2xl border border-border-subtle bg-surface px-4 py-3 text-sm outline-none transition focus:border-primary/40"
@@ -269,6 +270,7 @@ export function BlogAdminClient({
                 </div>
               ) : (
                 <textarea
+                  dir="auto"
                   value={form.content}
                   onChange={(event) => setForm((prev) => ({ ...prev, content: event.target.value }))}
                   rows={12}

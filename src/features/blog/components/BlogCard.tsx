@@ -8,6 +8,16 @@ import { SafeImage } from '@/components/common/SafeImage';
 import type { BlogPostListItem } from '@/features/blog/types';
 import { ROUTE_HELPERS } from '@/constants';
 
+const stripHtmlAndMarkdown = (html: string) => {
+  if (!html) return '';
+  // Strip HTML tags
+  let text = html.replace(/<[^>]+>/g, ' ');
+  // Strip common Markdown characters (bold, italics, headers)
+  text = text.replace(/[#*_~`>]/g, '');
+  // Normalize whitespace
+  return text.replace(/\s+/g, ' ').trim();
+};
+
 export function BlogCard({ post, priority = false }: { post: BlogPostListItem; priority?: boolean }) {
   return (
     <article className="group glass-card rounded-[28px] overflow-hidden border-border-subtle/70 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500">
@@ -45,7 +55,7 @@ export function BlogCard({ post, priority = false }: { post: BlogPostListItem; p
             {post.title}
           </h2>
           <p className="line-clamp-3 text-sm leading-7 text-text-muted">
-            {post.excerpt || post.content}
+            {stripHtmlAndMarkdown(post.excerpt || post.content || '')}
           </p>
           <div className="flex items-center justify-between text-sm font-bold text-primary">
             <span>{post.authorName ? `بقلم ${post.authorName}` : 'مقال من دليل السويس'}</span>

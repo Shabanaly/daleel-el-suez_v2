@@ -35,10 +35,85 @@ export function RichContent({ content }: RichContentProps) {
         components={{
           // Custom Link Renderer
           a: ({ node, ...props }) => {
-            const isNakedLink = props.children === props.href;
+            const childrenText = Array.isArray(props.children) ? props.children.join('') : props.children;
+            const isNakedLink = childrenText === props.href;
+            
             if (isNakedLink && props.href) {
+              const url = props.href;
+              try {
+                const urlObj = new URL(url);
+                
+                // 1. YouTube Embed
+                if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be')) {
+                  let videoId = '';
+                  if (urlObj.hostname.includes('youtu.be')) {
+                    videoId = urlObj.pathname.slice(1);
+                  } else {
+                    videoId = urlObj.searchParams.get('v') || '';
+                  }
+                  if (videoId) {
+                    return (
+                      <div className="my-8 aspect-video w-full overflow-hidden rounded-2xl shadow-xl border border-border-subtle bg-elevated">
+                        <iframe 
+                          src={`https://www.youtube.com/embed/${videoId}`} 
+                          className="h-full w-full border-0" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen 
+                        />
+                      </div>
+                    );
+                  }
+                }
+                
+                // 2. Facebook Embed
+                if (urlObj.hostname.includes('facebook.com') || urlObj.hostname.includes('fb.watch')) {
+                  return (
+                    <div className="my-8 flex w-full justify-center overflow-hidden rounded-2xl bg-surface p-2 shadow-lg border border-border-subtle">
+                      <iframe 
+                        src={`https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}&show_text=true&width=500`}
+                        width="500" 
+                        height="600" 
+                        className="max-w-full overflow-hidden border-0"
+                        scrolling="no" 
+                        frameBorder="0" 
+                        allowFullScreen={true}
+                        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                      />
+                    </div>
+                  );
+                }
+                
+                // 3. Twitter / X Embed
+                if (urlObj.hostname.includes('twitter.com') || urlObj.hostname.includes('x.com')) {
+                  return (
+                    <div className="my-8 flex w-full justify-center">
+                      <iframe 
+                        src={`https://twitframe.com/show?url=${encodeURIComponent(url)}`}
+                        className="w-full max-w-[550px] border-0"
+                        height="400"
+                        title="Twitter Embed"
+                      />
+                    </div>
+                  );
+                }
+                
+                // 4. Native Video or Audio
+                if (url.match(/\.(mp4|webm|ogg)$/i)) {
+                  return (
+                    <div className="my-8 overflow-hidden rounded-2xl shadow-xl border border-border-subtle">
+                      <video src={url} controls className="w-full h-auto" />
+                    </div>
+                  );
+                }
+              } catch (e) {
+                // If invalid URL, proceed to default fallback
+              }
+              
+              // Fallback for regular links
               return <LinkCard url={props.href} />;
             }
+            
+            // Standard hyperlinks
             return (
               <a
                 className="font-black text-primary underline decoration-primary/30 underline-offset-4 transition hover:text-primary-hover hover:decoration-primary"
