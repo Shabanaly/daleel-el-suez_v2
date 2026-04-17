@@ -14,14 +14,14 @@ export function RichContent({ content }: RichContentProps) {
   if (!content) return null;
 
   return (
-    <div className="rich-content space-y-6 text-base leading-[2.1] text-text-secondary md:text-lg text-right" dir="rtl">
+    <div className="rich-content space-y-6 text-base leading-[2.1] text-text-secondary md:text-lg text-right [&_p.text-align-center]:text-center [&_p.text-align-right]:text-right [&_p.text-align-left]:text-left [&_h1.text-align-center]:text-center [&_h1.text-align-right]:text-right [&_h1.text-align-left]:text-left [&_h2.text-align-center]:text-center [&_h2.text-align-right]:text-right [&_h2.text-align-left]:text-left [&_h3.text-align-center]:text-center [&_h3.text-align-right]:text-right [&_h3.text-align-left]:text-left" dir="rtl">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[
           rehypeRaw,
           [rehypeSanitize, {
             ...defaultSchema,
-            tagNames: [...(defaultSchema.tagNames || []), 'iframe', 'script', 'video', 'source', 'div', 'span'],
+            tagNames: [...(defaultSchema.tagNames || []), 'iframe', 'script', 'video', 'source', 'div', 'span', 'ins'],
             attributes: {
               ...defaultSchema.attributes,
               '*': [...(defaultSchema.attributes?.['*'] || []), 'className', 'style', 'dir'],

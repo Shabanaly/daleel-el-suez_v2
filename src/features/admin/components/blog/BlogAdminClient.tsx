@@ -15,6 +15,7 @@ import {
   updateBlogPostAction,
 } from '@/features/admin/actions/blog';
 import { RichContent } from '@/features/blog/components/RichContent';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 
 const EMPTY_FORM = {
   title: '',
@@ -204,7 +205,7 @@ export function BlogAdminClient({
                 >
                   <option value="" disabled>اختر التصنيف...</option>
                   {categories?.map((cat: any) => (
-                    <option key={cat.id} value={cat.id}>
+                    <option key={cat.id || cat.slug} value={cat.id}>
                       {cat.name}
                     </option>
                   ))}
@@ -269,13 +270,11 @@ export function BlogAdminClient({
                   <RichContent content={form.content} />
                 </div>
               ) : (
-                <textarea
-                  dir="auto"
-                  value={form.content}
-                  onChange={(event) => setForm((prev) => ({ ...prev, content: event.target.value }))}
-                  rows={12}
-                  className="w-full rounded-xl border border-border-subtle bg-surface px-4 py-4 text-sm leading-8 outline-none transition focus:border-primary/40"
-                  placeholder="اكتب المقال هنا... (يدعم Markdown و HTML)"
+                <RichTextEditor
+                  content={form.content}
+                  onChange={(newContent) => setForm((prev) => ({ ...prev, content: newContent }))}
+                  placeholder="اكتب المقال هنا..."
+                  draftKey={editingPost ? `blog_draft_edit_${editingPost.id}` : 'blog_draft_new'}
                 />
               )}
             </div>

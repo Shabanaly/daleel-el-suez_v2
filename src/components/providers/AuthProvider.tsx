@@ -22,13 +22,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Force aggressive refresh function
     const refreshSession = useCallback(async () => {
-        setIsLoading(true);
+        // We do NOT set isLoading(true) here because this runs in the background on window focus.
+        // Doing so would unmount the entire React Component Tree and destroy all local states!
         try {
             const { data: { user }, error } = await supabase.auth.getUser();
             if (error) {
                 setSession(null);
                 setUser(null);
-                setIsLoading(false);
                 return;
             }
             const { data: { session } } = await supabase.auth.getSession();
@@ -36,8 +36,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(user ?? null);
         } catch (error) {
             console.error("Error refreshing session:", error);
-        } finally {
-            setIsLoading(false);
         }
     }, [supabase]);
 
