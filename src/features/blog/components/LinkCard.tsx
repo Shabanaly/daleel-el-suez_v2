@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ExternalLink, Globe, Loader2 } from 'lucide-react';
+import { ChevronLeft, ExternalLink, Globe, Loader2 } from 'lucide-react';
 import { SafeImage } from '@/components/common/SafeImage';
 
 interface LinkMetadata {
@@ -36,13 +36,13 @@ export function LinkCard({ url }: { url: string }) {
 
   if (loading) {
     return (
-      <div className="my-6 flex animate-pulse items-center gap-4 rounded-3xl border border-border-subtle bg-surface-secondary/50 p-4">
-        <div className="h-20 w-20 shrink-0 rounded-2xl bg-elevated/50" />
-        <div className="flex-1 space-y-3">
-          <div className="h-4 w-3/4 rounded-full bg-elevated/50" />
-          <div className="h-3 w-1/2 rounded-full bg-elevated/20" />
+      <div className="my-3 flex animate-pulse items-center gap-3 rounded-xl border border-border-subtle bg-surface-secondary/30 p-2.5">
+        <div className="h-12 w-12 shrink-0 rounded-lg bg-elevated/50 md:h-14 md:w-14" />
+        <div className="flex-1 space-y-1.5">
+          <div className="h-2.5 w-1/4 rounded-full bg-elevated/50" />
+          <div className="h-3.5 w-3/4 rounded-full bg-elevated/30" />
         </div>
-        <Loader2 className="h-5 w-5 animate-spin text-text-muted opacity-20" />
+        <Loader2 className="h-3.5 w-3.5 animate-spin text-text-muted opacity-20" />
       </div>
     );
   }
@@ -53,10 +53,10 @@ export function LinkCard({ url }: { url: string }) {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="my-4 flex items-center gap-2 rounded-2xl border border-border-subtle bg-surface-secondary px-4 py-3 text-sm font-bold text-primary transition hover:border-primary/30"
+        className="my-3 flex items-center gap-2.5 rounded-lg border border-border-subtle bg-surface-secondary px-3 py-2 text-[11px] font-bold text-primary transition hover:border-primary/30"
       >
-        <ExternalLink className="h-4 w-4" />
-        {url}
+        <ExternalLink className="h-3 w-3" />
+        <span className="truncate">{url}</span>
       </a>
     );
   }
@@ -66,41 +66,48 @@ export function LinkCard({ url }: { url: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group my-8 block overflow-hidden rounded-[32px] border border-border-subtle bg-surface shadow-sm transition hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5"
+      className="group my-5 flex items-center gap-3 overflow-hidden rounded-lg border border-border-subtle bg-surface/50 p-2.5 shadow-sm transition-all duration-300 hover:border-primary/30 hover:bg-surface hover:shadow-md hover:shadow-primary/5 active:scale-[0.98] backdrop-blur-sm"
     >
-      <div className="flex flex-col md:flex-row">
-        {data.image && (
-          <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-elevated/30 md:aspect-square md:w-48">
-            <SafeImage
-              src={data.image}
-              alt={data.title}
-              fill
-              className="object-cover transition duration-700 group-hover:scale-105"
-            />
-          </div>
-        )}
-        <div className="flex flex-1 flex-col justify-center p-5 md:p-6">
-          <div className="mb-2 flex items-center gap-2">
-            {data.favicon ? (
-              <img src={data.favicon} alt="" className="h-4 w-4 rounded-sm" />
-            ) : (
-              <Globe className="h-3.5 w-3.5 text-text-muted" />
-            )}
-            <span className="text-[11px] font-black uppercase tracking-wider text-text-muted">
-              {data.siteName || new URL(url).hostname}
-            </span>
-          </div>
-          <h4 className="mb-2 line-clamp-2 text-lg font-black text-text-primary group-hover:text-primary">
-            {data.title}
-          </h4>
-          <p className="line-clamp-2 text-sm leading-relaxed text-text-secondary opacity-80">
+      {/* Thumbnail */}
+      {data.image && (
+        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-elevated/30 md:h-14 md:w-14">
+          <SafeImage
+            src={data.image}
+            alt={data.title}
+            fill
+            className="object-cover transition duration-500 group-hover:scale-110"
+          />
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="flex min-w-0 flex-1 flex-col justify-center">
+        <div className="mb-0.5 flex items-center gap-1 overflow-hidden">
+          {data.favicon ? (
+            <img src={data.favicon} alt="" className="h-2.5 w-2.5 shrink-0 rounded-[2px]" />
+          ) : (
+            <Globe className="h-2.5 w-2.5 shrink-0 text-text-muted" />
+          )}
+          <span className="truncate text-[9px] font-black uppercase tracking-widest text-text-muted opacity-70">
+            {data.siteName || new URL(url).hostname}
+          </span>
+        </div>
+        
+        <h4 className="line-clamp-1 text-xs font-black text-text-primary transition-colors group-hover:text-primary md:text-sm">
+          {data.title}
+        </h4>
+        
+        {/* Optional: Tiny description for desktop if space permits */}
+        {data.description && (
+          <p className="mt-0.5 hidden line-clamp-1 text-[10px] font-medium text-text-muted opacity-80 md:block">
             {data.description}
           </p>
-          <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-primary opacity-0 transition group-hover:opacity-100">
-            <span>زيارة الرابط</span>
-            <ExternalLink className="h-3 w-3" />
-          </div>
-        </div>
+        )}
+      </div>
+
+      {/* Action Area */}
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/5 transition-colors group-hover:bg-primary/10">
+        <ChevronLeft className="h-4 w-4 translate-x-1 text-primary transition-transform group-hover:translate-x-0" />
       </div>
     </a>
   );
