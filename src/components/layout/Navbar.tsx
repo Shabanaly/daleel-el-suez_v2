@@ -4,7 +4,14 @@ import { ROUTES, AUTH_ROUTES, APP_CONFIG } from "@/constants";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { User, Map as MapIcon, Search, Store, Users, FileText } from "lucide-react";
+import {
+  User,
+  Map as MapIcon,
+  Search,
+  Store,
+  Users,
+  FileText,
+} from "lucide-react";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 import CustomLink from "@/components/customLink/customLink";
 import { ThemeToggle } from "../ui/ThemeToggle";
@@ -25,7 +32,8 @@ export default function Navbar() {
   const isProfileSection = pathname?.startsWith(ROUTES.PROFILE);
   const isSettings = pathname?.startsWith(ROUTES.SETTINGS);
   const isFavorites = pathname?.startsWith(ROUTES.FAVORITES);
-  const isBlogDetailsPage = pathname?.startsWith(ROUTES.BLOG + '/') && pathname.split('/').length === 3;
+  const isBlogDetailsPage =
+    pathname?.startsWith(ROUTES.BLOG + "/") && pathname.split("/").length === 3;
   const isBlogListingPage = pathname === ROUTES.BLOG;
 
   const hideMobileNavbar =

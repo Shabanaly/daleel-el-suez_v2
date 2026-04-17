@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getCloudinarySignature, deleteCloudinaryImage } from '@/lib/actions/media';
 import { compressImages, type CompressionOptions } from '@/lib/utils/compressImage';
 
@@ -165,8 +165,10 @@ export function useImageUpload({
         setPreviews([]);
     };
 
+    const combinedImages = useMemo(() => [...images, ...previews], [images, previews]);
+
     return {
-        images: [...images, ...previews],
+        images: combinedImages,
         publicIds,
         isCompressing,
         isUploading,

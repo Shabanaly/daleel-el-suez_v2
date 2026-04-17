@@ -61,9 +61,17 @@ export function useAddPlaceForm({ areas }: UseAddPlaceFormProps) {
     });
 
     // Sync media data to formData when it changes
+    const imagesStr = JSON.stringify(images);
+    const publicIdsStr = JSON.stringify(publicIds);
+    
     useEffect(() => {
-        setFormData(prev => ({ ...prev, images, publicIds }));
-    }, [images, publicIds]);
+        setFormData(prev => {
+            if (JSON.stringify(prev.images) === imagesStr && JSON.stringify(prev.publicIds) === publicIdsStr) {
+                return prev;
+            }
+            return { ...prev, images, publicIds };
+        });
+    }, [imagesStr, publicIdsStr]);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
