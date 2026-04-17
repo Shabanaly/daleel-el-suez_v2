@@ -4,11 +4,11 @@ import { motion } from "framer-motion";
 import {
   Plus,
   MessageSquare,
+  FileText,
   Heart,
   User,
   LogOut,
   ShoppingBag,
-  Copyright as CopyIcon,
   Settings,
 } from "lucide-react";
 import CustomLink from "@/components/customLink/customLink";
@@ -18,7 +18,7 @@ import { ROUTES, AUTH_ROUTES } from "@/constants";
 
 export default function DesktopSidebar() {
   const pathname = usePathname();
-  const { user, loading, handleLogout } = useAuth();
+  const { user, handleLogout } = useAuth();
 
   const SIDEBAR_ITEMS = [
     {
@@ -50,6 +50,12 @@ export default function DesktopSidebar() {
       label: "المجتمع",
       href: ROUTES.COMMUNITY,
       color: "bg-primary",
+    },
+    {
+      icon: <FileText className="w-5 h-5" />,
+      label: "المدونة",
+      href: ROUTES.BLOG,
+      color: "bg-accent",
     },
     {
       icon: <Settings className="w-5 h-5" />,

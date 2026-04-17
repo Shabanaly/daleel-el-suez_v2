@@ -11,8 +11,10 @@ import {
     LogOut,
     ShoppingBag,
     MessageSquare,
+    FileText,
     AlertTriangle,
-    Settings
+    Settings,
+    Globe
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -30,6 +32,7 @@ export default function AdminSidebar() {
         { href: '/admin/users', icon: Users, label: 'المستخدمين' },
         { href: '/admin/market', icon: ShoppingBag, label: 'الماركت' },
         { href: '/admin/community', icon: MessageSquare, label: 'المجتمع' },
+        { href: '/admin/blog', icon: FileText, label: 'المدونة' },
         { href: '/admin/reports', icon: AlertTriangle, label: 'البلاغات' },
         { href: '/admin/settings', icon: Settings, label: 'الإعدادات' },
     ];
@@ -103,7 +106,19 @@ export default function AdminSidebar() {
                 </nav>
 
                 {/* Bottom Actions */}
-                <div className="p-4 border-t border-border-subtle bg-background/30 backdrop-blur-sm">
+                <div className="p-4 border-t border-border-subtle bg-background/30 backdrop-blur-sm space-y-2">
+                    <CustomLink
+                        href="/"
+                        className={cn(
+                            "flex items-center text-primary hover:bg-primary/10 transition-colors rounded-lg w-full",
+                            isCollapsed ? "justify-center p-3" : "px-3 py-2.5"
+                        )}
+                        title={isCollapsed ? "الرجوع للموقع" : undefined}
+                    >
+                        <Globe className={cn("w-5 h-5 shrink-0", !isCollapsed && "ml-3")} />
+                        {!isCollapsed && <span>الرجوع للموقع</span>}
+                    </CustomLink>
+
                     <button
                         onClick={logout}
                         className={cn(

@@ -27,6 +27,7 @@ export default function LeftSidebar() {
                         ROUTES.GALLERY,
                         ROUTES.BEST,
                         ROUTES.CATEGORIES,
+                        ROUTES.BLOG,
                     ]}
                     exactPaths={[ROUTES.HOME]}
                     excludeExactPaths={[

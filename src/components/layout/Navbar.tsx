@@ -4,7 +4,7 @@ import { ROUTES, AUTH_ROUTES, APP_CONFIG } from "@/constants";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { User, Map as MapIcon, Search, Store, Users } from "lucide-react";
+import { User, Map as MapIcon, Search, Store, Users, FileText } from "lucide-react";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 import CustomLink from "@/components/customLink/customLink";
 import { ThemeToggle } from "../ui/ThemeToggle";
@@ -25,6 +25,8 @@ export default function Navbar() {
   const isProfileSection = pathname?.startsWith(ROUTES.PROFILE);
   const isSettings = pathname?.startsWith(ROUTES.SETTINGS);
   const isFavorites = pathname?.startsWith(ROUTES.FAVORITES);
+  const isBlogDetailsPage = pathname?.startsWith(ROUTES.BLOG + '/') && pathname.split('/').length === 3;
+  const isBlogListingPage = pathname === ROUTES.BLOG;
 
   const hideMobileNavbar =
     isPlaceDetailsPage ||
@@ -32,7 +34,9 @@ export default function Navbar() {
     isMarketInside ||
     isProfileSection ||
     isSettings ||
-    isFavorites;
+    isFavorites ||
+    isBlogDetailsPage ||
+    isBlogListingPage;
 
   if (isAuthPage || isAdminPage) return null;
 
@@ -126,6 +130,12 @@ export default function Navbar() {
               active={pathname?.startsWith(ROUTES.COMMUNITY)}
               label="المجتمع"
               icon={<Users className="w-4 h-4" />}
+            />
+            <NavLink
+              href={ROUTES.BLOG}
+              active={pathname?.startsWith(ROUTES.BLOG)}
+              label="المدونة"
+              icon={<FileText className="w-4 h-4" />}
             />
           </div>
 

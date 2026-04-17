@@ -6,12 +6,15 @@ import { getAreasAction } from '@/features/taxonomy/actions/areas';
 import { getDistricts } from '@/features/taxonomy/actions/districts';
 import { MarketAd, MarketCategory } from '@/features/market/types';
 import { MarketSortOption } from '@/features/market/hooks/useMarketFilter';
+import { APP_CONFIG, ROUTES } from '@/constants';
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }): Promise<Metadata> {
     const params = await searchParams;
     const categoryName = params.category as string;
     const areaName = params.area as string;
     const query = params.q as string;
+    const page = Number(params.page) || 1;
+    const pageSuffix = page > 1 ? ` - صفحة ${page}` : '';
 
     let title = 'سوق السويس | بيع وشراء، مستعمل، وعروض في السويس';
     let description = 'سوق السويس المحلي - أفضل منصة لبيع وشراء المنتجات الجديدة والمستعملة في محافظة السويس. أضف إعلانك الآن مجاناً.';
@@ -31,9 +34,26 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
         description = `استعرض كل العروض المتعلقة بـ ${query} في السويس. نوفر لك أفضل خيارات البيع والشراء.`;
     }
 
+    title += pageSuffix;
+
+    // Build canonical URL with relevant filters
+    const searchParamsObj = new URLSearchParams();
+    if (categoryName && categoryName !== 'all') searchParamsObj.set('category', categoryName);
+    if (areaName) searchParamsObj.set('area', areaName);
+    if (query) searchParamsObj.set('q', query);
+    if (page > 1) searchParamsObj.set('page', page.toString());
+    
+    const queryString = searchParamsObj.toString();
+    const canonical = queryString 
+        ? `${APP_CONFIG.BASE_URL}${ROUTES.MARKET}?${queryString}`
+        : `${APP_CONFIG.BASE_URL}${ROUTES.MARKET}`;
+
     return {
         title,
         description,
+        alternates: {
+            canonical,
+        },
         keywords: [
             categoryName, areaName, query, 
             "سوق السويس", "بيع وشراء السويس", "مستعمل السويس", "اعلانات مبوبة السويس"
@@ -42,7 +62,12 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
             title,
             description,
             type: 'website',
+            url: canonical,
             locale: 'ar_EG',
+        },
+        robots: {
+            index: true,
+            follow: true,
         }
     };
 }

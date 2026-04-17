@@ -14,6 +14,7 @@ export const ROUTES = {
   ADMIN_USERS: "/admin/users",
   ADMIN_MARKET: "/admin/market",
   ADMIN_COMMUNITY: "/admin/community",
+  ADMIN_BLOG: "/admin/blog",
 
   // Profile
   PROFILE: "/profile",
@@ -40,6 +41,7 @@ export const ROUTES = {
 
   // Community & Social
   COMMUNITY: "/community",
+  BLOG: "/blog",
   GALLERY: "/gallery",
   BEST: "/best",
   CATEGORIES: "/categories",
@@ -58,6 +60,7 @@ export const ROUTE_HELPERS = {
   MARKET_AD: (slug: string) => `/market/${encodeURIComponent(slug)}`,
   MARKET_AD_EDIT: (id: string) => `/market/edit/${encodeURIComponent(id)}`,
   COMMUNITY_POST: (id: string) => `/community/posts/${encodeURIComponent(id)}`,
+  BLOG_POST: (slug: string) => `/blog/${encodeURIComponent(slug)}`,
   MANAGE_PLACE: (id: string) => `/manage/${encodeURIComponent(id)}`,
   BEST_CATEGORY: (slug: string) => `/best/${encodeURIComponent(slug)}`,
   PLACES_CATEGORY: (name: string) =>

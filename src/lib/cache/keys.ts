@@ -8,6 +8,10 @@ export const CACHE_KEYS = {
     trending: 'trending-places',
     latest: 'latest-places',
     homePage: 'home-page-data',
+    blogList: 'blog-list',
+    blogPost: 'blog-post',
+    blogRecent: 'blog-recent',
+    blogSitemap: 'blog-sitemap',
 } as const;
 
 export const keys = {
@@ -22,6 +26,12 @@ export const keys = {
 
     // Home Data
     homePage: () => [CACHE_KEYS.homePage],
+
+    // Blog
+    blogList: (page: number, limit: number, category?: string) => [CACHE_KEYS.blogList, `page-${page}`, `limit-${limit}`, category || 'all'],
+    blogPost: (slug: string) => [CACHE_KEYS.blogPost, slug],
+    blogRecent: (excludeSlug: string | undefined, limit: number, categoryId?: string) => [CACHE_KEYS.blogRecent, excludeSlug || 'none', `limit-${limit}`, categoryId || 'all'],
+    blogSitemap: () => [CACHE_KEYS.blogSitemap],
 
     // Favorites
     isFavorite: (userId: string, itemId: string) => [`user-${userId}-fav-${itemId}`],

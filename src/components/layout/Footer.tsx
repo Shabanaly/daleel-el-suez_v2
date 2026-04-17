@@ -76,6 +76,14 @@ export default function Footer() {
               </li>
               <li>
                 <CustomLink
+                  href={ROUTES.BLOG}
+                  className="text-text-muted text-sm font-bold hover:text-primary transition-colors"
+                >
+                  المدونة
+                </CustomLink>
+              </li>
+              <li>
+                <CustomLink
                   href={ROUTES.COMMUNITY}
                   className="text-text-muted text-sm font-bold hover:text-primary transition-colors"
                 >

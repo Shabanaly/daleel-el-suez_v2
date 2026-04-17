@@ -13,6 +13,7 @@ export const CACHE_TAGS = {
     reviews: 'reviews',
     market: 'market',
     autocomplete: 'autocomplete',
+    blog: 'blog',
 } as const;
 
 /**
@@ -48,6 +49,13 @@ export const tags = {
     allPosts: () => CACHE_TAGS.community,
     post: (id: string) => `${CACHE_TAGS.community}-id:${id}`,
     postComments: (postId: string) => `comments-post:${postId}`,
+
+    // Blog
+    allBlogPosts: () => CACHE_TAGS.blog,
+    blogPost: (slug: string) => `${CACHE_TAGS.blog}-slug:${slug}`,
+    blogPage: (page: number) => `${CACHE_TAGS.blog}-page:${page}`,
+    recentBlogPosts: () => `${CACHE_TAGS.blog}-recent`,
+    blogSitemap: () => `${CACHE_TAGS.blog}-sitemap`,
 
     // Metadata
     allCategories: () => CACHE_TAGS.categories,

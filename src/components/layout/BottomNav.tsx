@@ -25,6 +25,8 @@ export default function BottomNav() {
   const isSettings = pathname?.startsWith(ROUTES.SETTINGS);
   const isFavorites = pathname?.startsWith(ROUTES.FAVORITES);
   const isManage = pathname?.startsWith("/manage");
+  const isBlogDetailsPage = pathname?.startsWith(ROUTES.BLOG + '/') && pathname.split('/').length === 3;
+  const isBlogListingPage = pathname === ROUTES.BLOG;
 
   if (
     isAuthPage ||
@@ -35,7 +37,9 @@ export default function BottomNav() {
     isProfileSection ||
     isSettings ||
     isFavorites ||
-    isManage
+    isManage ||
+    isBlogDetailsPage ||
+    isBlogListingPage
   )
     return null;
 

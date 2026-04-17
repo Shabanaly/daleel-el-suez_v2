@@ -62,6 +62,16 @@ export const cacheManager = {
         if (userId) cacheManager.invalidateUserStats(userId);
     },
 
+    invalidateBlogPost: (slug: string, previousSlug?: string) => {
+        revalidateTag(tags.allBlogPosts(), 'max');
+        revalidateTag(tags.blogPost(slug), 'max');
+        revalidateTag(tags.recentBlogPosts(), 'max');
+        revalidateTag(tags.blogSitemap(), 'max');
+        if (previousSlug && previousSlug !== slug) {
+            revalidateTag(tags.blogPost(previousSlug), 'max');
+        }
+    },
+
     invalidateUserStats: (userId: string) => {
         revalidateTag(`user-${userId}-stats`, 'max');
         revalidateTag(`user-${userId}-activities`, 'max');

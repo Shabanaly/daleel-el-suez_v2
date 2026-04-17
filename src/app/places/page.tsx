@@ -7,12 +7,16 @@ import { getAreasAction } from '@/features/taxonomy/actions/areas';
 import { getDistricts } from '@/features/taxonomy/actions/districts';
 import type { Metadata } from 'next';
 import { SortOption } from '@/features/places/types';
+import { ROUTES } from '@/constants/routes';
+import { APP_CONFIG } from '@/constants/config';
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }): Promise<Metadata> {
     const params = await searchParams;
     const categoryName = params.category as string;
     const areaName = params.area as string;
     const query = params.q as string;
+    const page = Number(params.page) || 1;
+    const pageSuffix = page > 1 ? ` - صفحة ${page}` : '';
 
     let title = 'دليل السويس الشامل | خدمات، أماكن، ومطاعم';
     let description = 'دليلك الشامل لمحافظة السويس. ابحث عن أفضل المطاعم، العيادات، المحلات، والخدمات الحكومية. اكتشف تقييمات وتفاصيل أكثر من 1000 مكان في السويس.';
@@ -31,9 +35,26 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
         description = `نتائج البحث عن ${query} في السويس. اعثر على ما تحتاجه بسرعة وسهولة.`;
     }
 
+    title += pageSuffix;
+
+    // Build canonical URL with relevant filters
+    const searchParamsObj = new URLSearchParams();
+    if (categoryName) searchParamsObj.set('category', categoryName);
+    if (areaName) searchParamsObj.set('area', areaName);
+    if (query) searchParamsObj.set('q', query);
+    if (page > 1) searchParamsObj.set('page', page.toString());
+    
+    const queryString = searchParamsObj.toString();
+    const canonical = queryString 
+        ? `${APP_CONFIG.BASE_URL}${ROUTES.PLACES}?${queryString}`
+        : `${APP_CONFIG.BASE_URL}${ROUTES.PLACES}`;
+
     return {
         title,
         description,
+        alternates: {
+            canonical,
+        },
         keywords: [
             categoryName, areaName, query, 
             "مطاعم السويس", "عيادات السويس", "بنوك السويس", "محلات السويس", "خدمات السويس", 
@@ -43,6 +64,11 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
             title,
             description,
             type: 'website',
+            url: canonical,
+        },
+        robots: {
+            index: true,
+            follow: true,
         }
     };
 }

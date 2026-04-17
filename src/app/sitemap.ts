@@ -3,6 +3,7 @@ import { getAllPlacesForSitemap } from '@/features/places/actions/places.server'
 import { getAllCategories } from '@/features/taxonomy/actions/categories';
 import { getAllPosts } from '@/features/community/actions/posts.server';
 import { getMarketCategories, getMarketAdsForSitemap } from '@/features/market/actions/market.server';
+import { getAllBlogPostsForSitemap } from '@/features/blog/actions/blog';
 import { ROUTES, ROUTE_HELPERS } from '@/constants';
 
 // ⚡ Optimization: Cache sitemap for 24 hours
@@ -17,16 +18,34 @@ const escapeXml = (str: string) =>
        .replace(/"/g, '&quot;')
        .replace(/'/g, '&apos;');
 
+interface SitemapPlace {
+    slug: string;
+    created_at?: string;
+    images?: string[];
+}
+
+interface SitemapMarketAd {
+    slug: string;
+    created_at: string;
+    images?: string[];
+}
+
+interface SitemapCategory {
+    name: string;
+    slug: string;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://daleel-al-suez.com';
 
     // Fetch all paths in parallel
-    const [places, categories, posts, marketCategories, marketAds] = await Promise.all([
+    const [places, categories, posts, marketCategories, marketAds, blogPosts] = await Promise.all([
         getAllPlacesForSitemap(),
         getAllCategories(),
         getAllPosts(),
         getMarketCategories(),
         getMarketAdsForSitemap(),
+        getAllBlogPostsForSitemap(),
     ]);
 
     const postUrls = posts.map((post) => ({
@@ -36,7 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
     }));
 
-    const placeUrls = places.map((place: any) => ({
+    const placeUrls = places.map((place: SitemapPlace) => ({
         url: escapeXml(`${baseUrl}${ROUTE_HELPERS.PLACE(place.slug)}`),
         lastModified: new Date(place.created_at || new Date()),
         changeFrequency: 'weekly' as const,
@@ -54,14 +73,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Market URLs
-    const marketCategoryUrls = marketCategories.map((category: any) => ({
+    const marketCategoryUrls = marketCategories.map((category: SitemapCategory) => ({
         url: escapeXml(`${baseUrl}${ROUTE_HELPERS.MARKET_CATEGORY(category.slug)}`),
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
     }));
 
-    const marketAdUrls = marketAds.map((ad: any) => ({
+    const marketAdUrls = marketAds.map((ad: SitemapMarketAd) => ({
         url: escapeXml(`${baseUrl}${ROUTE_HELPERS.MARKET_AD(ad.slug)}`),
         lastModified: new Date(ad.created_at),
         changeFrequency: 'weekly' as const,
@@ -77,6 +96,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
+    }));
+
+    const blogUrls = blogPosts.map((post) => ({
+        url: escapeXml(`${baseUrl}${ROUTE_HELPERS.BLOG_POST(post.slug)}`),
+        lastModified: new Date(post.updated_at || post.published_at),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+        images: post.image_url ? [escapeXml(post.image_url)] : [],
     }));
 
     const staticUrls = [
@@ -108,6 +135,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             url: `${baseUrl}${ROUTES.MARKET}`,
             lastModified: new Date(),
             changeFrequency: 'daily' as const,
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}${ROUTES.BLOG}`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly' as const,
             priority: 0.8,
         },
         {
@@ -164,7 +197,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ...categoryUrls,
         ...marketCategoryUrls,
         ...marketAdUrls,
-        ...bestOfUrls
+        ...bestOfUrls,
+        ...blogUrls
     ];
 }
-

@@ -156,6 +156,13 @@ export default function QuickActionsDrawer({
                     color="bg-primary"
                     onClick={onClose}
                   />
+                  <ActionItem
+                    href={ROUTES.BLOG}
+                    icon={<FileText className="w-6 h-6" />}
+                    label="المدونة"
+                    color="bg-primary"
+                    onClick={onClose}
+                  />
                   <ShareButton
                     title={APP_CONFIG.NAME}
                     text={`${APP_CONFIG.NAME} - ${APP_CONFIG.TAGLINE}`}

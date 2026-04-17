@@ -25,6 +25,8 @@ import CommunityTeaserWrapper from "@/features/community/components/CommunityTea
 import { getMarketHomePageData } from "@/features/market/actions/market.server";
 import AdSlot from "@/components/common/AdSlot";
 import { Banner320x50 } from "@/components/common/ThirdPartyAds";
+import { getRecentBlogPosts } from "@/features/blog/actions/blog";
+import HomeBlogSection from "@/features/blog/components/HomeBlogSection";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.NAME} | ${APP_CONFIG.TAGLINE}`,
@@ -45,6 +47,7 @@ export default async function Home() {
     marketData,
     topGalleryImages,
     heroAds,
+    posts,
   ] = await Promise.all([
     getHomeCategories(),
     getHomeDistricts(),
@@ -53,6 +56,7 @@ export default async function Home() {
     getMarketHomePageData(),
     getTopGalleryImages(5),
     getActiveHeroAds(),
+    getRecentBlogPosts(),
   ]);
 
   const homeMarketAds = [
@@ -86,6 +90,7 @@ export default async function Home() {
       <BestOfSuezHome stats={bestOfStats} />
       {smartCategoryData && <CategoryHighlight data={smartCategoryData} />}
       <CommunityPulse />
+      <HomeBlogSection posts={posts} />
       <SuezGallery initialImages={topGalleryImages} />
       <DistrictsExplorer districts={districts} />
       
@@ -117,6 +122,7 @@ export default async function Home() {
       </section>
 
       <SuezStats stats={suezStats} />
+
     </div>
   );
 }
