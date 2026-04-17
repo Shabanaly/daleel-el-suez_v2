@@ -8,6 +8,8 @@ import { usePlacesFilter } from '../hooks/usePlacesFilter';
 import { PlaceCard } from './PlaceCard';
 import { Pagination } from '@/components/common/Pagination';
 import { PlacesFilterModal } from './PlacesFilterModal';
+import AdSlot from '@/components/common/AdSlot';
+import { Banner320x50 } from '@/components/common/ThirdPartyAds';
 
 import { AreaWithDistrict } from '@/features/taxonomy/actions/areas';
 
@@ -129,6 +131,10 @@ export function PlacesClient({ initialPlaces, totalCount, categories, areas, dis
 
             {/* ── Places Grid ───────────────────────────────────────────────── */}
             <div className="max-w-5xl mx-auto px-4 relative">
+                <AdSlot device="mobile" className="w-full mb-6">
+                    <Banner320x50 containerId="ad-places-list-mobile" />
+                </AdSlot>
+
                 {/* Loading Overlay */}
                 <AnimatePresence>
                     {isPending && (
@@ -189,4 +195,3 @@ export function PlacesClient({ initialPlaces, totalCount, categories, areas, dis
         </div>
     );
 }
-

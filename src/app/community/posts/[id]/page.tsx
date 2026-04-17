@@ -10,6 +10,8 @@ import CommunityComments from '@/features/community/components/CommunityComments
 import { Suspense } from 'react';
 import { AppBar } from '@/components/ui/AppBar';
 import BreadcrumbsJsonLd from '@/components/seo/BreadcrumbsJsonLd';
+import AdSlot from '@/components/common/AdSlot';
+import { Banner320x50 } from '@/components/common/ThirdPartyAds';
 
 interface PostPageProps {
     params: Promise<{ id: string }>;
@@ -128,6 +130,9 @@ export default async function PostPage({ params }: PostPageProps) {
                         <PostCard post={post} categories={categories} isFullPage={true} />
                     </Suspense>
 
+                    <AdSlot device="mobile" className="w-full mt-6">
+                        <Banner320x50 containerId="ad-community-post-mobile" />
+                    </AdSlot>
 
                     {/* Comments Section (Inline for individual page) */}
                     <div className="mt-8">

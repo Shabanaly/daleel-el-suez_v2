@@ -23,6 +23,7 @@ import { APP_CONFIG, ROUTES } from "@/constants";
 import { Suspense } from "react";
 import CommunityTeaserWrapper from "@/features/community/components/CommunityTeaserWrapper";
 import { getMarketHomePageData } from "@/features/market/actions/market.server";
+import AdSlot from "@/components/common/AdSlot";
 import { Banner320x50 } from "@/components/common/ThirdPartyAds";
 
 export const metadata: Metadata = {
@@ -78,7 +79,9 @@ export default async function Home() {
 
       <TrendingPlaces />
       <NewPlaces />
-      <Banner320x50 containerId="ad-home-middle" />
+      <AdSlot exactPaths={[ROUTES.HOME]} device="mobile" className="w-full px-4">
+        <Banner320x50 containerId="ad-home-middle" />
+      </AdSlot>
       <HomeMarketSection ads={homeMarketAds} />
       <BestOfSuezHome stats={bestOfStats} />
       {smartCategoryData && <CategoryHighlight data={smartCategoryData} />}

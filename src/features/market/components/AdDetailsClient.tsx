@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import FavoriteButton from '@/features/market/components/FavoriteButton';
 import ShareButton from '@/components/ui/ShareButton';
+import AdSlot from '@/components/common/AdSlot';
+import { Banner320x50 } from '@/components/common/ThirdPartyAds';
 import { useDialog } from "@/components/providers/DialogProvider";
 import CustomLink from '@/components/customLink/customLink';
 import { ImageGallery } from '@/components/common/ImageGallery';
@@ -188,6 +190,10 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                         </p>
                     </div>
                 </section>
+
+                <AdSlot device="mobile" className="w-full mb-8">
+                    <Banner320x50 containerId="ad-market-details-mobile" />
+                </AdSlot>
 
                 {/* ── 3. Primary Actions (Share only) ── */}
                 <div className="hidden md:flex justify-end mb-10">

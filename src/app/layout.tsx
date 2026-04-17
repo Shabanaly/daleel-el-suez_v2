@@ -7,7 +7,6 @@ import DesktopSidebar from "@/components/layout/DesktopSidebar";
 import LeftSidebar from "@/components/layout/LeftSidebar";
 import Footer from "@/components/layout/Footer";
 import { AdsenseScript } from "@/components/common/AdsenseScript";
-import { Banner728x90, Banner468x60, ContainerAd } from "@/components/common/ThirdPartyAds";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { AuthModalProvider } from "@/features/auth/hooks/useAuthModal";
@@ -120,12 +119,6 @@ export default function RootLayout({
         {/* Third-party Scripts (Delayed) */}
         <AdsenseScript />
         
-        {/* Adsterra/ProfitableCPM Social Bar/Global */}
-        <Script 
-          src="https://pl29155095.profitablecpmratenetwork.com/2f/8e/e4/2f8ee4acae3776e2d0a65e781b343ed4.js"
-          strategy="afterInteractive"
-        />
-        
         <GoogleIdScript />
         <JsonLd />
         {/* Google Analytics */}
@@ -166,15 +159,7 @@ export default function RootLayout({
                       <DesktopSidebar />
                       <LeftSidebar />
                       <MainContentWrapper>
-                        <div className="pt-20 lg:pt-24 px-4 flex flex-col items-center">
-                          <span className="text-[10px] text-text-muted mb-2 font-bold uppercase tracking-widest opacity-50">إعلان</span>
-                          <Banner728x90 containerId="ad-header-top" />
-                        </div>
                         {children}
-                        <div className="py-12 px-4 flex flex-col items-center border-t border-border-subtle mt-8">
-                          <span className="text-[10px] text-text-muted mb-2 font-bold uppercase tracking-widest opacity-50">إعلان</span>
-                          <Banner468x60 containerId="ad-footer-bottom-unique" />
-                        </div>
                         {/* Show Footer only on desktop, balanced between sidebars */}
                         <div className="hidden lg:block">
                           <Footer />

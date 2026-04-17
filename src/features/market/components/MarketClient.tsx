@@ -18,6 +18,8 @@ import MarketHighlights from "./MarketHighlights";
 import MarketResults from "./MarketResults";
 import { MarketFilterModal } from "./MarketFilterModal";
 import { Pagination } from "@/components/common/Pagination";
+import AdSlot from "@/components/common/AdSlot";
+import { Banner320x50 } from "@/components/common/ThirdPartyAds";
 
 interface MarketClientProps {
     initialCategories: MarketCategory[];
@@ -132,6 +134,10 @@ export function MarketClient({
                         trendingAds={trendingAds}
                     />
                 )}
+
+                <AdSlot device="mobile" className="w-full mb-6">
+                    <Banner320x50 containerId="ad-market-list-mobile" />
+                </AdSlot>
 
                 {/* 5. Results Section */}
                 <div className={`${isPending ? 'opacity-60 pointer-events-none' : ''} transition-opacity duration-300`}>

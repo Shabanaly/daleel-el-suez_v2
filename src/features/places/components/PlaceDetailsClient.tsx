@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import CustomLink from '@/components/customLink/customLink';
 import ShareButton from '@/components/ui/ShareButton';
+import AdSlot from '@/components/common/AdSlot';
+import { Banner320x50 } from '@/components/common/ThirdPartyAds';
 import { useDialog } from "@/components/providers/DialogProvider";
 import { Share2, MapPin, Star, ChevronLeft, ChevronRight, CheckCircle2, Eye } from 'lucide-react';
 import { Review } from '@/features/places/types/reviews';
@@ -166,6 +168,10 @@ export function PlaceDetailsClient({
                         {place.description || 'اكتشف أفضل الخدمات والمنتجات المتاحة في مدينة السويس بأسعار تنافسية وجودة عالية.'}
                     </p>
                 </section>
+
+                <AdSlot device="mobile" className="w-full mb-8">
+                    <Banner320x50 containerId="ad-place-details-mobile" />
+                </AdSlot>
 
                 {/* ── 3. Primary Actions (Share only, others moved to sticky bar) ── */}
                 <div className="hidden md:flex justify-end mb-10">

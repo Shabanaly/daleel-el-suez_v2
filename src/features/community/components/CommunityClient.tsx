@@ -6,6 +6,8 @@ import CommunitySearch from './CommunitySearch';
 import CommunityFeed from './CommunityFeed';
 import { CommunityPost, CommunityCategory } from '@/features/community/types';
 import CreatePostTrigger from './CreatePostTrigger';
+import AdSlot from '@/components/common/AdSlot';
+import { Banner320x50 } from '@/components/common/ThirdPartyAds';
 
 interface CommunityClientProps {
     initialPosts: CommunityPost[];
@@ -38,6 +40,10 @@ export default function CommunityClient({ initialPosts, categories, userAvatar }
             <div className="mb-8">
                 <CreatePostTrigger categories={categories} userAvatar={userAvatar} />
             </div>
+
+            <AdSlot device="mobile" className="w-full mb-8">
+                <Banner320x50 containerId="ad-community-list-mobile" />
+            </AdSlot>
 
             {/* Feed */}
             <CommunityFeed initialPosts={initialPosts} categories={categories} />
