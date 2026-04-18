@@ -84,6 +84,19 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
             addressRegion: 'Suez Governorate',
             addressCountry: 'EG'
         },
+        ...(place.workingHours ? {
+            openingHoursSpecification: Object.entries(place.workingHours)
+                .filter(([_, schedule]: any) => schedule.isOpen)
+                .map(([day, schedule]: any) => ({
+                    '@type': 'OpeningHoursSpecification',
+                    dayOfWeek: day.charAt(0).toUpperCase() + day.slice(1),
+                    opens: schedule.from,
+                    closes: schedule.to
+                }))
+        } : {}),
+        ...(place.socialLinks?.length ? {
+            sameAs: place.socialLinks.map((link: any) => link.url)
+        } : {}),
         ...(place.rating && place.reviews ? {
             aggregateRating: {
                 '@type': 'AggregateRating',

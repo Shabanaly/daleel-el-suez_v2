@@ -9,26 +9,47 @@ export default function JsonLd() {
       {
         "@type": "WebSite",
         "@id": "https://daleel-al-suez.com/#website",
-        "url": "https://daleel-al-suez.com",
-        "name": "دليل السويس",
-        "description": "اكتشف أفضل الأماكن، الخدمات، والمطاعم في محافظة السويس.",
-        "potentialAction": {
+        url: "https://daleel-al-suez.com",
+        name: "دليل السويس",
+        alternateName: "Suez Guide",
+        description:
+          "الدليل الأول والشامل لمحافظة السويس. اكتشف الأماكن، الخدمات، الوظائف، وسوق السويس في مكان واحد.",
+        inLanguage: "ar-EG",
+        potentialAction: {
           "@type": "SearchAction",
-          "target": {
+          target: {
             "@type": "EntryPoint",
-            "urlTemplate": "https://daleel-al-suez.com/places?q={search_term_string}"
+            urlTemplate:
+              "https://daleel-al-suez.com/places?q={search_term_string}",
           },
-          "query-input": "required name=search_term_string"
-        }
+          "query-input": "required name=search_term_string",
+        },
       },
       {
         "@type": "Organization",
         "@id": "https://daleel-al-suez.com/#organization",
-        "url": "https://daleel-al-suez.com",
-        "name": "دليل السويس",
-        "logo": "https://daleel-al-suez.com/apple-touch-icon.png"
-      }
-    ]
+        url: "https://daleel-al-suez.com",
+        name: "دليل السويس",
+        logo: "https://daleel-al-suez.com/apple-touch-icon.png",
+        sameAs: [
+          "https://www.facebook.com/daleel.al.suez",
+          "https://www.instagram.com/daleel_al_suez",
+        ],
+        areaServed: {
+          "@type": "State",
+          name: "Suez",
+          addressRegion: "Suez Governorate",
+          addressCountry: "EG",
+        },
+        contactPoint: {
+          "@type": "ContactPoint",
+          telephone: "+201000000000",
+          contactType: "customer service",
+          areaServed: "EG",
+          availableLanguage: "Arabic",
+        },
+      },
+    ],
   };
 
   return (

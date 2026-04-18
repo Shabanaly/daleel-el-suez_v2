@@ -16,6 +16,7 @@ import { PlaceInfoTabs } from './PlaceInfoTabs';
 import { StickyActionsBar } from './StickyActionsBar';
 import { ReviewsSection } from './reviews/ReviewsSection';
 import { getPlaceViews } from '@/features/places/actions/places.server';
+import NAPDisplay from '@/components/common/NAPDisplay';
 
 
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
@@ -141,26 +142,27 @@ export function PlaceDetailsClient({
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between gap-4 mb-4">
-                        {/* Favorite Button (Left side in RTL) */}
-                        <FavoriteButton
-                            itemId={place.id}
-                            itemType="place"
-                            initialIsFavorite={isFavorite}
-                            size="lg"
-                        />
+                    <div className="flex flex-col gap-4 mb-4">
+                        <div className="flex items-center justify-between gap-4">
+                            {/* Favorite Button (Left side in RTL) */}
+                            <FavoriteButton
+                                itemId={place.id}
+                                itemType="place"
+                                initialIsFavorite={isFavorite}
+                                size="lg"
+                            />
 
-                        <h1 className="text-3xl md:text-5xl font-black text-text-primary tracking-tight text-right flex-1">
-                            {place.name}
-                        </h1>
+                            <NAPDisplay 
+                                name={place.name} 
+                                address={place.address}
+                                area={place.area}
+                                phone={place.phoneNumber?.primary}
+                                className="text-right flex-1"
+                            />
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-2 text-text-muted font-bold mb-6 justify-start bg-surface p-2 rounded-xl">
-                        <span className="flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5" />
-                            {place.area}، السويس
-                        </span>
-                        <span className="opacity-30">•</span>
                         <span className="text-primary font-black">{place.category}</span>
                     </div>
 

@@ -23,6 +23,11 @@ export default function robots(): MetadataRoute.Robots {
                     '/*/edit',
                 ],
             },
+            {
+                userAgent: ['GPTBot', 'Claude-Bot', 'Google-Extended', 'CCBot', 'PerplexityBot'],
+                allow: '/',
+                disallow: ['/admin/', '/api/', '/profile/'],
+            },
         ],
         sitemap: `${baseUrl}/sitemap.xml`,
     };

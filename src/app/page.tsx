@@ -27,6 +27,7 @@ import AdSlot from "@/components/common/AdSlot";
 import { Banner320x50 } from "@/components/common/ThirdPartyAds";
 import { getRecentBlogPosts } from "@/features/blog/actions/blog";
 import HomeBlogSection from "@/features/blog/components/HomeBlogSection";
+import FaqJsonLd from "@/components/seo/FaqJsonLd";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.NAME} - ${APP_CONFIG.TAGLINE}`,
@@ -79,6 +80,7 @@ export default async function Home() {
 
   return (
     <div className="w-full flex flex-col items-center overflow-hidden">
+      <FaqJsonLd />
       <Hero categories={categories} ads={heroAds} />
 
       <TrendingPlaces />
