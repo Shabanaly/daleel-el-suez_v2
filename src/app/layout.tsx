@@ -90,6 +90,11 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-touch-icon.png",
   },
+  verification: {
+    other: {
+      "google-adsense-account": ["ca-pub-5152627364584775"],
+    },
+  },
 };
 
 export const viewport: Viewport = {
