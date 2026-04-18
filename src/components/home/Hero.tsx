@@ -4,7 +4,6 @@
 import { motion } from 'framer-motion';
 
 // Import sub-components
-import HeroBackground from './hero/HeroBackground';
 import HeroSearch from '@/features/search/components/HeroSearch';
 import HeroAdsCarousel from './hero/HeroAdsCarousel';
 import HeroCategories from '@/features/places/components/HeroCategories';
@@ -16,7 +15,6 @@ export default function Hero({ categories = [], ads = [] }: { categories?: Categ
     return (
         <section className="relative w-full flex flex-col items-center justify-center overflow-hidden pt-4 pb-0 md:pt-6 md:pb-0 min-h-[60vh] bg-background">
 
-            <HeroBackground />
 
             {/* ── Content ────────────────────────────────────────────────── */}
             <div className="relative z-10 w-full max-w-6xl px-4 flex flex-col items-center">

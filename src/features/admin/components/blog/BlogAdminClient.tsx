@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import dynamic from "next/dynamic";
 import {
   CalendarDays,
@@ -39,14 +39,18 @@ const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
 const EMPTY_FORM = {
   title: "",
   content: "",
-  publishedAt: new Date().toISOString().slice(0, 16),
+  publishedAt: "", // Start empty to avoid hydration mismatch
   isPublished: true,
   categoryId: "",
 };
 
 function toLocalInputValue(value?: string) {
-  if (!value) return new Date().toISOString().slice(0, 16);
-  return new Date(value).toISOString().slice(0, 16);
+  if (!value) return ""; 
+  try {
+    return new Date(value).toISOString().slice(0, 16);
+  } catch {
+    return "";
+  }
 }
 
 export function BlogAdminClient({
@@ -74,6 +78,19 @@ export function BlogAdminClient({
     null,
   );
   const [form, setForm] = useState(EMPTY_FORM);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Initialize client-side only data
+  useEffect(() => {
+    setIsMounted(true);
+    // Set default date for new posts only if the form is empty
+    if (!editingPost && !form.publishedAt) {
+      setForm(prev => ({
+        ...prev,
+        publishedAt: new Date().toISOString().slice(0, 16)
+      }));
+    }
+  }, [editingPost]);
 
   const uploader = useImageUpload({
     folder: "blog-posts",
@@ -447,11 +464,11 @@ export function BlogAdminClient({
                       )}
                       <span className="inline-flex items-center gap-1 text-xs font-bold text-text-muted">
                         <CalendarDays className="h-3.5 w-3.5" />
-                        {format(
+                        {isMounted ? format(
                           new Date(post.publishedAt),
                           "dd MMM yyyy - HH:mm",
                           { locale: ar },
-                        )}
+                        ) : "..."}
                       </span>
                     </div>
                     <h3 className="text-lg font-black text-text-primary">
