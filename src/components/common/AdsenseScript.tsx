@@ -34,12 +34,11 @@ export function AdsenseScript() {
 
     if (!shouldLoad) return null;
 
-    /* return (
+    return (
         <Script 
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775" 
             strategy="afterInteractive"
             crossOrigin="anonymous"
         />
-    ); */
-    return null;
+    );
 }

@@ -94,24 +94,24 @@ export default function AnnouncementTicker({ announcements }: AnnouncementTicker
         exit={{ height: 0, opacity: 0 }}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
-        className="relative isolate flex items-center bg-elevated/80 backdrop-blur-md px-4 py-2 border-b border-border-subtle z-60"
+        className="relative isolate flex items-center bg-elevated/80 backdrop-blur-md px-2 sm:px-4 py-2 border-b border-border-subtle z-60"
       >
 
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-1 sm:gap-4">
           
           {/* Controls - Previous */}
           {announcements.length > 1 && (
             <button 
               onClick={prevAnnouncement}
-              className="p-1 text-text-muted hover:text-text-primary transition-colors"
+              className="p-1 text-text-muted hover:text-text-primary transition-colors shrink-0"
               aria-label="السابق"
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={16} className="sm:w-[18px] sm:h-[18px]" />
             </button>
           )}
 
           {/* Content Area */}
-          <div className="flex-1 min-h-[24px] flex items-center justify-center overflow-hidden py-1">
+          <div className="flex-1 min-h-[24px] flex items-center justify-center overflow-hidden py-1 px-1">
             <AnimatePresence mode="wait">
               <motion.div
                 key={current.id}
@@ -127,25 +127,25 @@ export default function AnnouncementTicker({ announcements }: AnnouncementTicker
           </div>
 
           {/* Controls - Next & Close */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
             {announcements.length > 1 && (
               <button 
                 onClick={nextAnnouncement}
                 className="p-1 text-text-muted hover:text-text-primary transition-colors"
                 aria-label="التالي"
               >
-                <ChevronLeft size={18} />
+                <ChevronLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
               </button>
             ) }
             
-            <div className="w-px h-4 bg-border-subtle mx-1" />
+            <div className="w-px h-3 sm:h-4 bg-border-subtle mx-0.5 sm:mx-1" />
             
             <button
               onClick={handleDismiss}
               className="p-1 text-text-muted hover:text-error transition-colors"
               aria-label="إغلاق"
             >
-              <X size={18} />
+              <X size={16} className="sm:w-[18px] sm:h-[18px]" />
             </button>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield } from 'lucide-react';
+import { Shield, X } from 'lucide-react';
 import CustomLink from '@/components/customLink/customLink';
 import { ROUTES } from '@/constants';
 
@@ -42,39 +42,39 @@ export default function CookieConsent() {
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
-        className="fixed bottom-24 lg:bottom-6 left-4 right-4 md:left-6 md:right-auto md:max-w-md z-50"
+        className="fixed bottom-24 lg:bottom-6 left-4 right-4 md:left-6 md:right-auto md:max-w-sm z-50 pointer-events-none"
       >
-        <div className="bg-surface/95 backdrop-blur-md border border-border-subtle shadow-2xl rounded-2xl p-5 flex flex-col md:flex-row items-center gap-4 relative overflow-hidden">
+        <div className="pointer-events-auto bg-surface/90 backdrop-blur-xl border border-primary/10 shadow-2xl rounded-[28px] p-2 sm:p-4 flex items-center gap-3 relative overflow-hidden">
           {/* Accent decoration */}
-          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full -mr-8 -mt-8 pointer-events-none blur-xl" />
           
-          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-            <Shield className="w-6 h-6 text-primary" />
+          <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0 border border-primary/20">
+            <Shield className="w-5 h-5 text-primary" />
           </div>
 
-          <div className="flex-1 text-right" dir="rtl">
-            <h4 className="text-text-primary font-bold text-sm mb-1">خصوصيتك تهمنا 🛡️</h4>
-            <p className="text-text-muted text-[11px] leading-relaxed">
-              نحن نستخدم ملفات تعريف الارتباط (Cookies) لتحسين تجربة تصفحك وعرض إعلانات مخصصة لك. بضغطك على &quot;موافق&quot;، فإنك تقبل استخدامنا لها.
-              {' '}
-              <CustomLink href={ROUTES.PRIVACY} className="text-primary hover:underline font-bold">
-                اقرأ سياسة الخصوصية
+          <div className="flex-1 text-right min-w-0" dir="rtl">
+            <h4 className="text-text-primary font-black text-[10px] sm:text-xs mb-0.5">خصوصيتك تهمنا 🛡️</h4>
+            <p className="text-text-muted text-[9px] sm:text-[11px] leading-tight truncate sm:whitespace-normal">
+              نستخدم ملفات تعريف الارتباط لتحسين تجربتك.
+              <CustomLink href={ROUTES.PRIVACY} className="text-primary hover:underline font-black mr-1">
+                التفاصيل
               </CustomLink>
             </p>
           </div>
 
-          <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={handleAccept}
-              className="flex-1 md:w-24 bg-primary hover:bg-primary-hover text-white text-[11px] font-black py-2 rounded-lg transition-all shadow-md active:scale-95"
+              className="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-[10px] sm:text-[11px] font-black rounded-full transition-all shadow-md active:scale-95"
             >
               موافق
             </button>
             <button
               onClick={handleDismiss}
-              className="flex-1 md:w-24 bg-elevated/50 hover:bg-elevated text-text-muted text-[11px] font-bold py-2 rounded-lg transition-colors"
+              className="p-2 text-text-muted hover:text-text-primary transition-colors"
+              aria-label="إغلاق"
             >
-              إغلاق
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>

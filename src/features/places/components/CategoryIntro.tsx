@@ -13,9 +13,24 @@ const CategoryIntro = ({ categorySlug, categoryName, className = "" }: CategoryI
   // Normalize name for Arabic grammar (handling the "Al-" prefix)
   const formatName = (name: string) => {
     const trimmed = name.trim();
-    // If it already starts with "ال", don't add it again
+    if (!trimmed) return "";
+
+    // 1. If it already starts with "ال", don't add it again
     if (trimmed.startsWith('ال')) return trimmed;
-    // Otherwise add it
+
+    const words = trimmed.split(/\s+/);
+    
+    // 2. If it's a multi-word category (e.g., "سوق العقارات", "عالم السيارات")
+    // Adding "ال" to the first word makes it unnatural. 
+    // Usually these are already definite by addition.
+    if (words.length > 1) return trimmed;
+
+    // 3. Special cases for words that shouldn't have "ال" added manually
+    // or are usually used as-is in this context
+    const staticWords = ['عالم', 'سوق', 'دليل', 'مركز', 'مؤسسة', 'بنوك', 'مدارس'];
+    if (staticWords.some(w => trimmed === w)) return trimmed;
+
+    // Otherwise add "ال" (Definite Article)
     return `ال${trimmed}`;
   };
 
