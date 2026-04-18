@@ -94,6 +94,18 @@ export default async function BlogPostPage({
     image: post.imageUrl ? [post.imageUrl] : [],
     datePublished: post.publishedAt,
     dateModified: post.updatedAt || post.publishedAt,
+    inLanguage: 'ar-EG',
+    isAccessibleForFree: 'True',
+    about: {
+      '@type': 'Place',
+      name: 'السويس',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Suez',
+        addressRegion: 'Suez Governorate',
+        addressCountry: 'EG'
+      }
+    },
     author: {
       '@type': 'Organization',
       name: APP_CONFIG.NAME,
@@ -117,6 +129,11 @@ export default async function BlogPostPage({
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <BreadcrumbsJsonLd items={breadcrumbs} />
+      
+      {/* 🤖 AI Article Snippet */}
+      <div className="sr-only" aria-hidden="true">
+        مقال حول {post.title} في السويس. {post.excerpt || post.content.slice(0, 150)}
+      </div>
       
       <AppBar 
         title={post.title} 
