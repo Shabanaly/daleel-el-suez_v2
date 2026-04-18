@@ -2,10 +2,10 @@
 
 import React, { createContext, useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MessageSquare, Heart, Star, Bell, Info } from 'lucide-react';
+import { X, MessageSquare, Heart, Star, Bell, Info, CheckCircle2, AlertCircle } from 'lucide-react';
 import CustomLink from '@/components/customLink/customLink';
 
-export type ToastType = 'COMMENT' | 'LIKE' | 'FAVORITE' | 'DEFAULT' | 'INFO';
+export type ToastType = 'COMMENT' | 'LIKE' | 'FAVORITE' | 'DEFAULT' | 'INFO' | 'SUCCESS' | 'ERROR';
 
 export interface ToastOptions {
   id?: string;
@@ -36,7 +36,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 
   const showToast = useCallback((options: ToastOptions) => {
     const id = options.id || Math.random().toString(36).substring(2, 9);
-    const toast = { ...options, id, type: options.type || 'DEFAULT', duration: options.duration || 5000 };
+    const toast = { ...options, id, type: options.type || 'DEFAULT', duration: options.duration || 4000 };
     
     setToasts((prev) => [toast, ...prev].slice(0, 3)); // Keep last 3
 
@@ -51,8 +51,8 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     <ToastContext.Provider value={{ showToast, dismissToast }}>
       {children}
       
-      {/* Toast Container */}
-      <div className="fixed inset-0 pointer-events-none z-99999 flex flex-col items-center lg:items-end justify-end lg:justify-start p-4 lg:p-6 lg:pt-24 gap-3">
+      {/* 📍 Professional Top-Center Placement */}
+      <div className="fixed top-6 lg:top-10 left-1/2 -translate-x-1/2 pointer-events-none z-99999 flex flex-col items-center w-full px-4 gap-2.5 max-w-[420px]">
         <AnimatePresence mode="popLayout">
           {toasts.map((toast) => (
             <ToastNotification key={toast.id} toast={toast} onDismiss={dismissToast} />
@@ -64,25 +64,30 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 const ToastNotification = ({ toast, onDismiss }: { toast: ToastOptions; onDismiss: (id: string) => void }) => {
-  const { id, title, message, type, link, actor, duration = 5000 } = toast;
+  const { id, title, message, type, link, actor, duration = 4000 } = toast;
   
-  const getColors = () => {
+  // Map types to CSS variables for dynamic theme matching
+  const getStatusColor = () => {
     switch (type) {
-      case 'COMMENT': return 'bg-blue-500/10 border-blue-500/20 text-blue-600';
-      case 'LIKE': return 'bg-red-500/10 border-red-500/20 text-red-600';
-      case 'FAVORITE': return 'bg-yellow-500/10 border-yellow-500/20 text-yellow-600';
-      case 'INFO': return 'bg-sky-500/10 border-sky-500/20 text-sky-600';
-      default: return 'bg-primary/10 border-primary/20 text-primary';
+      case 'SUCCESS': return 'var(--color-success)';
+      case 'ERROR': return 'var(--color-error)';
+      case 'INFO': return 'var(--color-info)';
+      case 'LIKE': return '#f43f5e'; // Rose color for likes
+      case 'FAVORITE': return 'var(--color-warning)'; // Using warning/yellow for favorites/stars
+      case 'COMMENT': return 'var(--primary)';
+      default: return 'var(--text-muted)';
     }
   };
 
   const getIcon = () => {
     switch (type) {
-      case 'COMMENT': return <MessageSquare className="w-5 h-5" />;
-      case 'LIKE': return <Heart className="w-5 h-5 fill-current" />;
-      case 'FAVORITE': return <Star className="w-5 h-5 fill-current" />;
-      case 'INFO': return <Info className="w-5 h-5" />;
-      default: return <Bell className="w-5 h-5" />;
+      case 'SUCCESS': return <CheckCircle2 className="w-5 h-5 md:w-5.5 md:h-5.5" />;
+      case 'ERROR': return <AlertCircle className="w-5 h-5 md:w-5.5 md:h-5.5" />;
+      case 'INFO': return <Info className="w-5 h-5 md:w-5.5 md:h-5.5" />;
+      case 'COMMENT': return <MessageSquare className="w-5 h-5 md:w-5.5 md:h-5.5" />;
+      case 'LIKE': return <Heart className="w-5 h-5 md:w-5.5 md:h-5.5 fill-current" />;
+      case 'FAVORITE': return <Star className="w-5 h-5 md:w-5.5 md:h-5.5 fill-current" />;
+      default: return <Bell className="w-5 h-5 md:w-5.5 md:h-5.5" />;
     }
   };
 
@@ -92,31 +97,47 @@ const ToastNotification = ({ toast, onDismiss }: { toast: ToastOptions; onDismis
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 50, scale: 0.9 }}
+      initial={{ opacity: 0, y: -24, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      className="pointer-events-auto w-full max-w-[380px] group relative"
+      exit={{ opacity: 0, y: -10, scale: 0.96, transition: { duration: 0.2 } }}
+      className="pointer-events-auto w-full group relative"
     >
-      <div className={`relative overflow-hidden backdrop-blur-md rounded-3xl border shadow-2xl transition-all hover:shadow-primary/10 ${getColors()}`}>
-        <div className="p-4 flex items-start gap-4">
+      <div 
+        className="relative rounded-xl border border-border-subtle shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15)] transition-all hover:scale-[1.01] overflow-hidden"
+        style={{ 
+          backgroundColor: 'color-mix(in srgb, var(--surface) 95%, transparent)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
+      >
+        {/* Accent Bar */}
+        <div 
+          className="absolute top-0 right-0 w-1.5 h-full opacity-80"
+          style={{ backgroundColor: getStatusColor() }}
+        />
+
+        <div className="p-3 md:p-4 pr-5 md:pr-6 flex items-center gap-3.5">
           {/* Avatar or Icon */}
-          <div className="shrink-0 pt-1">
+          <div className="shrink-0">
             {actor?.avatar_url ? (
-              <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-white/50 shadow-sm">
+              <div className="w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden ring-2 ring-border-subtle shadow-sm">
                 <img src={actor.avatar_url} alt="" className="w-full h-full object-cover" />
               </div>
             ) : (
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-white/40 shadow-sm`}>
+              <div 
+                className="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center shadow-sm"
+                style={{ backgroundColor: 'color-mix(in srgb, var(--base) 50%, transparent)', color: getStatusColor() }}
+              >
                 {getIcon()}
               </div>
             )}
           </div>
 
-          <Wrapper {...(wrapperProps as any)} className="flex-1 min-w-0 pr-2">
-            <h4 className="font-black text-sm tracking-tight mb-1 truncate">
+          <Wrapper {...(wrapperProps as any)} className="flex-1 min-w-0">
+            <h4 className="font-black text-[13px] md:text-sm tracking-tight mb-0.5" style={{ color: 'var(--text-primary)' }}>
               {title}
             </h4>
-            <p className="text-xs font-bold opacity-80 leading-relaxed line-clamp-2">
+            <p className="text-[11px] md:text-xs font-bold leading-relaxed line-clamp-1" style={{ color: 'var(--text-secondary)' }}>
               {message}
             </p>
           </Wrapper>
@@ -126,9 +147,9 @@ const ToastNotification = ({ toast, onDismiss }: { toast: ToastOptions; onDismis
               e.stopPropagation();
               onDismiss(id!);
             }}
-            className="shrink-0 p-1 rounded-full hover:bg-black/5 transition-colors opacity-0 group-hover:opacity-100"
+            className="shrink-0 p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-all text-text-muted hover:text-text-primary"
           >
-            <X className="w-4 h-4 text-black/40" />
+            <X className="w-4 h-4 opacity-50" />
           </button>
         </div>
 
@@ -137,7 +158,8 @@ const ToastNotification = ({ toast, onDismiss }: { toast: ToastOptions; onDismis
           initial={{ width: '100%' }}
           animate={{ width: '0%' }}
           transition={{ duration: duration / 1000, ease: 'linear' }}
-          className="absolute bottom-0 left-0 h-1 bg-current opacity-20"
+          className="absolute bottom-0 right-0 h-[2.5px] opacity-40"
+          style={{ backgroundColor: getStatusColor() }}
         />
       </div>
     </motion.div>

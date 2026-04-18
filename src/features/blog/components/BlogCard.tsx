@@ -8,13 +8,27 @@ import { SafeImage } from '@/components/common/SafeImage';
 import type { BlogPostListItem } from '@/features/blog/types';
 import { ROUTE_HELPERS } from '@/constants';
 
-const stripHtmlAndMarkdown = (html: string) => {
-  if (!html) return '';
-  // Strip HTML tags
-  let text = html.replace(/<[^>]+>/g, ' ');
-  // Strip common Markdown characters (bold, italics, headers)
-  text = text.replace(/[#*_~`>]/g, '');
-  // Normalize whitespace
+export const stripHtmlAndMarkdown = (content: string) => {
+  if (!content) return '';
+  
+  let text = content;
+  
+  // 1. Remove Markdown Images: ![alt](url)
+  text = text.replace(/!\[([^\]]*)\]\([^\)]+\)/g, '$1');
+  
+  // 2. Clear Markdown Links but keep the text: [text](url) -> text
+  text = text.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1');
+  
+  // 3. Remove HTML tags
+  text = text.replace(/<[^>]+>/g, ' ');
+  
+  // 4. Remove other Markdown symbols (Headers, Bold, Italic, Blockquotes, etc.)
+  text = text.replace(/[#*_~`>|]/g, '');
+  
+  // 5. Remove horizontal rules
+  text = text.replace(/-{3,}/g, '');
+  
+  // 6. Normalize whitespace and trim
   return text.replace(/\s+/g, ' ').trim();
 };
 

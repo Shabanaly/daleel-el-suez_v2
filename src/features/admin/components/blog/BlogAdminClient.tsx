@@ -14,9 +14,9 @@ import {
   deleteBlogPostAction,
   updateBlogPostAction,
 } from '@/features/admin/actions/blog';
-import { RichContent } from '@/features/blog/components/RichContent';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { AdminCommentsModal } from './AdminCommentsModal';
+import { stripHtmlAndMarkdown } from '@/features/blog/components/BlogCard';
 
 const EMPTY_FORM = {
   title: '',
@@ -53,7 +53,6 @@ export function BlogAdminClient({
   const [editingPost, setEditingPost] = useState<AdminBlogPost | null>(null);
   const [commentingPost, setCommentingPost] = useState<AdminBlogPost | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
-  const [showPreview, setShowPreview] = useState(false);
 
   const uploader = useImageUpload({
     folder: 'blog-posts',
@@ -255,33 +254,14 @@ export function BlogAdminClient({
             />
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-black text-text-primary">محتوى المقال</label>
-                <button
-                  type="button"
-                  onClick={() => setShowPreview(!showPreview)}
-                  className={`rounded-xl px-3 py-1.5 text-xs font-black transition ${
-                    showPreview 
-                      ? 'bg-primary text-white shadow-lg shadow-primary/20' 
-                      : 'bg-surface-tertiary text-text-secondary border border-border-subtle hover:border-primary/30'
-                  }`}
-                >
-                  {showPreview ? 'العودة للمحرر' : 'معاينة النشر'}
-                </button>
-              </div>
+              <label className="text-sm font-black text-text-primary">محتوى المقال</label>
               
-              {showPreview ? (
-                <div className="min-h-[400px] w-full rounded-xl border border-border-subtle bg-surface-secondary/30 px-6 py-6 overflow-hidden">
-                  <RichContent content={form.content} />
-                </div>
-              ) : (
-                <RichTextEditor
-                  content={form.content}
-                  onChange={(newContent) => setForm((prev) => ({ ...prev, content: newContent }))}
-                  placeholder="اكتب المقال هنا..."
-                  draftKey={editingPost ? `blog_draft_edit_${editingPost.id}` : 'blog_draft_new'}
-                />
-              )}
+              <RichTextEditor
+                content={form.content}
+                onChange={(newContent) => setForm((prev) => ({ ...prev, content: newContent }))}
+                placeholder="اكتب المقال هنا..."
+                draftKey={editingPost ? `blog_draft_edit_${editingPost.id}` : 'blog_draft_new'}
+              />
             </div>
 
             <button
@@ -346,7 +326,7 @@ export function BlogAdminClient({
                     </div>
                     <h3 className="text-lg font-black text-text-primary">{post.title}</h3>
                     <p className="line-clamp-2 text-sm leading-7 text-text-muted">
-                      {post.excerpt || post.content}
+                      {stripHtmlAndMarkdown(post.excerpt || post.content || '')}
                     </p>
                     <div className="text-xs font-bold text-text-muted">/{post.slug}</div>
                   </div>

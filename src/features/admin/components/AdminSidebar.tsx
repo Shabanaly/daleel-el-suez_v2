@@ -46,8 +46,8 @@ export default function AdminSidebar() {
 
     return (
         <>
-            {/* Mobile Header */}
-            <div className="lg:hidden fixed top-(--ticker-height,0px) left-0 right-0 h-16 bg-background border-b z-50 flex items-center justify-between px-4">
+            {/* Mobile Header (Sticky fixes the gap issue when scrolling) */}
+            <div className="lg:hidden sticky top-0 left-0 right-0 h-16 bg-background border-b z-50 flex items-center justify-between px-4">
                 <span className="font-bold text-lg text-primary">دليل السويس - الإدارة</span>
                 <button onClick={toggleMobileMenu} className="p-2 -mr-2 text-text-muted hover:text-text-primary">
                     {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
