@@ -26,7 +26,6 @@ export default function LeftSidebar() {
                         ROUTES.PLACES,
                         ROUTES.MARKET,
                         ROUTES.COMMUNITY,
-                        ROUTES.GALLERY,
                         ROUTES.BEST,
                         ROUTES.CATEGORIES,
                         ROUTES.BLOG,

@@ -27,10 +27,10 @@ export default function HomeBlogSection({ posts }: HomeBlogSectionProps) {
               مدونة دليل السويس
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-text-primary tracking-tight">
-              اكتشف السويس بعيون أهلها
+              استكشف السويس
             </h2>
             <p className="text-text-secondary max-w-2xl leading-relaxed font-medium">
-              نصائح، ترشيحات، وحكايات عن أفضل الأماكن والخدمات في مدينتنا. محتوى حصري يساعدك تستمتع بالسويس أكتر.
+              مقالات حصرية وقصص ملهمة تسلط الضوء على جواهر السويس الخفية، مع نصائح عملية لمساعدتك على استكشاف أفضل الخدمات والأماكن في المحافظة.
             </p>
           </div>
 

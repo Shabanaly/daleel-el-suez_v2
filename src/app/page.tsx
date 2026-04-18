@@ -6,11 +6,9 @@ import { getHomeDistricts } from "@/features/taxonomy/actions/districts";
 import { getHomeUnifiedStats } from "@/features/stats/actions/stats.server";
 import Hero from "@/components/home/Hero";
 import SuezStats from "@/features/stats/components/SuezStats";
-import SuezGallery from "@/features/gallery/components/SuezGallery";
 import CommunityTeaser from "@/features/community/components/CommunityTeaser";
 import CategoryHighlight from "@/features/places/components/CategoryHighlight";
 import BestOfSuezHome from "@/features/places/components/BestOfSuezHome";
-import { getTopGalleryImages } from "@/features/gallery/actions/gallery.server";
 import type { Metadata } from "next";
 import DistrictsExplorer from "@/features/places/components/DistrictsExplorer";
 import HomeMarketSection from "@/features/market/components/HomeMarketSection";
@@ -28,6 +26,7 @@ import { Banner320x50 } from "@/components/common/ThirdPartyAds";
 import { getRecentBlogPosts } from "@/features/blog/actions/blog";
 import HomeBlogSection from "@/features/blog/components/HomeBlogSection";
 import FaqJsonLd from "@/components/seo/FaqJsonLd";
+import SuezEncyclopedia from "@/components/home/SuezEncyclopedia";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.NAME} - ${APP_CONFIG.TAGLINE}`,
@@ -46,7 +45,6 @@ export default async function Home() {
     smartCategoryData,
     unifiedStats,
     marketData,
-    topGalleryImages,
     heroAds,
     posts,
   ] = await Promise.all([
@@ -55,7 +53,6 @@ export default async function Home() {
     getSmartCategoryHighlights(),
     getHomeUnifiedStats(),
     getMarketHomePageData(),
-    getTopGalleryImages(5),
     getActiveHeroAds(),
     getRecentBlogPosts(),
   ]);
@@ -93,8 +90,10 @@ export default async function Home() {
       {smartCategoryData && <CategoryHighlight data={smartCategoryData} />}
       <CommunityPulse />
       <HomeBlogSection posts={posts} />
-      <SuezGallery initialImages={topGalleryImages} />
       <DistrictsExplorer districts={districts} />
+      
+      {/* 🤖 AI Content Layer: Visible Encyclopedia */}
+      <SuezEncyclopedia />
       
       {/* 🚀 Auth-decoupled section: Wrapped in Suspense to keep the rest of the page static/cacheable */}
       <Suspense fallback={<div className="h-40 w-full animate-pulse bg-surface rounded-3xl" />}>

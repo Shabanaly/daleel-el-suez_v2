@@ -42,7 +42,6 @@ export const ROUTES = {
   // Community & Social
   COMMUNITY: "/community",
   BLOG: "/blog",
-  GALLERY: "/gallery",
   BEST: "/best",
   CATEGORIES: "/categories",
   ABOUT: "/about",

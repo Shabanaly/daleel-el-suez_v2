@@ -47,7 +47,7 @@ export function PlacesClient({ initialPlaces, totalCount, categories, areas, dis
     }, [isPending, page]); // Triggers when transition ends or page state changes
 
     return (
-        <div className="w-full min-h-screen pt-20 md:pt-28 pb-10">
+        <div className="w-full min-h-screen pt-2 md:pt-6 pb-8">
 
             {/* ── Advanced Search Hub Header ───────────────────────────────── */}
             <div className="w-full max-w-5xl mx-auto px-4 mb-8 md:mb-12">

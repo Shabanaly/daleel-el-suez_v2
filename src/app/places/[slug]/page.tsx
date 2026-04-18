@@ -119,7 +119,6 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <BreadcrumbsJsonLd items={breadcrumbs} />
             <ViewTracker placeId={place.id} slug={place.slug} />
             <PlaceDetailsClient
                 place={place}

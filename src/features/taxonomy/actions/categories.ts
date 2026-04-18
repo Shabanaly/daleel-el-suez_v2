@@ -252,13 +252,13 @@ export async function getCategoryInfoBySlug(slug: string) {
 }
 
 export const getCategoriesWithIds = unstable_cache(
-    async (): Promise<{ id: number; name: string }[]> => {
+    async (): Promise<{ id: number; name: string; slug: string }[]> => {
         const supabase = createServiceClient();
         const { data } = await supabase
             .from('categories')
-            .select('id, name')
+            .select('id, name, slug')
             .eq('type', 'place');
-        return data || [];
+        return (data || []) as { id: number; name: string; slug: string }[];
     },
     ['categories-ids-list'],
     { tags: ['categories'], revalidate: 86400 }

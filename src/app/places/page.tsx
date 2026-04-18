@@ -9,6 +9,7 @@ import type { Metadata } from 'next';
 import { SortOption } from '@/features/places/types';
 import { ROUTES } from '@/constants/routes';
 import { APP_CONFIG } from '@/constants/config';
+import CategoryIntro from '@/features/places/components/CategoryIntro';
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }): Promise<Metadata> {
     const params = await searchParams;
@@ -106,13 +107,21 @@ export default async function PlacesPage({
     // 🎨 Pass the raw data down to the Client Component
     return (
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-bold text-primary animate-pulse">جاري تحميل الأماكن...</div>}>
-            <PlacesClient
-                initialPlaces={initialPlaces}
-                totalCount={total}
-                categories={categoriesList}
-                areas={allAreas}
-                districts={districts}
-            />
+            <div className="w-full max-w-7xl mx-auto px-4 pt-8 space-y-8">
+                {category && (
+                    <CategoryIntro 
+                        categorySlug={category.slug} 
+                        categoryName={category.name} 
+                    />
+                )}
+                <PlacesClient
+                    initialPlaces={initialPlaces}
+                    totalCount={total}
+                    categories={categoriesList}
+                    areas={allAreas}
+                    districts={districts}
+                />
+            </div>
         </Suspense>
     );
 }

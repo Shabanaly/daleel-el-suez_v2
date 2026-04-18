@@ -22,6 +22,8 @@ import NAPDisplay from '@/components/common/NAPDisplay';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { AppBar } from '@/components/ui/AppBar';
 import { ROUTES, ROUTE_HELPERS } from '@/constants';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import PlaceFactSheet from './PlaceFactSheet';
 interface PlaceDetailsClientProps {
     place: Place;
     relatedPlaces: Place[];
@@ -95,22 +97,18 @@ export function PlaceDetailsClient({
 
             <main className="pt-14 md:pt-32 max-w-4xl mx-auto px-4">
 
-                {/* ── Desktop Breadcrumbs ───────────────────────────────────── */}
-                <nav className="hidden md:flex items-center gap-2 mb-10 text-sm font-bold">
-                    <CustomLink href={ROUTES.HOME} className="text-text-muted hover:text-primary transition-colors">الرئيسية</CustomLink>
-                    <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
-                    <CustomLink href={ROUTES.PLACES} className="text-text-muted hover:text-primary transition-colors">أماكن</CustomLink>
-                    <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
-                    {place.category ? (
-                        <CustomLink href={ROUTE_HELPERS.PLACES_CATEGORY(place.category)} className="text-text-muted hover:text-primary transition-colors">
-                            {place.category}
-                        </CustomLink>
-                    ) : (
-                        <span className="text-text-muted/50">{place.category}</span>
-                    )}
-                    <ChevronLeft className="w-4 h-4 text-text-muted/30 rotate-180" />
-                    <span className="text-primary">{place.name}</span>
-                </nav>
+                {/* ── Breadcrumbs (Visible on all devices + JSON-LD) ──────────── */}
+                <Breadcrumbs 
+                    items={[
+                        { label: 'أماكن', href: ROUTES.PLACES },
+                        { 
+                            label: place.category || 'تصنيف', 
+                            href: place.category ? ROUTE_HELPERS.PLACES_CATEGORY(place.category) : undefined 
+                        },
+                        { label: place.name }
+                    ]} 
+                    className="mb-8"
+                />
 
                 {/* ── 1. Image Gallery (Full width on mobile) ────────────────────────── */}
                 <div className="-mx-4 md:mx-0 mb-8 md:mb-12">
@@ -166,9 +164,12 @@ export function PlaceDetailsClient({
                         <span className="text-primary font-black">{place.category}</span>
                     </div>
 
-                    <p className="text-text-muted text-lg leading-relaxed max-w-2xl font-medium opacity-90 mx-0">
+                    <p className="text-text-muted text-lg leading-relaxed max-w-2xl font-medium opacity-90 mx-0 mb-8">
                         {place.description || 'اكتشف أفضل الخدمات والمنتجات المتاحة في مدينة السويس بأسعار تنافسية وجودة عالية.'}
                     </p>
+
+                    {/* 🤖 AI Knowledge Layer: Fact Sheet */}
+                    <PlaceFactSheet place={place} className="mb-8" />
                 </section>
 
                 <AdSlot device="mobile" className="w-full mb-8">
