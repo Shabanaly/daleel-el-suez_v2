@@ -82,7 +82,6 @@ export function PlaceDetailsClient({
                     <ShareButton
                         title={place.name}
                         text={`المكان ده في السويس: ${place.name}`}
-                        url={typeof window !== 'undefined' ? window.location.href : ''}
                         className="w-10 h-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-text-primary hover:bg-elevated transition-colors"
                         onSuccess={() => showAlert({
                             title: 'تم النسخ!',
@@ -176,13 +175,12 @@ export function PlaceDetailsClient({
                     <Banner320x50 containerId="ad-place-details-mobile" />
                 </AdSlot>
 
-                {/* ── 3. Primary Actions (Share only, others moved to sticky bar) ── */}
+                {/* ── 4. Primary Actions (Share only, others moved to sticky bar) ── */}
                 <div className="hidden md:flex justify-end mb-10">
 
                     <ShareButton
                         title={place.name}
                         text={`المكان ده في السويس: ${place.name}`}
-                        url={typeof window !== 'undefined' ? window.location.href : ''}
                         className="w-full md:w-auto px-8 h-16 rounded-[28px] bg-surface border border-border-subtle text-text-muted flex items-center justify-center gap-3 hover:bg-elevated transition-all shadow-lg group"
                         onSuccess={() => showAlert({
                             title: 'تم النسخ!',

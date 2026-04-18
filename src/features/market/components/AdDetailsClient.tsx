@@ -94,7 +94,6 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                     <ShareButton
                         title={ad.title}
                         text={`شوف الإعلان ده في سوق السويس: ${ad.title}`}
-                        url={typeof window !== 'undefined' ? window.location.href : ''}
                         className="w-10 h-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-text-primary hover:bg-elevated transition-colors"
                         onSuccess={() => showAlert({
                             title: 'تم النسخ!',
@@ -200,7 +199,6 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                     <ShareButton
                         title={ad.title}
                         text={`شوف الإعلان ده في سوق السويس: ${ad.title}`}
-                        url={typeof window !== 'undefined' ? window.location.href : ''}
                         className="w-full md:w-auto px-8 h-16 rounded-[28px] bg-surface border border-border-subtle text-text-muted flex items-center justify-center gap-3 hover:bg-elevated transition-all shadow-lg group"
                         onSuccess={() => showAlert({
                             title: 'تم النسخ!',

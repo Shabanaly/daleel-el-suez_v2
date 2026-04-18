@@ -12,13 +12,11 @@ import { CommunityPost, CommunityCategory } from "@/features/community/types";
 
 interface PostHeaderActionsProps {
   post: CommunityPost;
-  origin: string;
   categories: CommunityCategory[];
 }
 
 export default function PostHeaderActions({
   post,
-  origin,
   categories,
 }: PostHeaderActionsProps) {
   const { user } = useAuth();
@@ -84,7 +82,7 @@ export default function PostHeaderActions({
               <ShareButton
                 title="دليل السويس - منشور في المجتمع"
                 text={post.content || "اكتشف هذا المنشور في مجتمع السويس"}
-                url={`${origin}/community#post-${post.id}`}
+                url={`/community#post-${post.id}`}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-primary hover:bg-background transition-colors"
                 onSuccess={() => {
                   setIsMenuOpen(false);

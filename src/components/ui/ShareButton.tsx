@@ -16,8 +16,8 @@ interface ShareButtonProps {
     title: string;
     /** The text content to share */
     text: string;
-    /** The URL to share */
-    url: string;
+    /** The URL to share (optional, defaults to current window location) */
+    url?: string;
     /** Optional CSS classes for the button */
     className?: string;
     /** Optional custom children for the button */
@@ -41,13 +41,21 @@ export default function ShareButton({
         e.preventDefault();
         e.stopPropagation();
 
+        // Get the URL lazily at the moment of interaction
+        let shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+        
+        // If the URL is relative, prepend the origin on the client side
+        if (shareUrl.startsWith('/') && typeof window !== 'undefined') {
+            shareUrl = `${window.location.origin}${shareUrl}`;
+        }
+
         // The Web Share API must be called in response to a user gesture
         if (typeof navigator !== 'undefined' && navigator.share) {
             try {
                 await navigator.share({
                     title,
                     text,
-                    url,
+                    url: shareUrl,
                 });
                 if (onSuccess) onSuccess();
             } catch (error) {
@@ -55,20 +63,21 @@ export default function ShareButton({
                 // unless it's a real failure. AbortError is user cancellation.
                 if (error instanceof Error && error.name !== 'AbortError') {
                     console.error('Error with Web Share API:', error);
-                    await fallbackCopy();
+                    await fallbackCopy(shareUrl);
                 }
             }
         } else {
             // Fallback to clipboard if Web Share API is not supported (likely desktop)
-            await fallbackCopy();
+            await fallbackCopy(shareUrl);
         }
     };
 
-    const fallbackCopy = async () => {
+    const fallbackCopy = async (resolvedUrl?: string) => {
+        const shareUrl = resolvedUrl || url || (typeof window !== 'undefined' ? window.location.href : '');
         try {
             if (typeof navigator !== 'undefined' && navigator.clipboard) {
                 // Construct share text and URL for clipboard
-                const fullShareContent = `${text ? text + '\n\n' : ''}${url}`;
+                const fullShareContent = `${text ? text + '\n\n' : ''}${shareUrl}`;
                 await navigator.clipboard.writeText(fullShareContent);
 
                 if (onSuccess) {
@@ -85,7 +94,7 @@ export default function ShareButton({
                 // Final fallback using a hidden input for legacy/non-secure environments
                 const dummy = document.createElement('input');
                 document.body.appendChild(dummy);
-                dummy.value = url;
+                dummy.value = shareUrl;
                 dummy.select();
                 document.execCommand('copy');
                 document.body.removeChild(dummy);

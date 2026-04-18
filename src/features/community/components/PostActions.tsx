@@ -15,7 +15,6 @@ interface PostActionsProps {
     initialIsLiked?: boolean;
     commentsCount: number;
     postContent?: string;
-    origin: string;
     isFullPage?: boolean;
 }
 
@@ -25,7 +24,6 @@ export default function PostActions({
     initialIsLiked = false,
     commentsCount,
     postContent,
-    origin,
     isFullPage = false
 }: PostActionsProps) {
     const { user } = useAuth();
@@ -104,7 +102,7 @@ export default function PostActions({
             <ShareButton
                 title="دليل السويس - منشور في المجتمع"
                 text={postContent || 'اكتشف هذا المنشور في مجتمع السويس'}
-                url={`${origin}/community/posts/${postId}`}
+                url={`/community/posts/${postId}`}
                 className="flex items-center gap-2 p-2 px-4 rounded-xl hover:bg-primary/5 text-text-muted transition-all active:scale-90"
                 onSuccess={() => showAlert({
                     title: 'تم بنجاح!',

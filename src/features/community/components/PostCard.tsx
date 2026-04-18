@@ -13,7 +13,6 @@ import PostImagesGrid from './PostImagesGrid';
 import PostCardAnimation from './PostCardAnimation';
 import { CommunityPost, CommunityCategory } from '@/features/community/types';
 
-const ORIGIN = typeof window !== 'undefined' ? window.location.origin : '';
 
 interface PostCardProps {
   post: CommunityPost;
@@ -73,7 +72,6 @@ export default memo(function PostCard({ post, categories, isLikedInitial = false
 
         <PostHeaderActions
           post={post}
-          origin={ORIGIN}
           categories={categories}
         />
       </div>
@@ -117,7 +115,6 @@ export default memo(function PostCard({ post, categories, isLikedInitial = false
         initialIsLiked={post.isLiked || isLikedInitial}
         commentsCount={commentsCount}
         postContent={post.content}
-        origin={ORIGIN}
         isFullPage={isFullPage}
       />
     </PostCardAnimation>
