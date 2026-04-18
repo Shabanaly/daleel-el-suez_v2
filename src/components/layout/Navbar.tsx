@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { ROUTES, AUTH_ROUTES, APP_CONFIG } from "@/constants";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -19,6 +20,11 @@ import { ThemeToggle } from "../ui/ThemeToggle";
 export default function Navbar() {
   const { user } = useAuth();
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const isAuthPage = AUTH_ROUTES.includes(pathname);
   const isAdminPage = pathname?.startsWith(ROUTES.ADMIN);
 
@@ -77,7 +83,7 @@ export default function Navbar() {
                   href={user ? ROUTES.PROFILE : ROUTES.LOGIN}
                   className="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden border border-border-subtle hover:border-primary/50 transition-all bg-elevated"
                 >
-                  {user?.user_metadata?.avatar_url ? (
+                  {isMounted && user?.user_metadata?.avatar_url ? (
                     <Image
                       src={user.user_metadata.avatar_url}
                       alt="Profile"
@@ -155,7 +161,7 @@ export default function Navbar() {
               href={user ? ROUTES.PROFILE : ROUTES.LOGIN}
               className="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden border border-border-subtle hover:border-primary/50 transition-all bg-elevated"
             >
-              {user?.user_metadata?.avatar_url ? (
+              {isMounted && user?.user_metadata?.avatar_url ? (
                 <Image
                   src={user.user_metadata.avatar_url}
                   alt="Profile"

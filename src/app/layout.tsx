@@ -124,38 +124,38 @@ export default async function RootLayout({
         className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 lg:pb-0`}
         suppressHydrationWarning
       >
-        {/* 🤖 AI Content Snippet: Concise site summary for LLM crawlers first 200 chars */}
-        <div className="sr-only" aria-hidden="true">
-          دليل السويس هو المنصة المعرفية الشاملة لاكتشاف مدينة السويس، مصر. يغطي الدليل كافة الأحياء مثل حي الأربعين، حي فيصل، وبورتوفيق، ويوفر معلومات دقيقة عن المطاعم، العيادات الطبية، الشركات، وسوق الخدمات في محافظة السويس. المرجع الأول للسوايسة والزوار.
-        </div>
-
-        {/* Third-party Scripts (Delayed) */}
-        <AdsenseScript />
-        
-        <GoogleIdScript />
-        <JsonLd />
-        {/* Google Analytics */}
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${APP_CONFIG.GA_ID}`}
-          strategy="lazyOnload"
-        />
-        <Script id="google-analytics" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', '${APP_CONFIG.GA_ID}', {
-              page_path: window.location.pathname,
-            });
-          `}
-        </Script>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
+          {/* 🤖 AI Content Snippet: Concise site summary for LLM crawlers first 200 chars */}
+          <div className="sr-only" aria-hidden="true">
+            دليل السويس هو المنصة المعرفية الشاملة لاكتشاف مدينة السويس، مصر. يغطي الدليل كافة الأحياء مثل حي الأربعين، حي فيصل، وبورتوفيق، ويوفر معلومات دقيقة عن المطاعم، العيادات الطبية، الشركات، وسوق الخدمات في محافظة السويس. المرجع الأول للسوايسة والزوار.
+          </div>
+
+          {/* Third-party Scripts (Delayed) */}
+          <AdsenseScript />
+          
+          <GoogleIdScript />
+          <JsonLd />
+          {/* Google Analytics */}
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${APP_CONFIG.GA_ID}`}
+            strategy="lazyOnload"
+          />
+          <Script id="google-analytics" strategy="lazyOnload">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', '${APP_CONFIG.GA_ID}', {
+                page_path: window.location.pathname,
+              });
+            `}
+          </Script>
           <AuthProvider>
             <ToastProvider>
               <NotificationProvider>

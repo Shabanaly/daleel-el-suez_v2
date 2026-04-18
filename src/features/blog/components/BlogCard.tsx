@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { CalendarDays, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -33,6 +34,12 @@ export const stripHtmlAndMarkdown = (content: string) => {
 };
 
 export function BlogCard({ post, priority = false }: { post: BlogPostListItem; priority?: boolean }) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   return (
     <article className="group glass-card rounded-[28px] overflow-hidden border-border-subtle/70 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500">
       <CustomLink href={ROUTE_HELPERS.BLOG_POST(post.slug)} className="block h-full">
@@ -60,7 +67,7 @@ export function BlogCard({ post, priority = false }: { post: BlogPostListItem; p
 
           <div className="absolute right-4 bottom-4 flex items-center gap-2 rounded-full bg-surface/85 px-3 py-1.5 text-[11px] font-black text-text-secondary backdrop-blur-md">
             <CalendarDays className="h-3.5 w-3.5 text-primary" />
-            {format(new Date(post.publishedAt), 'dd MMMM yyyy', { locale: ar })}
+            {isMounted ? format(new Date(post.publishedAt), 'dd MMMM yyyy', { locale: ar }) : '...'}
           </div>
         </div>
 
@@ -69,7 +76,7 @@ export function BlogCard({ post, priority = false }: { post: BlogPostListItem; p
             {post.title}
           </h2>
           <p className="line-clamp-3 text-sm leading-7 text-text-muted">
-            {stripHtmlAndMarkdown(post.excerpt || post.content || '')}
+            {isMounted ? stripHtmlAndMarkdown(post.excerpt || post.content || '') : '...'}
           </p>
           <div className="flex items-center justify-between text-sm font-bold text-primary">
             <span>{post.authorName ? `بقلم ${post.authorName}` : 'مقال من دليل السويس'}</span>
