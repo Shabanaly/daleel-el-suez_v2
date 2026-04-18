@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
-import { LinkCard } from './LinkCard';
+
 
 interface RichContentProps {
   content: string;
@@ -108,9 +108,6 @@ export function RichContent({ content }: RichContentProps) {
               } catch (e) {
                 // If invalid URL, proceed to default fallback
               }
-              
-              // Fallback for regular links
-              return <LinkCard url={props.href} />;
             }
             
             // Standard hyperlinks
