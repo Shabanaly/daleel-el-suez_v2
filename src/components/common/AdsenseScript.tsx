@@ -1,44 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Script from 'next/script';
 
+/**
+ * Modern AdsenseScript that avoids hydration mismatches and "data-nscript" warnings.
+ * It uses isMounted to only render on the client, and dangerouslySetInnerHTML 
+ * to provide a clean <script> tag for AdSense verification.
+ */
 export function AdsenseScript() {
-    const [shouldLoad, setShouldLoad] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        // Adsense is heavy, so we delay it more or wait for interaction
-        const timer = setTimeout(() => {
-            setShouldLoad(true);
-        }, 6000); // 6 seconds delay
-
-        const handleInteraction = () => {
-            setShouldLoad(true);
-            clearTimeout(timer);
-            window.removeEventListener('scroll', handleInteraction);
-            window.removeEventListener('click', handleInteraction);
-            window.removeEventListener('touchstart', handleInteraction);
-        };
-
-        window.addEventListener('scroll', handleInteraction, { passive: true });
-        window.addEventListener('click', handleInteraction, { passive: true });
-        window.addEventListener('touchstart', handleInteraction, { passive: true });
-
-        return () => {
-            clearTimeout(timer);
-            window.removeEventListener('scroll', handleInteraction);
-            window.removeEventListener('click', handleInteraction);
-            window.removeEventListener('touchstart', handleInteraction);
-        };
+        setIsMounted(true);
     }, []);
 
-    if (!shouldLoad) return null;
+    if (!isMounted) return null;
 
     return (
-        <script 
-            async
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775" 
-            crossOrigin="anonymous"
+        <div 
+            dangerouslySetInnerHTML={{
+                __html: `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775" crossorigin="anonymous"></script>`
+            }}
         />
     );
 }

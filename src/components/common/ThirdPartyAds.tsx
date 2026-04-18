@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Script from 'next/script';
 
 // Global counter to stagger ad loading to prevent atOptions collision
@@ -21,6 +21,11 @@ interface AtOptionsAdProps {
 function AtOptionsAd({ id, format, height, width, scriptSrc, containerId }: AtOptionsAdProps) {
     const bannerRef = useRef<HTMLDivElement>(null);
     const hasLoaded = useRef(false);
+    const [isMounted, setIsMounted] = useState(false);
+    
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     useEffect(() => {
         if (!bannerRef.current || hasLoaded.current) return;
@@ -59,9 +64,11 @@ function AtOptionsAd({ id, format, height, width, scriptSrc, containerId }: AtOp
         return () => clearTimeout(timer);
     }, [id, format, height, width, scriptSrc, containerId]);
 
+    // Hybrid Rendering: Always render the parent div to prevent hydration mismatch.
+    // Only render the containerId div and scripts AFTER mounting.
     return (
         <div className="flex justify-center items-center my-4 overflow-hidden min-h-[50px] w-full" ref={bannerRef}>
-            {containerId && <div id={containerId}></div>}
+            {isMounted && containerId && <div id={containerId}></div>}
         </div>
     );
 }
@@ -142,16 +149,27 @@ export function ContainerAd({
     invokeId = "invoke-4e21bf42bd3b28d4054a768b2cab88fe",
     scriptSrc = "https://pl29155098.profitablecpmratenetwork.com/4e21bf42bd3b28d4054a768b2cab88fe/invoke.js"
 }: { containerId?: string, invokeId?: string, scriptSrc?: string }) {
+    const [isMounted, setIsMounted] = useState(false);
+    
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    // Always render the parent div for SSR stability.
     return (
-        <div className="flex justify-center items-center my-4">
-            <Script 
-                id={invokeId}
-                async={true}
-                data-cfasync="false"
-                src={scriptSrc}
-                strategy="afterInteractive"
-            />
-            <div id={containerId}></div>
+        <div className="flex justify-center items-center my-4 min-h-[50px]">
+            {isMounted && (
+                <>
+                    <Script 
+                        id={invokeId}
+                        async={true}
+                        data-cfasync="false"
+                        src={scriptSrc}
+                        strategy="afterInteractive"
+                    />
+                    <div id={containerId}></div>
+                </>
+            )}
         </div>
     );
 }

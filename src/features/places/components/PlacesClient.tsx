@@ -191,7 +191,7 @@ export function PlacesClient({
                         />
                       </AdSlot>
                     ) : idx === 1 ? (
-                      <AdSlot device="all" className="w-full mb-2">
+                      <AdSlot device="desktop" className="w-full mb-2">
                         <Rectangle300x250
                           containerId={`ad-places-list-desktop-${idx}`}
                         />
