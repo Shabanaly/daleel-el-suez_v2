@@ -52,7 +52,7 @@ export default function Navbar() {
     <>
       {/* ───────── Mobile Navbar ───────── */}
       {!hideMobileNavbar && (
-        <header className="lg:hidden fixed top-0 w-full h-14 z-50 bg-background border-b border-border-subtle flex justify-center">
+        <header className="lg:hidden sticky top-0 w-full h-14 z-50 bg-background border-b border-border-subtle flex justify-center">
           <div className="flex items-center justify-between w-full max-w-sm md:max-w-2xl lg:max-w-4xl h-full px-4">
             {/* Logo */}
             <CustomLink href={ROUTES.HOME} className="flex items-center gap-2">
@@ -97,7 +97,7 @@ export default function Navbar() {
       )}
 
       {/* ───────── Desktop Navbar ───────── */}
-      <nav className="hidden lg:flex fixed top-0 w-full h-16 z-50 bg-background border-b border-border-subtle">
+      <nav className="hidden lg:flex sticky top-0 w-full h-16 z-50 bg-background border-b border-border-subtle">
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-8">
           {/* Logo */}
           <CustomLink href={ROUTES.HOME} className="flex items-center gap-2">

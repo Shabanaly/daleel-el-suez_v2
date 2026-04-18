@@ -99,4 +99,8 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+
+  /* Handle RTL/LTR difference if needed, but for horizontal ticker we can just use 100% to -100% */
 }
+

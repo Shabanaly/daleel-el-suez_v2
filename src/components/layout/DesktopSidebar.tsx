@@ -70,7 +70,9 @@ export default function DesktopSidebar() {
   if (isAuthPage || isAdminPage) return null;
 
   return (
-    <aside className="group/sidebar hidden lg:flex fixed top-16 right-0 z-40 w-20 hover:w-56 h-[calc(100vh-4rem)] flex-col bg-surface/50 dark:bg-background/50 backdrop-blur-2xl border-l border-border-subtle shadow-[20px_0_50px_rgba(0,0,0,0.1)] hover:shadow-[30px_0_60px_rgba(0,0,0,0.15)] transition-all duration-300 ease-in-out overflow-visible">
+    <aside className="group/sidebar hidden lg:flex fixed top-[calc(64px+var(--ticker-height,0px))] right-0 z-40 w-20 hover:w-56 h-[calc(100vh-64px-var(--ticker-height,0px))] flex-col bg-surface/50 dark:bg-background/50 backdrop-blur-2xl border-l border-border-subtle shadow-[20px_0_50px_rgba(0,0,0,0.1)] hover:shadow-[30px_0_60px_rgba(0,0,0,0.15)] transition-all duration-300 ease-in-out overflow-visible">
+
+
       {/* Content: Navigation Items */}
       <div className="flex flex-col gap-1 p-2 group-hover/sidebar:p-3 h-full transition-all duration-300">
         <div className="flex flex-col gap-2">

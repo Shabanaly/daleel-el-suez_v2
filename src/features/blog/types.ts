@@ -34,3 +34,17 @@ export interface BlogFormValues {
   publishedAt: string;
   isPublished: boolean;
 }
+
+export interface BlogComment {
+  id: string;
+  blog_post_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  author?: {
+    id: string;
+    full_name: string | null;
+    avatar_url: string | null;
+  };
+}

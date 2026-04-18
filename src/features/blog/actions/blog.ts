@@ -49,9 +49,9 @@ function mapPostRow(row: BlogPostRow): BlogPostListItem {
     isPublished: Boolean(row.is_published),
     authorId: row.author_id ?? null,
     authorName: authorProfile?.full_name ?? authorProfile?.username ?? null,
-    categoryName: row.categories?.[0]?.name ?? null,
-    categorySlug: row.categories?.[0]?.slug ?? null,
-    categoryIcon: row.categories?.[0]?.icon ?? null,
+    categoryName: (row as any).categories?.name ?? (row as any).categories?.[0]?.name ?? null,
+    categorySlug: (row as any).categories?.slug ?? (row as any).categories?.[0]?.slug ?? null,
+    categoryIcon: (row as any).categories?.icon ?? (row as any).categories?.[0]?.icon ?? null,
     categoryId: row.category_id?.toString() ?? null,
   };
 }
@@ -92,7 +92,8 @@ export async function getPublishedBlogPosts(page = 1, limit = POSTS_PER_PAGE, ca
             full_name,
             username
           ),
-          categories:category_id${cachedCategory ? '!inner' : ''} (
+          category_id,
+          categories!category_id${cachedCategory ? '!inner' : ''} (
             name,
             slug,
             icon
@@ -150,7 +151,8 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
           is_published,
           author_id,
           category_id,
-          categories:category_id (
+          category_id,
+          categories!category_id (
             name,
             slug,
             icon
@@ -178,9 +180,9 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
         updatedAt: data.updated_at ?? data.created_at,
         isPublished: Boolean(data.is_published),
         authorId: data.author_id ?? null,
-        categoryName: (data.categories as any)?.[0]?.name ?? null,
-        categorySlug: (data.categories as any)?.[0]?.slug ?? null,
-        categoryIcon: (data.categories as any)?.[0]?.icon ?? null,
+        categoryName: (data as any).categories?.name ?? (data as any).categories?.[0]?.name ?? null,
+        categorySlug: (data as any).categories?.slug ?? (data as any).categories?.[0]?.slug ?? null,
+        categoryIcon: (data as any).categories?.icon ?? (data as any).categories?.[0]?.icon ?? null,
         categoryId: data.category_id?.toString() ?? null,
       };
     },
@@ -274,26 +276,17 @@ export async function getAllBlogPostsForSitemap(): Promise<Array<{ slug: string;
 }
 
 export async function getBlogCategories() {
-  return unstable_cache(
-    async () => {
-      const supabase = createAdminClient();
-      const { data, error } = await supabase
-        .from('categories')
-        .select('name, slug, icon')
-        .eq('type', 'blog')
-        .order('name');
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id, name, slug, icon')
+    .eq('type', 'blog')
+    .order('name');
 
-      if (error) {
-        console.error('Error fetching blog categories:', error);
-        return [];
-      }
+  if (error) {
+    console.error('Error fetching blog categories:', error);
+    return [];
+  }
 
-      return data ?? [];
-    },
-    ['blog-categories'],
-    {
-      tags: ['blog-categories'],
-      revalidate: 86400,
-    }
-  )();
+  return data ?? [];
 }

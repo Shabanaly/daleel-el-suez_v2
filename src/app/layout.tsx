@@ -102,13 +102,16 @@ export const viewport: Viewport = {
 };
 
 import JsonLd from "@/components/seo/JsonLd";
+import { getActiveAnnouncements } from "@/features/announcements/actions";
+import AnnouncementTicker from "@/features/announcements/components/AnnouncementTicker";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+  const announcements = await getActiveAnnouncements();
 
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
@@ -155,6 +158,7 @@ export default function RootLayout({
                 <AuthModalProvider>
                   <DialogProvider>
                     <CommentsProvider>
+                      <AnnouncementTicker announcements={announcements} />
                       <Navbar />
                       <DesktopSidebar />
                       <LeftSidebar />

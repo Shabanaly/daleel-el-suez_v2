@@ -147,7 +147,7 @@ export async function getAdminBlogPosts(params?: { page?: number; search?: strin
       updated_at,
       is_published,
       category_id,
-      categories:category_id (name)
+      categories!category_id (name)
     `, { count: 'exact' })
     .order('published_at', { ascending: false })
     .range(from, to);

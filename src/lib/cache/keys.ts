@@ -12,6 +12,7 @@ export const CACHE_KEYS = {
     blogPost: 'blog-post',
     blogRecent: 'blog-recent',
     blogSitemap: 'blog-sitemap',
+    announcements: 'announcements-list',
 } as const;
 
 export const keys = {
@@ -32,6 +33,9 @@ export const keys = {
     blogPost: (slug: string) => [CACHE_KEYS.blogPost, slug],
     blogRecent: (excludeSlug: string | undefined, limit: number, categoryId?: string) => [CACHE_KEYS.blogRecent, excludeSlug || 'none', `limit-${limit}`, categoryId || 'all'],
     blogSitemap: () => [CACHE_KEYS.blogSitemap],
+
+    // Announcements
+    announcements: () => [CACHE_KEYS.announcements],
 
     // Favorites
     isFavorite: (userId: string, itemId: string) => [`user-${userId}-fav-${itemId}`],

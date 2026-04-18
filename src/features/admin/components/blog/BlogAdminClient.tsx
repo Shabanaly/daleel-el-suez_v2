@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useTransition } from 'react';
-import { CalendarDays, Edit3, Loader2, Plus, Search, Trash2 } from 'lucide-react';
+import { CalendarDays, Edit3, Loader2, MessageCircle, Plus, Search, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
@@ -16,6 +16,7 @@ import {
 } from '@/features/admin/actions/blog';
 import { RichContent } from '@/features/blog/components/RichContent';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import { AdminCommentsModal } from './AdminCommentsModal';
 
 const EMPTY_FORM = {
   title: '',
@@ -50,6 +51,7 @@ export function BlogAdminClient({
   const [isPending, startTransition] = useTransition();
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [editingPost, setEditingPost] = useState<AdminBlogPost | null>(null);
+  const [commentingPost, setCommentingPost] = useState<AdminBlogPost | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -205,10 +207,13 @@ export function BlogAdminClient({
                 >
                   <option value="" disabled>اختر التصنيف...</option>
                   {categories?.map((cat: any) => (
-                    <option key={cat.id || cat.slug} value={cat.id}>
+                    <option key={cat.id || cat.slug} value={String(cat.id)}>
                       {cat.name}
                     </option>
                   ))}
+                  {(!categories || categories.length === 0) && (
+                    <option disabled>لا توجد تصنيفات (تأكد من وجود تصنيفات من نوع blog)</option>
+                  )}
                 </select>
               </div>
 
@@ -349,6 +354,14 @@ export function BlogAdminClient({
                   <div className="flex shrink-0 items-center gap-2">
                     <button
                       type="button"
+                      onClick={() => setCommentingPost(post)}
+                      className="rounded-2xl border border-border-subtle p-3 text-text-secondary transition hover:border-primary/30 hover:text-primary"
+                      title="التعليقات"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => beginEdit(post)}
                       className="rounded-2xl border border-border-subtle p-3 text-text-secondary transition hover:border-primary/30 hover:text-primary"
                       title="تعديل"
@@ -410,6 +423,11 @@ export function BlogAdminClient({
           )}
         </div>
       </section>
+
+      <AdminCommentsModal 
+        post={commentingPost} 
+        onClose={() => setCommentingPost(null)} 
+      />
     </div>
   );
 }

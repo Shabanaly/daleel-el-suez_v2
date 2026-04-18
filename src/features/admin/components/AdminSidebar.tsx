@@ -14,7 +14,8 @@ import {
     FileText,
     AlertTriangle,
     Settings,
-    Globe
+    Globe,
+    Megaphone
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -28,6 +29,7 @@ export default function AdminSidebar() {
 
     const navItems = [
         { href: '/admin', icon: LayoutDashboard, label: 'لوحة التحكم' },
+        { href: '/admin/announcements', icon: Megaphone, label: 'شريط الإعلانات' },
         { href: '/admin/places', icon: MapPin, label: 'الأماكن' },
         { href: '/admin/users', icon: Users, label: 'المستخدمين' },
         { href: '/admin/market', icon: ShoppingBag, label: 'الماركت' },
@@ -37,6 +39,7 @@ export default function AdminSidebar() {
         { href: '/admin/settings', icon: Settings, label: 'الإعدادات' },
     ];
 
+
     const toggleSidebar = () => setIsCollapsed(!isCollapsed);
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
     const closeMobileMenu = () => setIsMobileMenuOpen(false);
@@ -44,7 +47,7 @@ export default function AdminSidebar() {
     return (
         <>
             {/* Mobile Header */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-background border-b z-50 flex items-center justify-between px-4">
+            <div className="lg:hidden fixed top-(--ticker-height,0px) left-0 right-0 h-16 bg-background border-b z-50 flex items-center justify-between px-4">
                 <span className="font-bold text-lg text-primary">دليل السويس - الإدارة</span>
                 <button onClick={toggleMobileMenu} className="p-2 -mr-2 text-text-muted hover:text-text-primary">
                     {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -55,18 +58,23 @@ export default function AdminSidebar() {
             {isMobileMenuOpen && (
                 <div
                     className="lg:hidden fixed inset-0 bg-background/80 z-40 backdrop-blur-md transition-opacity"
+                    style={{ top: 'calc(4rem + var(--ticker-height, 0px))' }}
                     onClick={closeMobileMenu}
                 />
             )}
 
             {/* Sidebar */}
             <aside className={cn(
-                "fixed top-0 bottom-0 right-0 z-40 glass-panel border-l transition-all duration-300 flex flex-col",
+                "fixed top-(--ticker-height,0px) bottom-0 right-0 z-40 glass-panel border-l transition-all duration-300 flex flex-col",
+
+
+
                 // Mobile positioning
                 isMobileMenuOpen ? "translate-x-0 w-64 pt-16" : "translate-x-full lg:translate-x-0 pt-0",
                 // Desktop sizing
                 isCollapsed ? "lg:w-20" : "lg:w-64"
             )}>
+
                 {/* Desktop Header */}
                 <div className="hidden lg:flex items-center justify-between h-16 px-4 border-b border-border-subtle">
                     {!isCollapsed && <span className="font-bold text-lg text-primary truncate glow-primary">لوحة الإدارة</span>}

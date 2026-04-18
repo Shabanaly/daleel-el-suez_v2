@@ -13,6 +13,7 @@ import AdSlot from '@/components/common/AdSlot';
 import { Banner320x50, Banner728x90, Rectangle300x250 } from '@/components/common/ThirdPartyAds';
 import { AppBar } from '@/components/ui/AppBar';
 import { RichContent } from '@/features/blog/components/RichContent';
+import BlogComments from '@/features/blog/components/BlogComments';
 
 function estimateReadMinutes(content: string) {
   const words = content.trim().split(/\s+/).length;
@@ -210,6 +211,11 @@ export default async function BlogPostPage({
             </div>
           </div>
         </article>
+
+        <BlogComments 
+          postId={post.id} 
+          postSlug={post.slug} 
+        />
 
         {relatedPosts.length > 0 && (
           <section className="mt-10 space-y-5">

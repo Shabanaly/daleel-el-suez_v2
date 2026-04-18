@@ -47,7 +47,7 @@ export default function AdSlot({
     device === 'mobile' ? 'lg:hidden' : device === 'desktop' ? 'hidden lg:flex' : '';
 
   return (
-    <div className={cn('flex flex-col items-center gap-4', visibilityClass, className)}>
+    <div className={cn('flex flex-col items-center gap-2', visibilityClass, className)}>
       {showLabel ? (
         <span className="text-[10px] text-text-muted font-bold uppercase tracking-widest opacity-50">
           إعلان

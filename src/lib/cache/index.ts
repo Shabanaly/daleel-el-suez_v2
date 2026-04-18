@@ -72,6 +72,12 @@ export const cacheManager = {
         }
     },
 
+    invalidateBlogComment: (postId: string, slug: string) => {
+        revalidateTag(tags.blogComments(postId), 'max');
+        revalidateTag(tags.blogPost(slug), 'max'); // Comment count/preview might change
+        revalidateTag(tags.allBlogPosts(), 'max');
+    },
+
     invalidateUserStats: (userId: string) => {
         revalidateTag(`user-${userId}-stats`, 'max');
         revalidateTag(`user-${userId}-activities`, 'max');

@@ -56,6 +56,7 @@ export const tags = {
     blogPage: (page: number) => `${CACHE_TAGS.blog}-page:${page}`,
     recentBlogPosts: () => `${CACHE_TAGS.blog}-recent`,
     blogSitemap: () => `${CACHE_TAGS.blog}-sitemap`,
+    blogComments: (postId: string) => `comments-blog:${postId}`,
 
     // Metadata
     allCategories: () => CACHE_TAGS.categories,
