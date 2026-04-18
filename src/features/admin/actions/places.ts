@@ -108,28 +108,6 @@ export async function updatePlaceStatusAction(placeId: string, status: PlaceStat
         throw new Error('فشل تحديث حالة المكان.');
     }
     
-    // --- Notification Logic ---
-    if (placeData && placeData.added_by && (status === 'approved' || status === 'rejected')) {
-        const { data: { user: adminUser } } = await supabase.auth.getUser();
-        
-        // Fetch admin's name (actor)
-        const { data: adminProfile } = await supabase
-            .from('profiles')
-            .select('full_name, username')
-            .eq('id', adminUser?.id)
-            .single();
-
-        await NotificationService.trigger(NotificationEvent.PLACE_STATUS_UPDATED, {
-            placeId: placeId,
-            placeName: placeData.name,
-            status: status as 'approved' | 'rejected',
-            actorName: adminProfile?.full_name || adminProfile?.username || 'إدارة دليل السويس',
-            recipientId: placeData.added_by,
-            actorId: adminUser?.id || '',
-            slug: placeData.slug
-        });
-    }
-
     // Revalidate custom cache path
     revalidatePath('/admin/places');
 
