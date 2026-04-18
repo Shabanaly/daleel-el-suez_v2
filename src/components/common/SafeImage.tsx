@@ -53,6 +53,8 @@ export function SafeImage({
             onError={handleError}
             // Add a key based on src so React forces a remount/reload of the img tag when src changes
             key={typeof src === 'string' ? src : 'img'} 
+            // Default sizes for optimization if fill is used
+            sizes={props.fill ? (props.sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw") : undefined}
             {...props}
         />
     );

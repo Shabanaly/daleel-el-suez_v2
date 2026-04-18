@@ -44,6 +44,7 @@ export default memo(function AdCard({ ad, priority = false }: AdCardProps) {
                         src={ad.images[0]}
                         alt={ad.title}
                         fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                 ) : (

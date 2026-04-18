@@ -24,6 +24,7 @@ export default function SellerInfo({
                             src={photo} 
                             alt={name} 
                             fill
+                            sizes="24px"
                             className="w-full h-full object-cover" 
                         />
                     ) : (

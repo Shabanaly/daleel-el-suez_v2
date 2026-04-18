@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import dynamic from "next/dynamic";
 import {
   CalendarDays,
   Edit3,
@@ -22,10 +23,18 @@ import {
   deleteBlogPostAction,
   updateBlogPostAction,
 } from "@/features/admin/actions/blog";
-import { RichTextEditor } from "./RichTextEditor";
 import { AdminCommentsModal } from "./AdminCommentsModal";
 import { stripHtmlAndMarkdown } from "@/features/blog/components/BlogCard";
 import { useToast } from "@/features/notifications/hooks/useToast";
+
+const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-[500px] w-full animate-pulse bg-surface-secondary/20 rounded-[32px] border border-border-subtle flex items-center justify-center text-text-muted text-sm font-bold">
+      جاري تحميل المحرر النصي...
+    </div>
+  ),
+});
 
 const EMPTY_FORM = {
   title: "",

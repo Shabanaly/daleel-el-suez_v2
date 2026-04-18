@@ -95,7 +95,7 @@ export function PlaceDetailsClient({
                 }
             />
 
-            <main className="pt-14 md:pt-32 max-w-4xl mx-auto px-4">
+            <main className="pt-4 md:pt-8 max-w-4xl mx-auto px-4">
 
                 {/* ── Breadcrumbs (Visible on all devices + JSON-LD) ──────────── */}
                 <Breadcrumbs 
