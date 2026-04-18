@@ -34,6 +34,7 @@ export default function JsonLd() {
         sameAs: [
           "https://www.facebook.com/daleel.al.suez",
           "https://www.instagram.com/daleel_al_suez",
+          "https://wa.me/201019979315"
         ],
         areaServed: {
           "@type": "State",
@@ -43,7 +44,7 @@ export default function JsonLd() {
         },
         contactPoint: {
           "@type": "ContactPoint",
-          telephone: "+201000000000",
+          telephone: "+201019979315",
           contactType: "customer service",
           areaServed: "EG",
           availableLanguage: "Arabic",
