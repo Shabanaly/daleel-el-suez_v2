@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { Bell, CheckSquare } from 'lucide-react';
@@ -13,6 +16,7 @@ import { ROUTES } from '@/constants';
 
 import { getRecentNotificationsAction, markNotificationAsReadAction, markAllNotificationsAsReadAction } from '@/features/notifications/actions/notifications.server';
 import { useToast } from '@/features/notifications/hooks/useToast';
+import { ToastType } from '@/features/notifications/components/ToastProvider';
 
 export const NotificationBell = () => {
   const { user } = useAuth();
@@ -23,7 +27,6 @@ export const NotificationBell = () => {
   const subscriptionRef = useRef<string | null>(null);
   // Stable supabase ref — prevent re-creation on every render
   const supabaseRef = useRef(createClient());
-  const supabase = supabaseRef.current;
   const { showToast } = useToast();
 
   // Fetch initial notifications with Smart Caching
@@ -70,6 +73,7 @@ export const NotificationBell = () => {
 
       setTimeout(() => fetchNotifications(), 0);
       
+      const supabase = supabaseRef.current;
       const channel = supabase
         .channel(`notifs-${user.id}-${Math.floor(Math.random() * 10000)}`)
         .on(
@@ -84,7 +88,7 @@ export const NotificationBell = () => {
                     showToast({
                         title: newNotif.title,
                         message: newNotif.message,
-                        type: newNotif.type as any,
+                        type: newNotif.type as ToastType,
                         link: newNotif.link,
                         actor: newNotif.actor
                     });
@@ -119,7 +123,7 @@ export const NotificationBell = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [user, supabase, fetchNotifications, updateCache]);
+  }, [user, fetchNotifications, updateCache, showToast]);
 
   // Handle click outside to close dropdown
   useEffect(() => {

@@ -21,19 +21,27 @@ interface BlogPostRow {
   is_published: boolean | null;
   author_id: string | null;
   category_id: number | null;
-  profiles?: Array<{
+  profiles?: {
     full_name?: string | null;
     username?: string | null;
-  }> | null;
-  categories?: Array<{
+  } | {
+    full_name?: string | null;
+    username?: string | null;
+  }[] | null;
+  categories?: {
     name: string;
     slug: string;
     icon: string;
-  }> | null;
+  } | {
+    name: string;
+    slug: string;
+    icon: string;
+  }[] | null;
 }
 
 function mapPostRow(row: BlogPostRow): BlogPostListItem {
-  const authorProfile = row.profiles?.[0];
+  const profileData = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+  const categoryData = Array.isArray(row.categories) ? row.categories[0] : row.categories;
 
   return {
     id: row.id,
@@ -48,10 +56,10 @@ function mapPostRow(row: BlogPostRow): BlogPostListItem {
     updatedAt: row.updated_at ?? row.created_at,
     isPublished: Boolean(row.is_published),
     authorId: row.author_id ?? null,
-    authorName: authorProfile?.full_name ?? authorProfile?.username ?? null,
-    categoryName: (row as any).categories?.name ?? (row as any).categories?.[0]?.name ?? null,
-    categorySlug: (row as any).categories?.slug ?? (row as any).categories?.[0]?.slug ?? null,
-    categoryIcon: (row as any).categories?.icon ?? (row as any).categories?.[0]?.icon ?? null,
+    authorName: profileData?.full_name ?? profileData?.username ?? null,
+    categoryName: categoryData?.name ?? null,
+    categorySlug: categoryData?.slug ?? null,
+    categoryIcon: categoryData?.icon ?? null,
     categoryId: row.category_id?.toString() ?? null,
   };
 }
@@ -116,7 +124,7 @@ export async function getPublishedBlogPosts(page = 1, limit = POSTS_PER_PAGE, ca
 
       const totalCount = count ?? 0;
       return {
-        posts: (data as any[] ?? []).map(mapPostRow),
+        posts: (data as BlogPostRow[] ?? []).map(mapPostRow),
         totalCount,
         totalPages: Math.ceil(totalCount / cachedLimit),
         currentPage: cachedPage,
@@ -167,6 +175,9 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
         return null;
       }
 
+      const rawCategories = (data as unknown as BlogPostRow).categories;
+      const categoryData = Array.isArray(rawCategories) ? rawCategories[0] : rawCategories;
+
       return {
         id: data.id,
         title: data.title,
@@ -180,9 +191,9 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
         updatedAt: data.updated_at ?? data.created_at,
         isPublished: Boolean(data.is_published),
         authorId: data.author_id ?? null,
-        categoryName: (data as any).categories?.name ?? (data as any).categories?.[0]?.name ?? null,
-        categorySlug: (data as any).categories?.slug ?? (data as any).categories?.[0]?.slug ?? null,
-        categoryIcon: (data as any).categories?.icon ?? (data as any).categories?.[0]?.icon ?? null,
+        categoryName: categoryData?.name ?? null,
+        categorySlug: categoryData?.slug ?? null,
+        categoryIcon: categoryData?.icon ?? null,
         categoryId: data.category_id?.toString() ?? null,
       };
     },

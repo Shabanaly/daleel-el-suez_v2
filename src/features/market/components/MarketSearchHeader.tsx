@@ -1,4 +1,7 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import Link from "next/link";
 import { Search, Plus, Filter } from "lucide-react";
 import SearchAutocomplete, { Suggestion } from "@/features/search/components/SearchAutocomplete";

@@ -24,6 +24,17 @@ const IconRenderer = ({ iconName, className }: { iconName: string; className?: s
   return <Icon className={className} />;
 };
 
+// ── Sub-components moved outside render ──────────────────
+const FilterTrigger = ({ isMobile = false }: { isMobile?: boolean }) => (
+  <button
+    className={`flex items-center gap-2 px-4 py-2 rounded-2xl border bg-surface/50 transition-all ${isMobile ? 'border-border-subtle' : 'border-border-subtle hover:border-primary/50'
+      }`}
+  >
+    <Filter className="w-4 h-4 text-primary" />
+    <span className="text-sm font-black">فلترة</span>
+  </button>
+);
+
 export default function BlogHeader({ categories }: BlogHeaderProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -54,16 +65,6 @@ export default function BlogHeader({ categories }: BlogHeaderProps) {
       onClick: () => handleCategoryClick(cat.slug),
     })),
   ];
-
-  const FilterTrigger = ({ isMobile = false }) => (
-    <button
-      className={`flex items-center justify-center w-10 h-10 rounded-xl border transition-all ${
-        isMobile ? 'border-border-subtle bg-surface' : 'bg-surface border-border-subtle hover:border-primary/50'
-      }`}
-    >
-      <Filter className="h-5 w-5 text-primary" />
-    </button>
-  );
 
   return (
     <AppBar

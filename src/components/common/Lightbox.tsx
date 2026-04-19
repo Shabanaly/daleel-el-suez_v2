@@ -94,7 +94,7 @@ export function Lightbox({ images,  isOpen, onClose }: LightboxProps) {
                     "--yarl__thumbnails_thumbnail_background": "rgba(255, 255, 255, 0.1)",
                     "--yarl__thumbnails_thumbnail_active_border_color": "var(--primary)",
                 },
-            } as any}
+            }}
         />
     );
 }

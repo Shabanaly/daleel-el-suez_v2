@@ -120,7 +120,7 @@ function mapPost(row: AdminBlogPostRow): AdminBlogPost {
     updatedAt: row.updated_at ?? row.created_at,
     isPublished: Boolean(row.is_published),
     categoryId: row.category_id?.toString() ?? null,
-    categoryName: (row as any).categories?.name ?? null,
+    categoryName: (row as unknown as { categories?: { name?: string } }).categories?.name ?? null,
   };
 }
 

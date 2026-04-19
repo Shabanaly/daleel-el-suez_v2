@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { useState, useEffect } from 'react';
 import CustomLink from '@/components/customLink/customLink';

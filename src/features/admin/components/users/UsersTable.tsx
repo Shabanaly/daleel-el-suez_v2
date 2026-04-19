@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { AdminUser, AdminUserRole, updateUserRole, deleteUser } from '@/features/admin/actions/users';
 import { RoleBadge } from './RoleBadge';

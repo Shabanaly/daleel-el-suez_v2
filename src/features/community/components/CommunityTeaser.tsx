@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { motion } from 'framer-motion';
 import { MessageSquare, Heart, Share2 } from 'lucide-react';

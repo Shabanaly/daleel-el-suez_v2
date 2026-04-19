@@ -2,9 +2,8 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Camera, MapPin, CalendarDays, Edit3, Settings, ChevronRight } from 'lucide-react';
+import { Camera, MapPin, CalendarDays } from 'lucide-react';
 import { User } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
 
 interface ProfileHeaderProps {
     user: User | null;
@@ -12,7 +11,6 @@ interface ProfileHeaderProps {
 }
 
 export function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
-    const router = useRouter();
     if (!user) return null;
 
     const profileData = user.user_metadata || {};

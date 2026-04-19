@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import { useState, useCallback } from 'react';
 import { getAdminMarketAds, deleteMarketAdAdmin, updateMarketAdStatusAdmin } from '@/features/admin/actions/market';
 import { MarketAd } from '@/features/market/types';
@@ -28,7 +31,7 @@ export function useAdminMarket() {
         try {
             const result = await updateMarketAdStatusAdmin(id, status);
             if (result.success) {
-                setAds(prev => prev.map(ad => ad.id === id ? { ...ad, status: status as any } : ad));
+                setAds(prev => prev.map(ad => ad.id === id ? { ...ad, status: status as MarketAd["status"] } : ad));
                 toast.success('تم تحديث حالة الإعلان');
                 return { success: true };
             }

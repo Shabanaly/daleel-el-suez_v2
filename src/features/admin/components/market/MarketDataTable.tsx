@@ -1,4 +1,7 @@
 'use client';
+ 
+/* eslint-disable @next/next/no-img-element */
+ 
 
 import { ShoppingBag, Trash2, CheckCircle, XCircle, User, MapPin, Eye } from 'lucide-react';
 import { format } from 'date-fns';

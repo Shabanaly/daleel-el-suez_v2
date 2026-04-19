@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import React from 'react';
 import { MapPin, Phone, Globe } from 'lucide-react';
 

@@ -123,13 +123,15 @@ export default function SearchAutocomplete({
     const cacheRef = useRef<Map<string, Suggestion[]>>(new Map());
     const isNavigatingRef = useRef(false);
     const openRef = useRef(open);
-    openRef.current = open;
-    // Always-fresh ref to onChange — lets us call it inside effects without stale closure
     const onChangeRef = useRef(onChange);
-    onChangeRef.current = onChange;
-    // Always-fresh ref to onSearch — used to clear URL when closing without searching
     const onSearchRef = useRef(onSearch);
-    onSearchRef.current = onSearch;
+
+    // Update refs in useEffect to avoid "Cannot access refs during render" error
+    useEffect(() => {
+        openRef.current = open;
+        onChangeRef.current = onChange;
+        onSearchRef.current = onSearch;
+    }, [open, onChange, onSearch]);
 
     // Segemented History Key based on context (market/places)
     const historyKey = useMemo(() => `daleel_search_history_${searchType}_v3`, [searchType]);
@@ -246,24 +248,30 @@ export default function SearchAutocomplete({
     useEffect(() => {
         const term = debouncedValue.trim();
         if (!term) {
-            setSuggestions([]);
-            setLoading(false);
-            setDisplayedResults(10);
+            Promise.resolve().then(() => {
+                setSuggestions([]);
+                setLoading(false);
+                setDisplayedResults(10);
+            });
             return;
         }
 
         // 1. Check local in-memory cache first
         const cacheId = `${searchType}:${term}`;
         if (cacheRef.current.has(cacheId)) {
-            setSuggestions(cacheRef.current.get(cacheId)!);
-            setDisplayedResults(10);
-            setLoading(false);
+            Promise.resolve().then(() => {
+                setSuggestions(cacheRef.current.get(cacheId)!);
+                setDisplayedResults(10);
+                setLoading(false);
+            });
             return;
         }
 
         let cancelled = false;
-        setLoading(true);
-        setDisplayedResults(10); // Reset pagination on new search
+        Promise.resolve().then(() => {
+            setLoading(true);
+            setDisplayedResults(10); // Reset pagination on new search
+        });
 
         const separator = apiEndpoint.includes('?') ? '&' : '?';
         fetch(`${apiEndpoint}${separator}q=${encodeURIComponent(term)}`)

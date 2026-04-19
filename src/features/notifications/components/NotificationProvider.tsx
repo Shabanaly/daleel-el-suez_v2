@@ -133,7 +133,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     return () => {
         if (typeof unsubscribe === 'function') unsubscribe();
     };
-  }, []);
+  }, [showToast]);
 
   return (
     <NotificationContext.Provider value={{ fcmToken, notification }}>

@@ -23,7 +23,8 @@ export default function Navbar() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    // Defer mounting to avoid immediate cascading render warnings
+    Promise.resolve().then(() => setIsMounted(true));
   }, []);
   const isAuthPage = AUTH_ROUTES.includes(pathname);
   const isAdminPage = pathname?.startsWith(ROUTES.ADMIN);

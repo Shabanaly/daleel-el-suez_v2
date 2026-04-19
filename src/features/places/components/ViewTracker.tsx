@@ -32,7 +32,7 @@ export function ViewTracker({ placeId, slug }: ViewTrackerProps) {
         };
 
         trackView();
-    }, [placeId]);
+    }, [placeId, slug]);
 
     return null;
 }

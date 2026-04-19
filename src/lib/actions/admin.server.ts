@@ -8,7 +8,7 @@ export interface AdminNotificationPayload {
     type: string;
     link?: string;
     actor_id?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
 }
 
 /**

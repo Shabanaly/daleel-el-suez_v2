@@ -31,7 +31,8 @@ function AtOptionsAd({
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    // Defer mounting to avoid immediate cascading render warnings
+    Promise.resolve().then(() => setIsMounted(true));
   }, []);
 
   useEffect(() => {
@@ -166,7 +167,8 @@ export function ContainerAd({
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    // Defer mounting to avoid immediate cascading render warnings
+    Promise.resolve().then(() => setIsMounted(true));
   }, []);
 
   // Always render the parent div for SSR stability.

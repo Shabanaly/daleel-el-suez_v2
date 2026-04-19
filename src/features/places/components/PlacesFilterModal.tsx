@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -33,14 +36,16 @@ export const PlacesFilterModal = memo(function PlacesFilterModal({
     const [localArea, setLocalArea] = useState(initialArea);
     const [localSort, setLocalSort] = useState<SortOption>(initialSort);
 
-    // Sync local state when modal opens
-    useEffect(() => {
-        if (isOpen) {
-            setLocalDistrict(initialDistrict);
-            setLocalArea(initialArea);
-            setLocalSort(initialSort);
-        }
-    }, [isOpen, initialDistrict, initialArea, initialSort]);
+    // Reset local state when modal opens
+    const [prevOpen, setPrevOpen] = useState(isOpen);
+    if (isOpen && !prevOpen) {
+        setPrevOpen(true);
+        setLocalDistrict(initialDistrict);
+        setLocalArea(initialArea);
+        setLocalSort(initialSort);
+    } else if (!isOpen && prevOpen) {
+        setPrevOpen(false);
+    }
 
     const availableAreas = getAvailableAreas(localDistrict);
 

@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { useState, useRef, useEffect } from 'react';
 import { MarketAd } from '@/features/market/types';
@@ -9,7 +12,6 @@ import {
     Share2,
     ShieldCheck,
     Info,
-    ChevronRight,
     Tag,
     Clock
 } from 'lucide-react';
@@ -106,7 +108,7 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
                 }
             />
 
-            <main className="pt-14 md:pt-32 max-w-4xl mx-auto px-4">
+            <main className="pt-4 md:pt-8 max-w-4xl mx-auto px-4">
                 {/* ── Desktop Breadcrumbs ───────────────────────────────────── */}
                 <nav className="hidden md:flex items-center gap-2 mb-10 text-sm font-bold whitespace-nowrap overflow-hidden">
                     <CustomLink href={ROUTES.MARKET} className="text-text-muted hover:text-primary transition-colors">السوق</CustomLink>

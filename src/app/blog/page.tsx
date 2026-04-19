@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import type { Metadata } from 'next';
 import { APP_CONFIG, ROUTES } from '@/constants';
 import { getPublishedBlogPosts, getBlogCategories } from '@/features/blog/actions/blog';

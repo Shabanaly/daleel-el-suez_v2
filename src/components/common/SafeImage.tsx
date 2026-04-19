@@ -23,7 +23,8 @@ export function SafeImage({
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    // Defer mounting to avoid immediate cascading render warnings
+    Promise.resolve().then(() => setIsMounted(true));
   }, []);
 
   // Reset error state if src changes

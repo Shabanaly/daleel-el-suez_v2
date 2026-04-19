@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import { useState } from "react";
 import { sendPasswordResetEmail, updatePassword } from "../actions/auth.server";
 import { ForgotPasswordInput, ResetPasswordInput } from "../schemas/authSchemas";

@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { useState, useEffect, useRef } from 'react';
 import { Place } from '@/features/places/types';
@@ -20,12 +23,12 @@ export function TagsManager({ place }: TagsManagerProps) {
     const [isSaving, setIsSaving] = useState(false);
 
     // Sync local state whenever the server refreshes the place prop
-    const prevPlaceId = useRef(place.id);
-    useEffect(() => {
-        // Reset tags when place changes or after a successful save (router.refresh)
+    // Pattern: Adjusting state during render
+    const [prevPlaceId, setPrevPlaceId] = useState(place.id);
+    if (place.id !== prevPlaceId) {
         setTags(place.tags || []);
-        prevPlaceId.current = place.id;
-    }, [place.id, place.tags]);
+        setPrevPlaceId(place.id);
+    }
 
     const savedTags = place.tags || [];
     const isDirty = JSON.stringify(tags) !== JSON.stringify(savedTags);

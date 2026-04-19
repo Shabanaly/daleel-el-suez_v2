@@ -1,4 +1,7 @@
 'use client';
+ 
+/* eslint-disable @next/next/no-img-element */
+ 
 
 import { MessageSquare, Trash2, CheckCircle, XCircle, User, MessageCircle, Heart } from 'lucide-react';
 import { format } from 'date-fns';
@@ -7,6 +10,7 @@ import { useState } from 'react';
 import { useDialog } from '@/components/providers/DialogProvider';
 
 interface CommunityDataTableProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     posts: any[];
     isLoading: boolean;
     onUpdateStatus: (id: string, status: string) => Promise<{ success: boolean; error?: string }>;

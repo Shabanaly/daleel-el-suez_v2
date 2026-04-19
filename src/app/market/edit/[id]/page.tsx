@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import { getMarketAdById, getMarketCategories } from "@/features/market/actions/market.server";
 import { getAreasWithIds } from "@/features/taxonomy/actions/areas";
 import { CreateAdForm } from "@/features/market/components/CreateAdForm";

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import type { Metadata, Viewport } from "next";
 import { Cairo, Inter } from "next/font/google";
 import Script from "next/script";

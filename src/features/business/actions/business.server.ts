@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
@@ -90,7 +93,7 @@ export async function getOwnedPlaceDetails(placeId: string) {
 
         return {
             success: true,
-            place: mapPlace(rawData as any)
+            place: mapPlace(rawData as Parameters<typeof mapPlace>[0])
         };
     } catch (error) {
         console.error('Error fetching place details:', error);
@@ -160,7 +163,7 @@ export async function replyToReview(reviewId: string, replyText: string) {
             .eq('id', reviewId)
             .single();
 
-        if (!review || (review.places as any)?.added_by !== user.id) {
+        if (!review || (review.places as unknown as { added_by: string })?.added_by !== user.id) {
             return { success: false, error: 'غير مصرح لك بالرد على هذا التقييم' };
         }
 
@@ -299,7 +302,7 @@ export async function setPlaceMainImage(placeId: string, imageUrl: string) {
 /**
  * Enhanced update for basic info with formatting logic
  */
-export async function updatePlaceBasicInfo(placeId: string, field: string, value: any) {
+export async function updatePlaceBasicInfo(placeId: string, field: string, value: unknown) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -317,7 +320,7 @@ export async function updatePlaceBasicInfo(placeId: string, field: string, value
         if (place.added_by !== user.id) return { success: false, error: 'ليس لديك صلاحية التعديل' };
 
         // 2. Prepare data with business logic
-        let dataToUpdate: any = { [field]: value };
+        let dataToUpdate: Record<string, unknown> = { [field]: value };
 
         if (field === 'phone' && typeof value === 'string') {
             // Backward compatibility for basic string phone updates

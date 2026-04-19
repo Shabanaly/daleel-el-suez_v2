@@ -473,18 +473,18 @@ export async function getRelatedPlaces(categoryId: number | undefined, excludeId
    Ensures the UI shows a mix of categories instead of just one.
 ========================================================= */
 
-function interleavePlacesByCategory(places: any[], limit: number): any[] {
+function interleavePlacesByCategory<T extends { categoryId?: number | null }>(places: T[], limit: number): T[] {
     if (!places.length) return [];
     
     // 1. Group by category
-    const buckets = new Map<number, any[]>();
+    const buckets = new Map<number, T[]>();
     places.forEach(p => {
         const cid = p.categoryId || 0;
         if (!buckets.has(cid)) buckets.set(cid, []);
         buckets.get(cid)!.push(p);
     });
 
-    const result: any[] = [];
+    const result: T[] = [];
     const categoryIds = Array.from(buckets.keys());
     
     // 2. Round-robin picking
@@ -674,8 +674,7 @@ export const getCommunityPulsePlaces = unstable_cache(
         if (placesError || !rawPlaces) return [];
 
         // 8. دمج بيانات المكان مع معلومات "شريط النبض"
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const finalPlaces = rawPlaces.map((p: any) => {
+        const finalPlaces = (rawPlaces as unknown as RawPlace[]).map((p) => {
             const pulseInfo = topPulseItems.find(item => item.place_id === p.id);
             const mapped = mapPlace(p);
             return {

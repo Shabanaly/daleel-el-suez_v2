@@ -60,18 +60,14 @@ export function useAddPlaceForm({ areas }: UseAddPlaceFormProps) {
         customDistrictId: 0
     });
 
-    // Sync media data to formData when it changes
-    const imagesStr = JSON.stringify(images);
-    const publicIdsStr = JSON.stringify(publicIds);
-    
     useEffect(() => {
         setFormData(prev => {
-            if (JSON.stringify(prev.images) === imagesStr && JSON.stringify(prev.publicIds) === publicIdsStr) {
+            if (JSON.stringify(prev.images) === JSON.stringify(images) && JSON.stringify(prev.publicIds) === JSON.stringify(publicIds)) {
                 return prev;
             }
             return { ...prev, images, publicIds };
         });
-    }, [imagesStr, publicIdsStr]);
+    }, [images, publicIds]);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 

@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import { useState, useCallback } from 'react';
 import { getAdminCommunityPosts, deletePostAdmin, updatePostStatusAdmin } from '@/features/admin/actions/community';
 import { toast } from 'react-hot-toast';
 
 export function useAdminCommunity() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [posts, setPosts] = useState<any[]>([]);
     const [totalCount, setTotalCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);

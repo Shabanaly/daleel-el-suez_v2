@@ -29,7 +29,7 @@ export function useImageUpload({
     useEffect(() => {
         setImages(prev => JSON.stringify(prev) !== JSON.stringify(initialImages) ? initialImages : prev);
         setPublicIds(prev => JSON.stringify(prev) !== JSON.stringify(initialPublicIds) ? initialPublicIds : prev);
-    }, [JSON.stringify(initialImages), JSON.stringify(initialPublicIds)]);
+    }, [initialImages, initialPublicIds]);
     const [isCompressing, setIsCompressing] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);

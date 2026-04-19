@@ -9,6 +9,7 @@ import { ReviewsManager } from './dashboard/ReviewsManager';
 
 interface BusinessDashboardClientProps {
     place: Place;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     reviews: any[];
     categories: { id: number; name: string }[];
     areas: { id: number; name: string }[];

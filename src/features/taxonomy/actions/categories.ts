@@ -4,7 +4,15 @@ import { unstable_cache } from "next/cache";
 import { createServiceClient } from "@/lib/supabase/client-service";
 import { mapPlace, mapCategory } from "@/lib/utils/mappers";
 
-async function fetchRawCategories() {
+interface RawCategory {
+    id: number;
+    name: string;
+    slug: string;
+    icon: string;
+    places: { count: number }[];
+}
+
+async function fetchRawCategories(): Promise<RawCategory[]> {
     const supabase = createServiceClient();
 
     // Always fetch counts to allow filtering empty ones
@@ -27,8 +35,7 @@ async function fetchRawCategories() {
     // Filter out:
     // 1. Categories with 0 places
     // 2. Categories with "مراجعة" or "راجع" in name (internal/pending)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (data || []).filter((c: any) => {
+    return (data as unknown as RawCategory[] || []).filter((c) => {
         const count = c.places?.[0]?.count || 0;
         const name = c.name.toLowerCase();
         const isInternal = name.includes('مراجعة') || name.includes('راجع');
@@ -48,7 +55,7 @@ async function getCategoriesInternal(): Promise<{ name: string; count: number; s
         .eq('status', 'approved');
 
     // 2. Map raw data to the new structure
-    const mappedCategories = data.map((c: any) => ({
+    const mappedCategories = data.map((c) => ({
         name: c.name,
         count: c.places?.[0]?.count || 0,
         slug: c.slug
@@ -187,17 +194,20 @@ export async function getCategoryHighlights(id: string) {
                 .eq('status', 'approved')
                 .limit(100);
             
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const areaNames = Array.from(new Set((areasData || []).map((a: any) => a.areas?.name).filter(Boolean)));
+            const areaNames = Array.from(new Set(
+                (areasData || []).map((a: { area_id: number; areas: { name: string } | { name: string }[] | null }) => {
+                    const area = Array.isArray(a.areas) ? a.areas[0] : a.areas;
+                    return area?.name;
+                }).filter(Boolean)
+            )) as string[];
 
             return {
                 id: category.id,
                 name: category.name,
                 icon: category.icon,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                totalPlaces: (category as any).places?.[0]?.count || 0,
+                totalPlaces: (category as unknown as { places: { count: number }[] }).places?.[0]?.count || 0,
                 highlights: mappedPlaces,
-                topAreas: areaNames.slice(0, 5)
+                topAreas: areaNames.slice(0, 5) as string[]
             };
         },
         [`category-highlights-${id}`],
@@ -315,7 +325,7 @@ export const getSmartCategoryHighlights = unstable_cache(
         // 2. العشوائية الموجهة: لا نكرر نفس التصنيف في نفس الوقت كل يوم
         const dateSeed = new Date().getDate() + new Date().getHours();
         const selectedIndex = dateSeed % candidateNames.length;
-        let targetCategoryName = candidateNames[selectedIndex];
+        const targetCategoryName = candidateNames[selectedIndex];
 
         // 3. سحب الفئة المستهدفة
         const { data: categoryData, error: catError } = await supabase

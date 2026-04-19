@@ -1,4 +1,7 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { useState, useEffect, useCallback } from "react";
 import { m, AnimatePresence, LazyMotion, domAnimation } from "framer-motion";

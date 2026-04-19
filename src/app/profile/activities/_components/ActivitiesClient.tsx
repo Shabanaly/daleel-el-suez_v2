@@ -15,6 +15,17 @@ interface ActivitiesClientProps {
 
 type TabType = 'all' | 'review' | 'place' | 'post' | 'comment';
 
+// ── Sub-components moved outside render ──────────────────
+const FilterTrigger = ({ isMobile = false, label }: { isMobile?: boolean; label: string }) => (
+    <button
+        className={`flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all ${isMobile ? 'border-border-subtle bg-surface' : 'bg-surface border-border-subtle hover:border-primary/50'
+            }`}
+    >
+        <Filter className="w-4 h-4 text-primary" />
+        <span className="text-sm font-black">{label}</span>
+    </button>
+);
+
 export function ActivitiesClient({ activities }: ActivitiesClientProps) {
     const [activeTab, setActiveTab] = useState<TabType>('all');
 
@@ -37,18 +48,6 @@ export function ActivitiesClient({ activities }: ActivitiesClientProps) {
         onClick: () => setActiveTab(tab.id as TabType)
     }));
 
-    const FilterTrigger = ({ isMobile = false }) => (
-        <button
-            className={`flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all ${isMobile ? 'border-border-subtle bg-surface' : 'bg-surface border-border-subtle hover:border-primary/50'
-                }`}
-        >
-            <Filter className="w-4 h-4 text-primary" />
-            <span className="text-sm font-black">
-                {tabs.find(t => t.id === activeTab)?.label || 'الكل'}
-            </span>
-        </button>
-    );
-
     return (
         <div className="min-h-screen" dir="rtl">
             <AppBar 
@@ -56,7 +55,7 @@ export function ActivitiesClient({ activities }: ActivitiesClientProps) {
                 backHref={ROUTES.PROFILE} 
                 actions={
                     <ContextMenu 
-                        trigger={<FilterTrigger isMobile />} 
+                        trigger={<FilterTrigger isMobile label={tabs.find(t => t.id === activeTab)?.label || 'الكل'} />} 
                         items={filterItems} 
                         align="left"
                     />
@@ -73,7 +72,7 @@ export function ActivitiesClient({ activities }: ActivitiesClientProps) {
                     {/* Desktop filter stays here */}
                     <div className="hidden md:block">
                         <ContextMenu
-                            trigger={<FilterTrigger />}
+                            trigger={<FilterTrigger label={tabs.find(t => t.id === activeTab)?.label || 'الكل'} />}
                             items={filterItems}
                             align="left"
                         />

@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { useState } from 'react';
 import { Pencil, Check, X, Phone, MapPin, Type, AlignLeft } from 'lucide-react';

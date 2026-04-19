@@ -4,8 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAdminMarket } from '@/features/admin/hooks/useAdminMarket';
 import { MarketFilter } from '@/features/admin/components/market/MarketFilter';
 import { MarketDataTable } from '@/features/admin/components/market/MarketDataTable';
-import { ShoppingBag, LayoutGrid, List } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ShoppingBag } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 
 export default function AdminMarketPage() {

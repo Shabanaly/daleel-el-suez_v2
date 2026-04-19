@@ -20,13 +20,16 @@ export function UserDetailsModal({ user, onClose }: UserDetailsModalProps) {
 
     useEffect(() => {
         if (user) {
-            setIsLoading(true);
-            getUserStats(user.id).then(data => {
-                setStats(data);
-                setIsLoading(false);
+            // Defer loading state to avoid cascading renders
+            Promise.resolve().then(() => {
+                setIsLoading(true);
+                getUserStats(user.id).then(data => {
+                    setStats(data);
+                    setIsLoading(false);
+                });
             });
         } else {
-            setStats(null);
+            Promise.resolve().then(() => setStats(null));
         }
     }, [user]);
 
@@ -168,7 +171,7 @@ export function UserDetailsModal({ user, onClose }: UserDetailsModalProps) {
     );
 }
 
-function StatCard({ icon: Icon, label, count, isLoading, color, bg }: any) {
+function StatCard({ icon: Icon, label, count, isLoading, color, bg }: { icon: React.ElementType, label: string, count: number | undefined, isLoading: boolean, color: string, bg: string }) {
     return (
         <div className={cn("p-4 rounded-3xl border border-border-subtle/50 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 relative overflow-hidden group", bg)}>
             <div className="absolute -top-2 -left-2 p-4 opacity-[0.03] group-hover:scale-150 transition-transform duration-700">

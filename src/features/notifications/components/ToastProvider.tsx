@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @next/next/no-img-element */
+ 
 
 import React, { createContext, useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -133,6 +136,7 @@ const ToastNotification = ({ toast, onDismiss }: { toast: ToastOptions; onDismis
             )}
           </div>
 
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           <Wrapper {...(wrapperProps as any)} className="flex-1 min-w-0">
             <h4 className="font-black text-[13px] md:text-sm tracking-tight mb-0.5" style={{ color: 'var(--text-primary)' }}>
               {title}

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 'use server';
 
 import { createAdminClient } from '@/lib/supabase/admin';

@@ -18,6 +18,29 @@ export interface Suggestion {
  * 🛠️ The Global Search Engine Service
  * Handles fetching, caching, and organizing search suggestions.
  */
+
+interface ListingResult {
+    title: string;
+    id: string;
+    slug: string | null;
+    images: string[] | null;
+    price: number | null;
+}
+
+interface CategoryResult {
+    name: string;
+    slug: string;
+    icon: string | null;
+}
+
+interface PlaceResult {
+    name: string;
+    slug: string;
+    images: string[] | null;
+    categories: { icon: string | null } | { icon: string | null }[] | null;
+    areas: { name: string } | { name: string }[] | null;
+}
+
 export async function getAutocompleteSuggestions(q: string, type: 'market' | 'places' = 'places'): Promise<Suggestion[]> {
     const term = q.trim().toLowerCase();
     
@@ -43,7 +66,7 @@ export async function getAutocompleteSuggestions(q: string, type: 'market' | 'pl
                         .limit(20)
                 ]);
 
-                const ads: Suggestion[] = (adsRes.data || []).map((ad: any) => ({
+                const ads: Suggestion[] = (adsRes.data as unknown as ListingResult[] || []).map((ad) => ({
                     name: ad.title,
                     slug: ad.slug || ad.id,
                     icon: 'ShoppingBag',
@@ -53,7 +76,7 @@ export async function getAutocompleteSuggestions(q: string, type: 'market' | 'pl
                     meta: ad.price ? `${ad.price} ج.م` : null
                 }));
 
-                const cats: Suggestion[] = (catsRes.data || []).map((cat: any) => ({
+                const cats: Suggestion[] = (catsRes.data as unknown as CategoryResult[] || []).map((cat) => ({
                     name: cat.name,
                     slug: cat.slug,
                     icon: cat.icon || 'LayoutGrid',
@@ -99,21 +122,21 @@ export async function getAutocompleteSuggestions(q: string, type: 'market' | 'pl
                     .limit(20)
             ]);
 
-            const places: Suggestion[] = (placesRes.data || []).map((p: any) => {
+            const places: Suggestion[] = (placesRes.data as unknown as PlaceResult[] || []).map((p) => {
                 const cat = Array.isArray(p.categories) ? p.categories[0] : p.categories;
                 const area = Array.isArray(p.areas) ? p.areas[0] : p.areas;
                 return {
                     name: p.name,
                     slug: p.slug,
-                    icon: (cat as any)?.icon || 'MapPin',
+                    icon: cat?.icon || 'MapPin',
                     type: 'place',
                     image: Array.isArray(p.images) ? p.images[0] : null,
                     url: `/places/${p.slug}`,
-                    meta: (area as any)?.name || 'السويس'
+                    meta: area?.name || 'السويس'
                 };
             });
 
-            const cats: Suggestion[] = (catsRes.data || []).map((cat: any) => ({
+            const cats: Suggestion[] = (catsRes.data as unknown as CategoryResult[] || []).map((cat) => ({
                 name: cat.name,
                 slug: cat.slug,
                 icon: cat.icon || 'LayoutGrid',

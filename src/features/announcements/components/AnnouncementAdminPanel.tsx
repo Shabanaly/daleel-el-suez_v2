@@ -71,21 +71,22 @@ export default function AnnouncementAdminPanel({ initialAnnouncements }: Announc
         setAnnouncements(prev => [created, ...prev]);
         toast.success("تم إضافة الإعلان بنجاح");
       }
-      setIsModalOpen(false);
-    } catch (error: any) {
-      toast.error(error.message || "حدث خطأ ما");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      } catch (error) {
+        const err = error as Error;
+        toast.error(err.message || "حدث خطأ ما");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
 
   const handleToggleActive = async (item: Announcement) => {
     try {
       const updated = await updateAnnouncement(item.id, { is_active: !item.is_active });
       setAnnouncements(prev => prev.map(a => a.id === item.id ? updated : a));
       toast.success(updated.is_active ? "تم تفعيل الإعلان" : "تم تعطيل الإعلان");
-    } catch (error: any) {
-      toast.error(error.message || "حدث خطأ ما");
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message || "حدث خطأ ما");
     }
   };
 
@@ -102,8 +103,9 @@ export default function AnnouncementAdminPanel({ initialAnnouncements }: Announc
       setAnnouncements(prev => prev.filter(a => a.id !== idToDelete));
       toast.success("تم حذف الإعلان");
       setIsDeleteModalOpen(false);
-    } catch (error: any) {
-      toast.error(error.message || "حدث خطأ ما");
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message || "حدث خطأ ما");
     } finally {
       setIsSubmitting(false);
       setIdToDelete(null);

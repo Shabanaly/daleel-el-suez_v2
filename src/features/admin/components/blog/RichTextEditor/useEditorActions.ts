@@ -4,8 +4,8 @@ import { getCloudinarySignature } from "@/lib/actions/media";
 interface EditorActionsProps {
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   onChange: (content: string) => void;
-  showToast: (props: any) => void;
-  showConfirm: (props: any) => void;
+  showToast: (props: { title: string; message: string; type?: "SUCCESS" | "ERROR" | "INFO" | "DEFAULT" }) => void;
+  showConfirm: (props: { title: string; message: string; type?: "confirm" | "error" | "warning"; confirmLabel?: string; cancelLabel?: string; onConfirm: () => void }) => void;
   setIsUploading: (uploading: boolean) => void;
   setLinkModalOpen: (open: boolean) => void;
 }

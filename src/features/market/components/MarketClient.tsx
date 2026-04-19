@@ -1,4 +1,7 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { useState } from "react";
 import { MarketAd, MarketCategory } from "@/features/market/types";

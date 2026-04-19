@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { Image as ImageIcon, Loader2, Info, Send, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -30,10 +33,12 @@ export const Step3MediaInfo = memo(function Step3MediaInfo({
     errors
 }: Step3Props) {
     const [localDescription, setLocalDescription] = useState(formData.description);
+    const [prevDescription, setPrevDescription] = useState(formData.description);
 
-    useEffect(() => {
+    if (formData.description !== prevDescription) {
         setLocalDescription(formData.description);
-    }, [formData.description]);
+        setPrevDescription(formData.description);
+    }
 
     const handleFinalSubmit = (e: React.FormEvent) => {
         e.preventDefault();

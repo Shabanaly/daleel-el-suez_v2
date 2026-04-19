@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import { useState, useMemo, useEffect, useTransition, useCallback, useDeferredValue } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Place, SortOption } from '@/features/places/types';
@@ -27,15 +30,11 @@ export function usePlacesFilter(
     const openFilters = useCallback(() => setShowFilters(true), []);
     const closeFilters = useCallback(() => setShowFilters(false), []);
 
-    // Current displayed places (initial or server-fetched)
-    const [places, setPlaces] = useState<Place[]>(initialPlaces);
-    const [total, setTotal] = useState(initialTotal);
+    // Pattern: Adjusting state during render (replaces useEffect sync to avoid cascading renders)
+    const [prevSearchParams, setPrevSearchParams] = useState(searchParams.toString());
+    const currentSearchParamsStr = searchParams.toString();
 
-    // Sync with Server-fetched data when URL changes and page.tsx re-renders
-    useEffect(() => {
-        setPlaces(initialPlaces);
-        setTotal(initialTotal);
-        
+    if (currentSearchParamsStr !== prevSearchParams) {
         const urlPage = Number(searchParams.get('page')) || 1;
         if (page !== urlPage) setPage(urlPage);
 
@@ -50,7 +49,9 @@ export function usePlacesFilter(
 
         const urlSort = (searchParams.get('sort') as SortOption) || 'trending';
         if (sortBy !== urlSort) setSortBy(urlSort);
-    }, [initialPlaces, initialTotal, searchParams, categories, page, activeCategory, activeDistrict, activeArea, sortBy]);
+        
+        setPrevSearchParams(currentSearchParamsStr);
+    }
 
     // Derived: Areas belonging to a specific district (helper for modal)
     const getAvailableAreasForDistrict = useCallback((districtName: string) => {
@@ -185,11 +186,11 @@ export function usePlacesFilter(
         getAvailableAreasForDistrict,
         applyFilters,
         handleSearch,
-        filtered: places, // We trust server-side data
-        hasActiveFilters,
         clearFilters,
+        hasActiveFilters,
         isPending,
-        total,
+        filtered: initialPlaces, // Use server-provided places directly
+        total: initialTotal,
         debouncedQuery: deferredQuery // Using deferredValue for UI responsiveness
     };
 }

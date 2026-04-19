@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import { useState, useMemo, useEffect, useTransition, useCallback, useDeferredValue } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { MarketAd, MarketCategory } from '@/features/market/types';
@@ -32,21 +35,23 @@ export function useMarketFilter(
     // Current displayed ads (initial or server-fetched)
     const [ads, setAds] = useState<MarketAd[]>(initialAds);
     const [total, setTotal] = useState(initialTotal);
+    const [prevInitialAds, setPrevInitialAds] = useState(initialAds);
 
-    // Sync with Server-fetched data when URL changes and page.tsx re-renders
-    useEffect(() => {
+    // Sync with Server-fetched data when initialAds change (Adjusting state during render)
+    if (initialAds !== prevInitialAds) {
         setAds(initialAds);
         setTotal(initialTotal);
+        setPrevInitialAds(initialAds);
+        
+        // Also sync filter states from URL
         const urlPage = Number(searchParams.get('page')) || 1;
         setPage(urlPage);
-        
-        // Also sync filter states when URL changes (e.g. browser back button)
         setQuery(searchParams.get('q') || '');
         setActiveCategory(searchParams.get('category') || 'all');
         setActiveDistrict(searchParams.get('district') || 'كل الأحياء');
         setActiveArea(searchParams.get('area') || 'كل المناطق');
         setSortBy((searchParams.get('sort') as MarketSortOption) || 'newest');
-    }, [initialAds, initialTotal, searchParams, categories]);
+    }
 
     // Derived: Areas belonging to a specific district (helper for modal)
     const getAvailableAreasForDistrict = useCallback((districtName: string) => {

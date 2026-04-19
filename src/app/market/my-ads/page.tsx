@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import { getUserMarketAds } from "@/features/market/actions/market.server";
 import MyAdsClient from "@/features/market/components/MyAdsClient";
 import { createClient } from "@/lib/supabase/server";

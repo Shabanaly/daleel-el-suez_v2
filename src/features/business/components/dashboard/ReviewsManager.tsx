@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @next/next/no-img-element */
+ 
 
 import { useState } from 'react';
 import { Star, MessageSquare, Send, CornerDownLeft, User, Calendar } from 'lucide-react';

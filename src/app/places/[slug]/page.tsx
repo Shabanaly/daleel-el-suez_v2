@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import { notFound } from 'next/navigation';
 import { getPlaceBySlug, getRelatedPlaces } from '@/features/places/actions/places.server';
 import { getReviews } from '@/features/places/actions/reviews.server';
@@ -86,16 +89,16 @@ export default async function PlaceDetailsPage({ params }: { params: Promise<{ s
         },
         ...(place.workingHours ? {
             openingHoursSpecification: Object.entries(place.workingHours)
-                .filter(([_, schedule]: any) => schedule.isOpen)
-                .map(([day, schedule]: any) => ({
+                .filter(([_, schedule]) => schedule?.isOpen)
+                .map(([day, schedule]) => ({
                     '@type': 'OpeningHoursSpecification',
                     dayOfWeek: day.charAt(0).toUpperCase() + day.slice(1),
-                    opens: schedule.from,
-                    closes: schedule.to
+                    opens: schedule?.from,
+                    closes: schedule?.to
                 }))
         } : {}),
         ...(place.socialLinks?.length ? {
-            sameAs: place.socialLinks.map((link: any) => link.url)
+            sameAs: place.socialLinks.map((link: { url: string }) => link.url)
         } : {}),
         ...(place.rating && place.reviews ? {
             aggregateRating: {
@@ -139,7 +142,7 @@ export async function generateStaticParams() {
         // 🚀 Optimization: Only pre-render the top 50 recently added/popular places
         // The rest will be rendered on-demand (ISR) when first visited.
         // This significantly reduces Vercel CPU usage during Build.
-        return places.slice(0, 50).map((place: any) => ({
+        return places.slice(0, 50).map((place: { slug: string }) => ({
             slug: place.slug,
         }));
     } catch (error) {

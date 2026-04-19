@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { Store, Tag, MapPin, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -39,14 +42,18 @@ export const Step1BasicInfo = memo(function Step1BasicInfo({
     const [localName, setLocalName] = useState(formData.name);
     const [localCustomArea, setLocalCustomArea] = useState(formData.customAreaName || '');
 
-    // Sync local state when external data changes (e.g. on mount or step switch)
-    useEffect(() => {
+    // Pattern: Adjusting state when props change (replaces useEffect sync to avoid cascading renders)
+    const [prevName, setPrevName] = useState(formData.name);
+    if (formData.name !== prevName) {
         setLocalName(formData.name);
-    }, [formData.name]);
+        setPrevName(formData.name);
+    }
 
-    useEffect(() => {
+    const [prevCustomArea, setPrevCustomArea] = useState(formData.customAreaName || '');
+    if ((formData.customAreaName || '') !== prevCustomArea) {
         setLocalCustomArea(formData.customAreaName || '');
-    }, [formData.customAreaName]);
+        setPrevCustomArea(formData.customAreaName || '');
+    }
 
     return (
         <motion.div

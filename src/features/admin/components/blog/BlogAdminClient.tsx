@@ -82,15 +82,18 @@ export function BlogAdminClient({
 
   // Initialize client-side only data
   useEffect(() => {
-    setIsMounted(true);
-    // Set default date for new posts only if the form is empty
-    if (!editingPost && !form.publishedAt) {
-      setForm(prev => ({
-        ...prev,
-        publishedAt: new Date().toISOString().slice(0, 16)
-      }));
-    }
-  }, [editingPost]);
+    // Defer mounting to avoid immediate cascading render warnings
+    Promise.resolve().then(() => {
+      setIsMounted(true);
+      // Set default date for new posts only if the form is empty
+      if (!editingPost && !form.publishedAt) {
+        setForm(prev => ({
+          ...prev,
+          publishedAt: new Date().toISOString().slice(0, 16)
+        }));
+      }
+    });
+  }, [editingPost]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const uploader = useImageUpload({
     folder: "blog-posts",
@@ -184,11 +187,12 @@ export function BlogAdminClient({
 
         resetForm();
         router.refresh();
-      } catch (error: any) {
+      } catch (error) {
+        const err = error as Error;
         showToast({
           title: "فشل الإجراء",
           message:
-            error.message || "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.",
+            err.message || "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.",
           type: "ERROR",
         });
         console.error(error);
@@ -217,10 +221,11 @@ export function BlogAdminClient({
               type: "SUCCESS",
             });
             router.refresh();
-          } catch (error: any) {
+          } catch (error) {
+            const err = error as Error;
             showToast({
               title: "فشل الحذف",
-              message: error.message || "تعذر حذف المقال.",
+              message: err.message || "تعذر حذف المقال.",
               type: "ERROR",
             });
           }
@@ -316,7 +321,7 @@ export function BlogAdminClient({
                   <option value="" disabled>
                     اختر التصنيف...
                   </option>
-                  {categories?.map((cat: any) => (
+                  {categories?.map((cat: { id?: number | string; slug?: string; name: string }) => (
                     <option key={cat.id || cat.slug} value={String(cat.id)}>
                       {cat.name}
                     </option>

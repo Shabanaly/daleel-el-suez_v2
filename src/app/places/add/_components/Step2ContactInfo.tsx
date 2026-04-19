@@ -3,7 +3,7 @@
 import { Phone, MapPin, Clock, ChevronRight, X, Facebook, Instagram, Globe, MessageCircle, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DayKey, WeeklySchedule } from '@/features/places/types';
-import { useState, memo, useEffect } from 'react';
+import { useState, memo } from 'react';
 
 interface Step2Props {
     formData: {
@@ -40,14 +40,16 @@ export const Step2ContactInfo = memo(function Step2ContactInfo({ formData, updat
     const [localAddress, setLocalAddress] = useState(formData.address);
     const [localSocialLinks, setLocalSocialLinks] = useState(formData.socialLinks);
 
-    // Sync from parent if needed (e.g. initial load)
-    useEffect(() => {
+    // Pattern: Adjusting state when props change (render-time sync)
+    const [prevFormData, setPrevFormData] = useState(formData);
+    if (formData !== prevFormData) {
         setLocalPrimary(formData.phone.primary);
         setLocalWhatsapp(formData.phone.whatsapp);
         setLocalOthers(formData.phone.others);
         setLocalAddress(formData.address);
         setLocalSocialLinks(formData.socialLinks);
-    }, [formData.phone.primary, formData.phone.whatsapp, formData.phone.others, formData.address, formData.socialLinks]);
+        setPrevFormData(formData);
+    }
 
     const is24Hours = (formData.openHours?.saturday?.isOpen && formData.openHours?.saturday?.from === '00:00' && formData.openHours?.saturday?.to === '23:59') || false;
     const fromTime = (!formData.openHours?.saturday?.isOpen || formData.openHours.saturday.from === '00:00') ? '09:00' : formData.openHours.saturday.from;

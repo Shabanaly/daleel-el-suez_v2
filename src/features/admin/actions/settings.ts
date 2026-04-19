@@ -25,7 +25,7 @@ export async function getSystemSettings() {
     return data;
 }
 
-export async function updateSystemSettings(settings: any) {
+export async function updateSystemSettings(settings: Record<string, unknown>) {
     const supabase = createAdminClient();
 
     const { error } = await supabase

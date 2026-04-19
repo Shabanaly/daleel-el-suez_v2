@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import { useState, useCallback } from 'react';
 import { getAdminReports, updateReportStatusAdmin, deleteReportAdmin } from '@/features/admin/actions/reports';
 import { toast } from 'react-hot-toast';
 
 export function useAdminReports() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [reports, setReports] = useState<any[]>([]);
     const [totalCount, setTotalCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);

@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { ROUTES } from '@/constants';
 import { PlaceCard } from '@/features/places/components/PlaceCard';
 import AdCard from '@/features/market/components/AdCard';
+import { MarketAd } from '@/features/market/types';
 import { Heart, MapPin, Store, Map as MapIcon } from 'lucide-react';
 import CustomLink from '@/components/customLink/customLink';
 import { AppBar } from '@/components/ui/AppBar';
@@ -88,8 +89,8 @@ export default async function FavoritesPage({
                 ) : (
                     favoriteAds.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-                            {favoriteAds.map((ad: any) => (
-                                ad && <AdCard key={ad.id} ad={ad as any} />
+                            {favoriteAds.map((ad: MarketAd) => (
+                                ad && <AdCard key={ad.id} ad={ad} />
                             ))}
                         </div>
                     ) : (

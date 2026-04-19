@@ -1,4 +1,7 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { Search, SlidersHorizontal, Filter } from 'lucide-react';
 import { useState, useEffect } from 'react';

@@ -18,7 +18,7 @@ export default async function ActivitiesPage() {
 
     return (
         <div className="min-h-screen bg-background pb-20 md:pb-12 text-right" dir="rtl">
-            <ActivitiesClient activities={activities as any} />
+            <ActivitiesClient activities={activities} />
         </div>
     );
 }

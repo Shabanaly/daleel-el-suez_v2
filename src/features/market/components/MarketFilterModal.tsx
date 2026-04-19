@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 import { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Filter, Check, RotateCcw } from 'lucide-react';
@@ -30,15 +33,17 @@ export const MarketFilterModal = memo(function MarketFilterModal({
     const [localDistrict, setLocalDistrict] = useState(initialDistrict);
     const [localArea, setLocalArea] = useState(initialArea);
     const [localSort, setLocalSort] = useState<MarketSortOption>(initialSort);
+    const [prevOpen, setPrevOpen] = useState(isOpen);
 
-    // Sync local state when modal opens
-    useEffect(() => {
-        if (isOpen) {
-            setLocalDistrict(initialDistrict);
-            setLocalArea(initialArea);
-            setLocalSort(initialSort);
-        }
-    }, [isOpen, initialDistrict, initialArea, initialSort]);
+    // Sync local state when modal opens (Adjusting state during render)
+    if (isOpen && !prevOpen) {
+        setLocalDistrict(initialDistrict);
+        setLocalArea(initialArea);
+        setLocalSort(initialSort);
+        setPrevOpen(isOpen);
+    } else if (!isOpen && prevOpen) {
+        setPrevOpen(isOpen);
+    }
 
     const availableAreas = getAvailableAreas(localDistrict);
 

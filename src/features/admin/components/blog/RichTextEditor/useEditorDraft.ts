@@ -9,8 +9,11 @@ export function useEditorDraft(content: string, onChange: (content: string) => v
     if (draftKey) {
       const saved = localStorage.getItem(draftKey);
       if (saved && saved.trim() !== "" && saved !== content) {
-        setHasDraft(true);
-        setDraftContent(saved);
+        // Defer to avoid cascading renders
+        Promise.resolve().then(() => {
+          setHasDraft(true);
+          setDraftContent(saved);
+        });
       }
     }
   }, [draftKey, content]);

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { User, Mail, AtSign, Save, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { User, Mail, Save, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { updateProfile } from '@/features/settings/actions/settings.server'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 

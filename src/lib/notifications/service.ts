@@ -1,5 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/client-service';
-import { NotificationEvent, EventData, NotificationPayload } from './types';
+import { EventData, NotificationPayload } from './types';
 import { NotificationTemplates } from './templates';
 
 export class NotificationService {
