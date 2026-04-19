@@ -14,10 +14,11 @@ import 'yet-another-react-lightbox/plugins/thumbnails.css';
 interface LightboxProps {
     images: string[];
     isOpen: boolean;
+    index?: number;
     onClose: () => void;
 }
 
-export function Lightbox({ images,  isOpen, onClose }: LightboxProps) {
+export function Lightbox({ images, isOpen, index = 0, onClose }: LightboxProps) {
 
     // Handle browser back button to close lightbox instead of leaving page
     useEffect(() => {
@@ -55,6 +56,7 @@ export function Lightbox({ images,  isOpen, onClose }: LightboxProps) {
         <LightboxComponent
             open={isOpen}
             close={onClose}
+            index={index}
             slides={slides}
             plugins={plugins}
             render={{

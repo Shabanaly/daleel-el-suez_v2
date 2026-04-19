@@ -266,6 +266,7 @@ export default function AdDetailsClient({ ad }: AdDetailsClientProps) {
             <Lightbox
                 images={galleryImages}
                 isOpen={isLightboxOpen}
+                index={activeImageIndex}
                 onClose={() => setIsLightboxOpen(false)}
             />
 

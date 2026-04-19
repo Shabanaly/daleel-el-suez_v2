@@ -4,12 +4,11 @@
  
 
 import { useState, useEffect } from 'react';
-import CustomLink from '@/components/customLink/customLink';
 import ShareButton from '@/components/ui/ShareButton';
 import AdSlot from '@/components/common/AdSlot';
 import { Banner320x50 } from '@/components/common/ThirdPartyAds';
 import { useDialog } from "@/components/providers/DialogProvider";
-import { Share2, MapPin, Star, ChevronLeft, ChevronRight, CheckCircle2, Eye } from 'lucide-react';
+import { Share2, Star, CheckCircle2, Eye } from 'lucide-react';
 import { Review } from '@/features/places/types/reviews';
 import { Place } from '@/features/places/types';
 import { PlaceCard } from './PlaceCard';
@@ -229,6 +228,7 @@ export function PlaceDetailsClient({
             <Lightbox
                 images={galleryImages}
                 isOpen={isLightboxOpen}
+                index={activeImageIndex}
                 onClose={() => setIsLightboxOpen(false)}
             />
 
