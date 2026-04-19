@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
- 
- 
+
 import type { Metadata, Viewport } from "next";
 import { Cairo, Inter } from "next/font/google";
 import Script from "next/script";
@@ -9,7 +8,6 @@ import BottomNav from "@/components/layout/BottomNav";
 import DesktopSidebar from "@/components/layout/DesktopSidebar";
 import LeftSidebar from "@/components/layout/LeftSidebar";
 import Footer from "@/components/layout/Footer";
-import { AdsenseScript } from "@/components/common/AdsenseScript";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { AuthModalProvider } from "@/features/auth/hooks/useAuthModal";
@@ -45,15 +43,37 @@ export const metadata: Metadata = {
   metadataBase: new URL(APP_CONFIG.BASE_URL),
   title: {
     default: `${APP_CONFIG.NAME} - ${APP_CONFIG.TAGLINE}`,
-    template: `%s - ${APP_CONFIG.NAME}`
+    template: `%s - ${APP_CONFIG.NAME}`,
   },
   description: APP_CONFIG.DESCRIPTION,
   keywords: [
-    "السويس", "دليل السويس", "سوق السويس", "أماكن السويس", "خدمات السويس", "عقارات السويس", 
-    "وظائف السويس", "مطاعم السويس", "عيادات السويس", "بيع وشراء السويس", "مستعمل السويس", 
-    "اعلانات السويس", "أخبار السويس", "مجتمع السويس", "محلات السويس", "خدمات حكومية السويس",
-    "دليل ارقام تليفونات السويس", "افضل مطاعم السويس", "افضل اطباء السويس", "سويسي", "مدن القناة",
-    "بورتوفيق", "الاربعين", "فيصل السويس", "السويس", "كبريت", "العين السخنة"
+    "السويس",
+    "دليل السويس",
+    "سوق السويس",
+    "أماكن السويس",
+    "خدمات السويس",
+    "عقارات السويس",
+    "وظائف السويس",
+    "مطاعم السويس",
+    "عيادات السويس",
+    "بيع وشراء السويس",
+    "مستعمل السويس",
+    "اعلانات السويس",
+    "أخبار السويس",
+    "مجتمع السويس",
+    "محلات السويس",
+    "خدمات حكومية السويس",
+    "دليل ارقام تليفونات السويس",
+    "افضل مطاعم السويس",
+    "افضل اطباء السويس",
+    "سويسي",
+    "مدن القناة",
+    "بورتوفيق",
+    "الاربعين",
+    "فيصل السويس",
+    "السويس",
+    "كبريت",
+    "العين السخنة",
   ],
   authors: [{ name: APP_CONFIG.NAME }],
   appleWebApp: {
@@ -75,9 +95,9 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: APP_CONFIG.NAME
-      }
-    ]
+        alt: APP_CONFIG.NAME,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -118,7 +138,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
   const announcements = await getActiveAnnouncements();
 
   return (
@@ -127,6 +147,12 @@ export default async function RootLayout({
         className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 lg:pb-0`}
         suppressHydrationWarning
       >
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775"
+          crossOrigin="anonymous"
+          strategy="beforeInteractive"
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -135,12 +161,12 @@ export default async function RootLayout({
         >
           {/* 🤖 AI Content Snippet: Concise site summary for LLM crawlers first 200 chars */}
           <div className="sr-only" aria-hidden="true">
-            دليل السويس هو المنصة المعرفية الشاملة لاكتشاف مدينة السويس، مصر. يغطي الدليل كافة الأحياء مثل حي الأربعين، حي فيصل، وبورتوفيق، ويوفر معلومات دقيقة عن المطاعم، العيادات الطبية، الشركات، وسوق الخدمات في محافظة السويس. المرجع الأول للسوايسة والزوار.
+            دليل السويس هو المنصة المعرفية الشاملة لاكتشاف مدينة السويس، مصر.
+            يغطي الدليل كافة الأحياء مثل حي الأربعين، حي فيصل، وبورتوفيق، ويوفر
+            معلومات دقيقة عن المطاعم، العيادات الطبية، الشركات، وسوق الخدمات في
+            محافظة السويس. المرجع الأول للسوايسة والزوار.
           </div>
 
-          {/* Third-party Scripts (Delayed) */}
-          <AdsenseScript />
-          
           <GoogleIdScript />
           <JsonLd />
           {/* Google Analytics */}
