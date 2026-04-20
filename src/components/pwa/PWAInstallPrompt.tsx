@@ -1,50 +1,42 @@
-'use client';
+"use client";
 /* eslint-disable @typescript-eslint/no-unused-vars */
- 
- 
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Share, PlusSquare, Download, Smartphone } from 'lucide-react';
-import Image from 'next/image';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Share, PlusSquare, Download, Smartphone } from "lucide-react";
+import Image from "next/image";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
   readonly userChoice: Promise<{
-    outcome: 'accepted' | 'dismissed';
+    outcome: "accepted" | "dismissed";
     platform: string;
   }>;
   prompt(): Promise<void>;
 }
 
-const DISMISS_KEY = 'pwa-prompt-dismissed';
+const DISMISS_KEY = "pwa-prompt-dismissed";
 const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export default function PWAInstallPrompt() {
-  const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
     const checkStandalone = () => {
       return (
-        window.matchMedia('(display-mode: standalone)').matches ||
+        window.matchMedia("(display-mode: standalone)").matches ||
         (window.navigator as Navigator & { standalone?: boolean }).standalone ||
-        document.referrer.includes('android-app://')
+        document.referrer.includes("android-app://")
       );
     };
 
     const detectIOS = () => {
       return (
-        /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream
+        /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+        !(window as Window & { MSStream?: unknown }).MSStream
       );
     };
 
@@ -62,7 +54,7 @@ export default function PWAInstallPrompt() {
       checkVisibility();
     };
 
-    window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener("beforeinstallprompt", handler);
 
     // 4. Initial visibility check with delay, synchronized with Cookie Consent
     const checkVisibility = () => {
@@ -81,14 +73,24 @@ export default function PWAInstallPrompt() {
       };
 
       // If user hasn't made a cookie choice, wait for it
-      const cookieChoice = localStorage.getItem('daleel-cookie-consent');
+      const cookieChoice = localStorage.getItem("daleel-cookie-consent");
       if (!cookieChoice) {
         const handleCookieChoice = () => {
           showWithDelay();
-          window.removeEventListener('daleel-cookie-choice-made', handleCookieChoice);
+          window.removeEventListener(
+            "daleel-cookie-choice-made",
+            handleCookieChoice,
+          );
         };
-        window.addEventListener('daleel-cookie-choice-made', handleCookieChoice);
-        return () => window.removeEventListener('daleel-cookie-choice-made', handleCookieChoice);
+        window.addEventListener(
+          "daleel-cookie-choice-made",
+          handleCookieChoice,
+        );
+        return () =>
+          window.removeEventListener(
+            "daleel-cookie-choice-made",
+            handleCookieChoice,
+          );
       } else {
         const timer = showWithDelay();
         return () => clearTimeout(timer);
@@ -98,8 +100,8 @@ export default function PWAInstallPrompt() {
     const cleanupTimeout = checkVisibility();
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
-      if (typeof cleanupTimeout === 'function') cleanupTimeout();
+      window.removeEventListener("beforeinstallprompt", handler);
+      if (typeof cleanupTimeout === "function") cleanupTimeout();
     };
   }, []);
 
@@ -107,7 +109,7 @@ export default function PWAInstallPrompt() {
     if (!prompt) return;
     prompt.prompt();
     const { outcome } = await prompt.userChoice;
-    if (outcome === 'accepted') {
+    if (outcome === "accepted") {
       setIsVisible(false);
     }
     setPrompt(null);
@@ -131,18 +133,18 @@ export default function PWAInstallPrompt() {
         <div className="pointer-events-auto bg-surface/90 backdrop-blur-xl border border-primary/10 shadow-2xl rounded-3xl p-3 sm:p-5 relative overflow-hidden">
           {/* Decorative background circle */}
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full pointer-events-none" />
-          
+
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="w-10 h-10 sm:w-14 sm:h-14 bg-primary rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
-              <Image 
-                src="/favicon-circular.ico" 
-                alt="Logo" 
-                width={36} 
-                height={36} 
+              <Image
+                src="/favicon-circular.ico"
+                alt="Logo"
+                width={36}
+                height={36}
                 className="rounded-full w-7 h-7 sm:w-9 sm:h-9"
               />
             </div>
-            
+
             <div className="flex-1 min-w-0" dir="rtl">
               <h3 className="text-text-primary font-black text-[11px] sm:text-sm mb-0.5 truncate">
                 تطبيق دليل السويس 🚀
@@ -172,16 +174,21 @@ export default function PWAInstallPrompt() {
           </div>
 
           {isIOS && (
-            <div className="mt-3 bg-primary/5 rounded-xl p-2 border border-primary/10" dir="rtl">
+            <div
+              className="mt-3 bg-primary/5 rounded-xl p-2 border border-primary/10"
+              dir="rtl"
+            >
               <p className="text-[9px] text-primary font-bold flex items-center gap-1.5">
                 <Smartphone className="w-3 h-3" />
-                للتثبيت: اضغط <Share className="w-3 h-3 text-blue-500 inline" /> ثم &quot;إضافة للشاشة الرئيسية&quot; <PlusSquare className="w-3 h-3 text-blue-500 inline" />
+                للتثبيت: اضغط <Share className="w-3 h-3 text-blue-500 inline" />{" "}
+                ثم &quot;إضافة للشاشة الرئيسية&quot;{" "}
+                <PlusSquare className="w-3 h-3 text-blue-500 inline" />
               </p>
             </div>
           )}
-          
+
           <div className="hidden sm:block mt-4">
-            <button 
+            <button
               onClick={handleDismiss}
               className="w-full text-text-muted hover:text-text-primary text-[10px] font-bold py-1 transition-colors text-center"
             >
