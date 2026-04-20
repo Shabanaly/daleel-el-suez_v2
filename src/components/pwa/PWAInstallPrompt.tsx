@@ -1,102 +1,115 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Smartphone, Share } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Share, PlusSquare, Download, Smartphone } from "lucide-react";
+import Image from "next/image";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
   readonly userChoice: Promise<{
-    outcome: 'accepted' | 'dismissed';
+    outcome: "accepted" | "dismissed";
     platform: string;
   }>;
   prompt(): Promise<void>;
 }
 
-const STORAGE_KEY = 'pwa-prompt-dismissed';
+const DISMISS_KEY = "pwa-prompt-dismissed";
 const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export default function PWAInstallPrompt() {
-  const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // Avoid cascading renders
-    const timer = setTimeout(() => {
-        setMounted(true);
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
     const checkStandalone = () => {
-      const win = window as unknown as { navigator: { standalone?: boolean } };
       return (
-        window.matchMedia('(display-mode: standalone)').matches ||
-        win.navigator.standalone ||
-        document.referrer.includes('android-app://')
+        window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as Navigator & { standalone?: boolean }).standalone ||
+        document.referrer.includes("android-app://")
       );
     };
 
-    const isIOSDevice = () => {
-      const win = window as unknown as { MSStream?: unknown };
+    const detectIOS = () => {
       return (
-        /iPad|iPhone|iPod/.test(navigator.userAgent) && !win.MSStream
+        /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+        !(window as Window & { MSStream?: unknown }).MSStream
       );
     };
 
-    // Defer state updates to satisfy react-hooks/set-state-in-effect
-    Promise.resolve().then(() => {
-        setIsStandalone(checkStandalone());
-        setIsIOS(isIOSDevice());
-    });
-
-    const checkVisibility = () => {
-      const dismissedAt = localStorage.getItem(STORAGE_KEY);
-      const cookieChoice = localStorage.getItem('daleel-cookie-consent');
-      
-      if (dismissedAt) {
-        const now = Date.now();
-        if (now - parseInt(dismissedAt) < DISMISS_DURATION) {
-          return false;
-        }
-      }
-      
-      return !!cookieChoice;
-    };
-
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setPrompt(e as BeforeInstallPromptEvent);
-      
-      if (checkVisibility()) {
-        setTimeout(() => setIsVisible(true), 12000);
-      }
-    };
-
-    if (isIOSDevice() && !checkStandalone() && checkVisibility()) {
-      setTimeout(() => setIsVisible(true), 15000);
+    if (checkStandalone()) {
+      setTimeout(() => setIsStandalone(true), 0);
+      return;
     }
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    setTimeout(() => setIsIOS(detectIOS()), 0);
+
+    // 3. Handle Chrome/Android "beforeinstallprompt"
+    const handler = (e: BeforeInstallPromptEvent) => {
+      e.preventDefault();
+      setPrompt(e);
+      checkVisibility();
+    };
+
+    window.addEventListener("beforeinstallprompt", handler);
+
+    // 4. Initial visibility check with delay, synchronized with Cookie Consent
+    const checkVisibility = () => {
+      const dismissedAt = localStorage.getItem(DISMISS_KEY);
+      const now = Date.now();
+
+      if (dismissedAt && now - parseInt(dismissedAt) < DISMISS_DURATION) {
+        return;
+      }
+
+      const showWithDelay = () => {
+        const timer = setTimeout(() => {
+          setIsVisible(true);
+        }, 12000); // 12s delay after everything is clear
+        return timer;
+      };
+
+      // If user hasn't made a cookie choice, wait for it
+      const cookieChoice = localStorage.getItem("daleel-cookie-consent");
+      if (!cookieChoice) {
+        const handleCookieChoice = () => {
+          showWithDelay();
+          window.removeEventListener(
+            "daleel-cookie-choice-made",
+            handleCookieChoice,
+          );
+        };
+        window.addEventListener(
+          "daleel-cookie-choice-made",
+          handleCookieChoice,
+        );
+        return () =>
+          window.removeEventListener(
+            "daleel-cookie-choice-made",
+            handleCookieChoice,
+          );
+      } else {
+        const timer = showWithDelay();
+        return () => clearTimeout(timer);
+      }
+    };
+
+    const cleanupTimeout = checkVisibility();
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener("beforeinstallprompt", handler);
+      if (typeof cleanupTimeout === "function") cleanupTimeout();
     };
-  }, [mounted]);
+  }, []);
 
   const handleInstall = async () => {
     if (!prompt) return;
-
-    await prompt.prompt();
+    prompt.prompt();
     const { outcome } = await prompt.userChoice;
-    
-    if (outcome === 'accepted') {
+    if (outcome === "accepted") {
       setIsVisible(false);
     }
     setPrompt(null);
@@ -104,63 +117,82 @@ export default function PWAInstallPrompt() {
 
   const handleDismiss = () => {
     setIsVisible(false);
-    localStorage.setItem(STORAGE_KEY, Date.now().toString());
+    localStorage.setItem(DISMISS_KEY, Date.now().toString());
   };
 
-  if (!mounted || isStandalone || !isVisible) return null;
+  if (isStandalone || !isVisible) return null;
 
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ y: 100, opacity: 0 }}
+        initial={{ y: 200, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        className="fixed bottom-24 left-4 right-4 z-50 lg:hidden"
+        exit={{ y: 200, opacity: 0 }}
+        className="fixed bottom-24 lg:bottom-6 left-2 right-2 sm:left-auto sm:right-6 sm:w-96 z-50 pointer-events-none"
       >
-        <div className="bg-background/95 backdrop-blur-xl border border-primary/20 rounded-3xl p-4 shadow-2xl shadow-primary/10">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Smartphone className="w-6 h-6 text-primary" />
+        <div className="pointer-events-auto bg-surface/90 backdrop-blur-xl border border-primary/10 shadow-2xl rounded-3xl p-3 sm:p-5 relative overflow-hidden">
+          {/* Decorative background circle */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full pointer-events-none" />
+
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-primary rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
+              <Image
+                src="/favicon-circular.ico"
+                alt="Logo"
+                width={36}
+                height={36}
+                className="rounded-full w-7 h-7 sm:w-9 sm:h-9"
+              />
             </div>
-            
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-bold text-text-primary">ثبت تطبيق دليل السويس</h3>
-              <p className="text-xs text-text-muted mt-1 leading-relaxed">
-                {isIOS 
-                  ? 'اضغط على أيقونة المشاركة ثم "إضافة إلى الشاشة الرئيسية" لتجربة أفضل.'
-                  : 'احصل على وصول أسرع وتجربة مستخدم أفضل بتثبيت التطبيق على جهازك.'}
+
+            <div className="flex-1 min-w-0" dir="rtl">
+              <h3 className="text-text-primary font-black text-[11px] sm:text-sm mb-0.5 truncate">
+                تطبيق دليل السويس 🚀
+              </h3>
+              <p className="text-text-muted text-[9px] sm:text-[11px] leading-tight line-clamp-1 sm:line-clamp-2">
+                تجربة أسرع للوصول لأهم الخدمات.
               </p>
             </div>
 
-            <button 
-              onClick={handleDismiss}
-              className="p-1 hover:bg-surface rounded-full transition-colors"
-            >
-              <X className="w-5 h-5 text-text-muted" />
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0" dir="rtl">
+              {!isIOS && (
+                <button
+                  onClick={handleInstall}
+                  className="bg-primary hover:bg-primary-hover text-white font-black px-4 py-2 rounded-xl transition-all shadow-md active:scale-95 text-[10px] sm:text-xs"
+                >
+                  تثبيت
+                </button>
+              )}
+              <button
+                onClick={handleDismiss}
+                className="p-1.5 text-text-muted hover:text-text-primary transition-colors"
+                aria-label="إغلاق"
+              >
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
           </div>
 
-          <div className="mt-4 flex gap-2">
-            {!isIOS && prompt && (
-              <button
-                onClick={handleInstall}
-                className="flex-1 bg-primary text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
-              >
-                <Download className="w-4 h-4" />
-                تثبيت الآن
-              </button>
-            )}
-            {isIOS && (
-              <div className="flex-1 bg-primary/5 text-primary text-[10px] font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 border border-primary/10">
-                <Share className="w-3.5 h-3.5" />
-                استخدم خيار &quot;إضافة للشاشة الرئيسية&quot;
-              </div>
-            )}
+          {isIOS && (
+            <div
+              className="mt-3 bg-primary/5 rounded-xl p-2 border border-primary/10"
+              dir="rtl"
+            >
+              <p className="text-[9px] text-primary font-bold flex items-center gap-1.5">
+                <Smartphone className="w-3 h-3" />
+                للتثبيت: اضغط <Share className="w-3 h-3 text-blue-500 inline" />{" "}
+                ثم &quot;إضافة للشاشة الرئيسية&quot;{" "}
+                <PlusSquare className="w-3 h-3 text-blue-500 inline" />
+              </p>
+            </div>
+          )}
+
+          <div className="hidden sm:block mt-4">
             <button
               onClick={handleDismiss}
-              className="px-4 py-2.5 text-xs font-bold text-text-muted hover:text-text-primary transition-colors"
+              className="w-full text-text-muted hover:text-text-primary text-[10px] font-bold py-1 transition-colors text-center"
             >
-              ليس الآن
+              ليس الآن، ربما لاحقاً
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Script from "next/script";
 
 // Global counter to stagger ad loading to prevent atOptions collision
 let adLoadCounter = 0;
@@ -163,34 +164,28 @@ export function ContainerAd({
   invokeId?: string;
   scriptSrc?: string;
 }) {
-  const bannerRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // Defer mounting to avoid immediate cascading render warnings
     Promise.resolve().then(() => setIsMounted(true));
   }, []);
 
-  useEffect(() => {
-    if (!isMounted || !bannerRef.current) return;
-
-    const script = document.createElement("script");
-    script.id = invokeId;
-    script.src = scriptSrc;
-    script.async = true;
-    script.setAttribute("data-cfasync", "false");
-    
-    bannerRef.current.appendChild(script);
-
-    return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
-  }, [isMounted, invokeId, scriptSrc]);
-
+  // Always render the parent div for SSR stability.
   return (
-    <div className="flex justify-center items-center my-4 min-h-[50px]" ref={bannerRef}>
-      {isMounted && <div id={containerId}></div>}
+    <div className="flex justify-center items-center my-4 min-h-[50px]">
+      {isMounted && (
+        <>
+          <Script
+            id={invokeId}
+            async={true}
+            data-cfasync="false"
+            src={scriptSrc}
+            strategy="afterInteractive"
+          />
+          <div id={containerId}></div>
+        </>
+      )}
     </div>
   );
 }
