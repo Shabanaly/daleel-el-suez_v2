@@ -24,6 +24,7 @@ import PWAInstallPrompt from "@/components/pwa/PWAInstallPrompt";
 import CookieConsent from "@/components/common/CookieConsent";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import { APP_CONFIG, ROUTES } from "@/constants";
+import { AdsenseScript } from "@/components/common/AdsenseScript";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -148,12 +149,7 @@ export default async function RootLayout({
         className={`${cairo.variable} ${inter.variable} antialiased font-sans min-h-screen pb-28 lg:pb-0`}
         suppressHydrationWarning
       >
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        <AdsenseScript />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
