@@ -68,7 +68,6 @@ export const PlaceCard = memo(function PlaceCard({ place, index = 0, className =
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="transition-transform duration-500 group-hover:scale-110 object-cover"
-                    priority={index === 0}
                     onErrorAction={() => {
                         if (imgIndex < candidateImages.length) {
                             setImgIndex(prev => prev + 1);

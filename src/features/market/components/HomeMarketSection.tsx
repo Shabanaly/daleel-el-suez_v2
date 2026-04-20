@@ -27,9 +27,9 @@ export default async function HomeMarketSection() {
             />
 
             <div className="flex overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 gap-6 md:gap-8 pb-10">
-                {ads.map((ad, idx) => (
+                {ads.map((ad) => (
                     <div key={ad.id} className="min-w-[260px] md:min-w-0 flex-1">
-                        <AdCard ad={ad} priority={idx < 4} />
+                        <AdCard ad={ad} />
                     </div>
                 ))}
             </div>
