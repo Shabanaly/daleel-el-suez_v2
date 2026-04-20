@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, X } from 'lucide-react';
 import CustomLink from '@/components/customLink/customLink';
@@ -16,6 +16,12 @@ export default function CookieConsent() {
     if (!consent) {
       // Show after a short delay to not overwhelm the UI immediately
       const timer = setTimeout(() => {
+        // Defense mechanism: Do not show in AdSense preview or iframes
+        try {
+            if (window.self !== window.top) return;
+        } catch {
+            return; // Cross-origin security error means we are in an iframe
+        }
         setIsVisible(true);
       }, 2000);
       return () => clearTimeout(timer);

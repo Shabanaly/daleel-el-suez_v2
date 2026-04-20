@@ -430,7 +430,6 @@ export default function SearchAutocomplete({
                                     <ChevronRight className="w-6 h-6 rtl:rotate-0 ltr:rotate-180" />
                                 </button>
                                 <input
-                                    autoFocus
                                     type="text"
                                     enterKeyHint="search"
                                     value={value}

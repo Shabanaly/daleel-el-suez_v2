@@ -67,6 +67,11 @@ export default function PWAInstallPrompt() {
 
       const showWithDelay = () => {
         const timer = setTimeout(() => {
+          try {
+              if (window.self !== window.top) return; // Defense against AdSense preview iframes
+          } catch (e) {
+              return;
+          }
           setIsVisible(true);
         }, 12000); // 12s delay after everything is clear
         return timer;
