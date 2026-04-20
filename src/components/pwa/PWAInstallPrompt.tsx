@@ -21,12 +21,19 @@ const DISMISS_KEY = 'pwa-prompt-dismissed';
 const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export default function PWAInstallPrompt() {
+  const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     const checkStandalone = () => {
       return (
         window.matchMedia('(display-mode: standalone)').matches ||

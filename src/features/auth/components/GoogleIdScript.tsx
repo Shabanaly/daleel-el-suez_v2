@@ -37,8 +37,15 @@ export function GoogleIdScript() {
 
     return (
         <Script 
+            id="google-gsi-client"
             src="https://accounts.google.com/gsi/client" 
-            strategy="afterInteractive"
+            strategy="lazyOnload"
+            onLoad={() => {
+                console.log('[GSI] Google Sign-In script loaded successfully');
+            }}
+            onError={(e) => {
+                console.error('[GSI] Google Sign-In script failed to load', e);
+            }}
         />
     );
 }

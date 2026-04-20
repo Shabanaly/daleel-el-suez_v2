@@ -6,23 +6,29 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
 export default function LoadingScreen() {
+    const [mounted, setMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [progress, setProgress] = useState(0);
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     // Reset loading state when route changes
     useEffect(() => {
+        if (!mounted) return;
         const timer = setTimeout(() => {
             setIsLoading(false);
             setProgress(0);
         }, 0);
         return () => clearTimeout(timer);
-    }, [pathname, searchParams]);
+    }, [pathname, searchParams, mounted]);
 
     // Simulated progress logic
     useEffect(() => {
-        if (!isLoading) return;
+        if (!isLoading || !mounted) return;
         
         const interval = setInterval(() => {
             setProgress(prev => {

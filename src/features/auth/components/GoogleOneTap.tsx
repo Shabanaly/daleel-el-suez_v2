@@ -59,19 +59,23 @@ export function GoogleOneTap({ clientId }: GoogleOneTapProps) {
                     },
                     auto_select: false,
                     cancel_on_tap_outside: false,
-                    use_fedcm_for_prompt: true, // Enable FedCM for better browser support
+                    use_fedcm_for_prompt: false, // Disable FedCM to prevent NetworkErrors in restricted environments like AdSense preview
                 });
 
                 // Small delay to let the page settle
                 timeoutId = setTimeout(() => {
-                    if (window.google && !user) {
+                    if (window.google && !user && !initialized.current) {
                         try {
-                            window.google.accounts.id.prompt();
+                            window.google.accounts.id.prompt((notification) => {
+                                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                                    console.log('[GSI] One Tap skipped or not displayed:', notification.getNotDisplayedReason());
+                                }
+                            });
                         } catch (promptErr) {
                             console.error('[GSI] One Tap Prompt Error:', promptErr);
                         }
                     }
-                }, 1500);
+                }, 3000); // Increased delay to 3s for better stability
 
                 initialized.current = true;
             } catch (error) {
@@ -122,7 +126,11 @@ declare global {
                         cancel_on_tap_outside?: boolean;
                         use_fedcm_for_prompt?: boolean;
                     }) => void;
-                    prompt: () => void;
+                    prompt: (callback?: (notification: {
+                        isNotDisplayed: () => boolean;
+                        isSkippedMoment: () => boolean;
+                        getNotDisplayedReason: () => string;
+                    }) => void) => void;
                     cancel: () => void;
                 };
             };
