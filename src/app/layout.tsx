@@ -22,6 +22,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import PWAInstallPrompt from "@/components/pwa/PWAInstallPrompt";
 import CookieConsent from "@/components/common/CookieConsent";
+import ScrollToTop from "@/components/ui/ScrollToTop";
 import { APP_CONFIG, ROUTES } from "@/constants";
 import "./globals.css";
 
@@ -199,17 +200,21 @@ export default async function RootLayout({
                     <CommentsProvider>
                       <AnnouncementTicker announcements={announcements} />
                       <Navbar />
-                      <DesktopSidebar />
-                      <LeftSidebar />
-                      <MainContentWrapper>
-                        {children}
-                        {/* Show Footer only on desktop, balanced between sidebars */}
-                        <div className="hidden lg:block">
-                          <Footer />
-                        </div>
-                      </MainContentWrapper>
+                      
+                      <div className="lg:flex lg:flex-row w-full min-h-screen relative">
+                        <DesktopSidebar />
+                        <MainContentWrapper>
+                          {children}
+                          {/* Show Footer only on desktop, balanced between sidebars */}
+                          <div className="hidden lg:block">
+                            <Footer />
+                          </div>
+                        </MainContentWrapper>
+                        <LeftSidebar />
+                      </div>
 
                       <BottomNav />
+                      <ScrollToTop />
                       <Analytics />
                       <SpeedInsights />
                     </CommentsProvider>

@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
-import { useScrollPosition } from '@/hooks/useScrollPosition';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 interface AppBarProps {
     title: string | React.ReactNode;
@@ -12,6 +12,7 @@ interface AppBarProps {
     transparent?: boolean;
     actions?: React.ReactNode;
     className?: string;
+    behavior?: 'fixed' | 'shy';
 }
 
 export function AppBar({
@@ -21,10 +22,12 @@ export function AppBar({
     onBack,
     transparent = false,
     actions,
-    className = ''
+    className = '',
+    behavior = 'fixed'
 }: AppBarProps) {
     const router = useRouter();
-    const scrollY = useScrollPosition();
+    const { scrollDirection, scrollY } = useScrollDirection();
+    const isShy = behavior === 'shy';
 
     // Determine when background becomes solid and blurry
     const isSolid = !transparent || scrollY > 20;
@@ -46,9 +49,10 @@ export function AppBar({
         <header 
             dir="rtl"
             className={`
-                fixed top-0 w-full z-50 px-3 h-14 md:hidden
-                flex items-center justify-between transition-all duration-300
+                ${isShy ? 'sticky' : 'fixed'} top-0 w-full z-50 px-3 h-14 md:hidden
+                flex items-center justify-between transition-all duration-500 ease-in-out
                 ${isSolid ? 'bg-background/80 backdrop-blur-xl border-b border-border-subtle/50' : 'bg-transparent border-transparent'}
+                ${isShy && scrollDirection === 'down' ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}
                 ${className}
             `}
         >

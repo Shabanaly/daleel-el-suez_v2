@@ -25,7 +25,7 @@ import { Suspense } from "react";
 import CommunityTeaserWrapper from "@/features/community/components/CommunityTeaserWrapper";
 import { getMarketHomePageData } from "@/features/market/actions/market.server";
 import AdSlot from "@/components/common/AdSlot";
-import { Banner320x50 } from "@/components/common/ThirdPartyAds";
+import { Banner320x50, Banner728x90, ContainerAd } from "@/components/common/ThirdPartyAds";
 import { getRecentBlogPosts } from "@/features/blog/actions/blog";
 import HomeBlogSection from "@/features/blog/components/HomeBlogSection";
 import FaqJsonLd from "@/components/seo/FaqJsonLd";
@@ -84,7 +84,15 @@ export default async function Home() {
       <Hero categories={categories} ads={heroAds} />
 
       <TrendingPlaces />
+
+      {/* ✅ Desktop Banner - بعد الأماكن الرائجة */}
+      <AdSlot exactPaths={[ROUTES.HOME]} device="desktop" className="w-full px-4">
+        <Banner728x90 containerId="ad-home-top-desktop" />
+      </AdSlot>
+
       <NewPlaces />
+
+      {/* ✅ Mobile Banner - بعد الأماكن الجديدة */}
       <AdSlot exactPaths={[ROUTES.HOME]} device="mobile" className="w-full px-4">
         <Banner320x50 containerId="ad-home-middle" />
       </AdSlot>
@@ -102,6 +110,11 @@ export default async function Home() {
       <Suspense fallback={<div className="h-40 w-full animate-pulse bg-surface rounded-3xl" />}>
         <CommunityTeaserWrapper />
       </Suspense>
+
+      {/* ✅ Container Ad - قبل CTA (كل الأجهزة) */}
+      <AdSlot exactPaths={[ROUTES.HOME]} className="w-full px-4">
+        <ContainerAd />
+      </AdSlot>
 
       {/* Call to action banner at the end */}
       <section className="w-full max-w-7xl mx-auto px-4 pb-6 md:pb-12">

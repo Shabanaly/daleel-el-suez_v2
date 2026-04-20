@@ -70,35 +70,38 @@ export default function DesktopSidebar() {
   if (isAuthPage || isAdminPage) return null;
 
   return (
-    <aside className="group/sidebar hidden lg:flex fixed top-[calc(64px+var(--ticker-height,0px))] right-0 z-40 w-20 hover:w-56 h-[calc(100vh-64px-var(--ticker-height,0px))] flex-col bg-surface/50 dark:bg-background/50 backdrop-blur-2xl border-l border-border-subtle shadow-[20px_0_50px_rgba(0,0,0,0.1)] hover:shadow-[30px_0_60px_rgba(0,0,0,0.15)] transition-all duration-300 ease-in-out overflow-visible">
-
-
-      {/* Content: Navigation Items */}
-      <div className="flex flex-col gap-1 p-2 group-hover/sidebar:p-3 h-full transition-all duration-300">
-        <div className="flex flex-col gap-2">
-          {SIDEBAR_ITEMS.map((item, index) => (
-            <SidebarItem
-              key={index}
-              {...item}
-              active={pathname === item.href}
-            />
-          ))}
-        </div>
-        {/* Bottom section with Logout */}
-        <div className="mt-auto pt-4 space-y-2 pb-2">
-          {user && (
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center group-hover/sidebar:justify-start p-2 group-hover/sidebar:p-3 rounded-xl bg-accent/5 hover:bg-accent/10 border border-accent/10 text-accent transition-all font-bold group/logout active:scale-95"
-            >
-              <div className="flex items-center gap-0 group-hover/sidebar:gap-3">
-                <LogOut className="w-5 h-5 shrink-0 group-hover/logout:-translate-x-1 transition-transform" />
-                <span className="text-sm border-0 whitespace-nowrap opacity-0 w-0 group-hover/sidebar:opacity-100 group-hover/sidebar:w-auto overflow-hidden transition-all duration-300">
-                  تسجيل الخروج
-                </span>
-              </div>
-            </button>
-          )}
+    <aside className="hidden lg:flex sticky top-16 z-40 w-20 h-[calc(100vh-64px)] flex-col">
+      {/* Structural Container: Stays fixed at 80px to reserve space */}
+      <div className="absolute top-0 right-0 h-full w-20 hover:w-56 group/sidebar bg-surface/50 dark:bg-background/50 backdrop-blur-2xl border-l border-border-subtle shadow-[-20px_0_50px_rgba(0,0,0,0.1)] hover:shadow-[-30px_0_60px_rgba(0,0,0,0.15)] transition-all duration-300 ease-in-out overflow-visible">
+        
+        {/* Content: Navigation Items */}
+        <div className="flex flex-col gap-1 p-2 group-hover/sidebar:p-3 h-full transition-all duration-300 overflow-hidden">
+          <div className="flex flex-col gap-2">
+            {SIDEBAR_ITEMS.map((item, index) => (
+              <SidebarItem
+                key={index}
+                {...item}
+                active={pathname === item.href}
+              />
+            ))}
+          </div>
+          
+          {/* Bottom section with Logout */}
+          <div className="mt-auto pt-4 space-y-2 pb-2">
+            {user && (
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center group-hover/sidebar:justify-start p-2 group-hover/sidebar:p-3 rounded-xl bg-accent/5 hover:bg-accent/10 border border-accent/10 text-accent transition-all font-bold group/logout active:scale-95"
+              >
+                <div className="flex items-center gap-0 group-hover/sidebar:gap-3">
+                  <LogOut className="w-5 h-5 shrink-0 group-hover/logout:-translate-x-1 transition-transform" />
+                  <span className="text-sm border-0 whitespace-nowrap opacity-0 w-0 group-hover/sidebar:opacity-100 group-hover/sidebar:w-auto overflow-hidden transition-all duration-300">
+                    تسجيل الخروج
+                  </span>
+                </div>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </aside>

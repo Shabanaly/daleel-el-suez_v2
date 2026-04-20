@@ -1,7 +1,5 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-unused-vars */
- 
- 
 
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState, useCallback, useMemo } from "react";
@@ -12,7 +10,9 @@ interface AnnouncementTickerProps {
   announcements: Announcement[];
 }
 
-export default function AnnouncementTicker({ announcements }: AnnouncementTickerProps) {
+export default function AnnouncementTicker({
+  announcements,
+}: AnnouncementTickerProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -35,7 +35,7 @@ export default function AnnouncementTicker({ announcements }: AnnouncementTicker
     } else {
       root.style.setProperty("--ticker-height", "0px");
     }
-    
+
     return () => {
       root.style.setProperty("--ticker-height", "0px");
     };
@@ -43,7 +43,7 @@ export default function AnnouncementTicker({ announcements }: AnnouncementTicker
 
   const onRefChange = useCallback((node: HTMLDivElement | null) => {
     if (!node) return;
-    
+
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         setHeight(entry.contentRect.height);
@@ -58,16 +58,17 @@ export default function AnnouncementTicker({ announcements }: AnnouncementTicker
     setCurrentIndex((prev) => (prev + 1) % announcements.length);
   }, [announcements.length]);
 
-
   const prevAnnouncement = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + announcements.length) % announcements.length);
+    setCurrentIndex(
+      (prev) => (prev - 1 + announcements.length) % announcements.length,
+    );
   }, [announcements.length]);
 
   useEffect(() => {
     if (!isVisible || isPaused || announcements.length <= 1) return;
 
     // Increased interval to account for word-by-word reveal time
-    const timer = setInterval(nextAnnouncement, 7000); 
+    const timer = setInterval(nextAnnouncement, 7000);
     return () => clearInterval(timer);
   }, [isVisible, isPaused, announcements.length, nextAnnouncement]);
 
@@ -87,7 +88,6 @@ export default function AnnouncementTicker({ announcements }: AnnouncementTicker
   const current = announcements[currentIndex];
   if (!current) return null; // Safety check
 
-
   return (
     <AnimatePresence>
       <motion.div
@@ -99,12 +99,10 @@ export default function AnnouncementTicker({ announcements }: AnnouncementTicker
         onMouseLeave={() => setIsPaused(false)}
         className="relative isolate flex items-center bg-elevated/80 backdrop-blur-md px-2 sm:px-4 py-2 border-b border-border-subtle z-60"
       >
-
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-1 sm:gap-4">
-          
           {/* Controls - Previous */}
           {announcements.length > 1 && (
-            <button 
+            <button
               onClick={prevAnnouncement}
               className="p-1 text-text-muted hover:text-text-primary transition-colors shrink-0"
               aria-label="السابق"
@@ -132,17 +130,17 @@ export default function AnnouncementTicker({ announcements }: AnnouncementTicker
           {/* Controls - Next & Close */}
           <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
             {announcements.length > 1 && (
-              <button 
+              <button
                 onClick={nextAnnouncement}
                 className="p-1 text-text-muted hover:text-text-primary transition-colors"
                 aria-label="التالي"
               >
                 <ChevronLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
               </button>
-            ) }
-            
+            )}
+
             <div className="w-px h-3 sm:h-4 bg-border-subtle mx-0.5 sm:mx-1" />
-            
+
             <button
               onClick={handleDismiss}
               className="p-1 text-text-muted hover:text-error transition-colors"
@@ -171,8 +169,8 @@ function StaggeredAnnouncement({ item }: { item: Announcement }) {
 
   // Special variant for the label: Vertical Flip
   const labelVariant = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 15,
       rotateX: -90,
     },
@@ -184,7 +182,7 @@ function StaggeredAnnouncement({ item }: { item: Announcement }) {
         type: "spring" as const,
         damping: 15,
         stiffness: 150,
-        duration: 0.5
+        duration: 0.5,
       },
     },
   };
@@ -207,23 +205,22 @@ function StaggeredAnnouncement({ item }: { item: Announcement }) {
     },
   };
 
-
   const content = (
-    <motion.span 
+    <motion.span
       variants={container}
       initial="hidden"
       animate="visible"
       className="flex items-center justify-center gap-x-1.5 text-xs sm:text-sm font-medium text-text-primary/90 whitespace-nowrap overflow-hidden"
     >
-      <motion.span 
-        variants={labelVariant} 
+      <motion.span
+        variants={labelVariant}
         className="shrink-0 flex items-center justify-center px-1.5 py-0.5 bg-primary/10 rounded-md border border-primary/20 ml-1 origin-center"
       >
         <strong className="text-[10px] uppercase font-bold text-primary tracking-wider">
           {item.label || "هام"}
         </strong>
       </motion.span>
-      
+
       <div className="flex items-center gap-x-1.5 overflow-hidden text-ellipsis">
         {words.map((word, index) => (
           <motion.span
@@ -238,10 +235,12 @@ function StaggeredAnnouncement({ item }: { item: Announcement }) {
     </motion.span>
   );
 
-
   if (item.link) {
     return (
-      <a href={item.link} className="hover:underline hover:text-primary transition-all decoration-primary/30 underline-offset-4">
+      <a
+        href={item.link}
+        className="hover:underline hover:text-primary transition-all decoration-primary/30 underline-offset-4"
+      >
         {content}
       </a>
     );

@@ -139,9 +139,10 @@ export default async function BlogPostPage({
         title={post.title} 
         backHref={ROUTES.BLOG} 
         titleBehavior="scroll-reveal"
+        behavior="shy"
       />
 
-      <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-16 md:px-6 md:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-4 md:px-6 md:py-10">
         <article className="overflow-hidden rounded-[36px] border border-border-subtle/60 bg-surface shadow-xl shadow-slate-200/20">
           {post.imageUrl && (
             <div className="relative aspect-16/7 overflow-hidden bg-elevated">

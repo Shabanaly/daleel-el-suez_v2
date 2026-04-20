@@ -187,19 +187,27 @@ export function PlacesClient({
                 {filtered.map((place, idx) => (
                   <Fragment key={place.id}>
                     <PlaceCard place={place} index={idx} />
-                    {idx % 2 === 0 ? (
-                      <AdSlot device="mobile" className="w-full mb-2">
-                        <Banner320x50
-                          containerId={`ad-places-list-mobile-${idx}`}
-                        />
-                      </AdSlot>
-                    ) : idx === 1 ? (
-                      <AdSlot device="desktop" className="w-full mb-2">
-                        <Rectangle300x250
-                          containerId={`ad-places-list-desktop-${idx}`}
-                        />
-                      </AdSlot>
-                    ) : null}
+
+                    {/* 🎯 Strategic Ad Injection */}
+                    
+                    {/* Desktop Ad: Placed at index 2 (Position 3) and index 8 (Position 9) */}
+                    {/* These perfectly fill the last cell of the 1st and 3rd rows in a 3-column grid */}
+                    {(idx === 2 || idx === 8) && (
+                      <div className="hidden lg:flex items-center justify-center p-5 rounded-[32px] border border-border-subtle/60 bg-surface/40 backdrop-blur-sm shadow-sm h-full min-h-[380px]">
+                        <AdSlot device="desktop" showLabel={true}>
+                          <Rectangle300x250 containerId={`ad-places-desktop-pos-${idx}`} />
+                        </AdSlot>
+                      </div>
+                    )}
+
+                    {/* Mobile/Tablet Ad: Placed after every 4 items (Index 3, 7, 11...) */}
+                    {((idx + 1) % 4 === 0) && (
+                      <div className="lg:hidden w-full p-4 rounded-[28px] border border-border-subtle/50 bg-surface/30 flex items-center justify-center">
+                        <AdSlot device="mobile" showLabel={true}>
+                          <Rectangle300x250 containerId={`ad-places-mobile-pos-${idx}`} />
+                        </AdSlot>
+                      </div>
+                    )}
                   </Fragment>
                 ))}
               </motion.div>

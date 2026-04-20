@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
  
  
 import type { Metadata } from 'next';
@@ -69,10 +69,10 @@ export default async function BlogPage({
   ]);
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-6 md:py-10">
+    <>
       <BlogHeader categories={categories} />
-      
-      <section className="relative overflow-hidden rounded-[36px] border border-border-subtle/60 bg-linear-to-br from-primary/10 via-surface to-accent/10 px-6 pb-8 pt-16 md:px-10 md:py-12">
+      <div className="mx-auto w-full max-w-6xl px-4 pb-8 pt-4 md:px-6 md:pb-10 md:pt-10">
+        <section className="relative overflow-hidden rounded-[36px] border border-border-subtle/60 bg-linear-to-br from-primary/10 via-surface to-accent/10 px-6 pb-8 pt-16 md:px-10 md:py-12">
         <div className="absolute -top-24 left-0 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-48 w-48 rounded-full bg-accent/10 blur-3xl" />
         <div className="relative space-y-4">
@@ -93,7 +93,15 @@ export default async function BlogPage({
 
       <BlogCategoryNav categories={categories} />
 
-   
+      {/* ✅ Desktop Banner - فوق جريد المقالات */}
+      <AdSlot prefixPaths={[ROUTES.BLOG]} device="desktop" className="w-full mt-4">
+        <Banner728x90 containerId="ad-blog-top-desktop" />
+      </AdSlot>
+
+      {/* ✅ Mobile Banner - فوق جريد المقالات */}
+      <AdSlot prefixPaths={[ROUTES.BLOG]} device="mobile" className="w-full mt-4">
+        <Banner320x50 containerId="ad-blog-top-mobile" />
+      </AdSlot>
 
       <section className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {posts.map((post, index) => (
@@ -119,6 +127,7 @@ export default async function BlogPage({
       )}
 
       <BlogPaginationNav currentPage={currentPage} totalPages={totalPages} basePath={ROUTES.BLOG} />
-    </div>
+      </div>
+    </>
   );
 }

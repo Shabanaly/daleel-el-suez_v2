@@ -59,6 +59,7 @@ export default async function CommunityPage({
   return (
     <div className="min-h-screen bg-background pb-20 pt-20 md:pt-28 px-4 md:px-8">
       <div className="max-w-3xl mx-auto">
+
         <CommunityClient
           initialPosts={posts}
           categories={categories}

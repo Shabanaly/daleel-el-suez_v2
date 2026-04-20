@@ -45,13 +45,17 @@ const EMPTY_FORM = {
 };
 
 function toLocalInputValue(value?: string) {
-  if (!value) return ""; 
+  if (!value) return "";
   try {
-    return new Date(value).toISOString().slice(0, 16);
+    const date = new Date(value);
+    // تعديل الفارق الزمني المحلي لعرض الوقت الصحيح داخل الـ input
+    const offset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - offset).toISOString().slice(0, 16);
   } catch {
     return "";
   }
 }
+
 
 export function BlogAdminClient({
   initialPosts,

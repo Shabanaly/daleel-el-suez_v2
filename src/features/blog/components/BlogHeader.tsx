@@ -70,6 +70,7 @@ export default function BlogHeader({ categories }: BlogHeaderProps) {
     <AppBar
       title="المدونة"
       backHref={ROUTES.HOME}
+      behavior="shy"
       actions={
         <ContextMenu
           trigger={<FilterTrigger isMobile />}

@@ -76,7 +76,7 @@ function AtOptionsAd({
   // Only render the containerId div and scripts AFTER mounting.
   return (
     <div
-      className="flex justify-center items-center my-4 overflow-hidden min-h-[50px] w-full"
+      className="flex justify-center items-center my-4 min-h-[50px] w-full"
       ref={bannerRef}
     >
       {isMounted && containerId && <div id={containerId}></div>}
@@ -92,7 +92,7 @@ export function Banner728x90({ containerId }: { containerId?: string }) {
       format="iframe"
       height={90}
       width={728}
-      scriptSrc="//www.highperformanceformat.com/843d15223e56c8a9f4d9d3f9541ddfb4/invoke.js"
+      scriptSrc="https://www.highperformanceformat.com/843d15223e56c8a9f4d9d3f9541ddfb4/invoke.js"
       containerId={containerId}
     />
   );
@@ -106,7 +106,7 @@ export function Banner468x60({ containerId }: { containerId?: string }) {
       format="iframe"
       height={60}
       width={468}
-      scriptSrc="//www.highperformanceformat.com/76b98c6858820b366a5e8cb28287c016/invoke.js"
+      scriptSrc="https://www.highperformanceformat.com/76b98c6858820b366a5e8cb28287c016/invoke.js"
       containerId={containerId}
     />
   );
@@ -120,7 +120,7 @@ export function Rectangle300x250({ containerId }: { containerId?: string }) {
       format="iframe"
       height={250}
       width={300}
-      scriptSrc="//www.highperformanceformat.com/87b18c7b582e69eb6add705c6d7deb3d/invoke.js"
+      scriptSrc="https://www.highperformanceformat.com/87b18c7b582e69eb6add705c6d7deb3d/invoke.js"
       containerId={containerId}
     />
   );
@@ -134,7 +134,7 @@ export function Vertical160x600({ containerId }: { containerId?: string }) {
       format="iframe"
       height={600}
       width={160}
-      scriptSrc="//www.highperformanceformat.com/8cf7e83baee5427622d7e33fa975fb14/invoke.js"
+      scriptSrc="https://www.highperformanceformat.com/8cf7e83baee5427622d7e33fa975fb14/invoke.js"
       containerId={containerId}
     />
   );
