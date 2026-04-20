@@ -1,6 +1,13 @@
-'use client';
+/**
+ * JsonLd — Root-level Organization & WebSite structured data.
+ *
+ * IMPORTANT: This is a Server Component with a plain <script> tag.
+ * Do NOT add 'use client' or use next/script here.
+ * Plain <script type="application/ld+json"> is rendered in the initial HTML
+ * so Google Bot and all crawlers see it immediately without executing JS.
+ */
 
-import Script from 'next/script';
+const BASE_URL = 'https://daleel-al-suez.com';
 
 export default function JsonLd() {
   const jsonLd = {
@@ -8,8 +15,8 @@ export default function JsonLd() {
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://daleel-al-suez.com/#website",
-        url: "https://daleel-al-suez.com",
+        "@id": `${BASE_URL}/#website`,
+        url: BASE_URL,
         name: "دليل السويس",
         alternateName: "Suez Guide",
         description:
@@ -19,22 +26,23 @@ export default function JsonLd() {
           "@type": "SearchAction",
           target: {
             "@type": "EntryPoint",
-            urlTemplate:
-              "https://daleel-al-suez.com/places?q={search_term_string}",
+            urlTemplate: `${BASE_URL}/places?q={search_term_string}`,
           },
           "query-input": "required name=search_term_string",
         },
       },
       {
         "@type": "Organization",
-        "@id": "https://daleel-al-suez.com/#organization",
-        url: "https://daleel-al-suez.com",
+        "@id": `${BASE_URL}/#organization`,
+        url: BASE_URL,
         name: "دليل السويس",
-        logo: "https://daleel-al-suez.com/apple-touch-icon.png",
+        logo: {
+          "@type": "ImageObject",
+          url: `${BASE_URL}/apple-touch-icon.png`,
+        },
         sameAs: [
           "https://www.facebook.com/daleel.al.suez",
           "https://www.instagram.com/daleel_al_suez",
-          "https://wa.me/201019979315"
         ],
         areaServed: {
           "@type": "State",
@@ -54,10 +62,8 @@ export default function JsonLd() {
   };
 
   return (
-    <Script
-      id="json-ld"
+    <script
       type="application/ld+json"
-      strategy="afterInteractive"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
     />
   );

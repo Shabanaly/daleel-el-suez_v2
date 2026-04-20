@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 
 import type { Metadata, Viewport } from "next";
 import { Cairo, Inter } from "next/font/google";
@@ -19,12 +19,14 @@ import { NotificationProvider } from "@/features/notifications/components/Notifi
 import { ToastProvider } from "@/features/notifications/components/ToastProvider";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import LoadingScreen from "@/components/ui/LoadingScreen";
+
+
 import PWAInstallPrompt from "@/components/pwa/PWAInstallPrompt";
 import CookieConsent from "@/components/common/CookieConsent";
 import ScrollToTop from "@/components/ui/ScrollToTop";
-import { APP_CONFIG, ROUTES } from "@/constants";
+import { APP_CONFIG } from "@/constants";
 import { AdsenseScript } from "@/components/common/AdsenseScript";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -38,7 +40,6 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-import { Suspense } from "react";
 import MainContentWrapper from "@/components/layout/MainContentWrapper";
 
 export const metadata: Metadata = {
@@ -92,14 +93,6 @@ export const metadata: Metadata = {
     title: `${APP_CONFIG.NAME} - ${APP_CONFIG.TAGLINE}`,
     description: APP_CONFIG.DESCRIPTION,
     locale: "ar_EG",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: APP_CONFIG.NAME,
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -150,6 +143,13 @@ export default async function RootLayout({
         suppressHydrationWarning
       >
         <AdsenseScript />
+        <NextTopLoader
+          color="var(--color-primary)"
+          height={3}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -185,9 +185,6 @@ export default async function RootLayout({
           <AuthProvider>
             <ToastProvider>
               <NotificationProvider>
-                <Suspense fallback={null}>
-                  <LoadingScreen />
-                </Suspense>
                 <PWAInstallPrompt />
                 <CookieConsent />
                 {googleClientId && <GoogleOneTap clientId={googleClientId} />}

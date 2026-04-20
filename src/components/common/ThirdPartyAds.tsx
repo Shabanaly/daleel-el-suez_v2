@@ -3,11 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import Script from "next/script";
 
-// Global counter to stagger ad loading to prevent atOptions collision
-let adLoadCounter = 0;
-
 /**
- * Reusable component for ad units that require atOptions configuration
+ * Reusable component for ad units that require atOptions configuration.
+ *
+ * FIX: Removed the module-level `adLoadCounter` global mutable variable
+ * that was leaking state between component instances in React Strict Mode
+ * and causing race conditions. Each ad now uses its own local ref for state.
+ * All DOM operations are wrapped in try/catch to prevent uncaught exceptions.
  */
 interface AtOptionsAdProps {
   id: string;
@@ -31,49 +33,47 @@ function AtOptionsAd({
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Defer mounting to avoid immediate cascading render warnings
-    Promise.resolve().then(() => setIsMounted(true));
+    // Use a microtask to safely defer mount after hydration
+    const id = setTimeout(() => setIsMounted(true), 0);
+    return () => clearTimeout(id);
   }, []);
 
   useEffect(() => {
-    if (!bannerRef.current || hasLoaded.current) return;
+    if (!isMounted || !bannerRef.current || hasLoaded.current) return;
 
-    const currentCounter = adLoadCounter++;
-    const delay = currentCounter * 800; // 800ms stagger between ads
+    hasLoaded.current = true;
 
-    const timer = setTimeout(() => {
+    try {
       if (!bannerRef.current) return;
-      hasLoaded.current = true;
 
-      // Create the script element for atOptions
+      // Create the atOptions config script
       const optionsScript = document.createElement("script");
       optionsScript.type = "text/javascript";
-      optionsScript.innerHTML = `
-                atOptions = {
-                    'key' : '${id}',
-                    'format' : '${format}',
-                    'height' : ${height || 0},
-                    'width' : ${width || 0},
-                    'params' : {},
-                    ${containerId ? `'container' : '${containerId}'` : ""}
-                };
-            `;
-
+      optionsScript.textContent = `
+        atOptions = {
+          'key' : '${id}',
+          'format' : '${format}',
+          'height' : ${height || 0},
+          'width' : ${width || 0},
+          'params' : {},
+          ${containerId ? `'container' : '${containerId}'` : ""}
+        };
+      `;
       bannerRef.current.appendChild(optionsScript);
 
       // Create the invoke script
       const invokeScript = document.createElement("script");
       invokeScript.type = "text/javascript";
       invokeScript.src = scriptSrc;
-
+      invokeScript.onerror = () => {
+        console.warn(`[ThirdPartyAds] Failed to load ad script: ${scriptSrc}`);
+      };
       bannerRef.current.appendChild(invokeScript);
-    }, delay);
+    } catch (err) {
+      console.warn("[ThirdPartyAds] Error loading ad:", err);
+    }
+  }, [isMounted, id, format, height, width, scriptSrc, containerId]);
 
-    return () => clearTimeout(timer);
-  }, [id, format, height, width, scriptSrc, containerId]);
-
-  // Hybrid Rendering: Always render the parent div to prevent hydration mismatch.
-  // Only render the containerId div and scripts AFTER mounting.
   return (
     <div
       className="flex justify-center items-center my-4 min-h-[50px] w-full"
@@ -167,11 +167,10 @@ export function ContainerAd({
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Defer mounting to avoid immediate cascading render warnings
-    Promise.resolve().then(() => setIsMounted(true));
+    const id = setTimeout(() => setIsMounted(true), 0);
+    return () => clearTimeout(id);
   }, []);
 
-  // Always render the parent div for SSR stability.
   return (
     <div className="flex justify-center items-center my-4 min-h-[50px]">
       {isMounted && (
@@ -182,6 +181,9 @@ export function ContainerAd({
             data-cfasync="false"
             src={scriptSrc}
             strategy="afterInteractive"
+            onError={() =>
+              console.warn(`[ContainerAd] Failed to load: ${scriptSrc}`)
+            }
           />
           <div id={containerId}></div>
         </>
