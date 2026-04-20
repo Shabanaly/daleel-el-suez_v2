@@ -1,10 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
  
  
-import {
-  getHomeCategories,
-} from "@/features/taxonomy/actions/categories";
-import Hero from "@/components/home/Hero";
 import CategoryHighlight from "@/features/places/components/CategoryHighlight";
 import BestOfSuezHome from "@/features/places/components/BestOfSuezHome";
 import type { Metadata } from "next";
@@ -14,7 +9,6 @@ import NewPlaces from "@/features/places/components/NewPlaces";
 import TrendingPlaces from "@/features/places/components/TrendingPlaces";
 import CommunityPulse from "@/features/places/components/pulse/CommunityPulse";
 import CustomLink from "@/components/customLink/customLink";
-import { getActiveHeroAds } from "@/features/marketing/actions/hero.server";
 import { APP_CONFIG, ROUTES } from "@/constants";
 import { Suspense } from "react";
 import CommunityTeaserWrapper from "@/features/community/components/CommunityTeaserWrapper";
@@ -34,18 +28,16 @@ export const revalidate = 7200;
 
 import { SectionSkeleton, MarketSectionSkeleton, StatsSkeleton, DistrictsSkeleton } from "@/components/home/HomeSkeletons";
 import SuezStats from "@/features/stats/components/SuezStats";
+import Hero from "@/components/home/Hero";
 
 export default async function Home() {
-  // 🧠 Only fetch critical Above-the-Fold data
-  const [categories, heroAds] = await Promise.all([
-    getHomeCategories(),
-    getActiveHeroAds(),
-  ]);
-
   return (
     <div className="w-full flex flex-col items-center overflow-hidden">
       <FaqJsonLd />
-      <Hero categories={categories} ads={heroAds} />
+      
+      <Suspense fallback={<div className="w-full h-[60vh] animate-pulse bg-surface/50" />}>
+        <Hero />
+      </Suspense>
 
       <Suspense fallback={<SectionSkeleton />}>
         <TrendingPlaces />
@@ -77,7 +69,9 @@ export default async function Home() {
         <CategoryHighlight />
       </Suspense>
 
-      <CommunityPulse />
+      <Suspense fallback={<SectionSkeleton />}>
+        <CommunityPulse />
+      </Suspense>
 
       <Suspense fallback={<SectionSkeleton />}>
         <HomeBlogSection />
