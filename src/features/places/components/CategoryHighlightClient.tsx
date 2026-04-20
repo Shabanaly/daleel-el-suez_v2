@@ -1,11 +1,24 @@
-import { getSmartCategoryHighlights } from "@/features/taxonomy/actions/categories";
+'use client';
+
+import { Place } from '@/features/places/types';
 import * as LucideIcons from 'lucide-react';
 import { LucideIcon, HelpCircle } from 'lucide-react';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { PlaceCard } from '@/features/places/components/PlaceCard';
 
-export default async function CategoryHighlight() {
-    const data = await getSmartCategoryHighlights();
+interface CategoryHighlightProps {
+    data: {
+        category: {
+            id: number;
+            name: string;
+            icon: string;
+            slug: string;
+        };
+        places: Place[];
+    } | null;
+}
+
+export default function CategoryHighlight({ data }: CategoryHighlightProps) {
     if (!data || data.places.length === 0) return null;
 
     const { category, places } = data;

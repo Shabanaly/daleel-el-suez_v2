@@ -1,11 +1,16 @@
-import { getRecentBlogPosts } from '../actions/blog';
+'use client';
+
 import { ArrowLeft, BookOpenText } from 'lucide-react';
 import CustomLink from '@/components/customLink/customLink';
 import { ROUTES } from '@/constants';
 import { BlogCard } from './BlogCard';
+import type { BlogPostListItem } from '../types';
 
-export default async function HomeBlogSection() {
-  const posts = await getRecentBlogPosts();
+interface HomeBlogSectionProps {
+  posts: BlogPostListItem[];
+}
+
+export default function HomeBlogSection({ posts }: HomeBlogSectionProps) {
   if (!posts || posts.length === 0) return null;
 
   return (

@@ -51,15 +51,9 @@ export default function Error({
         </Link>
       </div>
 
-      {error.message && (
-        <p className="mt-4 text-xs text-red-500 font-mono bg-red-500/10 p-2 rounded max-w-lg overflow-auto">
-          Error: {error.message}
-        </p>
-      )}
-
-      {(error.digest || (error as any).digest) && (
+      {error.digest && (
         <span className="mt-8 text-[10px] text-text-muted opacity-50 font-mono">
-          Ref: {error.digest || (error as any).digest}
+          Ref: {error.digest}
         </span>
       )}
     </div>

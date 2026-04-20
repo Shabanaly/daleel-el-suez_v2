@@ -2,14 +2,10 @@ import { Award, ChevronLeft } from "lucide-react";
 import CustomLink from "@/components/customLink/customLink";
 import { ROUTES } from '@/constants';
 
-interface BestOfSuezHomeProps {
-    stats: {
-        verifiedCount: number;
-        reviewsCount: number;
-    }
-}
+import { getHomeUnifiedStats } from "@/features/stats/actions/stats.server";
 
-export default function BestOfSuezHome({ stats }: BestOfSuezHomeProps) {
+export default async function BestOfSuezHome() {
+    const stats = await getHomeUnifiedStats();
     return (
         <section className="w-full max-w-7xl mx-auto px-4 pt-0 pb-8 md:pt-0 md:pb-16">
             <div className="relative overflow-hidden rounded-[2.5rem] bg-surface border border-primary/10 shadow-3xl group">

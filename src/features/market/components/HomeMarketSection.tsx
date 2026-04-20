@@ -1,16 +1,16 @@
-"use client";
-
 import SectionHeader from '@/components/ui/SectionHeader';
 import { ShoppingBag } from 'lucide-react';
 import AdCard from '@/features/market/components/AdCard';
-import { MarketAd } from '@/features/market/types';
 import { ROUTES } from '@/constants';
+import { getMarketHomePageData } from '@/features/market/actions/market.server';
 
-interface HomeMarketSectionProps {
-    ads: MarketAd[];
-}
+export default async function HomeMarketSection() {
+    const marketData = await getMarketHomePageData();
+    const ads = [
+        ...marketData.trendingAds,
+        ...marketData.latestAds,
+    ].slice(0, 9);
 
-export default function HomeMarketSection({ ads }: HomeMarketSectionProps) {
     if (!ads || ads.length === 0) return null;
 
     return (

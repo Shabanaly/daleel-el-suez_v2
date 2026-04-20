@@ -3,13 +3,8 @@
  
 import {
   getHomeCategories,
-  getSmartCategoryHighlights,
 } from "@/features/taxonomy/actions/categories";
-import { getHomeDistricts } from "@/features/taxonomy/actions/districts";
-import { getHomeUnifiedStats } from "@/features/stats/actions/stats.server";
 import Hero from "@/components/home/Hero";
-import SuezStats from "@/features/stats/components/SuezStats";
-import CommunityTeaser from "@/features/community/components/CommunityTeaser";
 import CategoryHighlight from "@/features/places/components/CategoryHighlight";
 import BestOfSuezHome from "@/features/places/components/BestOfSuezHome";
 import type { Metadata } from "next";
@@ -23,10 +18,8 @@ import { getActiveHeroAds } from "@/features/marketing/actions/hero.server";
 import { APP_CONFIG, ROUTES } from "@/constants";
 import { Suspense } from "react";
 import CommunityTeaserWrapper from "@/features/community/components/CommunityTeaserWrapper";
-import { getMarketHomePageData } from "@/features/market/actions/market.server";
 import AdSlot from "@/components/common/AdSlot";
 import { Banner320x50, Banner728x90, ContainerAd } from "@/components/common/ThirdPartyAds";
-import { getRecentBlogPosts } from "@/features/blog/actions/blog";
 import HomeBlogSection from "@/features/blog/components/HomeBlogSection";
 import FaqJsonLd from "@/components/seo/FaqJsonLd";
 import SuezEncyclopedia from "@/components/home/SuezEncyclopedia";
@@ -36,72 +29,63 @@ export const metadata: Metadata = {
   description: APP_CONFIG.DESCRIPTION,
 };
 
-// ⚡ Optimization: Enable ISR (Revalidate every 1 hour)
-// This significantly reduces CPU usage on Vercel by caching the page shell.
-export const revalidate = 3600;
+// ⚡ Optimization: Enable ISR (Revalidate every 2 hours)
+export const revalidate = 7200;
+
+import { SectionSkeleton, MarketSectionSkeleton, StatsSkeleton, DistrictsSkeleton } from "@/components/home/HomeSkeletons";
+import SuezStats from "@/features/stats/components/SuezStats";
 
 export default async function Home() {
-  // 🧠 Fetch shared data (These use unstable_cache internally for maximum speed)
-  const [
-    categories,
-    districts,
-    smartCategoryData,
-    unifiedStats,
-    marketData,
-    heroAds,
-    posts,
-  ] = await Promise.all([
+  // 🧠 Only fetch critical Above-the-Fold data
+  const [categories, heroAds] = await Promise.all([
     getHomeCategories(),
-    getHomeDistricts(),
-    getSmartCategoryHighlights(),
-    getHomeUnifiedStats(),
-    getMarketHomePageData(),
     getActiveHeroAds(),
-    getRecentBlogPosts(),
   ]);
-
-  const homeMarketAds = [
-    ...marketData.trendingAds,
-    ...marketData.latestAds,
-  ].slice(0, 9); // Top 8 combined
-
-  // Map unified stats to specific component needs
-  const bestOfStats = {
-    verifiedCount: unifiedStats.verifiedCount,
-    reviewsCount: unifiedStats.reviewsCount,
-    totalViews: unifiedStats.formattedReach,
-  };
-
-  const suezStats = {
-    places: unifiedStats.places,
-    areas: unifiedStats.areas,
-    reach: unifiedStats.totalReachRaw,
-  };
 
   return (
     <div className="w-full flex flex-col items-center overflow-hidden">
       <FaqJsonLd />
       <Hero categories={categories} ads={heroAds} />
 
-      <TrendingPlaces />
+      <Suspense fallback={<SectionSkeleton />}>
+        <TrendingPlaces />
+      </Suspense>
 
       {/* ✅ Desktop Banner - بعد الأماكن الرائجة */}
       <AdSlot exactPaths={[ROUTES.HOME]} device="desktop" className="w-full px-4">
         <Banner728x90 containerId="ad-home-top-desktop" />
       </AdSlot>
 
-      <NewPlaces />
+      <Suspense fallback={<SectionSkeleton />}>
+        <NewPlaces />
+      </Suspense>
 
       {/* ✅ Mobile Banner - بعد الأماكن الجديدة */}
       <AdSlot exactPaths={[ROUTES.HOME]} device="mobile" className="w-full px-4">
         <Banner320x50 containerId="ad-home-middle" />
       </AdSlot>
-      <HomeMarketSection ads={homeMarketAds} />
-      <BestOfSuezHome stats={bestOfStats} />
-      {smartCategoryData && <CategoryHighlight data={smartCategoryData} />}
+
+      <Suspense fallback={<MarketSectionSkeleton />}>
+        <HomeMarketSection />
+      </Suspense>
+
+      <Suspense fallback={<div className="h-64 w-full px-4 mb-20 animate-pulse bg-surface/50 rounded-[48px]" />}>
+        <BestOfSuezHome />
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton />}>
+        <CategoryHighlight />
+      </Suspense>
+
       <CommunityPulse />
-      <HomeBlogSection posts={posts} />
-      <DistrictsExplorer districts={districts} />
+
+      <Suspense fallback={<SectionSkeleton />}>
+        <HomeBlogSection />
+      </Suspense>
+
+      <Suspense fallback={<DistrictsSkeleton />}>
+        <DistrictsExplorer />
+      </Suspense>
       
       {/* 🤖 AI Content Layer: Visible Encyclopedia */}
       <SuezEncyclopedia />
@@ -138,7 +122,9 @@ export default async function Home() {
         </div>
       </section>
 
-      <SuezStats stats={suezStats} />
+      <Suspense fallback={<StatsSkeleton />}>
+        <SuezStats />
+      </Suspense>
 
     </div>
   );
