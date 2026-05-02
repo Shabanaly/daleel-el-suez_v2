@@ -65,6 +65,7 @@ export function SafeImage({
       src={src}
       alt={alt}
       onError={handleError}
+      unoptimized={typeof src === "string" && src.startsWith("blob:")}
       // Add a key based on src so React forces a remount/reload of the img tag when src changes
       key={typeof src === "string" ? src : "img"}
       // Default sizes for optimization if fill is used

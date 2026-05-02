@@ -18,6 +18,7 @@ export const CACHE_KEYS = {
   blogRecent: "blog-recent",
   blogSitemap: "blog-sitemap",
   announcements: "announcements-list",
+  heroAds: "hero-ads-list",
 } as const;
 
 export const keys = {
@@ -58,6 +59,9 @@ export const keys = {
 
   // Announcements
   announcements: () => [CACHE_KEYS.announcements],
+
+  // Hero Ads
+  heroAds: () => [CACHE_KEYS.heroAds],
 
   // Favorites
   isFavorite: (userId: string, itemId: string) => [

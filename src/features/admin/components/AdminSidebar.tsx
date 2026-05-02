@@ -15,7 +15,8 @@ import {
     AlertTriangle,
     Settings,
     Globe,
-    Megaphone
+    Megaphone,
+    Tv
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -30,6 +31,7 @@ export default function AdminSidebar() {
     const navItems = [
         { href: '/admin', icon: LayoutDashboard, label: 'لوحة التحكم' },
         { href: '/admin/announcements', icon: Megaphone, label: 'شريط الإعلانات' },
+        { href: '/admin/hero-ads', icon: Tv, label: 'إعلانات الهيرو' },
         { href: '/admin/places', icon: MapPin, label: 'الأماكن' },
         { href: '/admin/users', icon: Users, label: 'المستخدمين' },
         { href: '/admin/market', icon: ShoppingBag, label: 'الماركت' },

@@ -6,8 +6,6 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { NotificationService } from '@/lib/notifications/service';
-import { NotificationEvent } from '@/lib/notifications/types';
 
 export type PlaceStatus = 'pending' | 'approved' | 'rejected';
 
